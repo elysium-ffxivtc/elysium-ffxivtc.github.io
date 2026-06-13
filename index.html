@@ -52,6 +52,29 @@
     </div>
   </section>
 
+  <script>
+    (function() {
+      var title = document.querySelector('.hero-title');
+      if (!title) return;
+      function fit() {
+        var available = title.parentElement.offsetWidth;
+        if (!available) return;
+        var lo = 1, hi = 400, best = 1;
+        title.style.fontSize = '1px';
+        while (lo <= hi) {
+          var mid = (lo + hi) >> 1;
+          title.style.fontSize = mid + 'px';
+          if (title.scrollWidth <= available) { best = mid; lo = mid + 1; }
+          else { hi = mid - 1; }
+        }
+        title.style.fontSize = best + 'px';
+      }
+      document.fonts.ready.then(function() {
+        requestAnimationFrame(function() { requestAnimationFrame(fit); });
+      });
+      window.addEventListener('resize', fit);
+    })();
+  </script>
   <script src="nav.js"></script>
 </body>
 </html>

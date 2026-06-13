@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Libre+Baskerville:wght@400;700&display=swap');
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -88,7 +88,7 @@ nav {
 .dropdown-menu a {
   display: block; padding: .45rem 1.3rem;
   font-family: 'Noto Serif TC', serif;
-  font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
+  font-size: .78rem; letter-spacing: .18em; text-transform: uppercase;
   color: var(--dim); text-decoration: none; transition: color .25s;
 }
 
@@ -122,29 +122,29 @@ nav {
 
 .hero-eyebrow {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1rem; letter-spacing: .2em;
-  color: #545454; display: block; margin-bottom: .3rem; text-align: left;
+  font-size: .85rem; letter-spacing: .2em;
+  color: #545454; display: block; margin-top: 5rem; margin-bottom: .3rem; text-align: left; position: relative; top: -0.4rem;
 }
 
 .hero-title-wrap { margin-bottom: .9rem; }
 
 .hero-title {
-  font-family: 'Sitka Banner', 'Yu Mincho', '游明朝体', '游明朝', serif;
-  font-size: 5.58rem;
-  font-weight: 700; letter-spacing: .02em;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 4.2rem; white-space: nowrap;
+  font-weight: 400; letter-spacing: .02em;
   color: #111;
   line-height: 1; margin-bottom: 0;
 }
 
 .hero-subtitle {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1.5rem; letter-spacing: .1em;
-  color: #111;
-  text-align: right; margin-top: -1.6rem;
+  font-size: 1.3rem; letter-spacing: .1em;
+  color: #545454;
+  text-align: right; margin-top: 0; position: relative; top: -0.8rem;
 }
 
 .hero-quote {
-  font-size: 1rem; line-height: 1.45; letter-spacing: .04em;
+  font-size: .92rem; line-height: 1.45; letter-spacing: .04em;
   color: #111;
   text-align: left;
   margin-bottom: 4.5rem;
@@ -152,10 +152,10 @@ nav {
 
 .hero-meta {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1rem; letter-spacing: .05em; color: #111;
+  font-size: .85rem; letter-spacing: .05em; color: #111;
   display: inline-block;
   border: 1px solid #111;
-  padding: .3rem .7rem;
+  padding: .6rem .7rem;
   background: rgba(255,255,255,.12);
   backdrop-filter: blur(8px);
 }
@@ -178,13 +178,13 @@ nav {
 }
 
 .cover-text .section-tag {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 16px; letter-spacing: .12em; font-weight: 700; color: #4E4E4E;
   margin-bottom: 0;
 }
 
 .cover-text .section-title {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 50.67px; font-weight: 700; line-height: 1.1; color: #111;
   margin-bottom: 1rem;
 }
@@ -236,7 +236,7 @@ nav {
 }
 
 h2.section-title {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: clamp(1.6rem, 2.5vw, 2.2rem);
   font-weight: 700; letter-spacing: .08em; color: var(--text);
   margin-bottom: 2rem; line-height: 1.35;
@@ -244,12 +244,12 @@ h2.section-title {
 
 h3.sub-title {
   font-family: 'Noto Serif TC', serif;
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 29.33px; font-weight: 700; letter-spacing: .07em;
   color: #111; margin: 4.5rem 0 .9rem;
 }
 
-p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem; text-align: justify; }
+p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem; text-align: justify; letter-spacing: .04em; }
 
 .line-divider {
   width: 50px; height: 1px; background: var(--border);
@@ -298,8 +298,8 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .about-dash {
-  font-size: .88rem; color: var(--text); margin-bottom: 1.1rem;
-  padding-left: 1rem;
+  font-size: .95rem; color: var(--text); margin-bottom: 1.1rem;
+  letter-spacing: .06em;
 }
 
 .about-glossary {
@@ -312,13 +312,13 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 .about-glossary-item {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 1.2rem 0.5rem;
+  padding: 1.2rem 1.5rem;
   display: flex; flex-direction: column; gap: .8rem;
 }
 
 
 .about-glossary-item dt {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 1.15rem; letter-spacing: .1em;
   color: #111; font-weight: 700;
   text-align: center;
@@ -328,7 +328,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .about-glossary-item dd {
   font-size: .95rem; color: #545454; line-height: 1.5; margin-left: 0;
-  text-align: center; margin-top: .2rem;
+  letter-spacing: .06em; text-align: center; margin-top: .2rem;
 }
 
 .about-link {
@@ -394,7 +394,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   margin-bottom: 3.5rem;
 }
 .members-section-head h2 {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 2rem; font-weight: 700; letter-spacing: .15em;
   color: var(--text); margin-bottom: .6rem;
 }
@@ -572,7 +572,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .modal-name {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 2rem; font-weight: 700; letter-spacing: .12em;
   color: var(--text); line-height: 1.2;
   margin-top: 0; margin-bottom: .5rem; text-align: left;
@@ -629,12 +629,12 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .nomen-hero {
   display: grid;
-  grid-template-columns: 58fr 42fr;
+  grid-template-columns: 62fr 38fr;
   padding-top: 90px;
 }
 
 .nomen-hero-text {
-  background: var(--bg);
+  background: #D7D7D7;
   padding: 2.5rem 4.5rem 2.5rem 5rem;
 }
 
@@ -666,7 +666,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .nomen-hero-text .nomen-bullet-list { gap: .4rem; margin-top: .4rem; }
 
-.nomen-hero-text .nomen-bullet-list li { font-size: .88rem; line-height: 1.4; }
+.nomen-hero-text .nomen-bullet-list li { font-size: .88rem; line-height: 1.2; }
 
 .nomen-hero-img {
   overflow: hidden;
@@ -689,7 +689,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .nomen-services {
   background: #EFEFEF;
-  padding: 6rem 8% 8rem;
+  padding: 6rem 10% 8rem;
 }
 
 .nomen-quote {
@@ -705,7 +705,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .nomen-bullet-list li {
-  font-size: .88rem; color: var(--text); line-height: 1.85; letter-spacing: .03em;
+  font-size: .88rem; color: var(--text); line-height: 1.5; letter-spacing: .03em;
 }
 
 .nomen-two-col {
@@ -714,16 +714,16 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .nomen-col-header {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
-  font-size: .82rem; letter-spacing: .4em; text-transform: uppercase;
+  font-family: 'Noto Serif TC', serif;
+  font-size: .92rem; letter-spacing: .4em; text-transform: uppercase;
   color: #555; font-weight: 400;
   padding-bottom: 1rem; margin-bottom: 2rem;
   border-bottom: 1px solid var(--border);
 }
 
 .nomen-service-item {
-  padding: 1.8rem 1.8rem 3.6rem;
-  margin-bottom: 1.2rem;
+  padding: 2.4rem;
+  margin-bottom: 1.6rem;
   background:
     linear-gradient(to bottom, transparent 0%, rgba(214, 214, 214, 0.35) 100%),
     linear-gradient(to right, #FAFAFA 0%, #F4F4F4 100%);
@@ -734,40 +734,40 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 .nomen-service-item.inactive { opacity: .35; }
 
 .nomen-service-name {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
-  font-size: 1.2rem; font-weight: 700; letter-spacing: .1em;
-  color: var(--text); margin-bottom: 0;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.35rem; font-weight: 700; letter-spacing: .1em;
+  color: var(--text); margin-bottom: .35rem;
 }
 
 .nomen-service-sub {
   font-family: 'Noto Serif TC', serif;
-  font-size: .75rem; letter-spacing: .3em; text-transform: uppercase;
-  color: var(--dim); margin-bottom: .75rem;
+  font-size: .85rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 1rem;
 }
 
 .nomen-service-desc {
-  font-size: .84rem; color: #444; line-height: 1.5;
-  margin-bottom: 0;
+  font-size: .94rem; color: #444; line-height: 1.8;
+  letter-spacing: .1em; margin-bottom: 0;
 }
 
 .nomen-service-duration {
-  font-size: .78rem; color: #444; letter-spacing: .05em;
+  font-size: .88rem; color: #444; letter-spacing: .05em;
   margin-bottom: .5rem;
 }
 
 .nomen-service-price {
   font-family: 'Noto Serif TC', serif;
-  font-size: .85rem; letter-spacing: .1em; color: var(--accent);
+  font-size: .95rem; letter-spacing: .1em; color: var(--accent);
   margin-top: .4rem;
 }
 
 .nomen-service-price-extra {
   font-family: 'Noto Serif TC', serif;
-  font-size: .78rem; letter-spacing: .1em; color: var(--dim);
+  font-size: .88rem; letter-spacing: .1em; color: var(--dim);
   margin-top: .3rem;
 }
 
-.nomen-price-table { display: flex; flex-direction: column; gap: .7rem; margin-top: .5rem; }
+.nomen-price-table { display: flex; flex-direction: column; gap: .5rem; margin-top: .9rem; }
 
 .nomen-price-row {
   display: flex; justify-content: space-between; align-items: baseline;
@@ -776,7 +776,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .nomen-price-label {
-  font-size: .8rem; color: #000; letter-spacing: .04em;
+  font-size: .9rem; color: #000; letter-spacing: .04em;
 }
 
 /* ──────────── NOMEN ──────────── */
@@ -898,7 +898,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .menu-name {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 1.5rem; font-weight: 700; letter-spacing: .06em;
   color: #000; display: block; margin-bottom: .5rem;
 }
@@ -945,7 +945,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .rule-heading {
-  font-family: 'Noto Serif TC', 'Yu Mincho', '游明朝体', '游明朝', serif;
+  font-family: 'Noto Serif TC', serif;
   font-size: 1.15rem; font-weight: 700; letter-spacing: .08em;
   color: var(--text);
   padding-bottom: .8rem;
