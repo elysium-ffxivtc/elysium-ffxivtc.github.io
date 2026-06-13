@@ -30,65 +30,10 @@
     }
     .bk-hdr-sub { font-size: .82rem; letter-spacing: .1em; color: var(--dim); text-align: center; margin: 0; }
 
-    /* ── Progress ── */
-    .bk-prog { background: #fff; border-bottom: 1px solid var(--border); padding: 1.2rem 1.5rem 1rem; }
-    .bk-prog-track { height: 1px; background: var(--border); position: relative; margin-bottom: .85rem; }
-    .bk-prog-fill {
-      position: absolute; left: 0; top: 0; height: 100%;
-      background: var(--gold); transition: width .4s ease;
-    }
-    .bk-prog-info { display: flex; justify-content: space-between; align-items: baseline; }
-    .bk-prog-name {
-      font-family: 'Noto Serif TC', serif; font-size: .88rem;
-      font-weight: 700; letter-spacing: .1em; color: var(--text);
-    }
-    .bk-prog-count { font-size: 11px; color: var(--dim); letter-spacing: .08em; }
-
     /* ── Main wrapper ── */
     .bk-main { max-width: 640px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
     .bk-fade { animation: bkfi .3s ease; }
     @keyframes bkfi { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes iag-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-
-    /* ── Section title ── */
-    .bk-stit {
-      font-family: 'Noto Serif TC', serif; font-size: 1.05rem; font-weight: 700;
-      color: var(--text); letter-spacing: .1em;
-      display: flex; align-items: center; gap: .65rem; margin-bottom: 1.4rem;
-    }
-    .bk-stit::before { content: ''; display: block; width: 16px; height: 1px; background: var(--gold); opacity: .6; }
-    .bk-stit::after  { content: ''; display: block; flex: 1; height: 1px; background: var(--border); }
-
-    /* ── Note ── */
-    .bk-note {
-      font-size: 12.5px; line-height: 2.1; color: var(--dim);
-      padding-left: 1rem; border-left: 2px solid rgba(184,144,96,.3);
-      margin-bottom: 1.6rem;
-    }
-    .bk-note a { color: var(--gold); text-decoration: none; }
-    .bk-note a:hover { color: var(--text); }
-    .bk-note strong { color: var(--text); font-weight: 500; }
-
-    /* ── Agree row ── */
-    .bk-arow {
-      display: flex; align-items: flex-start; gap: .9rem;
-      padding: 1rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-      cursor: pointer;
-    }
-    .bk-cchk {
-      width: 17px; height: 17px; border: 1px solid var(--accent); border-radius: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .2s; flex-shrink: 0; margin-top: 2px;
-    }
-    .bk-cchk.on { background: var(--text); border-color: var(--text); }
-    .bk-arow span { font-size: 13px; color: var(--dim); line-height: 1.7; }
-
-    /* ── Form fields ── */
-    .bk-flbl { display: block; font-size: 11px; letter-spacing: .1em; color: var(--dim); margin-bottom: .4rem; text-transform: uppercase; }
-    .bk-flbl .req { color: var(--gold); margin-left: 2px; }
-    .bk-frow { margin-bottom: 1.3rem; }
-    .bk-fgrd { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
-    @media(max-width:480px){ .bk-fgrd { grid-template-columns: 1fr; } }
 
     .bk-input, .bk-select, .bk-textarea {
       width: 100%; background: #fff; border: 1px solid var(--border);
@@ -123,12 +68,6 @@
       transform: scaleY(0); transform-origin: center; transition: transform .22s;
     }
     .bk-svc.sel::before { transform: scaleY(1); }
-    .bk-svc-mark {
-      width: 17px; height: 17px; border: 1px solid var(--border); border-radius: 2px;
-      flex-shrink: 0; margin-top: 2px;
-      display: flex; align-items: center; justify-content: center; transition: all .2s;
-    }
-    .bk-svc.sel .bk-svc-mark { background: var(--text); border-color: var(--text); }
     .bk-svc-body { flex: 1; }
     .bk-svc-name {
       font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700;
@@ -161,12 +100,6 @@
     .bk-apostle-item:hover:not(.bkd) { border-color: rgba(184,144,96,.45); z-index: 1; }
     .bk-apostle-item.sel  { border-color: var(--gold); z-index: 1; }
     .bk-apostle-item.bkd  { opacity: .32; pointer-events: none; }
-    .bk-apostle-photo {
-      width: 48px; height: 48px; background: #E0E0E0; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
-    }
-    .bk-apostle-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
-    .bk-apostle-initial { font-family: 'Noto Serif TC', serif; font-size: 1.2rem; color: var(--gold); opacity: .7; }
     .bk-apostle-info { flex: 1; }
     .bk-apostle-name {
       font-family: 'Noto Serif TC', serif; font-size: .95rem; font-weight: 700;
@@ -174,71 +107,6 @@
     }
     .bk-apostle-item.sel .bk-apostle-name { color: var(--gold); }
     .bk-apostle-tag  { font-size: 11px; color: var(--dim); margin-top: 1px; }
-    .bk-astatus { font-size: 10px; padding: 2px 8px; border: 1px solid; border-radius: 20px; flex-shrink: 0; }
-    .bk-astatus.av { border-color: rgba(106,138,53,.4); color: #6a8a35; }
-    .bk-astatus.bk { border-color: rgba(160,80,80,.4); color: #a05050; }
-    .bk-apostle-link {
-      font-size: 10px; color: var(--dim); text-decoration: none; transition: color .2s;
-      border: 1px solid var(--border); padding: 2px 7px; border-radius: 20px;
-    }
-    .bk-apostle-link:hover { color: var(--gold); border-color: rgba(184,144,96,.4); }
-    .bk-apostle-item.sel .bk-astatus { display: none; }
-
-    /* ── No preference ── */
-    .bk-nopref {
-      display: flex; align-items: center; gap: .8rem;
-      padding: .85rem 1rem; border: 1px dashed var(--border);
-      cursor: pointer; font-size: 13px; color: var(--dim);
-      margin-top: .6rem; transition: all .2s;
-    }
-    .bk-nopref:hover { border-color: rgba(184,144,96,.4); color: var(--text); }
-    .bk-nopref.sel   { border-color: var(--gold); color: var(--text); }
-    .bk-rrdo {
-      width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--dim);
-      flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .2s;
-    }
-    .bk-rrdo.on { border-color: var(--text); background: var(--text); }
-    .bk-rrdo.on::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #fff; display: block; }
-
-    /* ── RP options ── */
-    .bk-ropt {
-      display: flex; align-items: flex-start; gap: .85rem;
-      padding: .9rem 0; border-bottom: 1px solid var(--border); cursor: pointer;
-    }
-    .bk-ropt:first-of-type { border-top: 1px solid var(--border); }
-    .bk-ropt.sel .bk-rrdo { border-color: var(--text); background: var(--text); }
-    .bk-ropt.sel .bk-rrdo::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #fff; display: block; }
-    .bk-rtxt { font-size: 13px; color: var(--dim); line-height: 1.65; }
-    .bk-rtxt strong { font-family: 'Noto Serif TC', serif; color: var(--text); display: block; font-weight: 700; font-size: 14px; margin-bottom: 1px; }
-
-    /* ── Title tags ── */
-    .bk-tags { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
-    .bk-tag {
-      padding: .3rem .85rem; border: 1px solid var(--border); border-radius: 20px;
-      font-size: 12px; cursor: pointer; background: #fff; color: var(--dim); transition: all .2s;
-    }
-    .bk-tag:hover { border-color: rgba(0,0,0,.25); color: var(--text); }
-    .bk-tag.on    { border-color: var(--text); background: var(--text); color: #fff; }
-
-    /* ── Confirm summary ── */
-    .bk-summary { background: #fff; border: 1px solid var(--border); margin-bottom: 1.5rem; }
-    .bk-smr {
-      display: flex; justify-content: space-between; align-items: baseline;
-      padding: .65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 13px;
-    }
-    .bk-smr:last-child { border-bottom: none; }
-    .bk-smr .sk { color: var(--dim); flex-shrink: 0; }
-    .bk-smr .sv { color: var(--text); text-align: right; margin-left: .75rem; }
-    .bk-smr-total {
-      display: flex; justify-content: space-between; align-items: baseline;
-      padding: .9rem 1.2rem; border-top: 1px solid rgba(0,0,0,.08);
-    }
-    .bk-smr-total .tk { font-size: 12px; color: var(--dim); letter-spacing: .08em; }
-    .bk-smr-total .tv { font-family: 'Noto Serif TC', serif; font-size: 1.4rem; font-weight: 700; color: var(--text); }
-
-    .bk-infonote { font-size: 11.5px; color: var(--dim); line-height: 2; text-align: center; margin-bottom: 1.5rem; letter-spacing: .04em; }
-    .bk-nodate  { text-align: center; padding: 3rem 1rem; color: var(--dim); font-size: 13px; line-height: 2; }
-    .bk-hint    { font-size: 11px; color: var(--dim); margin-top: .5rem; letter-spacing: .04em; }
 
     /* ── Buttons ── */
     .bk-bnxt {
@@ -257,12 +125,6 @@
     }
     .bk-bbk:hover { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.25); color: var(--text); }
 
-    /* ── Success ── */
-    .bk-succ { text-align: center; padding: 3.5rem 1.5rem; }
-    .bk-succ-ic { font-size: 1.8rem; color: var(--gold); margin-bottom: 1.2rem; letter-spacing: .5em; }
-    .bk-succ h2 { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; font-weight: 700; color: var(--text); letter-spacing: .12em; margin-bottom: .8rem; }
-    .bk-succ-orn { width: 40px; height: 1px; background: linear-gradient(to right, transparent, rgba(0,0,0,.2), transparent); margin: 1rem auto; }
-    .bk-succ p  { font-size: 13px; color: var(--dim); line-height: 2.3; }
     .bk-dcbtn {
       display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
       width: 100%; max-width: 260px; padding: .75rem;
@@ -368,7 +230,6 @@
     { id: 'light',  label: '輕 RP',  desc: '以自身角色進行，享受使徒的服務與互動，體驗 Elysium 的氛圍。' },
     { id: 'none',   label: '無 RP',  desc: '不進行角色扮演，作為一般玩家享受服務。' },
   ];
-  const TITLE_OPTS = ['主', '旅人', '徬徨靈魂', '自訂'];
   const SERVERS    = ['伊弗利特', '迦樓羅', '利維坦', '鳳凰', '奧汀', '巴哈姆特', '泰坦'];
 
   // ─────────────────────────────────────────────────────────────
@@ -706,10 +567,6 @@
               const slotStatus = getApostleSlotStatus(st.date,a.id).find(ts=>ts.time===st.time);
               const available  = slotStatus ? !slotStatus.blocked : false;
               const isSel = st.apostle===a.id;
-              const photoHtml = a.photo
-                ? `<img src="${escH(a.photo)}" alt="${escH(a.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-                : '';
-              const initHtml = `<div class="bk-apostle-initial" style="${a.photo?'display:none':''}">${escH(a.initial||a.name.slice(0,1))}</div>`;
               const avLabel = available
                 ? `<span style="font-size:13px;color:var(--gold);letter-spacing:.04em;">開放召引</span>`
                 : `<span style="font-size:13px;color:#a05050;letter-spacing:.04em;">停止回應</span>`;
@@ -731,7 +588,7 @@
                       }
                     </div>
                     <div class="modal-content" style="padding:1.2rem 1.5rem 1.5rem;height:380px;overflow-y:auto;">
-                      ${a.subtitle ? `<p class="modal-subtitle" style="font-size:1rem;margin-bottom:.6rem;">${escH(a.subtitle)}</p>` : ''}
+                      ${a.subtitle ? `<p class="modal-subtitle" style="font-size:.72rem;margin-bottom:.6rem;">${escH(a.subtitle)}</p>` : ''}
                       <div class="modal-divider"></div>
                       ${a.bio ? `<p class="modal-bio">${escH(a.bio).replace(/\n/g,'<br>')}</p>` : ''}
                       <div class="modal-section">
@@ -924,7 +781,6 @@
   function selectTime(t)    { st.time=t; render(); }
   function selectApostle(id){ st.apostle=(st.apostle===id?null:id); st.designated=(st.apostle!==null&&st.apostle!=='none'); render(); }
   function selectRP(id)     { st.rp = (st.rp===id ? '' : id); render(); }
-  function selectRPTitle(t) { st.rpTitle=t; render(); }
   function toggleSvc(id) {
     const i=st.services.indexOf(id);
     if(i===-1) {
@@ -984,53 +840,6 @@
     showLoading(false);
     renderSuccess(st.gameName);
   }
-  function openApostleModal(id) {
-    const a = APOSTLES.find(x => x.id === id);
-    if (!a) return;
-    const inner = document.getElementById('bk-apostle-modal-inner');
-    inner.innerHTML = `
-      <div class="modal-img-wrap">
-        ${a.photo
-          ? `<img src="${escH(a.photo)}" alt="${escH(a.name)}">`
-          : `<div style="width:100%;aspect-ratio:3/4;background:#e8e6e3;display:flex;align-items:center;justify-content:center;">
-               <span style="font-family:'Noto Serif TC',serif;font-size:3rem;color:var(--gold);opacity:.5;">${escH(a.initial||a.name.slice(0,1))}</span>
-             </div>`
-        }
-      </div>
-      <div class="modal-content">
-        ${a.tag ? `<span class="modal-role">${escH(a.tag)}</span>` : ''}
-        <h2 class="modal-name">${escH(a.name)}</h2>
-        ${a.subtitle ? `<p class="modal-subtitle">${escH(a.subtitle)}</p>` : '<p class="modal-subtitle">&nbsp;</p>'}
-        <div class="modal-divider"></div>
-        ${a.bio ? `<p class="modal-bio">${escH(a.bio).replace(/\n/g,'<br>')}</p>` : ''}
-        <div class="modal-section">
-          ${a.chat  ? `<div style="margin-bottom:.9rem;"><p class="modal-section-label">聊天尺度</p><p class="modal-section-val">${escH(a.chat).replace(/\n/g,'<br>')}</p></div>` : ''}
-          ${a.taboo ? `<div style="margin-bottom:.9rem;"><p class="modal-section-label">禁忌與偏好</p><p class="modal-section-val">${escH(a.taboo).replace(/\n/g,'<br>')}</p></div>` : ''}
-          ${a.extra ? `<div style="margin-bottom:.9rem;"><p class="modal-section-label">補充內容</p><p class="modal-section-val">${escH(a.extra).replace(/\n/g,'<br>')}</p></div>` : ''}
-          <div><p class="modal-section-label">個人業務</p><p class="modal-section-val">${escH(a.business||'暫不提供')}</p></div>
-        </div>
-      </div>
-    `;
-    const modal = document.getElementById('bk-apostle-modal');
-    modal.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeApostleModal(e) {
-    const modal = document.getElementById('bk-apostle-modal');
-    if (e && e.target !== modal) return;
-    modal.classList.remove('is-open');
-    document.body.style.overflow = '';
-  }
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      const modal = document.getElementById('bk-apostle-modal');
-      if (modal && modal.classList.contains('is-open')) {
-        modal.classList.remove('is-open');
-        document.body.style.overflow = '';
-      }
-    }
-  });
-
   function goToStep(i) { if (i < st.step) { st.step = i; render(); } }
   function resetForm() {
     st={step:0,agreed:false,date:'',time:'',services:[],designated:false,apostle:null,
@@ -1117,13 +926,6 @@
   </script>
 
   <script src="nav.js"></script>
-
-  <div id="bk-apostle-modal" class="modal-overlay" onclick="closeApostleModal(event)">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeApostleModal(null)">&times;</button>
-      <div class="modal-inner" id="bk-apostle-modal-inner"></div>
-    </div>
-  </div>
 
 </body>
 </html>

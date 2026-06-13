@@ -514,7 +514,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .modal-subtitle {
   font-family: 'Noto Serif TC', serif;
-  font-size: .9rem; letter-spacing: .18em;
+  font-size: .72rem; letter-spacing: .18em;
   color: var(--gold); margin-bottom: 1.5rem;
   text-align: left;
 }
@@ -525,7 +525,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .modal-bio {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1rem; color: var(--text); line-height: 1.8;
+  font-size: .8rem; color: var(--text); line-height: 1.8;
   text-align: left;
 }
 
@@ -533,14 +533,14 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .modal-section-label {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1.25rem; font-weight: 700; letter-spacing: .12em;
+  font-size: 1rem; font-weight: 700; letter-spacing: .12em;
   color: var(--text); margin-bottom: .35rem;
   text-align: left;
 }
 
 .modal-section-val {
   font-family: 'Noto Serif TC', serif;
-  font-size: .95rem; letter-spacing: .08em;
+  font-size: .76rem; letter-spacing: .08em;
   color: var(--gold); text-align: left;
 }
 
