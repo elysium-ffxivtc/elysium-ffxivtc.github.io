@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members — Elysium</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo"><img src="Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="members.html" class="active">Members</a></li>
+      <li class="dropdown">
+        <a href="#">Services</a>
+        <div class="dropdown-menu">
+          <a href="nomen.html">Nomen</a>
+          <a href="menu.html">Menu</a>
+        </div>
+      </li>
+      <li><span class="hidden-link">Registry</span></li>
+      <li><a href="rules.html">Rules</a></li>
+      <li><span class="hidden-link">S⏹︎⏹︎RI⏹︎S</span></li>
+    </ul>
+  </nav>
+
+  <!-- 使徒 -->
+  <section class="members-section bg-muted pt-nav ms-apostles">
+    <div class="members-section-inner">
+      <div class="members-section-head">
+        <h2>使徒</h2>
+        <hr class="members-rule">
+      </div>
+      <div class="member-grid-5">
+        <!-- 上排：食罪 × 5 -->
+        <div class="member-card fog"><div class="member-img-wrap"><img src="食罪.jpg" alt="食罪"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="食罪.jpg" alt="食罪"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="食罪.jpg" alt="食罪"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="食罪.jpg" alt="食罪"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="食罪.jpg" alt="食罪"></div></div>
+        <!-- 下排：妖異 × 5 -->
+        <div class="member-card fog"><div class="member-img-wrap"><img src="妖異.jpg" alt="妖異"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="妖異.jpg" alt="妖異"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="妖異.jpg" alt="妖異"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="妖異.jpg" alt="妖異"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="妖異.jpg" alt="妖異"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 侍者 -->
+  <section class="members-section ms-attendants">
+    <div class="members-section-inner">
+      <div class="members-section-head">
+        <h2>侍者</h2>
+        <hr class="members-rule">
+      </div>
+      <div class="member-grid-3">
+        <!-- 上排 -->
+        <div class="member-card" onclick="openModal('modal-1')">
+          <div class="member-img-wrap">
+            <img src="司祭.png" alt="司祭">
+            <div class="member-img-hover">司祭</div>
+          </div>
+        </div>
+        <div class="member-card" onclick="openModal('modal-2')">
+          <div class="member-img-wrap">
+            <img src="監禮者.png" alt="監禮者">
+            <div class="member-img-hover">監禮者</div>
+          </div>
+        </div>
+        <div class="member-card fog">
+          <div class="member-img-wrap">
+            <img src="銀紗使.jpg" alt="銀紗使">
+          </div>
+        </div>
+        <!-- 下排：引路人 × 3 -->
+        <div class="member-card fog"><div class="member-img-wrap"><img src="引路人.jpg" alt="引路人"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="引路人.jpg" alt="引路人"></div></div>
+        <div class="member-card fog"><div class="member-img-wrap"><img src="引路人.jpg" alt="引路人"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 特別銘謝 -->
+  <section class="members-section bg-muted ms-thanks">
+    <div class="members-section-inner">
+      <div class="wide-divider"></div>
+      <div class="thanks-section">
+        <span class="section-tag">Special Thanks &nbsp;/&nbsp; 特別銘謝</span>
+        <ul class="thanks-list">
+          <li>更年期冬貝利@伊弗利特</li>
+          <li>路易丁滿@伊弗利特</li>
+          <li>夜遊魂@伊弗利特</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-social">
+      <a href="#" target="_blank" rel="noopener" class="footer-social-link" aria-label="Discord">
+        <img src="discord_.png" alt="Discord" class="footer-icon">
+      </a>
+      <a href="https://www.threads.com/@elysium.ffxivtc" target="_blank" rel="noopener" class="footer-social-link" aria-label="Threads">
+        <img src="threads_.png" alt="Threads" class="footer-icon">
+      </a>
+    </div>
+    <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
+  </footer>
+
+  <!-- Modal 1 -->
+  <div class="modal-overlay" id="modal-1" onclick="closeModal(event, 'modal-1')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-1')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="司祭.png" alt="司祭">
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">司祭</span>
+          <h2 class="modal-name">靜火</h2>
+          <p class="modal-subtitle">Elysium的經營者</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">沒有人知道司祭究竟是人類、使徒，<br>亦或長久停留於幻境中的某種存在。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">一般～暗示，禁止親吻互動</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">喜歡研究，討厭麻煩，研究以外的事情都是麻煩。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">補充內容</p>
+              <p class="modal-section-val">意外地喜歡吃甜食，原因可能是更易於補充血糖及熱量。</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2 -->
+  <div class="modal-overlay" id="modal-2" onclick="closeModal(event, 'modal-2')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-2')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="監禮者.png" alt="監禮者">
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">監禮者</span>
+          <h2 class="modal-name">著魔</h2>
+          <p class="modal-subtitle">Elysium的第一位⏹︎⏹︎</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">回應司祭的召喚第一位降臨於現世的⏹︎⏹︎。<br>本體目前未知形體，但具有自我意識可以溝通。<br>利用司祭找來的敖龍族男性屍體進行儀式並寄宿在其身上。<br>正在感興趣的接觸人類文明史，並監管著聖所內所有動靜。<br>容器偶爾會因為⏹︎⏹︎司祭的⏹︎⏹︎而過度利用損毀。需要進行維護並替換備用體。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">補充內容</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(e, id) {
+      if (e && e.target !== document.getElementById(id)) return;
+      document.getElementById(id).classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.is-open').forEach(function(m) {
+          m.classList.remove('is-open');
+          document.body.style.overflow = '';
+        });
+      }
+    });
+  </script>
+
+  <script src="nav.js"></script>
+</body>
+</html>
+
