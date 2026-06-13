@@ -6,6 +6,7 @@
   <title>Elysium — 陪伴型RP公關店</title>
   <link rel="icon" type="image/png" href="Elysium_LOGO_mini.png">
   <link rel="stylesheet" href="style.css">
+  <script>if (sessionStorage.getItem('welcomed')) document.write('<style>#welcome-modal{display:none}#page-content{opacity:1!important;transition:none!important}</style>');</script>
 </head>
 <body>
 
@@ -15,7 +16,7 @@
       <div class="welcome-divider"></div>
       <p class="welcome-body">為維持良好且完整的服務體驗，請務必確認主線進度已推進至 5.0 以上。</p>
       <p class="welcome-body">本店將使用大量宗教與異教內容，請慎入。</p>
-      <button class="welcome-confirm" onclick="document.getElementById('welcome-modal').style.display='none';var c=document.getElementById('page-content');c.style.opacity='1';">確認進入</button>
+      <button class="welcome-confirm" onclick="sessionStorage.setItem('welcomed','1');document.getElementById('welcome-modal').style.display='none';var c=document.getElementById('page-content');c.style.opacity='1';">確認進入</button>
     </div>
   </div>
 
