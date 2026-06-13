@@ -675,7 +675,7 @@
         <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">遊戲角色名稱<span style="color:var(--gold);margin-left:2px;">*</span></div>
         <input class="bk-input" type="text" id="inp-game" placeholder="輸入遊戲內角色名稱" value="${escH(st.gameName)}">
       </div>
-      <div class="bk-fgrd" style="margin-bottom:1.3rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.3rem;">
         <div>
           <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">所在World<span style="color:var(--gold);margin-left:2px;">*</span></div>
           <select class="bk-select" id="inp-server">
@@ -710,10 +710,10 @@
       <span style="color:var(--dim);flex-shrink:0;">${k}</span>
       <span style="color:var(--text);text-align:right;margin-left:.75rem;">${v}</span>
     </div>` : '';
-    const cell = (label, val) => val ? `
+    const cell = (label, val, wrap=false) => val ? `
       <div style="flex:1;min-width:0;">
         <div style="font-size:11px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:.15rem;white-space:nowrap;">${label}</div>
-        <div style="font-family:'Noto Serif TC',serif;font-size:.92rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${val}</div>
+        <div style="font-family:'Noto Serif TC',serif;font-size:.92rem;color:var(--text);${wrap?'white-space:pre-wrap;word-break:break-all;':'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'}">${val}</div>
       </div>` : '';
     const section = (tag, ...cells) => `
       <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
@@ -728,15 +728,21 @@
         <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
           <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">預約內容</div>
           <div style="display:flex;flex-wrap:wrap;gap:1.3rem 1.4rem;align-items:flex-start;">
-            <div style="flex:2;min-width:0;">${cell('服務項目', svcs)}</div>
+            <div style="flex:2;min-width:max-content;">${cell('服務項目', svcs)}</div>
             <div style="flex:1;min-width:100px;">${cell('指名使徒', apostleName)}</div>
-            ${st.rpNote ? `<div style="flex:1;min-width:100px;">${cell('備註', escH(st.rpNote))}</div>` : ''}
+          </div>
+        </div>
+        <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">RP 設定</div>
+          <div style="display:flex;flex-wrap:wrap;gap:1.3rem 1.4rem;align-items:flex-start;">
+            <div style="flex:1;min-width:100px;">${cell('RP 程度', rpLbl)}</div>
+            ${st.rpNote ? `<div style="flex:2;min-width:0;">${cell('備註', escH(st.rpNote), true)}</div>` : ''}
           </div>
         </div>
         <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
           <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">角色資訊</div>
-          <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cell('遊戲角色名稱', escH(st.gameName))}${cell('所在World', st.server)}${cell('RP 程度', rpLbl)}</div>
-          <div style="display:flex;gap:1.4rem;align-items:flex-start;margin-top:1.3rem;">${cell('Discord使用者名稱', escH(st.contact))}${st.notes ? cell('其他備註', escH(st.notes)) : ''}</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cell('遊戲角色名稱', escH(st.gameName))}${cell('所在World', st.server)}${cell('Discord使用者名稱', escH(st.contact))}</div>
+          ${st.notes ? `<div style="display:flex;gap:1.4rem;align-items:flex-start;margin-top:1.3rem;">${cell('其他備註', escH(st.notes), true)}</div>` : ''}
         </div>
       </div>
       <div style="padding:1rem 0;border-top:1px solid var(--border);margin-bottom:1.5rem;">
@@ -749,9 +755,9 @@
         </div>
         <div style="font-size:12px;color:var(--dim);margin-top:4px;text-align:right;">※ 實際費用以現場為準</div>
       </div>
-      </div>
       <button class="bk-bnxt" onclick="submitRes()">確認送出</button>
-      <button class="bk-bbk" onclick="prev()">修改資料</button>
+      <button class="bk-bbk" onclick="prev()">返回修改</button>
+      </div>
     `);
   }
 
