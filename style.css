@@ -722,8 +722,8 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 .nomen-service-item {
-  padding: 2.4rem;
-  margin-bottom: 1.6rem;
+  padding: 1.4rem 2.4rem 2.4rem;
+  margin-bottom: 1.2rem;
   background:
     linear-gradient(to bottom, transparent 0%, rgba(214, 214, 214, 0.35) 100%),
     linear-gradient(to right, #FAFAFA 0%, #F4F4F4 100%);
@@ -736,13 +736,13 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 .nomen-service-name {
   font-family: 'Noto Serif TC', serif;
   font-size: 1.35rem; font-weight: 700; letter-spacing: .1em;
-  color: var(--text); margin-bottom: .35rem;
+  color: var(--text); margin-bottom: .1rem;
 }
 
 .nomen-service-sub {
   font-family: 'Noto Serif TC', serif;
   font-size: .85rem; letter-spacing: .3em; text-transform: uppercase;
-  color: var(--dim); margin-bottom: 1rem;
+  color: var(--dim); margin-bottom: 1rem; position: relative; top: -.15rem;
 }
 
 .nomen-service-desc {
@@ -752,22 +752,22 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .nomen-service-duration {
   font-size: .88rem; color: #444; letter-spacing: .05em;
-  margin-bottom: .5rem;
+  margin-top: 2rem; margin-bottom: .3rem;
 }
 
 .nomen-service-price {
   font-family: 'Noto Serif TC', serif;
   font-size: .95rem; letter-spacing: .1em; color: var(--accent);
-  margin-top: .4rem;
+  margin-top: .15rem;
 }
 
 .nomen-service-price-extra {
   font-family: 'Noto Serif TC', serif;
   font-size: .88rem; letter-spacing: .1em; color: var(--dim);
-  margin-top: .3rem;
+  margin-top: .15rem;
 }
 
-.nomen-price-table { display: flex; flex-direction: column; gap: .5rem; margin-top: .9rem; }
+.nomen-price-table { display: flex; flex-direction: column; gap: .5rem; margin-top: 2rem; }
 
 .nomen-price-row {
   display: flex; justify-content: space-between; align-items: baseline;
