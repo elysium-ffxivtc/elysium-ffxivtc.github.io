@@ -43,12 +43,12 @@ nav {
   mix-blend-mode: multiply;
 }
 
-.nav-links { display: flex; align-items: stretch; gap: 2.8rem; list-style: none; }
+.nav-links { display: flex; align-items: stretch; gap: 1.9rem; list-style: none; }
 .nav-links > li { display: flex; align-items: center; }
 
 .nav-links > li > a {
   font-family: 'Noto Serif TC', serif;
-  font-size: .82rem; letter-spacing: .22em; text-transform: uppercase;
+  font-size: .80rem; letter-spacing: .22em; text-transform: uppercase;
   color: var(--dim); text-decoration: none; transition: color .25s;
 }
 
@@ -63,16 +63,11 @@ nav {
 
 .nav-links .hidden-link {
   font-family: 'Noto Serif TC', serif;
-  font-size: .82rem; letter-spacing: .22em; text-transform: uppercase;
+  font-size: .80rem; letter-spacing: .22em; text-transform: uppercase;
   color: var(--dim); cursor: default; user-select: none;
   opacity: .5;
 }
 
-.nav-links .nav-static {
-  font-family: 'Noto Serif TC', serif;
-  font-size: .82rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--dim); cursor: default;
-}
 
 .dropdown { position: relative; }
 
@@ -209,19 +204,6 @@ nav {
   transform: scale(1.02);
 }
 
-.cover-body { position: relative; z-index: 1; }
-
-.cover-en {
-  font-family: 'Noto Serif TC', serif;
-  font-size: clamp(3rem, 5.5vw, 5rem);
-  font-weight: 300; letter-spacing: .35em; text-transform: uppercase;
-  color: #f0ebe3; line-height: 1.1;
-}
-
-.cover-zh {
-  font-size: .78rem; letter-spacing: .35em; color: var(--accent);
-  margin-top: .5rem; font-family: 'Noto Serif TC', serif;
-}
 
 /* ──────────── CONTENT ──────────── */
 
@@ -243,7 +225,6 @@ h2.section-title {
 }
 
 h3.sub-title {
-  font-family: 'Noto Serif TC', serif;
   font-family: 'Noto Serif TC', serif;
   font-size: 29.33px; font-weight: 700; letter-spacing: .07em;
   color: #111; margin: 4.5rem 0 .9rem;
@@ -292,10 +273,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 
-.about-emphasis {
-  font-size: .9rem; color: var(--text); line-height: 2.1;
-  margin: 2rem 0; letter-spacing: .04em;
-}
 
 .about-dash {
   font-size: .95rem; color: var(--text); margin-bottom: 1.1rem;
@@ -338,20 +315,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .about-link:hover { color: var(--text); }
 
-/* ──────────── GLOSSARY ──────────── */
-
-.glossary {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 1.8rem 4rem; margin-top: 2.5rem;
-}
-
-.glossary-term {
-  font-family: 'Noto Serif TC', serif;
-  font-size: .65rem; letter-spacing: .35em; text-transform: uppercase;
-  color: var(--accent); display: block; margin-bottom: .35rem;
-}
-
-.glossary-def { font-size: .85rem; color: var(--text); line-height: 1.9; }
 
 /* ──────────── MEMBERS ──────────── */
 
@@ -367,18 +330,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   padding-top: 0;
 }
 
-.members-divider {
-  display: flex; align-items: center;
-  padding: 2.5rem 4rem;
-}
-.members-divider::before,
-.members-divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
-}
-.members-divider span {
-  padding: 0 1.2rem;
-  font-size: .65rem; color: var(--dim); letter-spacing: .3em;
-}
 .members-section.pt-nav {
   padding-top: calc(90px + 5rem);
 }
@@ -414,10 +365,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   grid-template-columns: repeat(3, 180px);
   column-gap: 2rem;
   row-gap: 3rem;
-}
-.member-card.placeholder { cursor: default; }
-.member-card.placeholder .member-img-wrap {
-  background: linear-gradient(160deg, #ddd, #ccc);
 }
 
 .member-img-wrap {
@@ -462,19 +409,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 }
 
 
-.member-role {
-  font-family: 'Noto Serif TC', serif;
-  font-size: .62rem; letter-spacing: .38em; text-transform: uppercase;
-  color: var(--accent); display: block; margin-bottom: .4rem;
-}
-
-.member-name {
-  font-family: 'Noto Serif TC', serif;
-  font-size: 1.35rem; font-weight: 400; letter-spacing: .1em;
-  color: var(--text); display: block; margin-bottom: .8rem;
-}
-
-.member-bio { font-size: .84rem; color: var(--dim); line-height: 1.95; }
 
 /* ──────────── MEMBER CARDS ──────────── */
 
@@ -779,53 +713,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   font-size: .9rem; color: #000; letter-spacing: .04em;
 }
 
-/* ──────────── NOMEN ──────────── */
-
-.nomen-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 2px; margin-top: 3rem;
-}
-
-.nomen-card {
-  position: relative; aspect-ratio: 3/4; overflow: hidden;
-}
-
-.nomen-card img {
-  width: 100%; height: 100%; object-fit: cover;
-  filter: brightness(.45) grayscale(.15);
-  transition: filter .7s, transform .9s;
-}
-
-.nomen-card:hover img {
-  filter: brightness(.65) grayscale(0);
-  transform: scale(1.05);
-}
-
-.nomen-overlay {
-  position: absolute; inset: 0; z-index: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: flex-end;
-  padding: 2.5rem 2rem;
-  background: linear-gradient(to top, rgba(11,10,9,.9) 0%, transparent 50%);
-}
-
-.nomen-type {
-  font-family: 'Noto Serif TC', serif;
-  font-size: .6rem; letter-spacing: .42em; text-transform: uppercase;
-  color: var(--accent); margin-bottom: .5rem;
-}
-
-.nomen-name {
-  font-family: 'Noto Serif TC', serif;
-  font-size: 1.6rem; font-weight: 300; letter-spacing: .18em;
-  color: #f0ebe3; text-align: center; line-height: 1.2;
-}
-
-.nomen-desc {
-  font-size: .78rem; color: rgba(206,200,191,.55);
-  text-align: center; margin-top: .7rem; line-height: 1.85;
-  max-width: 260px;
-}
 
 /* ──────────── MENU ──────────── */
 
@@ -842,12 +729,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   margin-bottom: .8rem;
 }
 
-.menu-header-tag {
-  display: block;
-  font-family: 'Noto Serif TC', serif;
-  font-size: .62rem; letter-spacing: .5em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 1rem;
-}
 
 .menu-header-ornament {
   width: 40px; height: 1px;
@@ -889,13 +770,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   border: none; border-radius: 8px;
 }
 
-.menu-item-icon .no-icon {
-  width: 100px; height: 100px;
-  border: none; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Noto Serif TC', serif;
-  font-size: 1.4rem; color: var(--dim);
-}
 
 .menu-name {
   font-family: 'Noto Serif TC', serif;
@@ -903,11 +777,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   color: #000; display: block; margin-bottom: .5rem;
 }
 
-.menu-name-en {
-  font-family: 'Noto Serif TC', serif;
-  font-size: .62rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--dim); display: block; margin-bottom: .4rem;
-}
 
 .menu-desc {
   font-size: .9rem; color: var(--dim); line-height: 1.7;
@@ -938,11 +807,6 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
   margin-bottom: 3rem;
 }
 
-.rule-num {
-  font-family: 'Noto Serif TC', serif;
-  font-size: .58rem; letter-spacing: .38em; text-transform: uppercase;
-  color: var(--dim); display: block; margin-bottom: .5rem;
-}
 
 .rule-heading {
   font-family: 'Noto Serif TC', serif;
@@ -969,23 +833,6 @@ footer {
   text-align: center;
 }
 
-.footer-logo {
-  font-family: 'Noto Serif TC', serif;
-  font-size: 1rem; letter-spacing: .5em; text-transform: uppercase;
-  color: var(--text); display: block; margin-bottom: 1.2rem;
-}
-
-.footer-links {
-  display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 1.8rem;
-}
-
-.footer-links a {
-  font-family: 'Noto Serif TC', serif;
-  font-size: .6rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--dim); text-decoration: none; transition: color .25s;
-}
-
-.footer-links a:hover { color: var(--text); }
 
 .footer-social {
   display: flex; justify-content: center; gap: 1.6rem;
