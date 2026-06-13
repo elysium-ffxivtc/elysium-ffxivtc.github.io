@@ -93,7 +93,7 @@
     .bk-input, .bk-select, .bk-textarea {
       width: 100%; background: #fff; border: 1px solid var(--border);
       color: var(--text); padding: .65rem .9rem; border-radius: 2px;
-      font-size: 13px; font-family: 'Noto Serif TC', serif;
+      font-size: 13px; font-family: 'Noto Serif TC', serif; letter-spacing: .06em;
       transition: border-color .2s; appearance: none; -webkit-appearance: none;
     }
     .bk-input:focus, .bk-select:focus, .bk-textarea:focus { outline: none; border-color: var(--gold); }
@@ -103,11 +103,11 @@
     .bk-tgrd { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px,1fr)); gap: 6px; margin-top: .5rem; }
     .bk-tbtn {
       padding: .6rem .4rem; border: 1px solid var(--border); background: #fff;
-      color: var(--dim); border-radius: 2px; font-size: 12px;
+      color: var(--dim); border-radius: 2px; font-size: 13px;
       font-family: 'Noto Serif TC', serif; cursor: pointer; text-align: center; transition: all .2s;
     }
     .bk-tbtn:hover { border-color: var(--gold); color: var(--text); }
-    .bk-tbtn.sel   { border-color: var(--text); background: var(--text); color: #fff; }
+    .bk-tbtn.sel   { border-color: var(--gold); background: rgba(184,144,96,.13); color: var(--gold); }
 
     /* ── Service list ── */
     .bk-svc {
@@ -264,12 +264,14 @@
     .bk-succ-orn { width: 40px; height: 1px; background: linear-gradient(to right, transparent, rgba(0,0,0,.2), transparent); margin: 1rem auto; }
     .bk-succ p  { font-size: 13px; color: var(--dim); line-height: 2.3; }
     .bk-dcbtn {
-      display: inline-flex; align-items: center; gap: .55rem; margin-top: 2rem;
-      padding: .85rem 2.2rem; background: #5865F2; border: none;
-      color: #fff; font-family: 'Noto Serif TC', serif; font-size: 13px;
-      letter-spacing: .08em; cursor: pointer; transition: opacity .2s; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+      width: 100%; max-width: 260px; padding: .75rem;
+      background: var(--text); border: none;
+      color: #fff; font-family: 'Noto Serif TC', serif; font-size: 13.5px;
+      letter-spacing: .18em; cursor: pointer; transition: opacity .2s; text-decoration: none;
+      font-weight: 500; margin-top: 1.5rem;
     }
-    .bk-dcbtn:hover { opacity: .88; }
+    .bk-dcbtn:hover { opacity: .78; }
 
     /* ── Loading ── */
     #bk-loading {
@@ -303,11 +305,11 @@
 
   <div class="bk-page">
     <div class="bk-hdr">
-      <div class="bk-hdr-tag" style="font-size:.62rem; letter-spacing:.5em; color:var(--gold); margin-bottom:0;">E L Y S I U M · 預 約 系 統</div>
+      <div class="bk-hdr-tag" style="font-size:.62rem; letter-spacing:.5em; color:var(--gold); margin-bottom:0;">E L Y S I U M</div>
       <div style="margin-top:.4rem;">
         <h1 style="font-family:'Noto Serif TC',serif; font-size:clamp(1.6rem, 2.5vw, 2.2rem); font-weight:700; letter-spacing:.08em; line-height:1.35; margin:0 0 .8rem;">召引預約</h1>
         <div class="bk-hdr-orn" style="width:40px; height:1px; background:linear-gradient(to right, transparent, rgba(0,0,0,.2), transparent); margin:1rem auto;"></div>
-        <p class="bk-hdr-sub" style="font-family:'Noto Serif TC',serif; font-size:.88rem; letter-spacing:.1em; color:var(--dim); text-align:center; margin:0;">獻予迷途靈魂的預約通道</p>
+        <p class="bk-hdr-sub" style="font-family:'Noto Serif TC',serif; font-size:.88rem; letter-spacing:.1em; color:var(--dim); text-align:center; margin:0;">獻予徬徨靈魂的朝聖之途</p>
       </div>
     </div>
     <div id="bk-prog" class="bk-prog"></div>
@@ -352,7 +354,7 @@
 
   const STEPS = [
     { id: 'agree',    label: '禮堂規約' },
-    { id: 'datetime', label: '日期時段' },
+    { id: 'datetime', label: '日期場次' },
     { id: 'service',  label: '儀式選擇' },
     { id: 'apostle',  label: '召引使徒' },
     { id: 'rp',       label: '會眾資訊'  },
@@ -361,12 +363,13 @@
   ];
 
   const RP_OPTS = [
-    { id: 'light',  label: '輕 RP',  desc: '以自身角色進行，享受使徒的服務與互動，體驗 Elysium 的氛圍。' },
+    { id: 'heavy',  label: '重 RP',  desc: '完全以角色視角行動，嚴格遵守世界觀與角色設定。' },
     { id: 'medium', label: '中 RP',  desc: '含有角色設定背景，完全沉浸在艾奧傑亞的世界觀之中。' },
+    { id: 'light',  label: '輕 RP',  desc: '以自身角色進行，享受使徒的服務與互動，體驗 Elysium 的氛圍。' },
     { id: 'none',   label: '無 RP',  desc: '不進行角色扮演，作為一般玩家享受服務。' },
   ];
-  const TITLE_OPTS = ['主', '旅人', '迷途靈魂', '自訂'];
-  const SERVERS    = ['鳳凰', '伊弗利特', '迦樓羅', '利維坦', '奧汀', '巴哈姆特', '泰坦'];
+  const TITLE_OPTS = ['主', '旅人', '徬徨靈魂', '自訂'];
+  const SERVERS    = ['伊弗利特', '迦樓羅', '利維坦', '鳳凰', '奧汀', '巴哈姆特', '泰坦'];
 
   // ─────────────────────────────────────────────────────────────
   //  狀態
@@ -613,9 +616,9 @@
     if (st.date) {
       const times = getAvailTimes(st.date);
       timesHtml = times.length===0
-        ? `<p style="font-size:13px;color:var(--dim);margin-top:1.6rem;">所選日期尚未開放召引時段，請改選其他日期。</p>`
+        ? `<p style="font-size:13px;color:var(--dim);margin-top:1.6rem;">所選日期尚未開放召引場次，請改選其他日期。</p>`
         : `<div style="margin-top:1.8rem;">
-            <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇時段<span style="color:var(--gold);margin-left:2px;">*</span></div>
+            <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇場次<span style="color:var(--gold);margin-left:2px;">*</span></div>
             <div class="bk-tgrd">${times.map(t=>{
               const avail = hasAvailableApostle(st.date, t);
               return `<button class="bk-tbtn${st.time===t?' sel':''}" onclick="${avail?`selectTime('${t}')`:''}" style="${!avail?'opacity:.3;cursor:not-allowed;':''}" ${!avail?'disabled':''}>${t}</button>`;
@@ -623,7 +626,7 @@
           </div>`;
     }
     setMain(`
-      ${stepTitle('日期時段')}
+      ${stepTitle('日期場次')}
       ${openDates.length===0
         ? `<div style="text-align:center;padding:3rem 1rem;color:var(--dim);font-size:13px;line-height:2.2;">
             目前尚無開放預約的場次<br>
@@ -632,7 +635,7 @@
         : `<div style="margin-bottom:1.4rem;">
             <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇日期<span style="color:var(--gold);margin-left:2px;">*</span></div>
             <select class="bk-select" id="inp-date" onchange="selectDate(this.value)">
-              <option value="">請選擇日期</option>
+              <option value="">請選擇</option>
               ${openDates.map(d=>`<option value="${d}" ${st.date===d?'selected':''}>${fmtDate(d)}${schedule[d].label?'　'+schedule[d].label:''}</option>`).join('')}
             </select>
           </div>`
@@ -672,7 +675,7 @@
         `;
       }).join('')}
       <div class="bk-cost">
-        <div class="bk-cost-lbl">當前費用合計</div>
+        <div class="bk-cost-lbl">目前費用合計</div>
         <div class="bk-cost-right">
           <span class="bk-cost-val">${total.toLocaleString()}</span><span class="bk-cost-unit">Gil</span>
           <div class="bk-cost-note" style="font-size:12px;">※ 花環費另計</div>
@@ -698,7 +701,7 @@
       });
       apostleHtml = `
         ${visible.length===0
-          ? `<p style="font-size:13px;color:var(--dim);line-height:2;">此時段暫無使徒排班，請返回選擇其他時段。</p>`
+          ? `<p style="font-size:13px;color:var(--dim);line-height:2;">此場次暫無使徒排班，請返回選擇其他場次。</p>`
           : visible.map(a=>{
               const slotStatus = getApostleSlotStatus(st.date,a.id).find(ts=>ts.time===st.time);
               const available  = slotStatus ? !slotStatus.blocked : false;
@@ -744,14 +747,14 @@
             }).join('')
         }
         ${visible.length>0 && !anyAvailable
-          ? `<p style="font-size:13px;color:var(--dim);line-height:2;padding:.8rem 0;border-top:1px solid var(--border);">此時段所有使徒召引已額滿，請返回選擇其他時段。</p>`
+          ? `<p style="font-size:13px;color:var(--dim);line-height:2;padding:.8rem 0;border-top:1px solid var(--border);">此場次所有使徒召引已額滿，請返回選擇其他場次。</p>`
           : ''
         }
         ${anyAvailable
           ? `<div onclick="selectApostle('none')" style="cursor:pointer;display:flex;align-items:center;padding:.85rem 1rem;border-top:none;border-bottom:1px solid var(--border);position:relative;transition:background .2s;background:${st.apostle==='none'?'rgba(184,144,96,0.13)':'transparent'};">
               <div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);transform:scaleY(${st.apostle==='none'?1:0});transform-origin:center;transition:transform .2s;"></div>
               <div>
-                <div style="font-size:13px;font-family:'Noto Serif TC',serif;font-weight:700;color:${st.apostle==='none'?'var(--gold)':'var(--text)'};letter-spacing:.06em;margin-bottom:.2rem;transition:color .2s;">不指定使徒</div>
+                <div style="font-size:14px;font-family:'Noto Serif TC',serif;font-weight:700;color:${st.apostle==='none'?'var(--gold)':'var(--text)'};letter-spacing:.06em;margin-bottom:.2rem;transition:color .2s;">不指定使徒</div>
                 <div style="font-size:12px;color:var(--dim);line-height:1.75;">有極低的機率觸發特殊條件</div>
               </div>
             </div>`
@@ -781,6 +784,7 @@
   function renderRP() {
     setMain(`
       ${stepTitle('會眾資訊')}
+      <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">RP 程度<span style="color:var(--gold);margin-left:2px;">*</span></div>
       ${RP_OPTS.map(o=>{
         const sel = st.rp===o.id;
         return `<div class="bk-svc${sel?' sel':''}" onclick="selectRP('${o.id}')" style="background:${sel?'rgba(184,144,96,0.13)':'transparent'};padding:1.2rem 1.2rem 1.2rem 1rem;cursor:pointer;">
@@ -791,12 +795,14 @@
         </div>`;
       }).join('')}
       <div style="margin-top:1.4rem;margin-bottom:1.3rem;">
-        <div style="font-size:11px;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">備註（選填）</div>
-        <textarea class="bk-textarea" id="inp-rpnote" placeholder="會眾姓名、故事背景、特殊要求、禁止事項⋯">${escH(st.rpNote)}</textarea>
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">備註（選填）</div>
+        <textarea class="bk-textarea" id="inp-rpnote" placeholder="會眾姓名、故事背景、特殊要求、禁止事項⋯" style="resize:none;overflow:hidden;min-height:72px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${escH(st.rpNote)}</textarea>
       </div>
-      <button class="bk-bnxt" onclick="collectRP()">下一步</button>
+      <button class="bk-bnxt" onclick="collectRP()" ${st.rp?'':'disabled'}>下一步</button>
       <button class="bk-bbk" onclick="prev()">返回</button>
     `);
+    const ta = document.getElementById('inp-rpnote');
+    if (ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
   }
 
   // ── Step 6 ────────────────────────────────────
@@ -804,25 +810,25 @@
     setMain(`
       ${stepTitle('基本資料')}
       <div style="margin-bottom:1.3rem;">
-        <div style="font-size:11px;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">遊戲角色名稱<span style="color:var(--gold);margin-left:2px;">*</span></div>
-        <input class="bk-input" type="text" id="inp-game" placeholder="請輸入遊戲內角色名稱" value="${escH(st.gameName)}">
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">遊戲角色名稱<span style="color:var(--gold);margin-left:2px;">*</span></div>
+        <input class="bk-input" type="text" id="inp-game" placeholder="輸入遊戲內角色名稱" value="${escH(st.gameName)}">
       </div>
       <div class="bk-fgrd" style="margin-bottom:1.3rem;">
         <div>
-          <div style="font-size:11px;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">所在伺服器<span style="color:var(--gold);margin-left:2px;">*</span></div>
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">所在World<span style="color:var(--gold);margin-left:2px;">*</span></div>
           <select class="bk-select" id="inp-server">
-            <option value="">— 請選擇 —</option>
+            <option value="">請選擇</option>
             ${SERVERS.map(s=>`<option value="${s}" ${st.server===s?'selected':''}>${s}</option>`).join('')}
           </select>
         </div>
         <div>
-          <div style="font-size:11px;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">Discord 使用者名稱<span style="color:var(--gold);margin-left:2px;">*</span></div>
-          <input class="bk-input" type="text" id="inp-contact" placeholder="username" value="${escH(st.contact)}">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">Discord使用者名稱<span style="color:var(--gold);margin-left:2px;">*</span></div>
+          <input class="bk-input" type="text" id="inp-contact" placeholder="輸入使用者名稱" value="${escH(st.contact)}">
         </div>
       </div>
       <div style="margin-bottom:1.3rem;">
-        <div style="font-size:11px;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">其他備註（選填）</div>
-        <textarea class="bk-textarea" id="inp-notes" placeholder="特殊需求、多人合影人數、或任何想讓使徒事先了解的事..." rows="2">${escH(st.notes)}</textarea>
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">其他備註（選填）</div>
+        <textarea class="bk-textarea" id="inp-notes" placeholder="如有需要補充的事項可在此輸入" rows="2">${escH(st.notes)}</textarea>
       </div>
       <button class="bk-bnxt" onclick="collectInfo()">前往確認</button>
       <button class="bk-bbk" onclick="prev()">返回</button>
@@ -831,40 +837,58 @@
 
   // ── Step 7 ────────────────────────────────────
   function renderConfirm() {
-    const apostleName = st.apostle==='none'?'不指定（由 Elysium 安排）':(APOSTLES.find(a=>a.id===st.apostle)?.name||'');
-    const svcs    = st.services.map(sid=>SERVICES.find(s=>s.id===sid)?.name).join('、');
-    const rpLbl   = {light:'輕 RP',medium:'中 RP',none:'無 RP'}[st.rp]||'';
-    const titleLbl = st.rpTitle==='自訂'?(st.rpTitleCustom||'自訂'):st.rpTitle;
+    const apostleName = st.apostle==='none'?'不指定使徒':(APOSTLES.find(a=>a.id===st.apostle)?.name||'');
+    const svcNames = st.services.map(sid=>SERVICES.find(s=>s.id===sid)?.name);
+    if (st.photoSig && st.services.includes('photo')) svcNames.push('簽名拍立得（加選）');
+    const svcs    = svcNames.join('、');
+    const rpLbl   = {heavy:'重 RP',medium:'中 RP',light:'輕 RP',none:'無 RP'}[st.rp]||'';
     const total   = calcTotal();
     const dayLabel = schedule[st.date]?.label?'　'+schedule[st.date].label:'';
     const row = (k,v) => v ? `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:13px;">
       <span style="color:var(--dim);flex-shrink:0;">${k}</span>
       <span style="color:var(--text);text-align:right;margin-left:.75rem;">${v}</span>
     </div>` : '';
+    const cell = (label, val) => val ? `
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:.15rem;white-space:nowrap;">${label}</div>
+        <div style="font-family:'Noto Serif TC',serif;font-size:.92rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${val}</div>
+      </div>` : '';
+    const section = (tag, ...cells) => `
+      <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">${tag}</div>
+        <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cells.join('')}</div>
+      </div>`;
     setMain(`
-      ${stepTitle('確認送出')}
-      <div style="margin-bottom:1.5rem;">
-        ${row('預約日期', fmtDate(st.date)+dayLabel)}
-        ${row('預約時段', st.time)}
-        ${row('服務項目', svcs)}
-        ${row('召引使徒', apostleName)}
-        ${row('RP 設定',  rpLbl)}
-        ${row('稱謂',     escH(titleLbl))}
-        ${row('角色名稱', escH(st.gameName))}
-        ${row('伺服器',   st.server)}
-        ${row('聯絡方式', escH(st.contact))}
-        ${st.rpNote ? row('角色備註', escH(st.rpNote)) : ''}
-        ${st.notes  ? row('其他備註', escH(st.notes))  : ''}
-        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:.9rem 0;margin-top:.2rem;">
-          <span style="font-size:12px;color:var(--dim);letter-spacing:.08em;">當前費用合計</span>
-          <span style="font-family:'Noto Serif TC',serif;font-size:1.4rem;font-weight:700;color:var(--text);">${total.toLocaleString()} Gil</span>
+      ${stepTitle('確認預約')}
+      <div style="max-width:480px;margin:0 auto;">
+      <div style="border:1px solid var(--border);background:#fff;margin-bottom:1.5rem;">
+        ${section('預約時段', cell('日期', fmtDate(st.date)+dayLabel), cell('場次', st.time))}
+        <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">預約內容</div>
+          <div style="display:flex;flex-wrap:wrap;gap:1.3rem 1.4rem;align-items:flex-start;">
+            <div style="flex:2;min-width:0;">${cell('服務項目', svcs)}</div>
+            <div style="flex:1;min-width:100px;">${cell('指名使徒', apostleName)}</div>
+            ${st.rpNote ? `<div style="flex:1;min-width:100px;">${cell('備註', escH(st.rpNote))}</div>` : ''}
+          </div>
+        </div>
+        <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">角色資訊</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cell('遊戲角色名稱', escH(st.gameName))}${cell('所在World', st.server)}${cell('RP 程度', rpLbl)}</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;margin-top:1.3rem;">${cell('Discord使用者名稱', escH(st.contact))}${st.notes ? cell('其他備註', escH(st.notes)) : ''}</div>
         </div>
       </div>
-      <p style="font-size:11.5px;color:var(--dim);line-height:2;text-align:center;margin-bottom:1.5rem;letter-spacing:.04em;">
-        ✦ 送出後請加入 DC 伺服器等待預約確認<br>
-        ✦ 入堂花環費（20,000 Gil）及實際費用以現場為準
-      </p>
-      <button class="bk-bnxt" onclick="submitRes()">確認送出召引</button>
+      <div style="padding:1rem 0;border-top:1px solid var(--border);margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;letter-spacing:.08em;color:var(--dim);">目前費用合計</span>
+          <div>
+            <span style="font-family:'Noto Serif TC',serif;font-size:1.5rem;font-weight:700;color:var(--text);">${total.toLocaleString()}</span>
+            <span style="font-size:11px;color:var(--dim);margin-left:.3rem;">Gil</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--dim);margin-top:4px;text-align:right;">※ 實際費用以現場為準</div>
+      </div>
+      </div>
+      <button class="bk-bnxt" onclick="submitRes()">確認送出</button>
       <button class="bk-bbk" onclick="prev()">修改資料</button>
     `);
   }
@@ -873,21 +897,17 @@
   function renderSuccess(gameName) {
     document.getElementById('bk-prog').innerHTML = '';
     setMain(`
-      <div style="text-align:center;padding:3.5rem 1.5rem;">
-        <div style="font-size:1.6rem;color:var(--gold);margin-bottom:1.2rem;letter-spacing:.6em;">✦ ✦ ✦</div>
-        <h2 style="font-family:'Noto Serif TC',serif;font-size:1.8rem;font-weight:700;color:var(--text);letter-spacing:.12em;margin-bottom:.8rem;">召引申請已送出</h2>
+      <div style="text-align:center;padding:2.5rem 1.5rem 1.5rem;background:linear-gradient(to bottom,rgba(184,144,96,.18),transparent);max-width:480px;margin:-2.5rem auto 0;">
+        <h2 style="font-family:'Noto Serif TC',serif;font-size:1.8rem;font-weight:700;color:var(--text);letter-spacing:.12em;margin-bottom:.8rem;">召引已記錄</h2>
         <div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.2),transparent);margin:1rem auto;"></div>
-        <p style="font-size:13px;color:var(--dim);line-height:2.5;">
-          迷途的靈魂，${escH(gameName)}，<br>
-          您的預約申請已成功送出。<br><br>
-          請加入 Elysium 的 DC 伺服器，<br>
-          等待使徒確認您的召引結果。<br><br>
-          帷幕之後，有人正在等待您的到來。
+        <p style="font-size:13px;color:var(--dim);line-height:2.5;text-align:center;">
+          徬徨的靈魂啊，前來尋求理解的追尋者。<br>
+          毋須憂慮，你的請求已傳達至安息地。<br><br>
+          請加入 Elysium 的 Discord 伺服器，<br>
+          等待司祭確認本次召引結果。<br><br>
+          在回應到來之前，願你得以片刻安歇。
         </p>
-        <a class="bk-dcbtn" href="${DC_LINK}" target="_blank">
-          <svg width="18" height="14" viewBox="0 0 20 16" fill="white"><path d="M16.93 1.33A16.46 16.46 0 0012.86.02a.07.07 0 00-.07.03c-.18.3-.38.7-.52 1.01a15.26 15.26 0 00-4.54 0 10.2 10.2 0 00-.53-1A.07.07 0 007.13 0C5.8.24 4.51.63 3.29 1.18a.06.06 0 00-.03.03C.48 5.5-.29 9.56.09 13.57c0 .02.01.04.03.05a16.56 16.56 0 004.94 2.49.07.07 0 00.08-.03c.38-.52.72-1.07 1.01-1.65a.07.07 0 00-.04-.1 10.9 10.9 0 01-1.55-.74.07.07 0 010-.12l.31-.24a.07.07 0 01.07-.01c3.25 1.48 6.77 1.48 9.99 0a.07.07 0 01.07.01l.31.24a.07.07 0 010 .12 10.2 10.2 0 01-1.56.74.07.07 0 00-.04.1c.3.58.64 1.13 1.01 1.65a.07.07 0 00.08.02 16.5 16.5 0 004.95-2.49.07.07 0 00.03-.05c.41-4.65-.69-8.68-2.91-12.24a.05.05 0 00-.02-.04z"/></svg>
-          加入 Discord 伺服器
-        </a>
+        <a class="bk-dcbtn" href="${DC_LINK}" target="_blank">加入 Discord 伺服器</a>
         <br>
         <button class="bk-bbk" style="max-width:260px;margin:.85rem auto 0;" onclick="resetForm()">再次預約</button>
       </div>
@@ -903,7 +923,7 @@
   function selectDate(v)    { st.date=v; st.time=''; render(); }
   function selectTime(t)    { st.time=t; render(); }
   function selectApostle(id){ st.apostle=(st.apostle===id?null:id); st.designated=(st.apostle!==null&&st.apostle!=='none'); render(); }
-  function selectRP(id)     { st.rp=id; render(); }
+  function selectRP(id)     { st.rp = (st.rp===id ? '' : id); render(); }
   function selectRPTitle(t) { st.rpTitle=t; render(); }
   function toggleSvc(id) {
     const i=st.services.indexOf(id);
@@ -936,7 +956,7 @@
     const day=schedule[st.date];
     if(!day||!day.open) { alert('此日期已關閉預約，請重新選擇。'); st.step=1; render(); return; }
     const availTimes=getAvailTimes(st.date);
-    if(!availTimes.includes(st.time)) { alert(`${st.time} 時段已不在開放範圍，請重新選擇。`); st.step=1; st.time=''; render(); return; }
+    if(!availTimes.includes(st.time)) { alert(`${st.time} 場次已不在開放範圍，請重新選擇。`); st.step=1; st.time=''; render(); return; }
     if(st.apostle&&st.apostle!=='none') {
       if(!isApostleOnDuty(st.date,st.apostle,st.time)) {
         const name=APOSTLES.find(a=>a.id===st.apostle)?.name||'該使徒';
@@ -1026,7 +1046,7 @@
   }
   function stepTitle(text) {
     return `<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:1.6rem;">
-      <span style="font-size:1rem;color:var(--gold);letter-spacing:.05em;flex-shrink:0;opacity:.9;position:relative;top:1px;">/ / /</span>
+      <span style="font-size:1rem;color:var(--gold);letter-spacing:.05em;flex-shrink:0;opacity:.9;position:relative;top:-1.5px;">/ / /</span>
       <div style="font-family:'Noto Serif TC',serif;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;white-space:nowrap;">${text}</div>
       <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>`;
@@ -1044,7 +1064,7 @@
       date: '2026-07-01', time: '22:00',
       services: ['nomen30'], designated: false, apostle: 'none',
       rp: 'light', rpTitle: '旅人', rpTitleCustom: '', rpNote: '',
-      gameName: '迷途的靈魂', server: '鳳凰', contact: 'preview_user', notes: '',
+      gameName: '徬徨的靈魂', server: '鳳凰', contact: 'preview_user', notes: '',
       step: 0,
     };
     const bar = document.createElement('div');
