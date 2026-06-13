@@ -92,7 +92,7 @@
     .bk-input, .bk-select, .bk-textarea {
       width: 100%; background: #fff; border: 1px solid var(--border);
       color: var(--text); padding: .65rem .9rem; border-radius: 2px;
-      font-size: 13px; font-family: 'Yu Mincho', '游明朝体', '游明朝', serif;
+      font-size: 13px; font-family: 'Noto Serif TC', serif;
       transition: border-color .2s; appearance: none; -webkit-appearance: none;
     }
     .bk-input:focus, .bk-select:focus, .bk-textarea:focus { outline: none; border-color: var(--gold); }
@@ -103,7 +103,7 @@
     .bk-tbtn {
       padding: .6rem .4rem; border: 1px solid var(--border); background: #fff;
       color: var(--dim); border-radius: 2px; font-size: 12px;
-      font-family: 'Yu Mincho', serif; cursor: pointer; text-align: center; transition: all .2s;
+      font-family: 'Noto Serif TC', serif; cursor: pointer; text-align: center; transition: all .2s;
     }
     .bk-tbtn:hover { border-color: var(--gold); color: var(--text); }
     .bk-tbtn.sel   { border-color: var(--text); background: var(--text); color: #fff; }
@@ -304,9 +304,9 @@
     <div class="bk-hdr">
       <div class="bk-hdr-tag" style="font-size:.62rem; letter-spacing:.5em; color:var(--gold); margin-bottom:0;">E L Y S I U M · 預 約 系 統</div>
       <div style="margin-top:.4rem;">
-        <h1 style="font-family:'Noto Serif TC','Yu Mincho',serif; font-size:clamp(1.6rem, 2.5vw, 2.2rem); font-weight:700; letter-spacing:.08em; line-height:1.35; margin:0 0 .8rem;">召引預約</h1>
+        <h1 style="font-family:'Noto Serif TC',serif; font-size:clamp(1.6rem, 2.5vw, 2.2rem); font-weight:700; letter-spacing:.08em; line-height:1.35; margin:0 0 .8rem;">召引預約</h1>
         <div class="bk-hdr-orn" style="width:40px; height:1px; background:linear-gradient(to right, transparent, rgba(0,0,0,.2), transparent); margin:1rem auto;"></div>
-        <p class="bk-hdr-sub" style="font-family:'Yu Mincho','游明朝体','游明朝',serif; font-size:.88rem; letter-spacing:.1em; color:var(--dim); text-align:center; margin:0;">獻予迷途靈魂的預約通道</p>
+        <p class="bk-hdr-sub" style="font-family:'Noto Serif TC',serif; font-size:.88rem; letter-spacing:.1em; color:var(--dim); text-align:center; margin:0;">獻予迷途靈魂的預約通道</p>
       </div>
     </div>
     <div id="bk-prog" class="bk-prog"></div>
@@ -616,7 +616,7 @@
       timesHtml = times.length===0
         ? `<p style="font-size:13px;color:var(--dim);margin-top:1.6rem;">所選日期尚未開放召引時段，請改選其他日期。</p>`
         : `<div style="margin-top:1.8rem;">
-            <div style="font-size:13px;font-family:'Yu Mincho','游明朝体','游明朝',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇時段<span style="color:var(--gold);margin-left:2px;">*</span></div>
+            <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇時段<span style="color:var(--gold);margin-left:2px;">*</span></div>
             <div class="bk-tgrd">${times.map(t=>{
               const avail = hasAvailableApostle(st.date, t);
               return `<button class="bk-tbtn${st.time===t?' sel':''}" onclick="${avail?`selectTime('${t}')`:''}" style="${!avail?'opacity:.3;cursor:not-allowed;':''}" ${!avail?'disabled':''}>${t}</button>`;
@@ -631,7 +631,7 @@
             <span style="font-size:11px;">請關注官網或 DC 伺服器的最新公告</span>
            </div>`
         : `<div style="margin-bottom:1.4rem;">
-            <div style="font-size:13px;font-family:'Yu Mincho','游明朝体','游明朝',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇日期<span style="color:var(--gold);margin-left:2px;">*</span></div>
+            <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇日期<span style="color:var(--gold);margin-left:2px;">*</span></div>
             <select class="bk-select" id="inp-date" onchange="selectDate(this.value)">
               <option value="">請選擇日期</option>
               ${openDates.map(d=>`<option value="${d}" ${st.date===d?'selected':''}>${fmtDate(d)}${schedule[d].label?'　'+schedule[d].label:''}</option>`).join('')}
