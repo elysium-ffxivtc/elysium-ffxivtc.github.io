@@ -197,7 +197,7 @@
   // ─────────────────────────────────────────────────────────────
   //  ★ 設定區
   // ─────────────────────────────────────────────────────────────
-  const API_URL  = 'https://script.google.com/macros/s/AKfycbxWXUzzUIrYRiG8r8ZzTCssfAyCBv_pGx52glmYbdC2K3djhqAe4tpCAZ10XavWGcIpAw/exec';
+  const API_URL  = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
   const DC_LINK  = 'YOUR_DISCORD_INVITE_LINK';
   const PREVIEW  = location.search.includes('preview');
 
@@ -244,7 +244,7 @@
   let st = {
     step: 0, agreed: false, date: '', time: '',
     services: [], photoSig: false, designated: false, apostle: null,
-    rp: '', rpTitle: '', rpTitleCustom: '', rpNote: '',
+    rp: '', rpNote: '',
     gameName: '', server: '', contact: '', notes: '',
   };
 
@@ -263,7 +263,7 @@
     showLoading(true);
     try {
       const [sched, res, apostles] = await Promise.all([
-        apiGet('getSchedule'), apiGet('getReservations'), apiGet('getApostles'),
+        apiGet('getSchedule'), apiGet('getRegistry'), apiGet('getApostles'),
       ]);
       if (sched && typeof sched === 'object') {
         schedule = {};
@@ -835,20 +835,20 @@
       id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
       date:st.date, time:st.time, services:[...st.services],
       designated:st.designated, apostle:st.apostle, photographer:null,
-      rp:st.rp, rpTitle:st.rpTitle, rpTitleCustom:st.rpTitleCustom, rpNote:st.rpNote,
+      rp:st.rp, rpNote:st.rpNote,
       gameName:st.gameName, server:st.server, contact:st.contact, notes:st.notes,
       total:calcTotal(), status:'new', createdAt:new Date().toISOString(),
     };
     reservations.push(res);
     showLoading(true);
-    await apiPost('saveReservations', reservations);
+    await apiPost('saveRegistry', reservations);
     showLoading(false);
     renderSuccess(st.gameName);
   }
   function goToStep(i) { if (i < st.step) { st.step = i; render(); } }
   function resetForm() {
     st={step:0,agreed:false,date:'',time:'',services:[],designated:false,apostle:null,
-        rp:'',rpTitle:'',rpTitleCustom:'',rpNote:'',gameName:'',server:'',contact:'',notes:''};
+        rp:'',rpNote:'',gameName:'',server:'',contact:'',notes:''};
     render();
   }
 
@@ -877,7 +877,7 @@
       agreed: true,
       date: '2026-07-01', time: '22:00',
       services: ['nomen30'], designated: false, apostle: 'none',
-      rp: 'light', rpTitle: '旅人', rpTitleCustom: '', rpNote: '',
+      rp: 'light', rpNote: '',
       gameName: '徬徨的靈魂', server: '鳳凰', contact: 'preview_user', notes: '',
       step: 0,
     };
