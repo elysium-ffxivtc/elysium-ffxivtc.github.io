@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "PowerShell(gh api repos/anthropics/skills/contents/skills/frontend-design --jq '.[] | {name: .name, type: .type}')",
-      "WebFetch(domain:api.github.com)"
-    ]
-  }
-}
