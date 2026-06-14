@@ -153,6 +153,9 @@
 
   <nav>
     <a href="index.html" class="nav-logo"><img src="Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+    <button class="nav-burger" id="nav-burger" aria-label="選單">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html">About</a></li>
@@ -198,7 +201,6 @@
   //  ★ 設定區
   // ─────────────────────────────────────────────────────────────
   const API_URL  = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
-  const DC_LINK  = 'YOUR_DISCORD_INVITE_LINK';
   const PREVIEW  = location.search.includes('preview');
 
   // ─────────────────────────────────────────────────────────────
@@ -468,7 +470,6 @@
     `);
   }
 
-  // ── Step 2 ────────────────────────────────────
   function fmtDate(dateStr) {
     const w=['日','一','二','三','四','五','六'], d=new Date(dateStr+'T00:00:00');
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} (${w[d.getDay()]})`;
@@ -855,7 +856,7 @@
   }
   function goToStep(i) { if (i < st.step) { st.step = i; render(); } }
   function resetForm() {
-    st={step:0,agreed:false,date:'',time:'',services:[],designated:false,apostle:null,
+    st={step:0,agreed:false,date:'',time:'',services:[],photoSig:false,designated:false,apostle:null,
         rp:'',rpNote:'',gameName:'',server:'',contact:'',notes:''};
     render();
   }

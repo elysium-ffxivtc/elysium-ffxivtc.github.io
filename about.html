@@ -11,6 +11,9 @@
 
   <nav>
     <a href="index.html" class="nav-logo"><img src="Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+    <button class="nav-burger" id="nav-burger" aria-label="選單">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html" class="active">About</a></li>
@@ -113,40 +116,6 @@
     </div>
     <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
   </footer>
-
-  <script>
-    function makeScrollLock(id) {
-      var target = document.getElementById(id);
-      if (!target) return;
-      var locked = false;
-      var lastY = window.scrollY;
-
-      window.addEventListener('scroll', function () {
-        var y = window.scrollY;
-        var goingUp = y < lastY;
-        lastY = y;
-
-        var rect = target.getBoundingClientRect();
-        if (rect.top > window.innerHeight || rect.bottom < 0) { locked = false; return; }
-        if (locked) return;
-
-        var snap = false;
-        if (!goingUp && rect.top > window.innerHeight * 0.1 && rect.top < window.innerHeight * 0.95) {
-          snap = true;
-        } else if (goingUp && rect.bottom > 0 && rect.top < window.innerHeight * 0.5) {
-          snap = true;
-        }
-
-        if (snap) {
-          locked = true;
-          window.scrollTo({ top: window.scrollY + rect.top - 120, behavior: 'smooth' });
-        }
-      }, { passive: true });
-    }
-
-    makeScrollLock('faith-heading');
-    makeScrollLock('glossary-heading');
-  </script>
 
   <script src="nav.js"></script>
 </body>
