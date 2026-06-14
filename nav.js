@@ -1,4 +1,11 @@
 (function () {
+  document.addEventListener('contextmenu', function (e) {
+    if (e.target.tagName === 'IMG') e.preventDefault();
+  });
+  document.addEventListener('dragstart', function (e) {
+    if (e.target.tagName === 'IMG') e.preventDefault();
+  });
+
   var nav = document.querySelector('nav');
   var lastY = window.scrollY;
 
