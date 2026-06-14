@@ -690,11 +690,13 @@
       </div>
       <div style="margin-bottom:1.3rem;">
         <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">其他備註（選填）</div>
-        <textarea class="bk-textarea" id="inp-notes" placeholder="如有需要補充的事項可在此輸入" rows="2">${escH(st.notes)}</textarea>
+        <textarea class="bk-textarea" id="inp-notes" placeholder="如有需要補充的事項可在此輸入" style="resize:none;overflow:hidden;min-height:72px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${escH(st.notes)}</textarea>
       </div>
       <button class="bk-bnxt" onclick="collectInfo()">前往確認</button>
       <button class="bk-bbk" onclick="prev()">返回</button>
     `);
+    const ta = document.getElementById('inp-notes');
+    if (ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
   }
 
   // ── Step 7 ────────────────────────────────────
