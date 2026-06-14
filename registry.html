@@ -147,6 +147,29 @@
       z-index: 9999; font-family: 'Noto Serif TC', serif; color: var(--text);
       font-size: 14px; letter-spacing: .15em;
     }
+    @media (max-width: 768px) {
+      .bk-apostle-bio .modal-img-wrap { height: 220px !important; }
+      .bk-apostle-bio .modal-content { height: auto !important; overflow-y: visible !important; padding: 1rem 1.2rem 1.5rem !important; }
+    }
+
+    /* ── Lightbox ── */
+    #bk-lightbox {
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,.92);
+      display: none; align-items: center; justify-content: center;
+      cursor: zoom-out;
+    }
+    #bk-lightbox.open { display: flex; }
+    #bk-lightbox img {
+      max-width: 92vw; max-height: 92vh;
+      object-fit: contain; display: block;
+      pointer-events: none;
+    }
+    #bk-lightbox-close {
+      position: absolute; top: 1.2rem; right: 1.4rem;
+      color: rgba(255,255,255,.7); font-size: 1.6rem;
+      line-height: 1; cursor: pointer; user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -172,6 +195,11 @@
       <li><span class="hidden-link">S⏹︎⏹︎RI⏹︎S</span></li>
     </ul>
   </nav>
+
+  <div id="bk-lightbox" onclick="closeLightbox()">
+    <span id="bk-lightbox-close">&times;</span>
+    <img id="bk-lightbox-img" src="" alt="">
+  </div>
 
   <div class="bk-page">
     <div class="bk-hdr">
@@ -242,7 +270,7 @@
   // ─────────────────────────────────────────────────────────────
   //  狀態
   // ─────────────────────────────────────────────────────────────
-  let schedule = {}, reservations = [], hoveredApostleId = null, previewBlock = false;
+  let schedule = {}, reservations = [], hoveredApostleId = null, previewBlock = false, openBioId = null;
   let st = {
     step: 0, agreed: false, date: '', time: '',
     services: [], photoSig: false, designated: false, apostle: null,
@@ -365,8 +393,9 @@
     var s = document.createElement('style');
     s.textContent = [
       '.bk-bbk:hover { background: #e8e8e8 !important; border-color: #c8c8c8 !important; color: #666 !important; }',
-      '.bk-apostle-bio { overflow: hidden; max-height: 0; transition: max-height .4s ease; }',
-      '.bk-apostle-wrap:hover .bk-apostle-bio { max-height: 420px; }',
+      '.bk-apostle-bio { overflow: hidden; max-height: 0; transition: max-height .6s ease; }',
+      '@media (min-width: 769px) { .bk-apostle-wrap:hover .bk-apostle-bio { max-height: 600px; } }',
+      '.bk-apostle-wrap.bio-open .bk-apostle-bio { max-height: 1200px; }',
       '.bk-apostle-bio .modal-content::-webkit-scrollbar,.modal-overlay::-webkit-scrollbar { width: 2px; }',
       '.bk-apostle-bio .modal-content::-webkit-scrollbar-track,.modal-overlay::-webkit-scrollbar-track { background: transparent; }',
       '.bk-apostle-bio .modal-content::-webkit-scrollbar-thumb,.modal-overlay::-webkit-scrollbar-thumb { background: rgba(184,144,96,.35); border-radius: 1px; }',
@@ -576,8 +605,8 @@
               const avLabel = available
                 ? `<span style="font-size:13px;color:var(--gold);letter-spacing:.04em;">開放召引</span>`
                 : `<span style="font-size:13px;color:#a05050;letter-spacing:.04em;">停止回應</span>`;
-              return `<div class="bk-apostle-wrap" data-aid="${a.id}" onmouseenter="hoveredApostleId='${a.id}'" onmouseleave="hoveredApostleId=null">
-                <div class="bk-apostle-item${!available?' bkd':''}" onclick="${available?`selectApostle('${a.id}')`:''}" style="position:relative;">
+              return `<div class="bk-apostle-wrap${openBioId===a.id?' bio-open':''}" data-aid="${a.id}" onmouseenter="hoveredApostleId='${a.id}'" onmouseleave="hoveredApostleId=null">
+                <div class="bk-apostle-item${!available?' bkd':''}" onclick="${available?`selectAndToggleBio('${a.id}')`:''}" style="position:relative;">
                   <div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);transform:scaleY(${isSel?1:0});transform-origin:center;transition:transform .2s;"></div>
                   <div class="bk-apostle-info">
                     <div class="bk-apostle-name" style="font-size:1.15rem;color:${isSel?'var(--gold)':'var(--text)'};">${escH(a.name)}</div>
@@ -587,7 +616,7 @@
                 </div>
                 <div class="bk-apostle-bio">
                   <div class="modal-inner" style="border-bottom:1px solid var(--border);">
-                    <div class="modal-img-wrap" style="height:380px;overflow:hidden;">
+                    <div class="modal-img-wrap" style="height:380px;overflow:hidden;${a.photo?'cursor:zoom-in;':''}" ${a.photo?`onclick="event.stopPropagation();openLightbox('${escH(a.photo)}')"`:''}>
                       ${a.photo
                         ? `<img src="${escH(a.photo)}" alt="${escH(a.name)}" style="width:100%;height:100%;object-fit:cover;object-position:top;">`
                         : `<div style="height:380px;background:#e8e6e3;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Noto Serif TC',serif;font-size:3rem;color:var(--gold);opacity:.5;">${escH(a.initial||a.name.slice(0,1))}</span></div>`
@@ -659,7 +688,7 @@
       }).join('')}
       <div style="margin-top:1.4rem;margin-bottom:1.3rem;">
         <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">備註（選填）</div>
-        <textarea class="bk-textarea" id="inp-rpnote" placeholder="會眾姓名、故事背景、特殊要求、禁止事項⋯" style="resize:none;overflow:hidden;min-height:72px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${escH(st.rpNote)}</textarea>
+        <textarea class="bk-textarea" id="inp-rpnote" placeholder="稱呼、故事背景、特殊要求、禁止事項⋯" style="resize:none;overflow:hidden;min-height:72px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${escH(st.rpNote)}</textarea>
       </div>
       <button class="bk-bnxt" onclick="collectRP()" ${st.rp?'':'disabled'}>下一步</button>
       <button class="bk-bbk" onclick="prev()">返回</button>
@@ -685,8 +714,8 @@
           </select>
         </div>
         <div>
-          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">Discord使用者名稱<span style="color:var(--gold);margin-left:2px;">*</span></div>
-          <input class="bk-input" type="text" id="inp-contact" placeholder="輸入使用者名稱" value="${escH(st.contact)}">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">Discord Id<span style="color:var(--gold);margin-left:2px;">*</span></div>
+          <input class="bk-input" type="text" id="inp-contact" placeholder="輸入使用者ID" value="${escH(st.contact)}">
         </div>
       </div>
       <div style="margin-bottom:1.3rem;">
@@ -730,21 +759,20 @@
         ${section('預約時段', cell('日期', fmtDate(st.date)+dayLabel), cell('場次', st.time))}
         <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
           <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">預約內容</div>
-          <div style="display:flex;flex-wrap:wrap;gap:1.3rem 1.4rem;align-items:flex-start;">
-            <div style="flex:2;min-width:max-content;">${cell('服務項目', svcs)}</div>
-            <div style="flex:1;min-width:100px;">${cell('指名使徒', apostleName)}</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">
+            ${cell('服務項目', svcs)}${cell('指名使徒', apostleName)}
           </div>
         </div>
         <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
           <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">RP 設定</div>
-          <div style="display:flex;flex-wrap:wrap;gap:1.3rem 1.4rem;align-items:flex-start;">
-            <div style="flex:1;min-width:100px;">${cell('RP 程度', rpLbl)}</div>
-            ${st.rpNote ? `<div style="flex:2;min-width:0;">${cell('備註', escH(st.rpNote), true)}</div>` : ''}
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">
+            ${cell('RP 程度', rpLbl)}${st.rpNote ? cell('備註', escH(st.rpNote), true) : ''}
           </div>
         </div>
         <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
           <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">角色資訊</div>
-          <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cell('遊戲角色名稱', escH(st.gameName))}${cell('所在World', st.server)}${cell('Discord使用者名稱', escH(st.contact))}</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;margin-bottom:1.3rem;">${cell('遊戲角色名稱', escH(st.gameName))}${cell('所在World', st.server)}</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cell('Discord Id', escH(st.contact))}</div>
           ${st.notes ? `<div style="display:flex;gap:1.4rem;align-items:flex-start;margin-top:1.3rem;">${cell('其他備註', escH(st.notes), true)}</div>` : ''}
         </div>
       </div>
@@ -788,6 +816,25 @@
   // ─────────────────────────────────────────────────────────────
   //  事件處理
   // ─────────────────────────────────────────────────────────────
+  function openLightbox(src) {
+    document.getElementById('bk-lightbox-img').src = src;
+    document.getElementById('bk-lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('bk-lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  function selectAndToggleBio(id) {
+    st.apostle = (st.apostle === id ? null : id);
+    st.designated = (st.apostle !== null && st.apostle !== 'none');
+    if (window.innerWidth <= 768) openBioId = (openBioId === id ? null : id);
+    render();
+  }
   function toggleAgree()    { st.agreed=!st.agreed; render(); }
   function next()           { st.step++; render(); }
   function prev()           { st.step--; render(); }
@@ -936,7 +983,24 @@
   // ─────────────────────────────────────────────────────────────
   render();
   loadData();
-  if (PREVIEW) injectPreviewBar();
+  if (PREVIEW) {
+    var _PD = {agreed:true,date:'2026-07-01',time:'22:00',services:['nomen30'],designated:false,apostle:'none',rp:'light',rpNote:'',gameName:'徬徨的靈魂',server:'鳳凰',contact:'preview_user',notes:'',step:0};
+    window.addEventListener('message', function(e) {
+      if (!e.data) return;
+      if (e.data.bk === 'jump') {
+        var i = e.data.step;
+        openBioId = null;
+        if (i===7) { Object.assign(st,_PD); document.getElementById('bk-prog').innerHTML=''; renderSuccess(_PD.gameName); }
+        else { Object.assign(st,_PD,{step:i}); render(); }
+      } else if (e.data.bk === 'block') {
+        previewBlock = !previewBlock;
+        if (st.apostle&&st.apostle!=='none') { st.apostle=null; st.designated=false; }
+        render();
+        if (e.source) e.source.postMessage({bk:'blockState', on:previewBlock}, '*');
+      }
+    });
+    if (window===window.top) injectPreviewBar();
+  }
   </script>
 
   <script src="nav.js"></script>
