@@ -11,6 +11,80 @@
     .modal-bio           { font-size: .9rem; }
     .modal-section-label { font-size: 1.1rem; }
     .modal-section-val   { font-size: .86rem; }
+
+    /* ── 司祭 speech bubble ── */
+    #modal-1 .modal-img-wrap { position: relative; }
+    #sj-head-trigger {
+      position: absolute;
+      top: 7%; left: 19%;
+      width: 48%; height: 28%;
+      z-index: 5;
+      cursor: default;
+    }
+    .sj-bubble {
+      position: absolute;
+      top: 5.5%; left: 32%;
+      background: #fff;
+      border-radius: 20px;
+      padding: 11px 17px;
+      display: flex; align-items: flex-end; gap: 4px;
+      filter: drop-shadow(0 3px 10px rgba(0,0,0,.14));
+      opacity: 0;
+      transform: scale(.82) translateY(-5px);
+      transform-origin: bottom left;
+      transition: opacity .3s ease, transform .3s ease;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .sj-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -8px; left: 14px;
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 8px solid #fff;
+    }
+    .sj-bubble.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    .sj-dot {
+      width: 5px; height: 5px;
+      background: #1a1a1a;
+      border-radius: 50%;
+      opacity: 0;
+    }
+    .sj-bubble.active .sj-dot:nth-child(1) { animation: sj-dot-1 5s ease-in-out infinite; }
+    .sj-bubble.active .sj-dot:nth-child(2) { animation: sj-dot-2 5s ease-in-out infinite; }
+    .sj-bubble.active .sj-dot:nth-child(3) { animation: sj-dot-3 5s ease-in-out infinite; }
+    /* dot 1: appears first */
+    @keyframes sj-dot-1 {
+      0%        { opacity: 0; }
+      10%       { opacity: 1; }
+      72%       { opacity: 1; }
+      84%       { opacity: 0; }
+      100%      { opacity: 0; }
+    }
+    /* dot 2: appears 0.8s later */
+    @keyframes sj-dot-2 {
+      0%, 16%   { opacity: 0; }
+      26%       { opacity: 1; }
+      72%       { opacity: 1; }
+      84%       { opacity: 0; }
+      100%      { opacity: 0; }
+    }
+    /* dot 3: appears 1.6s later */
+    @keyframes sj-dot-3 {
+      0%, 32%   { opacity: 0; }
+      42%       { opacity: 1; }
+      72%       { opacity: 1; }
+      84%       { opacity: 0; }
+      100%      { opacity: 0; }
+    }
+    @media (max-width: 768px) {
+      #sj-head-trigger, .sj-bubble { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -131,6 +205,7 @@
       <div class="modal-inner">
         <div class="modal-img-wrap">
           <img src="司祭.png" alt="司祭">
+          <div id="sj-head-trigger"></div>
         </div>
         <div class="modal-content">
           <span class="modal-role">司祭</span>
@@ -157,6 +232,11 @@
             </div>
           </div>
         </div>
+      </div>
+      <div id="sj-bubble" class="sj-bubble">
+        <span class="sj-dot"></span>
+        <span class="sj-dot"></span>
+        <span class="sj-dot"></span>
       </div>
     </div>
   </div>
@@ -199,6 +279,8 @@
   </div>
 
   <script>
+    var sjBubble = null;
+
     function openModal(id) {
       document.getElementById(id).classList.add('is-open');
       document.body.style.overflow = 'hidden';
@@ -207,6 +289,7 @@
       if (e && e.target !== document.getElementById(id)) return;
       document.getElementById(id).classList.remove('is-open');
       document.body.style.overflow = '';
+      if (id === 'modal-1' && sjBubble) sjBubble.classList.remove('active');
     }
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
@@ -214,8 +297,16 @@
           m.classList.remove('is-open');
           document.body.style.overflow = '';
         });
+        if (sjBubble) sjBubble.classList.remove('active');
       }
     });
+
+    sjBubble = document.getElementById('sj-bubble');
+    var sjTrigger = document.getElementById('sj-head-trigger');
+    if (sjTrigger && sjBubble) {
+      sjTrigger.addEventListener('mouseenter', function() { sjBubble.classList.add('active'); });
+      sjTrigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
+    }
   </script>
 
   <script src="nav.js"></script>
