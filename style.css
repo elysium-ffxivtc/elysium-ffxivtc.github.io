@@ -290,7 +290,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .about-bg-section {
   position: relative;
-  background-image: url('light-gray-abstract-background.jpg');
+  background-image: url('image/light-gray-abstract-background.jpg');
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: cover;

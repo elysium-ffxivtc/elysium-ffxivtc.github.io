@@ -1,0 +1,1010 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>預約召引 ✦ Elysium</title>
+  <link rel="icon" type="image/png" href="image/Elysium_LOGO_mini.png">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .bk-page { padding-top: 90px; min-height: 100vh; }
+
+    /* ── Header ── */
+    .bk-hdr {
+      text-align: center; padding: 2.2rem 1.5rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .bk-hdr-tag {
+      font-size: 10px; letter-spacing: .4em; color: var(--dim);
+      text-transform: uppercase; margin-top: 1rem; margin-bottom: .55rem;
+    }
+    .bk-hdr h1 {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.6rem; font-weight: 700; letter-spacing: .12em; color: var(--text);
+      margin: 0;
+    }
+    .bk-hdr-orn {
+      width: 40px; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(0,0,0,.2), transparent);
+      margin: .55rem auto;
+    }
+    .bk-hdr-sub { font-size: .82rem; letter-spacing: .1em; color: var(--dim); text-align: center; margin: 0; }
+
+    /* ── Main wrapper ── */
+    .bk-main { max-width: 640px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+    .bk-fade { animation: bkfi .3s ease; }
+    @keyframes bkfi { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .bk-input, .bk-select, .bk-textarea {
+      width: 100%; background: #fff; border: 1px solid var(--border);
+      color: var(--text); padding: .65rem .9rem; border-radius: 2px;
+      font-size: 13px; font-family: 'Noto Serif TC', serif; letter-spacing: .06em;
+      transition: border-color .2s; appearance: none; -webkit-appearance: none;
+    }
+    .bk-input:focus, .bk-select:focus, .bk-textarea:focus { outline: none; border-color: var(--gold); }
+    .bk-textarea { resize: vertical; min-height: 72px; line-height: 1.7; }
+
+    /* ── Time buttons ── */
+    .bk-tgrd { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px,1fr)); gap: 6px; margin-top: .5rem; }
+    .bk-tbtn {
+      padding: .6rem .4rem; border: 1px solid var(--border); background: #fff;
+      color: var(--dim); border-radius: 2px; font-size: 13px;
+      font-family: 'Noto Serif TC', serif; cursor: pointer; text-align: center; transition: all .2s;
+    }
+    .bk-tbtn:hover { border-color: var(--gold); color: var(--text); }
+    .bk-tbtn.sel   { border-color: var(--gold); background: rgba(184,144,96,.13); color: var(--gold); }
+
+    /* ── Service list ── */
+    .bk-svc {
+      display: flex; align-items: flex-start; gap: 1.1rem;
+      padding: 1.1rem 0; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: all .2s; position: relative;
+      padding-left: 1rem;
+    }
+    .bk-svc:first-of-type { border-top: 1px solid var(--border); }
+    .bk-svc::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: var(--gold);
+      transform: scaleY(0); transform-origin: center; transition: transform .22s;
+    }
+    .bk-svc.sel::before { transform: scaleY(1); }
+    .bk-svc-body { flex: 1; }
+    .bk-svc-name {
+      font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700;
+      color: var(--text); letter-spacing: .06em; margin-bottom: .2rem; transition: color .2s;
+    }
+    .bk-svc.sel .bk-svc-name { color: var(--gold); }
+    .bk-svc-desc { font-size: 12px; color: var(--dim); line-height: 1.75; }
+    .bk-svc-meta { text-align: right; flex-shrink: 0; white-space: nowrap; padding-top: 1px; }
+    .bk-svc-price { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--text); display: block; }
+    .bk-svc-dur   { font-size: 10px; color: var(--dim); }
+
+    /* ── Cost strip ── */
+    .bk-cost {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 1rem 0; border-top: 1px solid var(--border); margin-top: .3rem;
+    }
+    .bk-cost-lbl  { font-size: 12px; color: var(--dim); letter-spacing: .08em; }
+    .bk-cost-right { text-align: right; }
+    .bk-cost-val  { font-family: 'Noto Serif TC', serif; font-size: 1.5rem; font-weight: 700; color: var(--text); }
+    .bk-cost-unit { font-size: 11px; color: var(--dim); margin-left: .3rem; }
+    .bk-cost-note { font-size: 10px; color: var(--dim); margin-top: 2px; }
+
+    /* ── Apostle list ── */
+    .bk-apostle-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .85rem 1rem; background: #fff; border: 1px solid var(--border);
+      border-top: none; cursor: pointer; transition: all .2s; position: relative;
+    }
+    .bk-apostle-item:first-child { border-top: 1px solid var(--border); }
+    .bk-apostle-item:hover:not(.bkd) { border-color: rgba(184,144,96,.45); z-index: 1; }
+    .bk-apostle-item.sel  { border-color: var(--gold); z-index: 1; }
+    .bk-apostle-item.bkd  { opacity: .32; pointer-events: none; }
+    .bk-apostle-info { flex: 1; }
+    .bk-apostle-name {
+      font-family: 'Noto Serif TC', serif; font-size: .95rem; font-weight: 700;
+      color: var(--text); letter-spacing: .06em;
+    }
+    .bk-apostle-item.sel .bk-apostle-name { color: var(--gold); }
+    .bk-apostle-tag  { font-size: 11px; color: var(--dim); margin-top: 1px; }
+
+    /* ── Buttons ── */
+    .bk-bnxt {
+      display: block; width: 100%; padding: .9rem;
+      background: var(--text); border: none; color: #fff;
+      font-family: 'Noto Serif TC', serif; font-size: 13.5px; letter-spacing: .18em;
+      cursor: pointer; margin-top: 2rem; transition: opacity .2s; font-weight: 500;
+    }
+    .bk-bnxt:hover    { opacity: .78; }
+    .bk-bnxt:disabled { opacity: .2; cursor: not-allowed; }
+    .bk-cchk {
+      width: 18px; height: 18px; min-width: 18px; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; transition: all .2s;
+    }
+    .bk-cchk.on { background: var(--text); border-color: var(--text); }
+    .bk-bbk {
+      display: block; width: 100%; padding: .75rem;
+      background: transparent; border: 1px solid var(--border); color: var(--dim);
+      font-family: 'Noto Serif TC', serif; font-size: 13px; letter-spacing: .12em;
+      cursor: pointer; margin-top: .55rem; transition: all .2s;
+    }
+    .bk-bbk:hover { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.25); color: var(--text); }
+
+    .bk-dcbtn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+      width: 100%; max-width: 260px; padding: .75rem;
+      background: var(--text); border: none;
+      color: #fff; font-family: 'Noto Serif TC', serif; font-size: 13.5px;
+      letter-spacing: .18em; cursor: pointer; transition: opacity .2s; text-decoration: none;
+      font-weight: 500; margin-top: 1.5rem;
+    }
+    .bk-dcbtn:hover { opacity: .78; }
+
+    /* ── Loading ── */
+    #bk-loading {
+      position: fixed; inset: 0; background: rgba(239,239,239,.92);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; font-family: 'Noto Serif TC', serif; color: var(--text);
+      font-size: 14px; letter-spacing: .15em;
+    }
+    @media (max-width: 768px) {
+      .bk-apostle-bio .modal-img-wrap { height: 220px !important; }
+      .bk-apostle-bio .modal-content { height: auto !important; overflow-y: visible !important; padding: 1rem 1.2rem 1.5rem !important; }
+    }
+
+    /* ── Lightbox ── */
+    #bk-lightbox {
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,.92);
+      display: none; align-items: center; justify-content: center;
+      cursor: zoom-out;
+    }
+    #bk-lightbox.open { display: flex; }
+    #bk-lightbox img {
+      max-width: 92vw; max-height: 92vh;
+      object-fit: contain; display: block;
+      pointer-events: none;
+    }
+    #bk-lightbox-close {
+      position: absolute; top: 1.2rem; right: 1.4rem;
+      color: rgba(255,255,255,.7); font-size: 1.6rem;
+      line-height: 1; cursor: pointer; user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo"><img src="image/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+    <button class="nav-burger" id="nav-burger" aria-label="選單">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="members.html">Members</a></li>
+      <li class="dropdown">
+        <span>Services</span>
+        <div class="dropdown-menu">
+          <a href="nomen.html">Nomen</a>
+          <a href="menu.html">Menu</a>
+        </div>
+      </li>
+      <li><span class="hidden-link">Registry</span></li>
+      <li><a href="rules.html">Rules</a></li>
+      <li><span class="hidden-link">S⏹︎⏹︎RI⏹︎S</span></li>
+    </ul>
+  </nav>
+
+  <div id="bk-lightbox" onclick="closeLightbox()">
+    <span id="bk-lightbox-close">&times;</span>
+    <img id="bk-lightbox-img" src="" alt="">
+  </div>
+
+  <div class="bk-page">
+    <div class="bk-hdr">
+      <div class="bk-hdr-tag" style="font-size:.62rem; letter-spacing:.5em; color:var(--gold); margin-bottom:0;">E L Y S I U M</div>
+      <div style="margin-top:.4rem;">
+        <h1 style="font-family:'Noto Serif TC',serif; font-size:clamp(1.6rem, 2.5vw, 2.2rem); font-weight:700; letter-spacing:.08em; line-height:1.35; margin:0 0 .8rem;">召引預約</h1>
+        <div class="bk-hdr-orn" style="width:40px; height:1px; background:linear-gradient(to right, transparent, rgba(0,0,0,.2), transparent); margin:1rem auto;"></div>
+        <p class="bk-hdr-sub" style="font-family:'Noto Serif TC',serif; font-size:.88rem; letter-spacing:.1em; color:var(--dim); text-align:center; margin:0;">獻予徬徨靈魂的朝聖之途</p>
+      </div>
+    </div>
+    <div id="bk-prog" class="bk-prog"></div>
+    <div id="bk-main" class="bk-main"></div>
+  </div>
+
+  <footer>
+    <div class="footer-social">
+      <span class="footer-social-link"><img src="image/discord_.png" alt="Discord" class="footer-icon"></span>
+      <a href="https://www.threads.com/@elysium.ffxivtc" target="_blank" rel="noopener" class="footer-social-link" aria-label="Threads">
+        <img src="image/threads_.png" alt="Threads" class="footer-icon">
+      </a>
+    </div>
+    <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
+  </footer>
+
+  <script>
+  // ─────────────────────────────────────────────────────────────
+  //  ★ 設定區
+  // ─────────────────────────────────────────────────────────────
+  const API_URL  = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
+  const PREVIEW  = location.search.includes('preview');
+
+  // ─────────────────────────────────────────────────────────────
+  //  資料
+  // ─────────────────────────────────────────────────────────────
+  let APOSTLES = [];
+
+  const SERVICES = [
+    {
+      id: 'nomen30', name: '顯名儀',
+      desc: '回應召喚的基礎儀式。\n使徒將與您共度片刻，並留下最初的名痕。',
+      price: 100000, dur: 30, canDesig: true,
+    },
+    {
+      id: 'photo', name: '交名留影',
+      desc: '留下使徒短暫顯現的痕跡。\n拍立得一張，化作永恆的珍貴時刻。\n※ 多人合影（至多三人）另計',
+      price: 100000, canDesig: true,
+    },
+  ];
+
+  const STEPS = [
+    { id: 'agree',    label: '禮堂規約' },
+    { id: 'datetime', label: '日期場次' },
+    { id: 'service',  label: '儀式選擇' },
+    { id: 'apostle',  label: '召引使徒' },
+    { id: 'rp',       label: '會眾資訊'  },
+    { id: 'info',     label: '基本資料' },
+    { id: 'confirm',  label: '確認送出' },
+  ];
+
+  const RP_OPTS = [
+    { id: 'heavy',  label: '重 RP',  desc: '完全以角色視角行動，嚴格遵守世界觀與角色設定。' },
+    { id: 'medium', label: '中 RP',  desc: '含有角色設定背景，完全沉浸在艾奧傑亞的世界觀之中。' },
+    { id: 'light',  label: '輕 RP',  desc: '以自身角色進行，享受使徒的服務與互動，體驗 Elysium 的氛圍。' },
+    { id: 'none',   label: '無 RP',  desc: '不進行角色扮演，作為一般玩家享受服務。' },
+  ];
+  const SERVERS    = ['伊弗利特', '迦樓羅', '利維坦', '鳳凰', '奧汀', '巴哈姆特', '泰坦'];
+
+  // ─────────────────────────────────────────────────────────────
+  //  狀態
+  // ─────────────────────────────────────────────────────────────
+  let schedule = {}, reservations = [], hoveredApostleId = null, previewBlock = false, openBioId = null;
+  let st = {
+    step: 0, agreed: false, date: '', time: '',
+    services: [], photoSig: false, designated: false, apostle: null,
+    rp: '', rpNote: '',
+    gameName: '', server: '', contact: '', notes: '',
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  //  API
+  // ─────────────────────────────────────────────────────────────
+  async function apiGet(action) {
+    try { return await (await fetch(`${API_URL}?action=${action}`)).json(); }
+    catch(e) { console.error('apiGet:', action, e); return null; }
+  }
+  async function apiPost(action, data) {
+    try { return await (await fetch(API_URL, { method:'POST', body: JSON.stringify({action,data}) })).json(); }
+    catch(e) { console.error('apiPost:', action, e); return null; }
+  }
+  async function loadData() {
+    showLoading(true);
+    try {
+      const [sched, res, apostles] = await Promise.all([
+        apiGet('getSchedule'), apiGet('getRegistry'), apiGet('getApostles'),
+      ]);
+      if (sched && typeof sched === 'object') {
+        schedule = {};
+        Object.entries(sched).forEach(([k,v]) => {
+          schedule[k.length===10 ? k : new Date(k).toISOString().slice(0,10)] = v;
+        });
+      }
+      if (Array.isArray(res))                          reservations = res;
+      if (Array.isArray(apostles) && apostles.length)  APOSTLES = apostles;
+    } catch(e) { console.error(e); }
+    showLoading(false);
+  }
+  const LOAD_ICONS = ['image/Elysium_LOGO.png','image/eye_final.png','image/key_final.png','image/moon_final.png','image/scale_final.png'];
+
+  function showLoading(on) {
+    let el = document.getElementById('bk-loading');
+    if (on) {
+      if (!el) {
+        el = document.createElement('div'); el.id = 'bk-loading';
+        el.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:.9rem;">
+            <div style="width:50px;height:50px;perspective:120px;">
+              <img id="bk-load-img" src="image/eye_final.png" alt=""
+                style="width:50px;height:50px;object-fit:contain;display:block;transition:transform .18s ease;">
+            </div>
+          </div>`;
+        document.body.appendChild(el);
+      }
+      if (el._interval) clearInterval(el._interval);
+      const shuffled = LOAD_ICONS.slice().sort(function() { return Math.random() - .5; });
+      let idx = 0;
+      const img = document.getElementById('bk-load-img');
+      img.src = shuffled[0];
+      el._interval = setInterval(function() {
+        img.style.transform = 'rotateY(90deg)';
+        setTimeout(function() {
+          idx = (idx + 1) % shuffled.length;
+          img.src = shuffled[idx];
+          img.style.transform = 'rotateY(-90deg)';
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() { img.style.transform = 'rotateY(0deg)'; });
+          });
+        }, 180);
+      }, 900);
+      el.style.display = 'flex';
+    } else {
+      if (el) {
+        if (el._interval) { clearInterval(el._interval); el._interval = null; }
+        el.style.display = 'none';
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  排班邏輯
+  // ─────────────────────────────────────────────────────────────
+  function getAvailTimes(dateStr) {
+    const d = schedule[dateStr];
+    if (!d || !d.open) return [];
+    return (d.times||[]);
+  }
+  function getApostleBookableTimes(dateStr, id) {
+    const day = schedule[dateStr]; if (!day) return [];
+    if (day.butlerShifts && Object.keys(day.butlerShifts).length > 0) {
+      return day.butlerShifts[id] || [];
+    }
+    return day.times || [];
+  }
+  function isApostleOnDuty(dateStr, id, time) { return getApostleBookableTimes(dateStr,id).includes(time); }
+  function hasAvailableApostle(dateStr, time) {
+    if (!APOSTLES.length) return true;
+    const onDuty = APOSTLES.filter(a => isApostleOnDuty(dateStr, a.id, time));
+    if (!onDuty.length) return false;
+    return onDuty.some(a => {
+      const s = getApostleSlotStatus(dateStr, a.id).find(ts => ts.time === time);
+      return s ? !s.blocked : false;
+    });
+  }
+  function getApostleSlotStatus(dateStr, id) {
+    const allTimes = getAvailTimes(dateStr);
+    if (PREVIEW && previewBlock) return allTimes.map(t => ({ time:t, blocked:true }));
+    const booked = new Set(
+      reservations.filter(r => r.date===dateStr && r.apostle===id && (r.status||'new')!=='cancelled')
+        .map(r => r.time).filter(t => allTimes.includes(t))
+    );
+    return allTimes.map(t => ({ time:t, blocked:booked.has(t) }));
+  }
+  function calcTotal() {
+    return st.services.reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0)
+      + (st.photoSig && st.services.includes('photo') ? 20000 : 0);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  Render
+  // ─────────────────────────────────────────────────────────────
+  (function() {
+    var s = document.createElement('style');
+    s.textContent = [
+      '.bk-bbk:hover { background: #e8e8e8 !important; border-color: #c8c8c8 !important; color: #666 !important; }',
+      '.bk-apostle-bio { overflow: hidden; max-height: 0; transition: max-height .6s ease; }',
+      '@media (min-width: 769px) { .bk-apostle-wrap:hover .bk-apostle-bio { max-height: 600px; } }',
+      '.bk-apostle-wrap.bio-open .bk-apostle-bio { max-height: 1200px; }',
+      '.bk-apostle-bio .modal-content::-webkit-scrollbar,.modal-overlay::-webkit-scrollbar { width: 2px; }',
+      '.bk-apostle-bio .modal-content::-webkit-scrollbar-track,.modal-overlay::-webkit-scrollbar-track { background: transparent; }',
+      '.bk-apostle-bio .modal-content::-webkit-scrollbar-thumb,.modal-overlay::-webkit-scrollbar-thumb { background: rgba(184,144,96,.35); border-radius: 1px; }',
+      '.bk-apostle-bio .modal-content { scrollbar-width: thin; scrollbar-color: rgba(184,144,96,.35) transparent; }',
+    ].join('');
+    document.head.appendChild(s);
+  })();
+
+  function setMain(html) {
+    const m = document.getElementById('bk-main');
+    m.className = 'bk-main bk-fade'; m.innerHTML = html;
+    if (hoveredApostleId) {
+      const wrap = m.querySelector('[data-aid="'+hoveredApostleId+'"]');
+      if (wrap) {
+        const bio = wrap.querySelector('.bk-apostle-bio');
+        if (bio) {
+          bio.style.transition = 'none';
+          bio.style.maxHeight = '600px';
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() { bio.style.transition = ''; bio.style.maxHeight = ''; });
+          });
+        }
+      }
+    }
+    const bnxt = m.querySelector('.bk-bnxt');
+    const bbk  = m.querySelector('.bk-bbk');
+    if (bnxt && bbk) {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;gap:.6rem;margin-top:2rem;';
+      [bnxt, bbk].forEach(function(b) { b.style.marginTop='0'; b.style.width='auto'; });
+      bbk.style.flex  = '1';
+      bnxt.style.flex = '2';
+      bnxt.parentNode.insertBefore(wrap, bnxt);
+      bnxt.remove();
+      bbk.remove();
+      wrap.appendChild(bbk);
+      wrap.appendChild(bnxt);
+    }
+  }
+
+  function renderProgress() {
+    const ROMAN = ['I','II','III','IV','V','VI','VII'];
+    const items = STEPS.map((s, i) => {
+      let wrap, inner;
+      if (i === st.step) {
+        wrap  = 'background:var(--gold);border:1px solid var(--gold);';
+        inner = 'color:#fff;font-weight:700;';
+      } else if (i < st.step) {
+        wrap  = 'border:1px solid var(--gold);cursor:pointer;';
+        inner = 'color:var(--gold);';
+        return `<div onclick="goToStep(${i})" title="返回${s.label}" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:26px;transform:skewX(-14deg);${wrap}">
+          <span style="transform:skewX(14deg);font-size:12px;letter-spacing:.05em;${inner}">${ROMAN[i]}</span>
+        </div>`;
+      } else {
+        wrap  = 'border:1px solid rgba(0,0,0,.1);';
+        inner = 'color:var(--dim);opacity:.25;';
+      }
+      return `<div style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:26px;transform:skewX(-14deg);${wrap}">
+        <span style="transform:skewX(14deg);font-size:12px;letter-spacing:.05em;${inner}">${ROMAN[i]}</span>
+      </div>`;
+    }).join('');
+    const el = document.getElementById('bk-prog');
+    el.style.cssText = 'background:none;border:none;padding:0;';
+    el.innerHTML = `
+      <div style="display:flex;justify-content:center;align-items:center;gap:10px;padding:.85rem 1.5rem;">
+        ${items}
+      </div>
+    `;
+  }
+
+  function render() {
+    renderProgress();
+    const id = STEPS[st.step]?.id;
+    if      (id==='agree')    renderAgree();
+    else if (id==='datetime') renderDatetime();
+    else if (id==='service')  renderService();
+    else if (id==='apostle')  renderApostle();
+    else if (id==='rp')       renderRP();
+    else if (id==='info')     renderInfo();
+    else if (id==='confirm')  renderConfirm();
+  }
+
+  // ── Step 1 ────────────────────────────────────
+  function renderAgree() {
+    setMain(`
+      ${stepTitle('入堂須知')}
+      <div style="background:#fff;border-bottom:1px solid var(--border);padding:1.4rem 1.5rem;margin-bottom:1.6rem;">
+        <p style="font-size:13px;color:var(--text);line-height:2;margin-bottom:1.2rem;">為了讓您有更好的與會體驗，請詳細閱讀禮堂規約。</p>
+        <a href="rules.html" target="_blank" style="display:inline-block;font-size:.95rem;font-family:'Noto Serif TC',serif;font-weight:700;color:var(--gold);text-decoration:none;letter-spacing:.18em;position:relative;top:-6px;">𓊆 禮堂規約 𓊇</a>
+      </div>
+
+      <div onclick="toggleAgree()" style="cursor:pointer;padding:1.1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem;">
+        <div class="bk-cchk${st.agreed?' on':''}" style="margin-top:6px;border-radius:0;">${st.agreed?chkSvg():''}</div>
+        <div>
+          <div style="font-family:'Noto Serif TC',serif;font-size:.9rem;color:var(--text);letter-spacing:.05em;margin-bottom:.25rem;">本人已閱讀並同意 Elysium 規約之全部條款。</div>
+          <div style="font-size:11px;color:var(--dim);letter-spacing:.04em;">違反規約者將影響與會資格</div>
+        </div>
+      </div>
+
+      <button class="bk-bnxt" onclick="next()" ${st.agreed?'':'disabled'}>前往預約</button>
+    `);
+  }
+
+  function fmtDate(dateStr) {
+    const w=['日','一','二','三','四','五','六'], d=new Date(dateStr+'T00:00:00');
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} (${w[d.getDay()]})`;
+  }
+
+  // ── Step 2 ────────────────────────────────────
+  function renderDatetime() {
+    const today = new Date().toISOString().slice(0,10);
+    const openDates = Object.keys(schedule).filter(d=>schedule[d]?.open&&d>=today).sort();
+    let timesHtml = '';
+    if (st.date) {
+      const times = getAvailTimes(st.date);
+      timesHtml = times.length===0
+        ? `<p style="font-size:13px;color:var(--dim);margin-top:1.6rem;">所選日期尚未開放召引場次，請改選其他日期。</p>`
+        : `<div style="margin-top:1.8rem;">
+            <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇場次<span style="color:var(--gold);margin-left:2px;">*</span></div>
+            <div class="bk-tgrd">${times.map(t=>{
+              const avail = hasAvailableApostle(st.date, t);
+              return `<button class="bk-tbtn${st.time===t?' sel':''}" onclick="${avail?`selectTime('${t}')`:''}" style="${!avail?'opacity:.3;cursor:not-allowed;':''}" ${!avail?'disabled':''}>${t}</button>`;
+            }).join('')}</div>
+          </div>`;
+    }
+    setMain(`
+      ${stepTitle('日期場次')}
+      ${openDates.length===0
+        ? `<div style="text-align:center;padding:3rem 1rem;color:var(--dim);font-size:13px;line-height:2.2;">
+            目前尚無開放預約的場次<br>
+            <span style="font-size:11px;">請關注官網或 DC 伺服器的最新公告</span>
+           </div>`
+        : `<div style="margin-bottom:1.4rem;">
+            <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">選擇日期<span style="color:var(--gold);margin-left:2px;">*</span></div>
+            <select class="bk-select" id="inp-date" onchange="selectDate(this.value)">
+              <option value="">請選擇</option>
+              ${openDates.map(d=>`<option value="${d}" ${st.date===d?'selected':''}>${fmtDate(d)}${schedule[d].label?'　'+schedule[d].label:''}</option>`).join('')}
+            </select>
+          </div>`
+      }
+      ${timesHtml}
+      <button class="bk-bnxt" onclick="next()" ${st.date&&st.time?'':'disabled'}>下一步</button>
+      <button class="bk-bbk" onclick="prev()">返回</button>
+    `);
+  }
+
+  // ── Step 3 ────────────────────────────────────
+  function renderService() {
+    const total = calcTotal();
+    setMain(`
+      ${stepTitle('儀式選擇')}
+      <div style="background:#fff;border-bottom:1px solid var(--border);padding:1rem 1.5rem;margin-bottom:1.6rem;font-size:13px;color:var(--dim);line-height:2.1;">
+        以下費用不含入堂花環費（預約召引者 20,000 Gil，現場收取）
+      </div>
+      ${SERVICES.map(s=>{
+        const sel=st.services.includes(s.id);
+        const locked = s.id==='photo' && !st.services.includes('nomen30');
+        return `<div class="bk-svc${sel?' sel':''}" onclick="${locked?'':'toggleSvc(\''+s.id+'\')'}" style="background:${sel?'rgba(184,144,96,0.13)':'transparent'};padding:1.5rem 1.2rem 1.5rem 1rem;opacity:${locked?'.35':'1'};cursor:${locked?'not-allowed':'pointer'};">
+          <div class="bk-svc-body">
+            <div class="bk-svc-name" style="color:${sel?'var(--gold)':'var(--text)'};">${s.name}</div>
+            <div class="bk-svc-desc" style="color:${sel?'var(--text)':'var(--dim)'};">${s.desc.replace(/\n/g,'<br>')}</div>
+          </div>
+          <div class="bk-svc-meta">
+            <span class="bk-svc-price">${s.price.toLocaleString()} Gil</span>
+            ${s.dur?`<span class="bk-svc-dur">${s.dur} min</span>`:''}
+          </div>
+        </div>
+        ${s.id==='photo'&&sel?`<div class="bk-fade" onclick="togglePhotoSig()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.2rem .85rem 1.8rem;border-top:1px solid var(--border);background:${st.photoSig?'rgba(184,144,96,0.13)':'rgba(0,0,0,.02)'};position:relative;">
+          <div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);transform:scaleY(${st.photoSig?1:0});transform-origin:center;transition:transform .2s;"></div>
+          <div style="font-size:13px;color:${st.photoSig?'var(--gold)':'var(--dim)'};letter-spacing:.04em;">加選：簽名拍立得</div>
+          <span style="font-size:13px;color:${st.photoSig?'var(--text)':'var(--dim)'};">20,000 Gil</span>
+        </div>`:''}
+        `;
+      }).join('')}
+      <div class="bk-cost">
+        <div class="bk-cost-lbl">目前費用合計</div>
+        <div class="bk-cost-right">
+          <span class="bk-cost-val">${total.toLocaleString()}</span><span class="bk-cost-unit">Gil</span>
+          <div class="bk-cost-note" style="font-size:12px;">※ 花環費另計</div>
+        </div>
+      </div>
+      <button class="bk-bnxt" onclick="next()" ${st.services.length>0?'':'disabled'}>下一步</button>
+      <button class="bk-bbk" onclick="prev()">返回</button>
+    `);
+  }
+
+  // ── Step 4 ────────────────────────────────────
+  function renderApostle() {
+    const canDesig = st.services.some(sid=>SERVICES.find(s=>s.id===sid)?.canDesig);
+    const total = calcTotal();
+    let apostleHtml = '';
+    let anyAvailable = false;
+
+    if (canDesig) {
+      const visible = APOSTLES.filter(a=>isApostleOnDuty(st.date,a.id,st.time));
+      anyAvailable = visible.some(a => {
+        const s = getApostleSlotStatus(st.date,a.id).find(ts=>ts.time===st.time);
+        return s ? !s.blocked : false;
+      });
+      apostleHtml = `
+        ${visible.length===0
+          ? `<p style="font-size:13px;color:var(--dim);line-height:2;">此場次暫無使徒排班，請返回選擇其他場次。</p>`
+          : visible.map(a=>{
+              const slotStatus = getApostleSlotStatus(st.date,a.id).find(ts=>ts.time===st.time);
+              const available  = slotStatus ? !slotStatus.blocked : false;
+              const isSel = st.apostle===a.id;
+              const avLabel = available
+                ? `<span style="font-size:13px;color:var(--gold);letter-spacing:.04em;">開放召引</span>`
+                : `<span style="font-size:13px;color:#a05050;letter-spacing:.04em;">停止回應</span>`;
+              return `<div class="bk-apostle-wrap${openBioId===a.id?' bio-open':''}" data-aid="${a.id}" onmouseenter="hoveredApostleId='${a.id}'" onmouseleave="hoveredApostleId=null">
+                <div class="bk-apostle-item${!available?' bkd':''}" onclick="${available?`selectAndToggleBio('${a.id}')`:''}" style="position:relative;">
+                  <div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);transform:scaleY(${isSel?1:0});transform-origin:center;transition:transform .2s;"></div>
+                  <div class="bk-apostle-info">
+                    <div class="bk-apostle-name" style="font-size:1.15rem;color:${isSel?'var(--gold)':'var(--text)'};">${escH(a.name)}</div>
+                    <div class="bk-apostle-tag" style="font-size:14px;margin-top:0;">${escH(a.tag)}</div>
+                  </div>
+                  <div style="flex-shrink:0;">${avLabel}</div>
+                </div>
+                <div class="bk-apostle-bio">
+                  <div class="modal-inner" style="border-bottom:1px solid var(--border);">
+                    <div class="modal-img-wrap" style="height:380px;overflow:hidden;${a.photo?'cursor:zoom-in;':''}" ${a.photo?`onclick="event.stopPropagation();openLightbox('${escH(a.photo)}')"`:''}>
+                      ${a.photo
+                        ? `<img src="${escH(a.photo)}" alt="${escH(a.name)}" style="width:100%;height:100%;object-fit:cover;object-position:top;">`
+                        : `<div style="height:380px;background:#e8e6e3;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Noto Serif TC',serif;font-size:3rem;color:var(--gold);opacity:.5;">${escH(a.initial||a.name.slice(0,1))}</span></div>`
+                      }
+                    </div>
+                    <div class="modal-content" style="padding:1.2rem 1.5rem 1.5rem;height:380px;overflow-y:auto;">
+                      ${a.subtitle ? `<p class="modal-subtitle" style="font-size:.72rem;margin-bottom:.6rem;">${escH(a.subtitle)}</p>` : ''}
+                      <div class="modal-divider"></div>
+                      ${a.bio ? `<p class="modal-bio">${escH(a.bio).replace(/\n/g,'<br>')}</p>` : ''}
+                      <div class="modal-section">
+                        ${a.chat  ? `<div style="margin-bottom:.9rem;"><p class="modal-section-label">聊天尺度</p><p class="modal-section-val">${escH(a.chat).replace(/\n/g,'<br>')}</p></div>` : ''}
+                        ${a.taboo ? `<div style="margin-bottom:.9rem;"><p class="modal-section-label">禁忌與偏好</p><p class="modal-section-val">${escH(a.taboo).replace(/\n/g,'<br>')}</p></div>` : ''}
+                        ${a.extra ? `<div style="margin-bottom:.9rem;"><p class="modal-section-label">補充內容</p><p class="modal-section-val">${escH(a.extra).replace(/\n/g,'<br>')}</p></div>` : ''}
+                        <div><p class="modal-section-label">個人業務</p><p class="modal-section-val">${escH(a.business||'暫不提供')}</p></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>`;
+            }).join('')
+        }
+        ${visible.length>0 && !anyAvailable
+          ? `<p style="font-size:13px;color:var(--dim);line-height:2;padding:.8rem 0;border-top:1px solid var(--border);">此場次所有使徒召引已額滿，請返回選擇其他場次。</p>`
+          : ''
+        }
+        ${anyAvailable
+          ? `<div onclick="selectApostle('none')" style="cursor:pointer;display:flex;align-items:center;padding:.85rem 1rem;border-top:none;border-bottom:1px solid var(--border);position:relative;transition:background .2s;background:${st.apostle==='none'?'rgba(184,144,96,0.13)':'transparent'};">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);transform:scaleY(${st.apostle==='none'?1:0});transform-origin:center;transition:transform .2s;"></div>
+              <div>
+                <div style="font-size:14px;font-family:'Noto Serif TC',serif;font-weight:700;color:${st.apostle==='none'?'var(--gold)':'var(--text)'};letter-spacing:.06em;margin-bottom:.2rem;transition:color .2s;">不指定使徒</div>
+                <div style="font-size:12px;color:var(--dim);line-height:1.75;">有極低的機率觸發特殊條件</div>
+              </div>
+            </div>`
+          : ''
+        }
+      `;
+    } else {
+      if (!st.apostle) { st.apostle='none'; st.designated=false; }
+      apostleHtml = `<p style="font-size:13px;color:var(--dim);line-height:2;">您所選擇的服務不包含指名選項。</p>`;
+    }
+
+    setMain(`
+      ${stepTitle('召引使徒')}
+      ${apostleHtml}
+      <div class="bk-cost" style="margin-top:.3rem;">
+        <div class="bk-cost-lbl">目前費用合計</div>
+        <div class="bk-cost-right">
+          <span class="bk-cost-val">${total.toLocaleString()}</span><span class="bk-cost-unit">Gil</span>
+        </div>
+      </div>
+      <button class="bk-bnxt" onclick="next()" ${st.apostle && !(st.apostle==='none' && !anyAvailable)?'':'disabled'}>下一步</button>
+      <button class="bk-bbk" onclick="prev()">返回</button>
+    `);
+  }
+
+  // ── Step 5 ────────────────────────────────────
+  function renderRP() {
+    setMain(`
+      ${stepTitle('會眾資訊')}
+      <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">RP 程度<span style="color:var(--gold);margin-left:2px;">*</span></div>
+      ${RP_OPTS.map(o=>{
+        const sel = st.rp===o.id;
+        return `<div class="bk-svc${sel?' sel':''}" onclick="selectRP('${o.id}')" style="background:${sel?'rgba(184,144,96,0.13)':'transparent'};padding:1.2rem 1.2rem 1.2rem 1rem;cursor:pointer;">
+          <div class="bk-svc-body">
+            <div class="bk-svc-name" style="color:${sel?'var(--gold)':'var(--text)'};">${o.label}</div>
+            <div class="bk-svc-desc" style="color:${sel?'var(--text)':'var(--dim)'};">${o.desc}</div>
+          </div>
+        </div>`;
+      }).join('')}
+      <div style="margin-top:1.4rem;margin-bottom:1.3rem;">
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">備註（選填）</div>
+        <textarea class="bk-textarea" id="inp-rpnote" placeholder="稱呼、故事背景、特殊要求、禁止事項⋯" style="resize:none;overflow:hidden;min-height:72px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${escH(st.rpNote)}</textarea>
+      </div>
+      <button class="bk-bnxt" onclick="collectRP()" ${st.rp?'':'disabled'}>下一步</button>
+      <button class="bk-bbk" onclick="prev()">返回</button>
+    `);
+    const ta = document.getElementById('inp-rpnote');
+    if (ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+  }
+
+  // ── Step 6 ────────────────────────────────────
+  function renderInfo() {
+    setMain(`
+      ${stepTitle('基本資料')}
+      <div style="margin-bottom:1.3rem;">
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">遊戲角色名稱<span style="color:var(--gold);margin-left:2px;">*</span></div>
+        <input class="bk-input" type="text" id="inp-game" placeholder="輸入遊戲內角色名稱" value="${escH(st.gameName)}">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.3rem;">
+        <div>
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">所在World<span style="color:var(--gold);margin-left:2px;">*</span></div>
+          <select class="bk-select" id="inp-server">
+            <option value="">請選擇</option>
+            ${SERVERS.map(s=>`<option value="${s}" ${st.server===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">Discord Id<span style="color:var(--gold);margin-left:2px;">*</span></div>
+          <input class="bk-input" type="text" id="inp-contact" placeholder="輸入使用者ID" value="${escH(st.contact)}">
+        </div>
+      </div>
+      <div style="margin-bottom:1.3rem;">
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--dim);margin-bottom:.7rem;text-transform:uppercase;">其他備註（選填）</div>
+        <textarea class="bk-textarea" id="inp-notes" placeholder="如有需要補充的事項可在此輸入" style="resize:none;overflow:hidden;min-height:72px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';">${escH(st.notes)}</textarea>
+      </div>
+      <button class="bk-bnxt" onclick="collectInfo()">前往確認</button>
+      <button class="bk-bbk" onclick="prev()">返回</button>
+    `);
+    const ta = document.getElementById('inp-notes');
+    if (ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+  }
+
+  // ── Step 7 ────────────────────────────────────
+  function renderConfirm() {
+    const apostleName = st.apostle==='none'?'不指定使徒':(APOSTLES.find(a=>a.id===st.apostle)?.name||'');
+    const svcNames = st.services.map(sid=>SERVICES.find(s=>s.id===sid)?.name);
+    if (st.photoSig && st.services.includes('photo')) svcNames.push('簽名拍立得（加選）');
+    const svcs    = svcNames.join('、');
+    const rpLbl   = {heavy:'重 RP',medium:'中 RP',light:'輕 RP',none:'無 RP'}[st.rp]||'';
+    const total   = calcTotal();
+    const dayLabel = schedule[st.date]?.label?'　'+schedule[st.date].label:'';
+    const row = (k,v) => v ? `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:13px;">
+      <span style="color:var(--dim);flex-shrink:0;">${k}</span>
+      <span style="color:var(--text);text-align:right;margin-left:.75rem;">${v}</span>
+    </div>` : '';
+    const cell = (label, val, wrap=false) => val ? `
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin-bottom:.15rem;white-space:nowrap;">${label}</div>
+        <div style="font-family:'Noto Serif TC',serif;font-size:.92rem;color:var(--text);${wrap?'white-space:pre-wrap;word-break:break-all;':'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'}">${val}</div>
+      </div>` : '';
+    const section = (tag, ...cells) => `
+      <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+        <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">${tag}</div>
+        <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cells.join('')}</div>
+      </div>`;
+    setMain(`
+      ${stepTitle('確認預約')}
+      <div style="max-width:480px;margin:0 auto;">
+      <div style="border:1px solid var(--border);background:#fff;margin-bottom:1.5rem;">
+        ${section('預約時段', cell('日期', fmtDate(st.date)+dayLabel), cell('場次', st.time))}
+        <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">預約內容</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">
+            ${cell('服務項目', svcs)}${cell('指名使徒', apostleName)}
+          </div>
+        </div>
+        <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">RP 設定</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">
+            ${cell('RP 程度', rpLbl)}${st.rpNote ? cell('備註', escH(st.rpNote), true) : ''}
+          </div>
+        </div>
+        <div style="padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:13px;font-family:'Noto Serif TC',serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:.85rem;">角色資訊</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;margin-bottom:1.3rem;">${cell('遊戲角色名稱', escH(st.gameName))}${cell('所在World', st.server)}</div>
+          <div style="display:flex;gap:1.4rem;align-items:flex-start;">${cell('Discord Id', escH(st.contact))}</div>
+          ${st.notes ? `<div style="display:flex;gap:1.4rem;align-items:flex-start;margin-top:1.3rem;">${cell('其他備註', escH(st.notes), true)}</div>` : ''}
+        </div>
+      </div>
+      <div style="padding:1rem 0;border-top:1px solid var(--border);margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;letter-spacing:.08em;color:var(--dim);">目前費用合計</span>
+          <div>
+            <span style="font-family:'Noto Serif TC',serif;font-size:1.5rem;font-weight:700;color:var(--text);">${total.toLocaleString()}</span>
+            <span style="font-size:11px;color:var(--dim);margin-left:.3rem;">Gil</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--dim);margin-top:4px;text-align:right;">※ 實際費用以現場為準</div>
+      </div>
+      <button class="bk-bnxt" onclick="submitRes()">確認送出</button>
+      <button class="bk-bbk" onclick="prev()">返回修改</button>
+      </div>
+    `);
+  }
+
+  // ── 成功畫面 ──────────────────────────────────
+  function renderSuccess(gameName) {
+    document.getElementById('bk-prog').innerHTML = '';
+    setMain(`
+      <div style="text-align:center;padding:2.5rem 1.5rem 1.5rem;background:linear-gradient(to bottom,rgba(184,144,96,.18),transparent);max-width:480px;margin:-2.5rem auto 0;">
+        <h2 style="font-family:'Noto Serif TC',serif;font-size:1.8rem;font-weight:700;color:var(--text);letter-spacing:.12em;margin-bottom:.8rem;">召引已記錄</h2>
+        <div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.2),transparent);margin:1rem auto;"></div>
+        <p style="font-size:13px;color:var(--dim);line-height:2.5;text-align:center;">
+          徬徨的靈魂啊，前來尋求理解的追尋者。<br>
+          毋須憂慮，你的請求已傳達至安息地。<br><br>
+          請加入 Elysium 的 Discord 伺服器，<br>
+          等待司祭確認本次召引結果。<br><br>
+          在回應到來之前，願你得以片刻安歇。
+        </p>
+        <span class="bk-dcbtn">加入 Discord 伺服器</span>
+        <br>
+        <button class="bk-bbk" style="max-width:260px;margin:.85rem auto 0;" onclick="resetForm()">再次預約</button>
+      </div>
+    `);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  事件處理
+  // ─────────────────────────────────────────────────────────────
+  function openLightbox(src) {
+    document.getElementById('bk-lightbox-img').src = src;
+    document.getElementById('bk-lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('bk-lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  function selectAndToggleBio(id) {
+    st.apostle = (st.apostle === id ? null : id);
+    st.designated = (st.apostle !== null && st.apostle !== 'none');
+    if (window.innerWidth <= 768) openBioId = (openBioId === id ? null : id);
+    render();
+  }
+  function toggleAgree()    { st.agreed=!st.agreed; render(); }
+  function next()           { st.step++; render(); }
+  function prev()           { st.step--; render(); }
+  function selectDate(v)    { st.date=v; st.time=''; render(); }
+  function selectTime(t)    { st.time=t; render(); }
+  function selectApostle(id){ st.apostle=(st.apostle===id?null:id); st.designated=(st.apostle!==null&&st.apostle!=='none'); render(); }
+  function selectRP(id)     { st.rp = (st.rp===id ? '' : id); render(); }
+  function toggleSvc(id) {
+    const i=st.services.indexOf(id);
+    if(i===-1) {
+      if(id==='photo' && !st.services.includes('nomen30')) return;
+      st.services.push(id);
+    } else {
+      st.services.splice(i,1);
+      if(id==='photo') st.photoSig=false;
+      if(id==='nomen30') { const pi=st.services.indexOf('photo'); if(pi!==-1){ st.services.splice(pi,1); st.photoSig=false; } }
+    }
+    render();
+  }
+  function togglePhotoSig() { st.photoSig=!st.photoSig; render(); }
+  function collectRP() {
+    st.rpNote=document.getElementById('inp-rpnote')?.value||'';
+    if(!st.rp) { alert('請選擇會眾資訊'); return; }
+    next();
+  }
+  function collectInfo() {
+    const gn=document.getElementById('inp-game')?.value?.trim()||'';
+    const sv=document.getElementById('inp-server')?.value||'';
+    const ct=document.getElementById('inp-contact')?.value?.trim()||'';
+    if(!gn||!sv||!ct) { alert('請填寫所有必填欄位（標有 * 號）'); return; }
+    st.gameName=gn; st.server=sv; st.contact=ct;
+    st.notes=document.getElementById('inp-notes')?.value||'';
+    next();
+  }
+  async function submitRes() {
+    const day=schedule[st.date];
+    if(!day||!day.open) { alert('此日期已關閉預約，請重新選擇。'); st.step=1; render(); return; }
+    const availTimes=getAvailTimes(st.date);
+    if(!availTimes.includes(st.time)) { alert(`${st.time} 場次已不在開放範圍，請重新選擇。`); st.step=1; st.time=''; render(); return; }
+    if(st.apostle&&st.apostle!=='none') {
+      if(!isApostleOnDuty(st.date,st.apostle,st.time)) {
+        const name=APOSTLES.find(a=>a.id===st.apostle)?.name||'該使徒';
+        alert(`${name} 在 ${st.time} 已無排班，請重新選擇。`);
+        st.step=3; st.apostle=null; st.designated=false; render(); return;
+      }
+      const slotStatus=getApostleSlotStatus(st.date,st.apostle).find(ts=>ts.time===st.time);
+      if(slotStatus?.blocked) {
+        const name=APOSTLES.find(a=>a.id===st.apostle)?.name||'該使徒';
+        alert(`${name} 在 ${st.time} 已被預約，請重新選擇。`);
+        st.step=3; st.apostle=null; st.designated=false; render(); return;
+      }
+    }
+    const res={
+      id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+      date:st.date, time:st.time, services:[...st.services],
+      designated:st.designated, apostle:st.apostle, photographer:null,
+      rp:st.rp, rpNote:st.rpNote,
+      gameName:st.gameName, server:st.server, contact:st.contact, notes:st.notes,
+      total:calcTotal(), status:'new', createdAt:new Date().toISOString(),
+    };
+    reservations.push(res);
+    showLoading(true);
+    await apiPost('saveRegistry', reservations);
+    showLoading(false);
+    renderSuccess(st.gameName);
+  }
+  function goToStep(i) { if (i < st.step) { st.step = i; render(); } }
+  function resetForm() {
+    st={step:0,agreed:false,date:'',time:'',services:[],photoSig:false,designated:false,apostle:null,
+        rp:'',rpNote:'',gameName:'',server:'',contact:'',notes:''};
+    render();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  工具
+  // ─────────────────────────────────────────────────────────────
+  function chkSvg() {
+    return '<svg width="11" height="11" viewBox="0 0 11 11"><polyline points="1.5,5.5 4,8.5 9.5,2" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="butt" stroke-linejoin="miter"/></svg>';
+  }
+  function stepTitle(text) {
+    return `<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:1.6rem;">
+      <span style="font-size:1rem;color:var(--gold);letter-spacing:.05em;flex-shrink:0;opacity:.9;position:relative;top:-1.5px;">/ / /</span>
+      <div style="font-family:'Noto Serif TC',serif;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.12em;white-space:nowrap;">${text}</div>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>`;
+  }
+  function escH(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  Preview mode（?preview）
+  // ─────────────────────────────────────────────────────────────
+  function injectPreviewBar() {
+    const DUMMY = {
+      agreed: true,
+      date: '2026-07-01', time: '22:00',
+      services: ['nomen30'], designated: false, apostle: 'none',
+      rp: 'light', rpNote: '',
+      gameName: '徬徨的靈魂', server: '鳳凰', contact: 'preview_user', notes: '',
+      step: 0,
+    };
+    const bar = document.createElement('div');
+    bar.id = 'bk-preview-bar';
+    bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(30,25,22,.93);backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;padding:8px 16px;border-top:1px solid rgba(184,144,96,.3);overflow-x:auto;';
+    const label = document.createElement('span');
+    label.style.cssText = 'font-size:9px;letter-spacing:.2em;color:rgba(184,144,96,.7);white-space:nowrap;margin-right:4px;';
+    label.textContent = 'PREVIEW';
+    bar.appendChild(label);
+    const labels = STEPS.map(s=>s.label).concat(['成功畫面']);
+    labels.forEach(function(lbl, i) {
+      const btn = document.createElement('button');
+      btn.textContent = (i+1<=7 ? 'Ⅰ②③④⑤⑥⑦'.split('')[i] : '') + ' ' + lbl;
+      btn.style.cssText = 'background:none;border:1px solid rgba(184,144,96,.4);color:rgba(239,239,239,.8);font-size:11px;padding:3px 10px;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;';
+      btn.onmouseenter = function() { btn.style.borderColor='var(--gold)'; btn.style.color='var(--gold)'; };
+      btn.onmouseleave = function() { btn.style.borderColor='rgba(184,144,96,.4)'; btn.style.color='rgba(239,239,239,.8)'; };
+      btn.onclick = function() {
+        if (i === 7) {
+          Object.assign(st, DUMMY);
+          document.getElementById('bk-prog').innerHTML = '';
+          renderSuccess(DUMMY.gameName);
+        } else {
+          Object.assign(st, DUMMY, { step: i });
+          render();
+        }
+      };
+      bar.appendChild(btn);
+    });
+    const blockBtn = document.createElement('button');
+    blockBtn.textContent = '⬤ 模擬已滿';
+    blockBtn.style.cssText = 'background:none;border:1px solid rgba(160,80,80,.5);color:rgba(160,80,80,.8);font-size:11px;padding:3px 10px;cursor:pointer;white-space:nowrap;font-family:inherit;margin-left:8px;transition:all .15s;';
+    blockBtn.onclick = function() {
+      previewBlock = !previewBlock;
+      blockBtn.style.background = previewBlock ? 'rgba(160,80,80,.2)' : 'none';
+      blockBtn.textContent = previewBlock ? '⬤ 已滿中' : '⬤ 模擬已滿';
+      if (st.apostle && st.apostle !== 'none') { st.apostle = null; st.designated = false; }
+      render();
+    };
+    bar.appendChild(blockBtn);
+    document.body.appendChild(bar);
+    document.body.style.paddingBottom = '52px';
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  初始化
+  // ─────────────────────────────────────────────────────────────
+  render();
+  loadData();
+  if (PREVIEW) {
+    var _PD = {agreed:true,date:'2026-07-01',time:'22:00',services:['nomen30'],designated:false,apostle:'none',rp:'light',rpNote:'',gameName:'徬徨的靈魂',server:'鳳凰',contact:'preview_user',notes:'',step:0};
+    window.addEventListener('message', function(e) {
+      if (!e.data) return;
+      if (e.data.bk === 'jump') {
+        var i = e.data.step;
+        openBioId = null;
+        if (i===7) { Object.assign(st,_PD); document.getElementById('bk-prog').innerHTML=''; renderSuccess(_PD.gameName); }
+        else { Object.assign(st,_PD,{step:i}); render(); }
+      } else if (e.data.bk === 'block') {
+        previewBlock = !previewBlock;
+        if (st.apostle&&st.apostle!=='none') { st.apostle=null; st.designated=false; }
+        render();
+        if (e.source) e.source.postMessage({bk:'blockState', on:previewBlock}, '*');
+      }
+    });
+    if (window===window.top) injectPreviewBar();
+  }
+  </script>
+
+  <script src="nav.js"></script>
+
+</body>
+</html>
+
