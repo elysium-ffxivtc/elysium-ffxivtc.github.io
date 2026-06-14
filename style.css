@@ -69,6 +69,17 @@ nav {
   padding: 0 .7rem; margin: 0 -.7rem;
 }
 
+.nav-links li.dropdown > span {
+  font-family: 'Noto Serif TC', serif;
+  font-size: .80rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--dim); cursor: default;
+}
+
+.nav-links > li:has(> span.active) {
+  background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
+  padding: 0 .7rem; margin: 0 -.7rem;
+}
+
 .nav-links .hidden-link {
   font-family: 'Noto Serif TC', serif;
   font-size: .80rem; letter-spacing: .22em; text-transform: uppercase;
@@ -989,12 +1000,14 @@ footer {
     display: block;
   }
   .nav-links > li > a,
-  .nav-links .hidden-link {
+  .nav-links .hidden-link,
+  .nav-links li.dropdown > span {
     display: block;
     padding: .75rem 1.8rem;
     font-size: .78rem;
   }
-  .nav-links > li:has(> a.active) {
+  .nav-links > li:has(> a.active),
+  .nav-links > li:has(> span.active) {
     background: linear-gradient(to right, var(--bg), transparent);
     padding: 0; margin: 0;
   }

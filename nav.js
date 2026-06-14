@@ -39,7 +39,7 @@
     });
 
     // Mobile dropdown toggle (Services)
-    var dropdownToggle = navLinks.querySelector('.dropdown > a');
+    var dropdownToggle = navLinks.querySelector('.dropdown > a, .dropdown > span');
     if (dropdownToggle) {
       dropdownToggle.addEventListener('click', function (e) {
         if (window.innerWidth <= 768) {
