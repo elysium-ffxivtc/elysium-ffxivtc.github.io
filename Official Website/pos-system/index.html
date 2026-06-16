@@ -1314,6 +1314,7 @@
         type: 'walkin',
         apostleType: 'specified',
         services: [],
+        photoExtras: [],
         orders: MENU_ITEMS.map(m => ({ ...m, qty: 0 })),
         specialOrders: SPECIAL_MENU.map(m => ({ ...m, qty: 0 })),
         multiplier: 1,
@@ -1390,6 +1391,7 @@
                 <span id="photo-extra-qty" style="min-width:1rem;text-align:center">0</span>
                 <button class="qty-btn" onclick="event.stopPropagation();changePhotoExtra(1)">＋</button>
               </div>
+              <div id="photo-extra-selectors"></div>
             </div>` : `
             <div class="svc-item" id="svc-${s.id}" onclick="toggleSvc('${s.id}')">
               <span class="svc-name">${s.name}</span>
@@ -1592,15 +1594,38 @@
     }
 
     function changePhotoExtra(delta) {
-      const count = vs.services.filter(s => s === 'photo_extra').length;
+      const count = vs.photoExtras.length;
       const next  = Math.max(0, count + delta);
-      vs.services = vs.services.filter(s => s !== 'photo_extra');
-      for (let i = 0; i < next; i++) vs.services.push('photo_extra');
-      const qEl = document.getElementById('photo-extra-qty');
-      if (qEl) qEl.textContent = next;
-      const el = document.getElementById('svc-photo_extra');
-      if (el) el.className = 'svc-item' + (next > 0 ? ' on' : '');
+      if (next > count) {
+        vs.photoExtras.push('');
+        vs.services.push('photo_extra');
+      } else if (next < count) {
+        vs.photoExtras.pop();
+        const idx = vs.services.lastIndexOf('photo_extra');
+        if (idx >= 0) vs.services.splice(idx, 1);
+      }
+      renderPhotoExtras();
       updateCost();
+    }
+
+    function renderPhotoExtras() {
+      const el = document.getElementById('photo-extra-selectors');
+      if (!el) return;
+      const count = vs.photoExtras.length;
+      const qEl = document.getElementById('photo-extra-qty');
+      if (qEl) qEl.textContent = count;
+      const svcEl = document.getElementById('svc-photo_extra');
+      if (svcEl) svcEl.className = 'svc-item' + (count > 0 ? ' on' : '');
+      el.innerHTML = vs.photoExtras.map((name, i) => `
+        <div style="margin-top:.4rem">
+          ${APOSTLES.length
+            ? `<select class="pos-select" style="width:100%;font-size:13px" onchange="vs.photoExtras[${i}]=this.value">
+                <option value="">選擇使徒</option>
+                ${APOSTLES.map(a => `<option value="${esc(a.name)}"${name===a.name?' selected':''}>${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
+               </select>`
+            : `<input class="pos-input" style="width:100%;font-size:13px" type="text" placeholder="使徒名稱" value="${esc(name)}" oninput="vs.photoExtras[${i}]=this.value">`
+          }
+        </div>`).join('');
     }
 
     function changeQty(idx, delta) {
@@ -1710,6 +1735,7 @@
         eventId: vs.eventId || '',
         eventName: vs.eventName || '',
         notes: document.getElementById('v-notes')?.value.trim() || '',
+        photoExtras: (vs.photoExtras || []).filter(n => n),
         tips: existing?.tips || [],
         createdAt: existing?.createdAt || new Date().toISOString(),
       };
@@ -1780,8 +1806,9 @@
           if (el) el.className = 'svc-item';
         }
       });
-      const extraCount = (v.services || []).filter(s => s === 'photo_extra').length;
-      for (let i = 0; i < extraCount; i++) changePhotoExtra(1);
+      vs.photoExtras = [...(v.photoExtras || [])];
+      (v.photoExtras || []).forEach(() => vs.services.push('photo_extra'));
+      renderPhotoExtras();
       (v.services || []).filter(s => s !== 'photo_extra').forEach(sid => {
         if (!vs.services.includes(sid)) toggleSvc(sid);
       });
@@ -2924,8 +2951,13 @@
           else if (sid === 'nomen30')      aMap[name].nomen       += svc.price;
           else if (sid === 'photo')        aMap[name].photos++;
           else if (sid === 'photo_sig')    aMap[name].photoSig    += svc.price;
-          else if (sid === 'photo_extra')  aMap[name].photoExtras++;
+          else if (sid === 'photo_extra')  { /* handled via v.photoExtras below */ }
           else                             aMap[name].houseOther  += svc.price;
+        });
+        (v.photoExtras || []).forEach(extraName => {
+          if (!extraName) return;
+          ensureA(extraName);
+          aMap[extraName].photoExtras++;
         });
       });
 
