@@ -1255,7 +1255,10 @@
                 <th>服務</th><th>點餐</th><th>金額</th><th>名痕</th>
               </tr></thead>
               <tbody>${sortedDates.map(date => {
-                const group = groups[date].slice().sort((a,b)=>(b.time||'').localeCompare(a.time||''));
+                const group = groups[date].slice().sort((a,b) => {
+                  const td = (b.time||'').localeCompare(a.time||'');
+                  return td !== 0 ? td : (b.createdAt||'').localeCompare(a.createdAt||'');
+                });
                 const isToday = date === _today;
                 const dayLabel = date !== '—' ? (() => { const d=new Date(date+'T12:00:00'); return _WK[d.getDay()]; })() : '';
                 const dayTotal = group.reduce((s,v)=>s+(v.total||0)+(v.tips||[]).reduce((t,x)=>t+x.amount,0),0);
