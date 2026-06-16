@@ -478,6 +478,7 @@
     }
     .pos-nav-btn:hover { color: var(--text); }
     .pos-nav-btn.on { color: var(--gold); border-bottom-color: var(--gold); }
+    body.guide-mode .admin-only { display: none !important; }
 
     /* Roster table */
     .roster-table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -580,6 +581,7 @@
         </button>
       </div>
       <span id="apostle-status" style="font-size:13px;color:var(--dim)"></span>
+      <div id="mode-indicator" style="display:flex;align-items:center;gap:.4rem"></div>
       <button class="btn btn-outline btn-sm" id="demo-btn" onclick="loadDemoData()" style="font-size:11px;padding:.3rem .65rem;opacity:.6">載入測試資料</button>
     </div>
   </header>
@@ -588,11 +590,12 @@
 
     <aside class="pos-sidebar">
       <div class="pos-nav">
-        <button class="pos-nav-btn on" id="nav-btn-customer" onclick="setNav('customer')">客戶</button>
-        <button class="pos-nav-btn"    id="nav-btn-roster"   onclick="setNav('roster')">名冊</button>
-        <button class="pos-nav-btn"    id="nav-btn-stats"    onclick="setNav('stats')">統計</button>
-        <button class="pos-nav-btn"    id="nav-btn-activity"   onclick="setNav('activity')">活動</button>
-        <button class="pos-nav-btn"    id="nav-btn-settlement" onclick="setNav('settlement')">結帳</button>
+        <button class="pos-nav-btn on" id="nav-btn-customer"   onclick="setNav('customer')">客戶</button>
+        <button class="pos-nav-btn"    id="nav-btn-roster"     onclick="setNav('roster')">名冊</button>
+        <button class="pos-nav-btn admin-only" id="nav-btn-stats"       onclick="setNav('stats')">統計</button>
+        <button class="pos-nav-btn admin-only" id="nav-btn-activity"    onclick="setNav('activity')">活動</button>
+        <button class="pos-nav-btn admin-only" id="nav-btn-settlement"  onclick="setNav('settlement')">結帳</button>
+        <button class="pos-nav-btn admin-only" id="nav-btn-staff"       onclick="setNav('staff')">人員</button>
       </div>
       <div id="sidebar-customer" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
         <div style="padding:.6rem .9rem;border-bottom:1px solid var(--border);background:var(--card)" id="sidebar-today-label"></div>
@@ -738,6 +741,15 @@
     // ────────────────────────────────────────────────────────────
     const API_URL = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
     let APOSTLES = [];
+    let GUIDES   = [];
+    let userMode = localStorage.getItem('posMode') || 'guide'; // pontifex | custodian | guide
+
+    function photoStaff() {
+      return [
+        ...APOSTLES,
+        ...GUIDES.map(g => ({ name: g.name, tag: '引路人' }))
+      ];
+    }
 
     async function fetchApostles() {
       try {
@@ -752,7 +764,7 @@
 
     function renderApostleStatus() {
       const el = document.getElementById('apostle-status');
-      if (el) el.textContent = `已載入 ${APOSTLES.length} 位使徒`;
+      if (el) el.textContent = `已載入 ${APOSTLES.length} 位使徒` + (GUIDES.length ? `・${GUIDES.length} 位引路人` : '');
     }
 
     // ────────────────────────────────────────────────────────────
@@ -789,6 +801,8 @@
       { id:'photo',         name:'交名留影',             price:100000 },
       { id:'photo_sig',     name:'加簽',                 price:20000  },
       { id:'photo_extra',   name:'多人合照（每人）',     price:20000  },
+      { id:'champagne',     name:'香檳塔',               price:0, disabled:true },
+      { id:'celebrate',     name:'祝賀服務',             price:0, disabled:true },
     ];
 
     // ────────────────────────────────────────────────────────────
@@ -816,6 +830,7 @@
         _uiInited = true;
         renderSidebar();
         fetchApostles();
+        applyUserMode();
         document.getElementById('pos-content').innerHTML = `
           <div class="pos-empty">
             <div class="pos-empty-icon" style="color:var(--red)">!</div>
@@ -861,6 +876,11 @@
       }, onFbErr('events'));
 
       // ── 共用資料監聽 ──
+      db.ref('guides').on('value', snap => {
+        GUIDES = snap.val() ? Object.values(snap.val()) : [];
+        renderApostleStatus();
+        if (_uiInited && currentNav === 'staff') showStaffPage();
+      });
       db.ref('schedules').on('value', snap => {
         schedules = snap.val() ? Object.values(snap.val()) : [];
         if (_uiInited && currentNav === 'settlement') showSettlementPage();
@@ -879,6 +899,7 @@
       _uiInited = true;
       renderSidebar();
       fetchApostles();
+      applyUserMode();
       checkAutoPilgrim();
     }
 
@@ -913,6 +934,7 @@
       if      (currentNav === 'roster')     showRosterPage();
       else if (currentNav === 'stats')      showStatsPage();
       else if (currentNav === 'settlement') showSettlementPage();
+      else if (currentNav === 'staff')      showStaffPage();
       else if (currentNav === 'customer' && activeId) showProfile(activeId);
     }
 
@@ -1008,12 +1030,13 @@
     function openAddTipModal(visitId, custId) {
       _tipVisitId = visitId; _tipCustId = custId;
       document.getElementById('tip-amount').value = '';
-      document.getElementById('tip-to-wrap').innerHTML = APOSTLES.length
+      const _tipStaff = photoStaff();
+      document.getElementById('tip-to-wrap').innerHTML = _tipStaff.length
         ? `<select id="tip-to" class="pos-input" style="width:100%">
-            <option value="">選擇使徒</option>
-            ${APOSTLES.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' ('+a.tag+')':''}</option>`).join('')}
+            <option value="">選擇人員</option>
+            ${_tipStaff.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' ('+a.tag+')':''}</option>`).join('')}
            </select>`
-        : `<input id="tip-to" class="pos-input" placeholder="使徒名稱" style="width:100%">`;
+        : `<input id="tip-to" class="pos-input" placeholder="人員名稱" style="width:100%">`;
       document.getElementById('modal-tip').classList.add('open');
     }
 
@@ -1058,6 +1081,7 @@
       return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
     }
     function isNomenRecord(v) {
+      if (v.mode === 'single') return false;
       const _NS = ['nomen30','photo','photo_sig'];
       return v.mode === 'nomen'
         || (v.services||[]).some(s => _NS.includes(s))
@@ -1067,7 +1091,7 @@
     function isEditableVisit(v) {
       const _NS = ['nomen30','photo','photo_sig'];
       const m = v.mode || ((v.services||[]).some(s=>_NS.includes(s)) ? 'nomen' : 'dining');
-      return v.date === getBusinessDate() && (m === 'nomen' || m === 'dining');
+      return v.date === getBusinessDate() && (m === 'nomen' || m === 'dining' || m === 'single');
     }
     (function() {
       const w = ['日','一','二','三','四','五','六'];
@@ -1194,6 +1218,7 @@
           <div class="pos-profile-actions">
             <button class="btn btn-gold" onclick="showNewVisit('${id}','nomen')">＋ 新增召引</button>
             <button class="btn" style="background:var(--blue);color:#fff" onclick="showNewVisit('${id}','dining')">＋ 新增餐點</button>
+            <button class="btn" style="background:#5aaa7a;color:#fff" onclick="showNewVisit('${id}','single')">＋ 新增單點</button>
             <button class="btn btn-outline" onclick="openEditCustomerModal('${id}')">編輯資料</button>
             <button class="btn btn-outline" style="border-color:var(--red);color:var(--red)" onclick="deleteCustomer('${id}')">刪除</button>
           </div>
@@ -1243,7 +1268,6 @@
           ${cv.length === 0
             ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無紀錄</div>`
             : (() => {
-              const _NS = ['nomen30','photo','photo_sig'];
               const _WK = ['日','一','二','三','四','五','六'];
               const _today = getBusinessDate();
               const groups = {};
@@ -1267,10 +1291,7 @@
                   <span style="color:var(--dim);margin-left:.6rem;font-size:12px">${group.length} 筆 · ${dayTotal.toLocaleString()} Gil</span>
                 </td></tr>
                 ${group.map(v => {
-                  const isNomenVisit = v.mode === 'nomen'
-                    || (v.services||[]).some(s => _NS.includes(s))
-                    || !!v.apostleName
-                    || (v.type === 'booked' && !['dining','checkin','pilgrim'].includes(v.mode));
+                  const isNomenVisit = isNomenRecord(v);
                   return `<tr>
                   <td style="white-space:nowrap">${v.time||'—'}</td>
                   <td><span class="tag ${v.type==='walkin'?'tag-walkin':'tag-booked'}">${v.type==='walkin'?'現場':'預約'}</span></td>
@@ -1318,6 +1339,7 @@
         apostleType: 'specified',
         services: [],
         photoExtras: [],
+        photoExtraSigs: [],
         orders: MENU_ITEMS.map(m => ({ ...m, qty: 0 })),
         specialOrders: SPECIAL_MENU.map(m => ({ ...m, qty: 0 })),
         multiplier: 1,
@@ -1329,12 +1351,13 @@
       const isNomen    = mode === 'nomen';
       const isDining   = mode === 'dining';
       const isPilgrim  = mode === 'pilgrim';
+      const isSingle   = mode === 'single';
 
       document.getElementById('pos-content').innerHTML = `
         <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
           <button class="btn btn-outline" onclick="selectCustomer('${id}')">← 返回</button>
           <span id="visit-form-title" style="font-family:'Noto Serif TC',serif;font-size:.95rem;letter-spacing:.15em">
-            ${isNomen ? '新增召引' : isDining ? '新增餐點' : '新增朝聖'} — ${esc(c.name)}
+            ${isNomen ? '新增召引' : isDining ? '新增餐點' : isSingle ? '新增單點' : '新增朝聖'} — ${esc(c.name)}
           </span>
         </div>
 
@@ -1385,7 +1408,7 @@
         <div class="pos-card">
           <div class="pos-card-title">服務項目</div>
           <div class="svc-list">
-            ${SERVICES.filter(s => !s.id.startsWith('wreath')).map(s => s.id === 'photo_extra' ? `
+            ${SERVICES.filter(s => !s.id.startsWith('wreath') && !s.disabled).map(s => s.id === 'photo_extra' ? `
             <div class="svc-item" id="svc-photo_extra">
               <span class="svc-name">${s.name}</span>
               <span class="svc-price">${s.price.toLocaleString()} Gil</span>
@@ -1437,13 +1460,66 @@
           </div>
           <div id="special-menu-list" class="menu-grid" style="display:none"></div>
         </div>
+        ` : isSingle ? `
+        <input type="hidden" id="v-date" value="${today}">
+        <div class="pos-card">
+          <div class="pos-card-title">場次資訊</div>
+          <div class="pos-form-grid">
+            <div>
+              <label class="pos-lbl">時間</label>
+              <div id="v-time-wrap"></div>
+            </div>
+            <div class="field-full">
+              <label class="pos-lbl">備註</label>
+              <input class="pos-input" id="v-notes" type="text" placeholder="備注">
+            </div>
+          </div>
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">拍立得 — 使徒</div>
+          ${(function(){
+            const staff = photoStaff();
+            return staff.length
+              ? `<select class="pos-select" id="v-apostle" style="width:100%">
+                  <option value="">選擇使徒 / 引路人（如有拍立得）</option>
+                  ${staff.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
+                 </select>`
+              : `<input class="pos-input" id="v-apostle" type="text" placeholder="拍立得使徒名稱（選填）">`;
+          })()}
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">單點服務</div>
+          <div class="svc-list">
+            ${SERVICES.filter(s => !s.id.startsWith('wreath') && s.id !== 'nomen30').map(s => s.disabled ? `
+            <div class="svc-item" style="opacity:.4;cursor:not-allowed;pointer-events:none">
+              <span class="svc-name">${s.name}</span>
+              <span class="svc-price" style="color:var(--dim);font-size:11px">即將開放</span>
+            </div>` : s.id === 'photo_extra' ? `
+            <div class="svc-item" id="svc-photo_extra">
+              <span class="svc-name">${s.name}</span>
+              <span class="svc-price">${s.price.toLocaleString()} Gil</span>
+              <div style="display:flex;align-items:center;gap:.5rem;margin-top:.35rem">
+                <button class="qty-btn" onclick="event.stopPropagation();changePhotoExtra(-1)">−</button>
+                <span id="photo-extra-qty" style="min-width:1rem;text-align:center">0</span>
+                <button class="qty-btn" onclick="event.stopPropagation();changePhotoExtra(1)">＋</button>
+              </div>
+              <div id="photo-extra-selectors"></div>
+            </div>` : `
+            <div class="svc-item" id="svc-${s.id}" onclick="toggleSvc('${s.id}')">
+              <span class="svc-name">${s.name}</span>
+              <span class="svc-price">${s.price.toLocaleString()} Gil</span>
+            </div>`).join('')}
+          </div>
+        </div>
         ` : ``}
 
         <div class="cost-box" id="cost-box" style="margin-bottom:1rem"></div>
 
         <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-bottom:1.5rem">
           <button class="btn btn-outline" onclick="selectCustomer('${id}')">取消</button>
-          <button id="visit-form-confirm" class="btn btn-gold" onclick="saveVisit()">${isNomen ? '確認召引' : isDining ? '確認餐點' : '確認朝聖'}</button>
+          <button id="visit-form-confirm" class="btn btn-gold" onclick="saveVisit()">${isNomen ? '確認召引' : isDining ? '確認餐點' : isSingle ? '確認單點' : '確認朝聖'}</button>
         </div>`;
 
       const _hasCheckinToday = !vs._editId && visits.some(v =>
@@ -1453,7 +1529,7 @@
       const _nowH = _nowD.getHours(), _nowM = _nowD.getMinutes();
       const _nowStr = pad(_nowH) + ':' + pad(_nowM);
       _vt = { h: _nowH, m: _nowM };
-      renderVTimeField('walkin', _nowStr);
+      if (isNomen || isSingle) renderVTimeField('walkin', _nowStr);
       if (isDining) { const _t = document.getElementById('v-time'); if (_t) _t.value = _nowStr; }
       if (isNomen) toggleSvc('nomen30');
       updateCost();
@@ -1601,9 +1677,11 @@
       const next  = Math.max(0, count + delta);
       if (next > count) {
         vs.photoExtras.push('');
+        vs.photoExtraSigs.push(false);
         vs.services.push('photo_extra');
       } else if (next < count) {
         vs.photoExtras.pop();
+        vs.photoExtraSigs.pop();
         const idx = vs.services.lastIndexOf('photo_extra');
         if (idx >= 0) vs.services.splice(idx, 1);
       }
@@ -1619,15 +1697,20 @@
       if (qEl) qEl.textContent = count;
       const svcEl = document.getElementById('svc-photo_extra');
       if (svcEl) svcEl.className = 'svc-item' + (count > 0 ? ' on' : '');
+      const _pstaff = photoStaff();
       el.innerHTML = vs.photoExtras.map((name, i) => `
         <div style="margin-top:.4rem">
-          ${APOSTLES.length
+          ${_pstaff.length
             ? `<select class="pos-select" style="width:100%;font-size:13px" onchange="vs.photoExtras[${i}]=this.value">
-                <option value="">選擇使徒</option>
-                ${APOSTLES.map(a => `<option value="${esc(a.name)}"${name===a.name?' selected':''}>${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
+                <option value="">選擇使徒 / 引路人</option>
+                ${_pstaff.map(a => `<option value="${esc(a.name)}"${name===a.name?' selected':''}>${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
                </select>`
-            : `<input class="pos-input" style="width:100%;font-size:13px" type="text" placeholder="使徒名稱" value="${esc(name)}" oninput="vs.photoExtras[${i}]=this.value">`
+            : `<input class="pos-input" style="width:100%;font-size:13px" type="text" placeholder="使徒 / 引路人名稱" value="${esc(name)}" oninput="vs.photoExtras[${i}]=this.value">`
           }
+          <label style="display:flex;align-items:center;gap:.35rem;font-size:12px;color:var(--dim);margin-top:.3rem;cursor:pointer">
+            <input type="checkbox" ${vs.photoExtraSigs[i]?'checked':''} onchange="vs.photoExtraSigs[${i}]=this.checked;updateCost()">
+            加簽 +20,000 Gil
+          </label>
         </div>`).join('');
     }
 
@@ -1683,13 +1766,15 @@
         .reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0);
       const ordTotal  = vs.orders.reduce((t,o) => t + o.price*(o.qty||0), 0);
       const specTotal = (vs.specialOrders||[]).reduce((t,o) => t + o.price*(o.qty||0), 0);
-      const total     = wreathTotal + svcTotal + ordTotal + specTotal;
+      const extraSigTotal = (vs.photoExtraSigs||[]).filter(Boolean).length * 20000;
+      const total     = wreathTotal + svcTotal + ordTotal + specTotal + extraSigTotal;
       const pts       = vs.multiplier;
       const el = document.getElementById('cost-box');
       if (!el) return;
       el.innerHTML = `
-        ${vs.mode!=='dining'?`<div class="cost-row"><span class="cost-lbl">入場費</span><span class="cost-val">${wreathTotal.toLocaleString()} Gil</span></div>`:''}
+        ${vs.mode!=='dining'&&vs.mode!=='single'?`<div class="cost-row"><span class="cost-lbl">入場費</span><span class="cost-val">${wreathTotal.toLocaleString()} Gil</span></div>`:''}
         ${svcTotal>0?`<div class="cost-row"><span class="cost-lbl">服務小計</span><span class="cost-val">${svcTotal.toLocaleString()} Gil</span></div>`:''}
+        ${extraSigTotal>0?`<div class="cost-row"><span class="cost-lbl">加簽（合照）</span><span class="cost-val">${extraSigTotal.toLocaleString()} Gil</span></div>`:''}
         ${ordTotal+specTotal>0?`<div class="cost-row"><span class="cost-lbl">點餐小計</span><span class="cost-val">${(ordTotal+specTotal).toLocaleString()} Gil</span></div>`:''}
         <div class="cost-row total"><span class="cost-lbl">合計</span><span class="cost-val">${total.toLocaleString()} Gil</span></div>
         ${vs.mode==='nomen'?`<div class="cost-row" style="margin-top:.3rem">
@@ -1710,9 +1795,10 @@
           return;
         }
       }
-      const svcTotal  = vs.services.reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0);
-      const ordTotal  = vs.orders.reduce((t,o) => t + o.price*(o.qty||0), 0);
-      const specTotal = (vs.specialOrders||[]).reduce((t,o) => t + o.price*(o.qty||0), 0);
+      const svcTotal      = vs.services.reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0);
+      const ordTotal      = vs.orders.reduce((t,o) => t + o.price*(o.qty||0), 0);
+      const specTotal     = (vs.specialOrders||[]).reduce((t,o) => t + o.price*(o.qty||0), 0);
+      const extraSigTotal = (vs.photoExtraSigs||[]).filter(Boolean).length * 20000;
       const isEdit    = !!vs._editId;
       const existing  = isEdit ? visits.find(x => x.id === vs._editId) : null;
       const v = {
@@ -1730,15 +1816,16 @@
           ...vs.orders.filter(o=>o.qty>0).map(o=>({name:o.name, price:o.price, qty:o.qty})),
           ...(vs.specialOrders||[]).filter(o=>o.qty>0).map(o=>({name:o.name, price:o.price, qty:o.qty, special:true})),
         ],
-        servicesTotal: svcTotal,
+        servicesTotal: svcTotal + extraSigTotal,
         ordersTotal: ordTotal + specTotal,
-        total: svcTotal + ordTotal + specTotal,
+        total: svcTotal + ordTotal + specTotal + extraSigTotal,
         pointsEarned: vs.services.includes('nomen30') ? vs.multiplier : 0,
         pointMultiplier: vs.multiplier,
         eventId: vs.eventId || '',
         eventName: vs.eventName || '',
         notes: document.getElementById('v-notes')?.value.trim() || '',
         photoExtras: (vs.photoExtras || []).filter(n => n),
+        photoExtraSigs: (vs.photoExtraSigs || []).map((sig, i) => sig && !!(vs.photoExtras||[])[i]),
         tips: existing?.tips || [],
         createdAt: existing?.createdAt || new Date().toISOString(),
       };
@@ -1762,6 +1849,7 @@
       if (!v || !c) return;
 
       const editMode = (v.mode === 'checkin' || v.mode === 'pilgrim') ? 'pilgrim'
+        : v.mode === 'single' ? 'single'
         : isNomenRecord(v) ? 'nomen' : 'dining';
       showNewVisit(custId, editMode);
       vs._editId    = visitId;
@@ -1769,7 +1857,7 @@
 
       // 標題與按鈕文字
       const titleEl = document.getElementById('visit-form-title');
-      if (titleEl) titleEl.textContent = `編輯${editMode === 'nomen' ? '召引' : '餐點'}紀錄 — ${c.name}`;
+      if (titleEl) titleEl.textContent = `編輯${editMode === 'nomen' ? '召引' : editMode === 'single' ? '單點' : '餐點'}紀錄 — ${c.name}`;
       const confirmBtn = document.getElementById('visit-form-confirm');
       if (confirmBtn) confirmBtn.textContent = '更新記錄';
 
@@ -1810,6 +1898,9 @@
         }
       });
       vs.photoExtras = [...(v.photoExtras || [])];
+      vs.photoExtraSigs = [...(v.photoExtraSigs || [])].concat(
+        Array(Math.max(0, (v.photoExtras||[]).length - (v.photoExtraSigs||[]).length)).fill(false)
+      );
       (v.photoExtras || []).forEach(() => vs.services.push('photo_extra'));
       renderPhotoExtras();
       (v.services || []).filter(s => s !== 'photo_extra').forEach(sid => {
@@ -2537,9 +2628,12 @@
     function setNav(tab) {
       if (tab !== 'roster') rosterSearch = '';
       currentNav = tab;
-      ['customer','roster','stats','activity','settlement'].forEach(t => {
+      ['customer','roster','stats','activity','settlement','staff'].forEach(t => {
         const btn = document.getElementById('nav-btn-'+t);
-        if (btn) btn.className = 'pos-nav-btn' + (t===tab?' on':'');
+        if (btn) {
+          const isAdmin = btn.className.includes('admin-only');
+          btn.className = 'pos-nav-btn' + (isAdmin ? ' admin-only' : '') + (t===tab?' on':'');
+        }
       });
       const sc = document.getElementById('sidebar-customer');
       const so = document.getElementById('sidebar-other');
@@ -2562,6 +2656,112 @@
       else if (tab === 'stats')        showStatsPage();
       else if (tab === 'activity')     showActivityPage();
       else if (tab === 'settlement')   showSettlementPage();
+      else if (tab === 'staff')        showStaffPage();
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  身份切換（司祭 / 監禮者 / 引路人）
+    // ────────────────────────────────────────────────────────────
+    const ROLE_NAMES = { pontifex: '司祭', custodian: '監禮者', guide: '引路人' };
+    const ADMIN_ROLES = ['pontifex', 'custodian'];
+
+    function isAdmin() { return ADMIN_ROLES.includes(userMode); }
+
+    function applyUserMode() {
+      if (userMode === 'guide') {
+        document.body.classList.add('guide-mode');
+      } else {
+        document.body.classList.remove('guide-mode');
+      }
+      updateModeIndicator();
+      const adminOnly = ['stats','activity','settlement','staff'];
+      if (!isAdmin() && adminOnly.includes(currentNav)) setNav('customer');
+    }
+
+    function updateModeIndicator() {
+      const el = document.getElementById('mode-indicator');
+      if (!el) return;
+      const name = ROLE_NAMES[userMode] || userMode;
+      const isG  = userMode === 'guide';
+      el.innerHTML = `
+        <span style="font-size:11px;color:${isG?'var(--dim)':'var(--gold)'}">${name}</span>
+        <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.2rem .5rem" onclick="switchRolePrompt()">切換身份</button>`;
+    }
+
+    function switchRolePrompt() {
+      const keys  = Object.keys(ROLE_NAMES);
+      const lines = keys.map((k,i) => `${i+1}. ${ROLE_NAMES[k]}`).join('\n');
+      const choice = prompt('切換身份：\n' + lines + '\n\n請輸入數字：');
+      if (!choice) return;
+      const idx = parseInt(choice.trim()) - 1;
+      if (idx < 0 || idx >= keys.length) return;
+      userMode = keys[idx];
+      localStorage.setItem('posMode', userMode);
+      applyUserMode();
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  人員管理
+    // ────────────────────────────────────────────────────────────
+    function showStaffPage() {
+      activeId = null;
+      renderSidebar();
+      document.getElementById('pos-content').innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+          <span style="font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;color:var(--gold)">人員管理</span>
+          <button class="btn btn-outline" onclick="backToCustomers()">← 返回客戶</button>
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">使徒名單（自動載入）</div>
+          <div style="font-size:13px;color:var(--dim);margin-bottom:.6rem">由 Google 表單同步，此處僅供查閱。</div>
+          ${APOSTLES.length
+            ? `<div style="display:flex;flex-wrap:wrap;gap:.4rem">
+                ${APOSTLES.map(a => `<span style="background:rgba(180,150,80,.12);border:1px solid rgba(180,150,80,.25);border-radius:4px;padding:.2rem .55rem;font-size:13px">${esc(a.name)}${a.tag?'<span style="color:var(--dim);margin-left:.3rem;font-size:11px">'+esc(a.tag)+'</span>':''}</span>`).join('')}
+               </div>`
+            : `<div style="font-size:13px;color:var(--dim)">尚未載入使徒資料。</div>`}
+          <button class="btn btn-outline btn-sm" style="margin-top:.75rem;font-size:12px" onclick="fetchApostles()">重新載入</button>
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">引路人（手動管理）</div>
+          <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+            <input class="pos-input" id="new-guide-name" type="text" placeholder="引路人名稱" style="flex:1" onkeydown="if(event.key==='Enter')addGuide()">
+            <button class="btn btn-gold" style="white-space:nowrap" onclick="addGuide()">新增</button>
+          </div>
+          ${GUIDES.length
+            ? `<div style="display:flex;flex-direction:column;gap:.4rem" id="guides-list">
+                ${GUIDES.map(g => `
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:.4rem .6rem;background:rgba(255,255,255,.04);border-radius:6px">
+                    <span style="font-size:14px">${esc(g.name)}<span style="color:var(--dim);font-size:11px;margin-left:.4rem">引路人</span></span>
+                    <button class="btn btn-sm" style="color:var(--red);border:1px solid rgba(192,80,80,.3);background:rgba(192,80,80,.07);font-size:11px;padding:.15rem .45rem" onclick="deleteGuide('${g.id}')">移除</button>
+                  </div>`).join('')}
+               </div>`
+            : `<div style="font-size:13px;color:var(--dim)" id="guides-list">尚無引路人。</div>`}
+        </div>
+
+        `;
+    }
+
+    function addGuide() {
+      const name = document.getElementById('new-guide-name')?.value.trim();
+      if (!name) { alert('請填入引路人名稱。'); return; }
+      if (GUIDES.some(g => g.name === name)) { alert('此名稱已存在。'); return; }
+      const guide = { id: 'g_' + Date.now(), name };
+      GUIDES.push(guide);
+      const obj = {};
+      GUIDES.forEach(g => { obj[g.id] = g; });
+      db.ref('guides').set(obj);
+      document.getElementById('new-guide-name').value = '';
+    }
+
+    function deleteGuide(id) {
+      if (!confirm('確定要移除此引路人？')) return;
+      GUIDES = GUIDES.filter(g => g.id !== id);
+      const obj = {};
+      GUIDES.forEach(g => { obj[g.id] = g; });
+      db.ref('guides').set(GUIDES.length === 0 ? null : obj);
+      showStaffPage();
     }
 
     // ────────────────────────────────────────────────────────────
@@ -2964,7 +3164,10 @@
         });
       });
 
-      const names  = Object.keys(aMap);
+      const guideNms   = new Set(GUIDES.map(g => g.name));
+      const allNames   = Object.keys(aMap);
+      const names      = allNames.filter(n => !guideNms.has(n));  // apostles only for svPerA calc
+      const guidePhotoNames = allNames.filter(n => guideNms.has(n));
       const numA   = names.length || 1;
 
       // 紀念品計算
@@ -2984,9 +3187,15 @@
         totPhotoSig    += aMap[n].photoSig;
         totHouseOther  += aMap[n].houseOther;
       });
+      // Include guide photos in house-side photo count (guides still get 20,000 each; house gets 80,000)
+      guidePhotoNames.forEach(n => {
+        totPhotos      += aMap[n].photos;
+        totPhotoExtras += aMap[n].photoExtras;
+      });
       tv.forEach(v => totOrders += (v.ordersTotal || 0));
+      const totExtraSig = tv.reduce((s,v) => s + (v.photoExtraSigs||[]).filter(Boolean).length * 20000, 0);
 
-      const photoHouseCut = totPhotos * 80000 + totPhotoSig;
+      const photoHouseCut = totPhotos * 80000 + totPhotoSig + totExtraSig;
 
       const guidePool  = Math.floor(totWreath * 0.1) + svGuide;
       const guideEach  = _numGuides > 0 ? Math.floor(guidePool / _numGuides) : 0;
@@ -3023,9 +3232,26 @@
         const a = aMap[n];
         return s + Math.floor(a.wreath*0.2) + a.nomen + a.photos*20000 + a.photoExtras*20000 + svPerA;
       }, 0);
+      // Guide photo cuts (separate from guide pool)
+      const guidePhotoCuts = guidePhotoNames.reduce((s,n) => {
+        const a = aMap[n]; return s + a.photos*20000 + a.photoExtras*20000;
+      }, 0);
+      const guidePhotoLines = guidePhotoNames.map(n => {
+        const a = aMap[n];
+        const pCut  = a.photos * 20000;
+        const exCut = a.photoExtras * 20000;
+        const sub   = pCut + exCut;
+        return sub > 0
+          ? `<div style="margin-top:.35rem;font-size:13px;color:var(--text)">${esc(n)}：` +
+            (pCut  ? `交名留影 ${a.photos} 張 = ${pCut.toLocaleString()}` : '') +
+            (pCut && exCut ? '・' : '') +
+            (exCut ? `多人合照 ${a.photoExtras} 人 = ${exCut.toLocaleString()}` : '') +
+            `</div>`
+          : '';
+      }).filter(Boolean).join('');
       const recorded  = tv.reduce((s,v) => s + (v.total||0), 0);
       const revenue   = recorded + svTotal;
-      const wages     = apostleTotal + guidePool;
+      const wages     = apostleTotal + guidePool + guidePhotoCuts;
       const profit    = houseTotal;
 
       document.getElementById('pos-content').innerHTML = `
@@ -3063,8 +3289,9 @@
               ${svTotal   ? `紀念品 ${svTotal.toLocaleString()} × 10% = ${svGuide.toLocaleString()}<br>` : ''}
               ${!totWreath && !svTotal ? '—<br>' : ''}
               ${_numGuides > 1 ? `<span style="color:var(--text)">每位 ${guideEach.toLocaleString()} Gil</span>` : ''}
+              ${guidePhotoLines ? `<div style="border-top:1px solid var(--border);margin-top:.3rem;padding-top:.3rem;font-size:12px;color:var(--dim)">拍立得（引路人）${guidePhotoCuts.toLocaleString()} Gil${guidePhotoLines}</div>` : ''}
             </div>
-            <div class="settle-other-val">${guidePool.toLocaleString()} Gil</div>
+            <div class="settle-other-val">${(guidePool + guidePhotoCuts).toLocaleString()} Gil</div>
           </div>
           <div class="settle-other-card">
             <div class="settle-other-lbl">店家</div>
@@ -3088,7 +3315,7 @@
           <div class="settle-grand-val">${revenue.toLocaleString()} Gil</div>
         </div>
         <div class="settle-wages">
-          <span>薪酬支出（使徒 ${apostleTotal.toLocaleString()} ＋ 引路人 ${guidePool.toLocaleString()}）</span>
+          <span>薪酬支出（使徒 ${apostleTotal.toLocaleString()} ＋ 引路人 ${(guidePool + guidePhotoCuts).toLocaleString()}）</span>
           <span style="color:var(--red)">－ ${wages.toLocaleString()} Gil</span>
         </div>
         <div class="settle-profit ${profit >= 0 ? 'pos' : 'neg'}">
