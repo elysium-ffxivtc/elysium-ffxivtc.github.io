@@ -598,7 +598,7 @@
         <div style="padding:.6rem .9rem;border-bottom:1px solid var(--border);background:var(--card)" id="sidebar-today-label"></div>
         <div class="pos-customer-list" id="pos-customer-list"><div style="padding:1.5rem 1rem;font-size:14px;color:var(--dim);text-align:center">連線中…</div></div>
         <button class="pos-add-btn" onclick="openNewCustomerModal()">＋ 新增現場客戶</button>
-        <button class="pos-add-btn" style="border-top:none;color:var(--dim)" onclick="openWalkinSearchModal()">舊客到訪</button>
+        <button class="pos-add-btn" onclick="openWalkinSearchModal()">舊客到訪</button>
       </div>
       <div id="sidebar-other" style="display:none;flex:1;align-items:center;justify-content:center">
         <div style="font-size:15px;color:var(--dim);text-align:center;padding:1rem"></div>
@@ -1192,7 +1192,7 @@
           </div>
           <div class="pos-profile-actions">
             <button class="btn btn-gold" onclick="showNewVisit('${id}','nomen')">＋ 新增召引</button>
-            <button class="btn btn-outline" onclick="showNewVisit('${id}','dining')">＋ 新增餐點</button>
+            <button class="btn" style="background:var(--blue);color:#fff" onclick="showNewVisit('${id}','dining')">＋ 新增餐點</button>
             <button class="btn btn-outline" onclick="openEditCustomerModal('${id}')">編輯資料</button>
             <button class="btn btn-outline" style="border-color:var(--red);color:var(--red)" onclick="deleteCustomer('${id}')">刪除</button>
           </div>
