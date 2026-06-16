@@ -1652,10 +1652,10 @@
       const id = vs.customerId;
       const c  = customers.find(x => x.id===id);
       if (!c) return;
-      if (vs.mode === 'nomen' && vs.apostleType === 'specified') {
+      if (vs.mode === 'nomen') {
         const name = document.getElementById('v-apostle')?.value.trim() || '';
         if (!name) {
-          alert('請選擇指定使徒，或切換為「不指定」。');
+          alert('請填入服務使徒姓名。');
           document.getElementById('v-apostle')?.focus();
           return;
         }
