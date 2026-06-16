@@ -1,0 +1,3227 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elysium · 幻堂管理系統</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --gold:     #c8984a;
+      --gold-dim: rgba(200,152,74,.2);
+      --bg:       #141414;
+      --panel:    #1c1c1c;
+      --card:     #242424;
+      --border:   rgba(255,255,255,.11);
+      --text:     #f0ece8;
+      --dim:      #9a9a9a;
+      --green:    #5aaa7a;
+      --red:      #d06060;
+      --blue:     #5090c8;
+      --orange:   #d4884a;
+      --sin:      #a8a8a8;   /* 食罪 */
+      --yi:       #b07888;   /* 妖異 #795061 調亮以確保深色背景可讀 */
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .pos-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .7rem 1.5rem;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .pos-header-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1rem;
+      letter-spacing: .25em;
+      color: var(--gold);
+    }
+    .pos-header-date { font-size: 14px; color: var(--dim); letter-spacing: .05em; }
+
+    /* ── Layout ── */
+    .pos-main { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .pos-sidebar {
+      width: 290px;
+      flex-shrink: 0;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .pos-search-wrap { padding: .9rem; border-bottom: 1px solid var(--border); }
+    .pos-search-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .55rem .75rem;
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .pos-search-input::placeholder { color: var(--dim); }
+    .pos-search-input:focus { border-color: var(--gold); }
+
+    .pos-customer-list { flex: 1; overflow-y: auto; }
+    .pos-customer-item {
+      padding: .7rem .9rem;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      transition: background .15s;
+    }
+    .pos-customer-item:hover { background: rgba(255,255,255,.04); }
+    .pos-customer-item.active { background: rgba(200,152,74,.16); border-left: 3px solid var(--gold); padding-left: calc(.9rem - 3px); }
+    .pos-ci-name { font-size: 15px; font-weight: 500; }
+    .pos-ci-discord { font-size: 13px; color: var(--dim); margin-top: 2px; }
+    .pos-ci-pts { font-size: 13px; color: var(--gold); margin-top: 2px; }
+
+    .pos-add-btn {
+      margin: .9rem;
+      padding: .5rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--dim);
+      font-size: 14px;
+      letter-spacing: .05em;
+      cursor: pointer;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .pos-add-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── Content ── */
+    .pos-content { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+    .pos-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--dim);
+      text-align: center;
+    }
+    .pos-empty-icon { font-size: 1.8rem; margin-bottom: .75rem; opacity: .35; }
+    .pos-empty-text { font-size: 14px; letter-spacing: .1em; }
+
+    /* ── Cards ── */
+    .pos-card { background: var(--card); border: 1px solid var(--border); padding: 1.1rem; margin-bottom: 1rem; }
+    .pos-card-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 13px;
+      letter-spacing: .2em;
+      color: var(--gold);
+      margin-bottom: .9rem;
+      padding-bottom: .45rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Profile ── */
+    .pos-profile-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.1rem; }
+    .pos-profile-name { font-family: 'Noto Serif TC', serif; font-size: 1.45rem; font-weight: 700; letter-spacing: .05em; }
+    .pos-profile-sub { font-size: 14px; color: var(--dim); margin-top: .25rem; }
+    .pos-profile-actions { display: flex; gap: .5rem; flex-shrink: 0; }
+
+    .pos-stats { display: flex; gap: .65rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .pos-stat {
+      display: inline-flex;
+      align-items: baseline;
+      gap: .35rem;
+      background: rgba(200,152,74,.1);
+      border: 1px solid rgba(200,152,74,.28);
+      padding: .45rem .85rem;
+    }
+    .pos-stat-val { font-family: 'Noto Serif TC', serif; font-size: 1.15rem; color: var(--gold); font-weight: 700; }
+    .pos-stat-lbl { font-size: 13px; color: var(--dim); }
+
+    /* Redeem alert */
+    .pos-redeem-alert {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .7rem 1rem;
+      background: rgba(184,144,96,.1);
+      border: 1px solid rgba(184,144,96,.4);
+      margin-bottom: 1rem;
+      font-size: 14px;
+    }
+    .pos-redeem-alert strong { color: var(--gold); }
+
+    /* Info grid */
+    .pos-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+    .pos-info-lbl { font-size: 12px; color: var(--dim); letter-spacing: .08em; margin-bottom: .2rem; }
+    .pos-info-val { font-size: 15px; }
+    .pos-info-val.copyable { cursor: pointer; transition: color .15s; }
+    .pos-info-val.copyable:hover { color: var(--gold); }
+
+    /* Table */
+    .pos-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .pos-table th {
+      text-align: left;
+      padding: .45rem .65rem;
+      color: var(--dim);
+      font-weight: 400;
+      font-size: 13px;
+      letter-spacing: .05em;
+      border-bottom: 1px solid var(--border);
+    }
+    .pos-table td { padding: .6rem .65rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+    .pos-table tr:hover td { background: rgba(184,144,96,.04); }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 12px;
+      letter-spacing: .04em;
+    }
+    .tag-booked  { background: rgba(80,144,200,.18); color: var(--blue); }
+    .tag-walkin  { background: rgba(212,136,74,.18); color: var(--orange); }
+    .tag-spec    { background: rgba(90,170,122,.18); color: var(--green); }
+    .tag-unspec  { background: rgba(255,255,255,.08); color: #aaa; }
+
+    /* Event items in modal */
+    .event-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .55rem .75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      margin-bottom: .4rem;
+    }
+    .event-item.active-event { border-color: var(--gold); background: rgba(184,144,96,.08); }
+    .event-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 12px;
+      border-radius: 2px;
+      background: rgba(184,144,96,.2);
+      color: var(--gold);
+      margin-left: .4rem;
+    }
+
+    /* Event selection in visit form */
+    .ev-opt {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .5rem .7rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+      margin-bottom: .35rem;
+    }
+    .ev-opt.on { border-color: var(--gold); background: rgba(184,144,96,.08); }
+    .ev-opt-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 1px solid var(--dim);
+      flex-shrink: 0;
+    }
+    .ev-opt.on .ev-opt-dot { background: var(--gold); border-color: var(--gold); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .5rem 1rem;
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 14px;
+      letter-spacing: .05em;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn-gold    { background: var(--gold); color: #fff; }
+    .btn-gold:hover { background: #c9a070; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--dim); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm { padding: .3rem .7rem; font-size: 13px; }
+
+    /* Form */
+    .pos-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+    .field-full { grid-column: 1/-1; }
+    .pos-lbl { display: block; font-size: 13px; color: var(--dim); letter-spacing: .07em; margin-bottom: .3rem; }
+    .pos-input, .pos-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .55rem .75rem;
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .pos-input:focus, .pos-select:focus { border-color: var(--gold); }
+    .pos-select option { background: var(--card); }
+    /* Date range picker */
+    .dr-wrap { position: relative; }
+    .dr-display {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      padding: .55rem .75rem; font-size: 15px; cursor: pointer; transition: border-color .2s;
+    }
+    .dr-display:hover, .dr-display.open { border-color: var(--gold); }
+    .dr-popup {
+      position: absolute; top: calc(100% + 6px); left: 0; z-index: 200;
+      background: var(--card); border: 1px solid var(--border);
+      padding: .85rem; min-width: 272px; box-shadow: 0 8px 28px rgba(0,0,0,.55);
+    }
+    .dr-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: .55rem; }
+    .dr-nav-btn { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 18px; line-height:1; padding: .1rem .35rem; transition: color .15s; }
+    .dr-nav-btn:hover { color: var(--gold); }
+    .dr-month-lbl { font-size: 15px; color: var(--text); font-family: 'Noto Serif TC', serif; letter-spacing: .06em; }
+    .dr-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .dr-wd { text-align: center; font-size: 12px; color: var(--dim); padding: .25rem 0; }
+    .dr-day {
+      text-align: center; font-size: 14px; padding: .32rem 0; cursor: pointer;
+      color: var(--text); transition: background .1s, color .1s; user-select: none;
+    }
+    .dr-day:hover { background: var(--gold-dim); color: var(--gold); }
+    .dr-day.dr-in { background: rgba(200,152,74,.13); color: var(--text); }
+    .dr-day.dr-s, .dr-day.dr-e { background: var(--gold); color: #1c1208; font-weight: 600; }
+    .dr-day.dr-s.dr-e { background: var(--gold); }
+    .dr-day.dr-empty, .dr-day.dr-past { cursor: default; pointer-events: none; }
+    .dr-day.dr-past { color: var(--dim); opacity: .3; }
+    .dr-day.dr-today { outline: 1px solid var(--gold); outline-offset: -2px; }
+
+    /* Time picker */
+    .tp-cols { display: flex; }
+    .tp-col { flex: 1; max-height: 196px; overflow-y: auto; }
+    .tp-col:first-child { border-right: 1px solid var(--border); }
+    .tp-opt { padding: .42rem .65rem; font-size: 14px; cursor: pointer; text-align: center; color: var(--dim); user-select: none; }
+    .tp-opt:hover { color: var(--text); background: rgba(200,152,74,.08); }
+    .tp-opt.on { color: var(--gold); background: rgba(200,152,74,.15); font-weight: 600; }
+    .tp-dis { opacity: .3; cursor: default !important; pointer-events: none; }
+
+    /* Toggle */
+    .toggle-group { display: flex; gap: .4rem; }
+    .toggle-btn {
+      flex: 1;
+      padding: .5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--dim);
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s;
+      letter-spacing: .04em;
+    }
+    .toggle-btn.on { border-color: var(--gold); color: var(--gold); background: rgba(184,144,96,.1); }
+
+    /* Services */
+    .svc-list { display: flex; flex-direction: column; gap: .4rem; }
+    .svc-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .5rem .7rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+    }
+    .svc-item.on { border-color: var(--gold); background: rgba(184,144,96,.08); }
+    .svc-name { font-size: 15px; }
+    .svc-price { font-size: 14px; color: var(--dim); }
+    .svc-item.on .svc-price { color: var(--gold); }
+
+    /* Menu */
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+    .menu-item {
+      padding: .5rem .6rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      cursor: default;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .menu-item.on { border-color: var(--gold); background: rgba(184,144,96,.08); }
+    .menu-item-name { font-size: 14px; }
+    .menu-item-price { font-size: 12px; color: var(--dim); }
+    .menu-item.on .menu-item-price { color: var(--gold); }
+    .qty-row { display: flex; align-items: center; gap: .3rem; }
+    .qty-btn {
+      width: 20px; height: 20px;
+      background: var(--border);
+      border: none;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .qty-val { font-size: 14px; min-width: 18px; text-align: center; }
+
+    /* Multiplier */
+    .mult-group { display: flex; gap: .4rem; }
+    .mult-btn {
+      flex: 1;
+      padding: .45rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--dim);
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s;
+    }
+    .mult-btn.on { border-color: var(--gold); color: var(--gold); background: rgba(184,144,96,.1); }
+
+    /* Cost summary */
+    .cost-box {
+      background: rgba(200,152,74,.07);
+      border: 1px solid rgba(200,152,74,.3);
+      padding: .9rem 1rem;
+    }
+    .cost-row { display: flex; justify-content: space-between; font-size: 15px; padding: .25rem 0; }
+    .cost-row.total {
+      border-top: 1px solid rgba(200,152,74,.3);
+      margin-top: .4rem;
+      padding-top: .6rem;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 17px;
+    }
+    .cost-lbl { color: var(--dim); }
+    .cost-val { color: var(--text); }
+    .cost-row.total .cost-val { color: var(--gold); font-weight: 700; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      width: 420px;
+      max-width: 92vw;
+    }
+    .modal-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.05rem;
+      letter-spacing: .18em;
+      color: var(--gold);
+      margin-bottom: 1.1rem;
+    }
+    .modal-actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1.1rem; }
+    .modal-box-lg {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 1.75rem 2rem;
+      width: 1100px;
+      max-width: 96vw;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-box-lg .modal-lg-body {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: .25rem;
+    }
+
+    /* Nav tabs */
+    .pos-nav { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .pos-nav-btn {
+      flex: 1;
+      padding: .6rem .25rem;
+      background: transparent;
+      border: none;
+      color: var(--dim);
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 14px;
+      letter-spacing: .05em;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .15s;
+    }
+    .pos-nav-btn:hover { color: var(--text); }
+    .pos-nav-btn.on { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* Roster table */
+    .roster-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .roster-table th {
+      text-align: left;
+      padding: .5rem .75rem;
+      color: var(--dim);
+      font-weight: 400;
+      font-size: 13px;
+      letter-spacing: .05em;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .roster-table th:hover { color: var(--text); }
+    .roster-table td { padding: .65rem .75rem; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: middle; }
+    .roster-table tr:hover td { background: rgba(255,255,255,.04); cursor: pointer; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--gold);
+      padding: 1rem 1.1rem;
+    }
+    .stat-card-val { font-family: 'Noto Serif TC', serif; font-size: 1.75rem; color: var(--gold); font-weight: 700; }
+    .stat-card-lbl { font-size: 13px; color: var(--dim); margin-top: .35rem; letter-spacing: .05em; }
+
+    .rank-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .5rem .65rem;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: 15px;
+    }
+    .rank-row:last-child { border-bottom: none; }
+    .rank-num { font-size: 13px; color: var(--dim); width: 24px; flex-shrink: 0; }
+    .rank-bar-wrap { flex: 1; margin: 0 .75rem; background: rgba(255,255,255,.05); height: 4px; border-radius: 2px; overflow: hidden; }
+    .rank-bar { height: 100%; background: var(--gold); border-radius: 2px; }
+
+    /* Settlement */
+    .settle-souvenir { background:var(--card); border:1px solid var(--border); border-top:2px solid var(--gold); padding:1rem 1.25rem; margin-bottom:1.5rem; }
+    .settle-sv-row { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-top:.65rem; }
+    .settle-input { background:var(--bg); border:1px solid var(--border); color:var(--text); padding:.45rem .65rem; font-size:14px; font-family:inherit; }
+    .settle-input:focus { outline:none; border-color:var(--gold); }
+    .settle-input::-webkit-inner-spin-button, .settle-input::-webkit-outer-spin-button { opacity:.4; }
+    .settle-block { margin-bottom:1.1rem; }
+    .settle-block-hdr { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.5rem; }
+    .settle-block-name { font-family:'Noto Serif TC',serif; font-size:15px; color:var(--gold); }
+    .settle-block-total { font-family:'Noto Serif TC',serif; font-size:1.4rem; font-weight:700; color:var(--gold); }
+    .settle-rows { background:var(--card); border:1px solid var(--border); padding:.6rem 1rem; }
+    .settle-row { display:flex; align-items:center; padding:.3rem 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:13px; gap:.5rem; }
+    .settle-row:last-child { border-bottom:none; }
+    .settle-row-lbl  { color:var(--dim); flex:1; }
+    .settle-row-base { color:var(--text); text-align:right; min-width:100px; }
+    .settle-row-rate { color:var(--dim); font-size:11px; width:68px; text-align:center; }
+    .settle-row-cut  { color:var(--text); font-weight:600; text-align:right; min-width:100px; }
+    .settle-divider { height:1px; background:var(--border); margin:1.1rem 0; }
+    .settle-other-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem; }
+    .settle-other-card { background:var(--card); border:1px solid var(--border); padding:.9rem 1.1rem; }
+    .settle-other-lbl { font-size:12px; color:var(--dim); letter-spacing:.06em; margin-bottom:.45rem; }
+    .settle-other-val { font-family:'Noto Serif TC',serif; font-size:1.4rem; color:var(--gold); font-weight:700; }
+    .settle-other-detail { font-size:12px; color:var(--dim); margin-top:.3rem; line-height:1.8; }
+    .settle-grand { display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:.85rem 1.25rem; background:var(--card); }
+    .settle-grand-lbl { font-size:12px; color:var(--dim); letter-spacing:.04em; margin-bottom:.15rem; }
+    .settle-grand-val { font-family:'Noto Serif TC',serif; font-size:1.4rem; color:var(--text); font-weight:700; }
+    .settle-wages { display:flex; justify-content:space-between; align-items:center; padding:.6rem 1.25rem; font-size:13px; color:var(--dim); border:1px solid var(--border); border-top:none; }
+    .settle-profit { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border:1px solid; border-top:none; margin-bottom:.5rem; }
+    .settle-profit.pos { border-color:var(--green); background:rgba(90,170,122,.07); }
+    .settle-profit.neg { border-color:var(--red);   background:rgba(208,96,96,.07); }
+    .settle-profit-lbl { font-size:13px; color:var(--dim); }
+    .settle-profit-val { font-family:'Noto Serif TC',serif; font-size:1.6rem; font-weight:700; }
+    .settle-profit.pos .settle-profit-val { color:var(--green); }
+    .settle-profit.neg .settle-profit-val { color:var(--red); }
+    .settle-sub-lbl { font-size:12px; color:var(--dim); letter-spacing:.05em; margin:.5rem 0 .5rem; }
+
+    /* ── Header extras ── */
+    .biz-toggle { display:inline-flex; align-items:center; gap:.45rem; padding:.3rem .85rem; border:1px solid var(--border); font-size:13px; cursor:pointer; background:none; color:var(--dim); font-family:inherit; transition:all .2s; }
+    .biz-toggle.open  { border-color:var(--green); color:var(--green); }
+    .biz-toggle.closed{ border-color:var(--dim);   color:var(--dim);   }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <header class="pos-header">
+    <div class="pos-header-title">✦ 幻堂管理系統</div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <div class="pos-header-date" id="pos-date"></div>
+      <div id="biz-wrap">
+        <button id="biz-btn" class="biz-toggle closed" onclick="toggleBizStatus()">
+          <span id="biz-dot" style="font-size:9px">●</span><span id="biz-lbl">休業中</span>
+        </button>
+      </div>
+      <span id="apostle-status" style="font-size:13px;color:var(--dim)"></span>
+      <button class="btn btn-outline btn-sm" id="demo-btn" onclick="loadDemoData()" style="font-size:11px;padding:.3rem .65rem;opacity:.6">載入測試資料</button>
+    </div>
+  </header>
+
+  <div class="pos-main" id="pos-main">
+
+    <aside class="pos-sidebar">
+      <div class="pos-nav">
+        <button class="pos-nav-btn on" id="nav-btn-customer" onclick="setNav('customer')">客戶</button>
+        <button class="pos-nav-btn"    id="nav-btn-roster"   onclick="setNav('roster')">名冊</button>
+        <button class="pos-nav-btn"    id="nav-btn-stats"    onclick="setNav('stats')">統計</button>
+        <button class="pos-nav-btn"    id="nav-btn-activity"   onclick="setNav('activity')">活動</button>
+        <button class="pos-nav-btn"    id="nav-btn-settlement" onclick="setNav('settlement')">結帳</button>
+      </div>
+      <div id="sidebar-customer" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+        <div style="padding:.6rem .9rem;border-bottom:1px solid var(--border);background:var(--card)" id="sidebar-today-label"></div>
+        <div class="pos-customer-list" id="pos-customer-list"><div style="padding:1.5rem 1rem;font-size:14px;color:var(--dim);text-align:center">連線中…</div></div>
+        <button class="pos-add-btn" onclick="openNewCustomerModal()">＋ 新增現場客戶</button>
+        <button class="pos-add-btn" style="border-top:none;color:var(--dim)" onclick="openWalkinSearchModal()">舊客到訪</button>
+      </div>
+      <div id="sidebar-other" style="display:none;flex:1;align-items:center;justify-content:center">
+        <div style="font-size:15px;color:var(--dim);text-align:center;padding:1rem"></div>
+      </div>
+    </aside>
+
+    <main class="pos-content" id="pos-content">
+      <div class="pos-empty">
+        <div class="pos-empty-icon">✦</div>
+        <div class="pos-empty-text">搜尋或選擇客戶以查看資料</div>
+      </div>
+    </main>
+
+  </div><!-- end pos-main -->
+
+  <!-- 舊客到訪 Modal -->
+  <div class="modal-overlay" id="modal-walkin-search" onclick="if(event.target===this)closeModal('modal-walkin-search')">
+    <div class="modal-box" style="max-width:360px">
+      <div class="modal-title">舊客到訪</div>
+      <input class="pos-input" id="walkin-search-inp" type="text" placeholder="搜尋角色名 / Discord…"
+             style="width:100%;box-sizing:border-box;margin-bottom:.75rem"
+             oninput="renderWalkinSearch()">
+      <div id="walkin-search-list" style="max-height:280px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- 加時 Modal -->
+  <div class="modal-overlay" id="modal-ot" onclick="if(event.target===this)closeModal('modal-ot')">
+    <div class="modal-box" style="max-width:320px">
+      <div class="modal-title">加時</div>
+      <div style="font-size:14px;color:var(--dim);margin-bottom:1.1rem" id="ot-info"></div>
+      <div>
+        <div class="pos-label">開始時間</div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div class="dr-wrap" id="ot-h-wrap" style="flex:1">
+            <div class="dr-display" style="padding:0">
+              <input type="text" id="ot-h-inp" class="pos-input" maxlength="2" placeholder="HH"
+                     style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
+                     onclick="this.select()" oninput="otHFromInput()">
+              <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
+                    onclick="otToggle('h')">▼</span>
+            </div>
+            <div id="ot-h-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
+          </div>
+          <span style="color:var(--dim);font-size:1.1rem;flex-shrink:0">:</span>
+          <div class="dr-wrap" id="ot-m-wrap" style="flex:1">
+            <div class="dr-display" style="padding:0">
+              <input type="text" id="ot-m-inp" class="pos-input" maxlength="2" placeholder="MM"
+                     style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
+                     onclick="this.select()" oninput="otMFromInput()">
+              <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
+                    onclick="otToggle('m')">▼</span>
+            </div>
+            <div id="ot-m-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-ot')">取消</button>
+        <button class="btn btn-gold" onclick="saveOvertime()">確認</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 打賞 Modal -->
+  <div class="modal-overlay" id="modal-tip" onclick="if(event.target===this)closeModal('modal-tip')">
+    <div class="modal-box" style="max-width:360px">
+      <div class="modal-title">新增打賞</div>
+      <div style="display:grid;gap:.85rem">
+        <div>
+          <div class="pos-label">金額 (Gil)</div>
+          <input id="tip-amount" type="number" class="pos-input" placeholder="打賞金額" min="1" style="width:100%">
+        </div>
+        <div>
+          <div class="pos-label">打賞給</div>
+          <div id="tip-to-wrap"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-tip')">取消</button>
+        <button class="btn btn-gold" onclick="saveTip()">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增 / 編輯客戶 Modal -->
+  <div class="modal-overlay" id="modal-customer">
+    <div class="modal-box">
+      <div class="modal-title" id="modal-customer-title">新增客戶</div>
+      <div class="pos-form-grid">
+        <div>
+          <label class="pos-lbl">角色名稱 *</label>
+          <input class="pos-input" id="nc-name" type="text" placeholder="角色名">
+        </div>
+        <div>
+          <label class="pos-lbl">Discord</label>
+          <input class="pos-input" id="nc-discord" type="text" placeholder="username">
+        </div>
+        <div>
+          <label class="pos-lbl">伺服器</label>
+          <select class="pos-select" id="nc-server">
+            <option value="">選擇伺服器</option>
+            <option>伊弗利特</option><option>迦樓羅</option><option>利維坦</option>
+            <option>鳳凰</option><option>奧汀</option><option>巴哈姆特</option><option>泰坦</option>
+          </select>
+        </div>
+        <div>
+          <label class="pos-lbl">聯絡方式</label>
+          <input class="pos-input" id="nc-contact" type="text" placeholder="其他聯絡">
+        </div>
+        <div class="field-full">
+          <label class="pos-lbl">備註</label>
+          <input class="pos-input" id="nc-notes" type="text" placeholder="備註">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-customer')">取消</button>
+        <button class="btn btn-gold" id="modal-customer-confirm">建立</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 名冊客戶詳情 Modal -->
+  <div class="modal-overlay" id="modal-profile" onclick="if(event.target===this)closeModal('modal-profile')">
+    <div class="modal-box-lg">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-shrink:0">
+        <span class="modal-title" style="margin-bottom:0" id="modal-profile-name"></span>
+        <button class="btn btn-outline btn-sm" onclick="closeModal('modal-profile')">✕ 關閉</button>
+      </div>
+      <div class="modal-lg-body" id="modal-profile-body"></div>
+    </div>
+  </div>
+
+  <script>
+    // ────────────────────────────────────────────────────────────
+    //  API
+    // ────────────────────────────────────────────────────────────
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
+    let APOSTLES = [];
+
+    async function fetchApostles() {
+      try {
+        const res = await fetch(`${API_URL}?action=getApostles`);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length) {
+          APOSTLES = data;
+          renderApostleStatus();
+        }
+      } catch(e) { console.warn('無法載入使徒資料', e); }
+    }
+
+    function renderApostleStatus() {
+      const el = document.getElementById('apostle-status');
+      if (el) el.textContent = `已載入 ${APOSTLES.length} 位使徒`;
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  資料定義
+    // ────────────────────────────────────────────────────────────
+    const MENU_ITEMS = [
+      { id:'M1', name:'堅振（厄爾庇斯之麵）',   price:7000 },
+      { id:'M2', name:'懺悔（新薯冷湯）',       price:7000 },
+      { id:'M3', name:'彌撒（野生香蕉果昔）',   price:7000 },
+      { id:'M4', name:'晚禱（軟果糕）',         price:7000 },
+      { id:'M5', name:'血鷹（烤牛肉塔可餅）',   price:7000 },
+      { id:'M6', name:'猶大的搖籃（血色五海雜燴湯）', price:7000 },
+      { id:'M7', name:'浸河（血番茄果汁）',     price:7000 },
+      { id:'M8', name:'異端者之叉（血紅奇異果塔）', price:7000 },
+    ];
+
+    // 隱藏菜單（心像殘響）— 每位使徒的特色料理
+    // apostleName: '' 表示尚未指定使徒，可手動選取
+    let SPECIAL_MENU = [
+      { id:'S1', name:'特餐 A', price:10000, apostleName:'' },
+      { id:'S2', name:'特餐 B', price:10000, apostleName:'' },
+      { id:'S3', name:'特餐 C', price:10000, apostleName:'' },
+      { id:'S4', name:'特餐 D', price:10000, apostleName:'' },
+      { id:'S5', name:'特餐 E', price:10000, apostleName:'' },
+      { id:'S6', name:'特餐 F', price:10000, apostleName:'' },
+      { id:'S7', name:'特餐 G', price:10000, apostleName:'' },
+      { id:'S8', name:'特餐 H', price:10000, apostleName:'' },
+    ];
+
+    const SERVICES = [
+      { id:'wreath_booked', name:'花環（預約）',       price:20000  },
+      { id:'wreath_walkin', name:'花環（現場）',       price:30000  },
+      { id:'nomen30',       name:'顯名儀',             price:100000 },
+      { id:'photo',         name:'交名留影',           price:100000 },
+      { id:'photo_sig',     name:'加選：簽名拍立得',   price:20000  },
+    ];
+
+    // ────────────────────────────────────────────────────────────
+    //  全域狀態
+    // ────────────────────────────────────────────────────────────
+    let customers = [], visits = [], events = [], schedules = [];
+    let bizStatus = {};
+    let activeId  = null;
+    let _ready    = { customers: false, visits: false, events: false };
+    let _uiInited = false;
+    let db        = null;
+
+    const _fbMap = { 'pos_customers':'customers', 'pos_visits':'visits', 'pos_events':'events' };
+
+    function save(key, data) {
+      if (!db) return;
+      const fbKey = _fbMap[key]; if (!fbKey) return;
+      const obj = {};
+      data.forEach(item => { if (item.id) obj[item.id] = item; });
+      db.ref(fbKey).set(obj);
+    }
+
+    setTimeout(() => {
+      if (!_uiInited) {
+        _uiInited = true;
+        renderSidebar();
+        fetchApostles();
+        document.getElementById('pos-content').innerHTML = `
+          <div class="pos-empty">
+            <div class="pos-empty-icon" style="color:var(--red)">!</div>
+            <div class="pos-empty-text" style="color:var(--dim)">無法連線至資料庫，請確認網路連線或重新整理頁面</div>
+          </div>`;
+      }
+    }, 6000);
+
+    // ────────────────────────────────────────────────────────────
+    //  Firebase
+    // ────────────────────────────────────────────────────────────
+    try {
+      firebase.initializeApp({
+        apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+        authDomain:        "elysiumpos.firebaseapp.com",
+        databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId:         "elysiumpos",
+        storageBucket:     "elysiumpos.firebasestorage.app",
+        messagingSenderId: "430177597593",
+        appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+      });
+      db = firebase.database();
+
+      // ── POS 資料監聽 ──
+      const onFbErr = key => err => {
+        console.error(`Firebase ${key} error:`, err.message);
+        _ready[key] = true; tryInit();
+      };
+      db.ref('customers').on('value', snap => {
+        customers = snap.val() ? Object.values(snap.val()) : [];
+        _ready.customers = true;
+        _uiInited ? fbRefresh() : tryInit();
+      }, onFbErr('customers'));
+      db.ref('visits').on('value', snap => {
+        visits = snap.val() ? Object.values(snap.val()) : [];
+        _ready.visits = true;
+        _uiInited ? fbRefresh() : tryInit();
+      }, onFbErr('visits'));
+      db.ref('events').on('value', snap => {
+        events = snap.val() ? Object.values(snap.val()) : [];
+        _ready.events = true;
+        _uiInited ? fbRefresh() : tryInit();
+      }, onFbErr('events'));
+
+      // ── 共用資料監聽 ──
+      db.ref('schedules').on('value', snap => {
+        schedules = snap.val() ? Object.values(snap.val()) : [];
+        if (_uiInited && currentNav === 'settlement') showSettlementPage();
+      });
+      db.ref('bizStatus').on('value', snap => {
+        bizStatus = snap.val() || {};
+        updateBizBtn();
+      });
+
+    } catch (fbInitErr) {
+      console.error('Firebase 初始化失敗:', fbInitErr.message);
+    }
+
+    function tryInit() {
+      if (_uiInited || !_ready.customers || !_ready.visits || !_ready.events) return;
+      _uiInited = true;
+      renderSidebar();
+      fetchApostles();
+      checkAutoPilgrim();
+    }
+
+    function checkAutoPilgrim() {
+      const now = new Date();
+      if (now.getHours() !== 2) return;
+      const today = getBusinessDate();
+      const ranKey = 'pilgrimAutoRan_' + today;
+      if (localStorage.getItem(ranKey)) return;
+      localStorage.setItem(ranKey, '1');
+      let changed = false;
+      visits.filter(v => v.date === today && v.mode === 'checkin').forEach(v => {
+        const hasService = visits.some(x =>
+          x.customerId === v.customerId && x.date === today &&
+          (x.mode === 'nomen' || x.mode === 'dining')
+        );
+        if (!hasService) {
+          v.mode = 'pilgrim';
+          changed = true;
+        }
+      });
+      if (changed) { save('pos_visits', visits); renderSidebar(); if (activeId) showProfile(activeId); }
+    }
+
+    setInterval(() => {
+      const h = new Date().getHours();
+      if (h === 2) checkAutoPilgrim();
+    }, 60000);
+
+    function fbRefresh() {
+      renderSidebar();
+      if      (currentNav === 'roster')     showRosterPage();
+      else if (currentNav === 'stats')      showStatsPage();
+      else if (currentNav === 'settlement') showSettlementPage();
+      else if (currentNav === 'customer' && activeId) showProfile(activeId);
+    }
+
+    // ── 加時 ──
+    const OT_SLOTS = ['22:00','22:30','23:00','23:30','00:00','00:30'];
+
+    let _otVisitId = null;
+
+    function addThirtyMin(t) {
+      if (!t) return '';
+      const [h, m] = t.split(':').map(Number);
+      const total = h * 60 + m + 30;
+      return `${String(Math.floor(total / 60) % 24).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
+    }
+
+    function addOvertime(visitId) {
+      const v = visits.find(x => x.id === visitId);
+      if (!v) return;
+      const nowStr = new Date().toTimeString().slice(0, 5);
+      const toMins = t => { const [h, m] = t.split(':').map(Number); return (h < 6 ? h + 24 : h) * 60 + m; };
+      if (toMins(addThirtyMin(nowStr)) > toMins('00:50')) {
+        return alert('現在時間加上 30 分鐘已超過 00:50，無法加時。');
+      }
+      _otVisitId = visitId;
+      document.getElementById('ot-info').textContent = `使徒：${v.apostleName || '—'}　現場指名`;
+      _ot.h = parseInt(nowStr.split(':')[0]);
+      _ot.m = parseInt(nowStr.split(':')[1]);
+      const hInp = document.getElementById('ot-h-inp');
+      const mInp = document.getElementById('ot-m-inp');
+      if (hInp) hInp.value = String(_ot.h).padStart(2,'0');
+      if (mInp) mInp.value = String(_ot.m).padStart(2,'0');
+      document.getElementById('modal-ot').classList.add('open');
+    }
+
+    async function saveOvertime() {
+      const v = visits.find(x => x.id === _otVisitId);
+      if (!v) return;
+      const c = customers.find(x => x.id === v.customerId);
+      if (!c) return;
+      const hRaw = parseInt(document.getElementById('ot-h-inp')?.value);
+      const mRaw = parseInt(document.getElementById('ot-m-inp')?.value);
+      if (isNaN(hRaw) || isNaN(mRaw) || mRaw < 0 || mRaw > 59) return alert('請輸入正確的時間');
+      const time = `${String(hRaw).padStart(2,'0')}:${String(mRaw).padStart(2,'0')}`;
+      const nomenSvc = SERVICES.find(s => s.id === 'nomen30');
+      if (!nomenSvc) return;
+      const newV = {
+        id: 'v_' + Date.now(),
+        customerId: v.customerId,
+        date: v.date,
+        time,
+        type: 'walkin',
+        apostleType: 'specified',
+        apostleName: v.apostleName,
+        apostleTag:  v.apostleTag || '',
+        services: ['nomen30'],
+        orders: [],
+        servicesTotal: nomenSvc.price,
+        ordersTotal: 0,
+        total: nomenSvc.price,
+        pointsEarned: 1,
+        pointMultiplier: 1,
+        eventId: '', eventName: '', notes: '加時',
+        tips: [],
+        createdAt: new Date().toISOString(),
+      };
+      await db.ref('visits/' + newV.id).set(newV);
+      c.pointsTotal = (c.pointsTotal || 0) + 1;
+      await db.ref('customers/' + c.id + '/pointsTotal').set(c.pointsTotal);
+      closeModal('modal-ot');
+    }
+
+    // ── 打賞 ──
+    let _tipVisitId = null, _tipCustId = null;
+
+    function deleteVisit(visitId, custId) {
+      if (!confirm('確定要刪除這筆紀錄？此操作無法還原。')) return;
+      const v = visits.find(x => x.id === visitId);
+      const c = customers.find(x => x.id === custId);
+      if (!v) return;
+      visits.splice(visits.indexOf(v), 1);
+      if (c) {
+        c.totalSpend  = Math.max(0, (c.totalSpend||0)  - (v.total||0));
+        c.pointsTotal = Math.max(0, (c.pointsTotal||0) - (v.pointsEarned||0));
+        const rem = visits.filter(x => x.customerId === custId).sort((a,b)=>b.date.localeCompare(a.date));
+        c.lastVisit = rem.length ? rem[0].date : '';
+        save('pos_customers', customers);
+      }
+      save('pos_visits', visits);
+      renderSidebar();
+      showProfile(custId);
+    }
+
+    function openAddTipModal(visitId, custId) {
+      _tipVisitId = visitId; _tipCustId = custId;
+      document.getElementById('tip-amount').value = '';
+      document.getElementById('tip-to-wrap').innerHTML = APOSTLES.length
+        ? `<select id="tip-to" class="pos-input" style="width:100%">
+            <option value="">選擇使徒</option>
+            ${APOSTLES.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' ('+a.tag+')':''}</option>`).join('')}
+           </select>`
+        : `<input id="tip-to" class="pos-input" placeholder="使徒名稱" style="width:100%">`;
+      document.getElementById('modal-tip').classList.add('open');
+    }
+
+    async function saveTip() {
+      const amount = parseInt(document.getElementById('tip-amount').value) || 0;
+      const to     = document.getElementById('tip-to')?.value?.trim() || '';
+      if (!to || !amount) return alert('請填寫金額與受贈使徒');
+      const v = visits.find(x => x.id === _tipVisitId);
+      if (!v) return;
+      await db.ref('visits/' + _tipVisitId + '/tips').set([...(v.tips||[]), { to, amount }]);
+      closeModal('modal-tip');
+      showProfile(_tipCustId);
+    }
+
+    // ── 今日開業狀態 ──
+    function updateBizBtn() {
+      const today = getBusinessDate();
+      const isOpen = bizStatus[today]?.isOpen || false;
+      const btn = document.getElementById('biz-btn');
+      const lbl = document.getElementById('biz-lbl');
+      if (!btn) return;
+      btn.className = 'biz-toggle ' + (isOpen ? 'open' : 'closed');
+      lbl.textContent = isOpen ? '營業中' : '休業中';
+    }
+
+    function toggleBizStatus() {
+      const today = getBusinessDate();
+      const isOpen = bizStatus[today]?.isOpen || false;
+      db.ref('bizStatus/' + today).set({
+        isOpen: !isOpen,
+        setAt: new Date().toISOString()
+      });
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  日期 header
+    // ────────────────────────────────────────────────────────────
+    function pad(n) { return String(n).padStart(2,'0'); }
+    function getBusinessDate() {
+      const d = new Date();
+      if (d.getHours() < 2) d.setDate(d.getDate() - 1);
+      return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+    }
+    function isNomenRecord(v) {
+      const _NS = ['nomen30','photo','photo_sig'];
+      return v.mode === 'nomen'
+        || (v.services||[]).some(s => _NS.includes(s))
+        || !!v.apostleName
+        || (v.type === 'booked' && !['dining','checkin','pilgrim'].includes(v.mode));
+    }
+    function isEditableVisit(v) {
+      const _NS = ['nomen30','photo','photo_sig'];
+      const m = v.mode || ((v.services||[]).some(s=>_NS.includes(s)) ? 'nomen' : 'dining');
+      return v.date === getBusinessDate() && (m === 'nomen' || m === 'dining');
+    }
+    (function() {
+      const w = ['日','一','二','三','四','五','六'];
+      function tick() {
+        const d = new Date();
+        document.getElementById('pos-date').textContent =
+          `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} (${w[d.getDay()]})  ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+
+    // ────────────────────────────────────────────────────────────
+    //  Sidebar
+    // ────────────────────────────────────────────────────────────
+    function renderSidebar() {
+      const el = document.getElementById('pos-customer-list');
+      const now = new Date();
+      const today = getBusinessDate();
+      const lbl = document.getElementById('sidebar-today-label');
+      const weekDays = ['日','一','二','三','四','五','六'];
+      const [yy, mm, dd] = today.split('-');
+      const dispDay = new Date(today + 'T12:00:00');
+      if (lbl) lbl.innerHTML = `<div style="font-size:11px;color:var(--dim);letter-spacing:.06em;margin-bottom:2px">今日客戶</div><div style="font-family:'Noto Serif TC',serif;font-size:16px;color:var(--gold);letter-spacing:.08em">${yy}-${mm}-${dd} <span style="font-size:14px">(${weekDays[dispDay.getDay()]})</span></div>`;
+      const todayVisits = visits.filter(v => v.date === today);
+      const seenIds = new Set(todayVisits.map(v => v.customerId));
+      customers.filter(c => (c.createdAt||'').startsWith(today)).forEach(c => seenIds.add(c.id));
+      const list = [...seenIds].map(id => customers.find(c => c.id === id)).filter(Boolean);
+
+      if (!list.length) {
+        el.innerHTML = `<div style="padding:1.5rem 1rem;font-size:14px;color:var(--dim);text-align:center;">今日尚無客戶</div>`;
+        return;
+      }
+      el.innerHTML = list.map(c => {
+        const cv = todayVisits.filter(v => v.customerId === c.id);
+        const first = cv[0];
+        const meta = first ? `${first.time||''} · ${first.type==='booked'?'預約':'現場'}` : '新客';
+        return `
+        <div class="pos-customer-item${c.id===activeId?' active':''}" onclick="selectCustomer('${c.id}')">
+          <div class="pos-ci-name">${esc(c.name)}</div>
+          <div class="pos-ci-discord">${esc(meta)}</div>
+          <div class="pos-ci-pts">名痕 ${c.pointsTotal||0} pt</div>
+        </div>`;
+      }).join('');
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  客戶選擇
+    // ────────────────────────────────────────────────────────────
+    function selectCustomer(id) {
+      activeId = id;
+      renderSidebar();
+      showProfile(id);
+    }
+
+    function gotoCustomerProfile(id) {
+      currentNav = 'customer';
+      activeId = id;
+      ['customer','roster','stats','activity','settlement'].forEach(t => {
+        const btn = document.getElementById('nav-btn-'+t);
+        if (btn) btn.className = 'pos-nav-btn' + (t==='customer' ? ' on' : '');
+      });
+      document.getElementById('sidebar-customer').style.display = 'flex';
+      const _so = document.getElementById('sidebar-other');
+      if (_so) _so.style.display = 'none';
+      renderSidebar();
+      showProfile(id);
+    }
+
+    function deleteCustomer(id) {
+      const c = customers.find(x => x.id === id);
+      if (!c) return;
+      if (!confirm(`確定要刪除客戶「${c.name}」及其所有召引紀錄？此操作無法復原。`)) return;
+      visits    = visits.filter(v => v.customerId !== id);
+      customers = customers.filter(x => x.id !== id);
+      save('pos_visits',    visits);
+      save('pos_customers', customers);
+      activeId = null;
+      renderSidebar();
+      document.getElementById('pos-content').innerHTML = `
+        <div class="pos-empty">
+          <div class="pos-empty-icon">✦</div>
+          <div class="pos-empty-text">搜尋或選擇客戶以查看資料</div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  客戶檔案
+    // ────────────────────────────────────────────────────────────
+    function showProfile(id) {
+      const c = customers.find(x => x.id === id);
+      if (!c) return;
+
+      const cv = visits.filter(v => v.customerId === id)
+                       .sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+      const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
+      const diningCount  = cv.filter(v => v.mode === 'dining').length;
+      const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+      const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
+      const canRedeem  = (c.pointsTotal||0) >= 666 && totalSpend >= 33333333 && !c.hasRedeemedUltimate;
+
+      document.getElementById('pos-content').innerHTML = `
+        ${canRedeem ? `
+        <div class="pos-redeem-alert">
+          <span style="font-size:1.1rem">✦</span>
+          <span>此客戶已達授名儀兌換條件（名痕 666 pt ＋ 累計消費 33,333,333 Gil）。
+            <button class="btn btn-gold btn-sm" style="margin-left:.6rem" onclick="redeemUltimate('${id}')">標記兌換</button>
+          </span>
+        </div>` : ''}
+        ${!c.hasRedeemedUltimate && !canRedeem && ((c.pointsTotal||0) > 0 || totalSpend > 0) ? `
+        <div class="pos-redeem-alert" style="border-color:var(--border);background:rgba(255,255,255,.03)">
+          <span style="font-size:1rem;opacity:.4">✦</span>
+          <span style="color:var(--dim)">授名儀進度 ─
+            名痕 ${c.pointsTotal||0} / 666 pt
+            ・累計消費 ${totalSpend.toLocaleString()} / 33,333,333 Gil
+          </span>
+        </div>` : ''}
+
+        <div class="pos-profile-hdr">
+          <div>
+            <div class="pos-profile-name">${esc(c.name)}</div>
+            <div class="pos-profile-sub">${esc(c.server||'—')} ・ ${esc(c.discord||'—')}</div>
+          </div>
+          <div class="pos-profile-actions">
+            <button class="btn btn-gold" onclick="showNewVisit('${id}','nomen')">＋ 新增召引</button>
+            <button class="btn btn-outline" onclick="showNewVisit('${id}','dining')">＋ 新增餐點</button>
+            <button class="btn btn-outline" onclick="openEditCustomerModal('${id}')">編輯資料</button>
+            <button class="btn btn-outline" style="border-color:var(--red);color:var(--red)" onclick="deleteCustomer('${id}')">刪除</button>
+          </div>
+        </div>
+
+        <div class="pos-stats">
+          <div class="pos-stat">
+            <span class="pos-stat-val">${c.pointsTotal||0}</span>
+            <span class="pos-stat-lbl">名痕 pt</span>
+          </div>
+          <div class="pos-stat">
+            <span class="pos-stat-val">${nomenCount}</span>
+            <span class="pos-stat-lbl">次召引</span>
+          </div>
+          <div class="pos-stat">
+            <span class="pos-stat-val">${diningCount}</span>
+            <span class="pos-stat-lbl">次純用餐</span>
+          </div>
+          <div class="pos-stat">
+            <span class="pos-stat-val">${pilgrimCount}</span>
+            <span class="pos-stat-lbl">次朝聖</span>
+          </div>
+          <div class="pos-stat">
+            <span class="pos-stat-val">${totalSpend.toLocaleString()}</span>
+            <span class="pos-stat-lbl">Gil 累計消費</span>
+          </div>
+          ${c.hasRedeemedUltimate ? `
+          <div class="pos-stat" style="border-color:rgba(192,80,80,.3)">
+            <span class="pos-stat-val" style="color:var(--red)">已兌換</span>
+            <span class="pos-stat-lbl">授名儀</span>
+          </div>` : ''}
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">基本資料</div>
+          <div class="pos-info-grid">
+            <div><div class="pos-info-lbl">角色名稱 <span style="font-size:11px;opacity:.5">（點擊複製 ID@伺服器）</span></div><div class="pos-info-val copyable" onclick="copyToClip('${esc(c.name)}@${esc(c.server||'')}',this)">${esc(c.name)}</div></div>
+            <div><div class="pos-info-lbl">Discord <span style="font-size:11px;opacity:.5">（點擊複製）</span></div><div class="pos-info-val${c.discord?' copyable':''}" ${c.discord?`onclick="copyToClip('${esc(c.discord)}',this)"`:''}">${esc(c.discord||'—')}</div></div>
+            <div><div class="pos-info-lbl">伺服器</div><div class="pos-info-val">${esc(c.server||'—')}</div></div>
+            <div><div class="pos-info-lbl">聯絡方式</div><div class="pos-info-val">${esc(c.contact||'—')}</div></div>
+            ${c.notes ? `<div style="grid-column:1/-1"><div class="pos-info-lbl">備註</div><div class="pos-info-val">${esc(c.notes)}</div></div>` : ''}
+          </div>
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">來訪紀錄</div>
+          ${cv.length === 0
+            ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無紀錄</div>`
+            : (() => {
+              const _NS = ['nomen30','photo','photo_sig'];
+              const _WK = ['日','一','二','三','四','五','六'];
+              const _today = getBusinessDate();
+              const groups = {};
+              cv.forEach(v => { const d = v.date||'—'; if (!groups[d]) groups[d]=[]; groups[d].push(v); });
+              const sortedDates = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+              return `<table class="pos-table">
+              <thead><tr>
+                <th>場次</th><th>類型</th><th>指名</th><th>使徒</th>
+                <th>服務</th><th>點餐</th><th>金額</th><th>名痕</th>
+              </tr></thead>
+              <tbody>${sortedDates.map(date => {
+                const group = groups[date].slice().sort((a,b)=>(b.time||'').localeCompare(a.time||''));
+                const isToday = date === _today;
+                const dayLabel = date !== '—' ? (() => { const d=new Date(date+'T12:00:00'); return _WK[d.getDay()]; })() : '';
+                const dayTotal = group.reduce((s,v)=>s+(v.total||0)+(v.tips||[]).reduce((t,x)=>t+x.amount,0),0);
+                return `<tr><td colspan="8" style="background:rgba(255,255,255,.035);padding:.4rem .75rem;font-size:13px;letter-spacing:.04em;border-top:1px solid var(--border)">
+                  <span style="color:${isToday?'var(--gold)':'var(--fg)'};">${date}${dayLabel?` (${dayLabel})`:''}${isToday?' · 今日':''}</span>
+                  <span style="color:var(--dim);margin-left:.6rem;font-size:12px">${group.length} 筆 · ${dayTotal.toLocaleString()} Gil</span>
+                </td></tr>
+                ${group.map(v => {
+                  const isNomenVisit = v.mode === 'nomen'
+                    || (v.services||[]).some(s => _NS.includes(s))
+                    || !!v.apostleName
+                    || (v.type === 'booked' && !['dining','checkin','pilgrim'].includes(v.mode));
+                  return `<tr>
+                  <td style="white-space:nowrap">${v.time||'—'}</td>
+                  <td><span class="tag ${v.type==='walkin'?'tag-walkin':'tag-booked'}">${v.type==='walkin'?'現場':'預約'}</span></td>
+                  <td>${isNomenVisit ? `<span class="tag ${v.apostleType==='specified'?'tag-spec':'tag-unspec'}">${v.apostleType==='specified'?'指定':'不指定'}</span>` : '—'}</td>
+                  <td>
+                    ${esc(v.apostleName||'—')}
+                    ${v.apostleTag?`<div style="font-size:13px;color:${tagColor(v.apostleTag)};margin-top:2px">${esc(v.apostleTag)}</div>`:''}
+                  </td>
+                  <td style="font-size:15px;color:var(--dim)">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</td>
+                  <td style="font-size:15px;color:var(--dim)">${(v.orders||[]).map(o=>`${o.name}×${o.qty}`).join('、')||'—'}</td>
+                  <td style="white-space:nowrap">
+                    ${(v.total||0).toLocaleString()} Gil
+                    ${(v.tips||[]).map(t=>`<div style="font-size:12px;color:var(--gold);margin-top:2px">打賞 ${t.amount.toLocaleString()} → ${esc(t.to)}</div>`).join('')}
+                    <div style="display:flex;gap:.35rem;margin-top:4px;flex-wrap:wrap">
+                      ${v.date === _today && isNomenVisit && !visits.some(x=>x.customerId===v.customerId&&x.date===_today&&x.id!==v.id&&isNomenRecord(x)&&(x.time||'')>(v.time||'')) ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="addOvertime('${v.id}')">加時</button>` : ''}
+                      <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="openAddTipModal('${v.id}','${id}')">＋ 打賞</button>
+                      ${isEditableVisit(v) ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="openEditVisit('${v.id}','${id}')">編輯</button>` : ''}
+                      ${v.date === _today ? `<button class="btn btn-sm" style="font-size:11px;padding:.15rem .45rem;color:var(--red);border:1px solid rgba(192,80,80,.35);background:rgba(192,80,80,.08)" onclick="deleteVisit('${v.id}','${id}')">刪除</button>` : ''}
+                    </div>
+                  </td>
+                  <td style="color:var(--gold)">
+                    ${(v.pointsEarned||0) > 0
+                      ? `＋${v.pointsEarned} pt${v.eventName ? `<div style="font-size:14px;color:var(--dim);margin-top:2px">${esc(v.eventName)} ×${v.pointMultiplier}</div>` : v.pointMultiplier > 1 ? `<div style="font-size:14px;color:var(--dim);margin-top:2px">×${v.pointMultiplier}</div>` : ''}`
+                      : `<span style="color:var(--dim)">—</span>`}
+                  </td>
+                </tr>`;}).join('')}`;
+              }).join('')}</tbody>
+            </table>`;
+            })()}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  新增紀錄（召引 / 餐點）
+    // ────────────────────────────────────────────────────────────
+    let vs = {}; // visit state
+
+    function showNewVisit(id, mode = 'nomen') {
+      const c = customers.find(x => x.id === id);
+      if (!c) return;
+      vs = {
+        customerId: id,
+        mode,
+        type: 'walkin',
+        apostleType: 'specified',
+        services: [],
+        orders: MENU_ITEMS.map(m => ({ ...m, qty: 0 })),
+        specialOrders: SPECIAL_MENU.map(m => ({ ...m, qty: 0 })),
+        multiplier: 1,
+        eventId: null,
+        eventName: '',
+      };
+
+      const today      = getBusinessDate();
+      const isNomen    = mode === 'nomen';
+      const isDining   = mode === 'dining';
+      const isPilgrim  = mode === 'pilgrim';
+
+      document.getElementById('pos-content').innerHTML = `
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+          <button class="btn btn-outline" onclick="selectCustomer('${id}')">← 返回</button>
+          <span id="visit-form-title" style="font-family:'Noto Serif TC',serif;font-size:.95rem;letter-spacing:.15em">
+            ${isNomen ? '新增召引' : isDining ? '新增餐點' : '新增朝聖'} — ${esc(c.name)}
+          </span>
+        </div>
+
+        ${isNomen ? `
+        <div class="pos-card">
+          <div class="pos-card-title">場次資訊</div>
+          <div class="pos-form-grid">
+            <input type="hidden" id="v-date" value="${today}">
+            <div>
+              <label class="pos-lbl">場次時間</label>
+              <div id="v-time-wrap"></div>
+            </div>
+            <div class="field-full">
+              <label class="pos-lbl">備註</label>
+              <input class="pos-input" id="v-notes" type="text" placeholder="備注">
+            </div>
+          </div>
+        </div>` : `
+        <input type="hidden" id="v-date" value="${today}">
+        <input type="hidden" id="v-time" value="">
+        <input type="hidden" id="v-notes" value="">
+        `}
+
+
+        ${isNomen ? `
+        <div class="pos-card">
+          <div class="pos-card-title">指名設定</div>
+          <div class="pos-form-grid">
+            <div>
+              <label class="pos-lbl">指名方式</label>
+              <div class="toggle-group">
+                <button class="toggle-btn on" id="tb-spec"   onclick="setAType('specified')">指定使徒</button>
+                <button class="toggle-btn"    id="tb-unspec" onclick="setAType('unspecified')">不指定</button>
+              </div>
+            </div>
+            <div class="field-full" id="apostle-field">
+              <label class="pos-lbl" id="apostle-field-label">指定使徒</label>
+              ${APOSTLES.length
+                ? `<select class="pos-select" id="v-apostle" onchange="updateSpecialMenu()">
+                    <option value="">選擇使徒</option>
+                    ${APOSTLES.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
+                  </select>`
+                : `<input class="pos-input" id="v-apostle" type="text" placeholder="填入使徒名稱" oninput="updateSpecialMenu()">`}
+            </div>
+          </div>
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">服務項目</div>
+          <div class="svc-list">
+            ${SERVICES.filter(s => !s.id.startsWith('wreath')).map(s => `
+            <div class="svc-item" id="svc-${s.id}" onclick="toggleSvc('${s.id}')">
+              <span class="svc-name">${s.name}</span>
+              <span class="svc-price">${s.price.toLocaleString()} Gil</span>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">名痕設定</div>
+          <div id="visit-event-opts">
+            ${(function(){
+              const active = getActiveEvents();
+              const base = '<div class="ev-opt on" id="ev-opt-none" onclick="selectEvent(null)"><div class="ev-opt-dot"></div><span style="font-size:15px">無活動（×1）</span></div>';
+              if (!active.length) return base + '<div style="font-size:15px;color:var(--dim);margin-top:.4rem">目前無進行中活動。<button class="btn btn-outline btn-sm" style="margin-left:.5rem;font-size:12px" onclick="showActivityPage()">前往活動管理</button></div>';
+              return base + active.map(e => '<div class="ev-opt" id="ev-opt-'+e.id+'" onclick="selectEvent(\''+e.id+'\')"><div class="ev-opt-dot"></div><span style="font-size:15px">'+esc(e.name)+'</span><span class="event-badge">×'+e.multiplier+'</span>'+(e.type==='timed'&&e.endDate?'<span style="font-size:14px;color:var(--dim);margin-left:.4rem">至 '+e.endDate+'</span>':'')+'</div>').join('');
+            })()}
+          </div>
+        </div>
+        ` : isDining ? `
+        <div class="pos-card">
+          <div class="pos-card-title">菜單餐點</div>
+          <div class="menu-grid">
+            ${vs.orders.map((m, i) => `
+            <div class="menu-item" id="mi-${m.id}">
+              <div class="menu-item-name">${m.name}</div>
+              <div class="menu-item-price">${m.price.toLocaleString()} Gil</div>
+              <div class="qty-row">
+                <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+                <span class="qty-val" id="qty-${m.id}">0</span>
+                <button class="qty-btn" onclick="changeQty(${i},1)">＋</button>
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-card-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleSpecialMenu()">
+            <span>心像殘響</span>
+            <span id="special-menu-chevron" style="font-size:11px;color:var(--dim);transition:transform .2s">▼</span>
+          </div>
+          <div id="special-menu-list" class="menu-grid" style="display:none"></div>
+        </div>
+        ` : ``}
+
+        <div class="cost-box" id="cost-box" style="margin-bottom:1rem"></div>
+
+        <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-bottom:1.5rem">
+          <button class="btn btn-outline" onclick="selectCustomer('${id}')">取消</button>
+          <button id="visit-form-confirm" class="btn btn-gold" onclick="saveVisit()">${isNomen ? '確認召引' : isDining ? '確認餐點' : '確認朝聖'}</button>
+        </div>`;
+
+      const _hasCheckinToday = !vs._editId && visits.some(v =>
+        v.customerId === id && v.date === today && (v.mode === 'checkin' || v.mode === 'pilgrim')
+      );
+      const _nowD = new Date();
+      const _nowH = _nowD.getHours(), _nowM = _nowD.getMinutes();
+      const _nowStr = pad(_nowH) + ':' + pad(_nowM);
+      _vt = { h: _nowH, m: _nowM };
+      renderVTimeField('walkin', _nowStr);
+      if (isDining) { const _t = document.getElementById('v-time'); if (_t) _t.value = _nowStr; }
+      if (isNomen) toggleSvc('nomen30');
+      updateCost();
+      if (isDining) updateSpecialMenu();
+    }
+
+    function renderVTimeField(type, val) {
+      const wrap = document.getElementById('v-time-wrap');
+      if (!wrap) return;
+      if (type === 'booked') {
+        wrap.innerHTML = `<select class="pos-select" id="v-time">
+          <option value="">選擇場次</option>
+          <option>22:00</option><option>22:30</option><option>23:00</option>
+          <option>23:30</option><option>00:00</option><option>00:30</option>
+        </select>`;
+        if (val) document.getElementById('v-time').value = val;
+      } else {
+        const hVal = val ? val.split(':')[0] : '';
+        const mVal = val ? val.split(':')[1] : '';
+        wrap.innerHTML = `
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <div class="dr-wrap" id="vt-h-wrap" style="flex:1">
+              <div class="dr-display" style="padding:0">
+                <input type="text" id="vt-h-inp" class="pos-input" maxlength="2" placeholder="HH"
+                       style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
+                       value="${hVal}" onclick="this.select()" oninput="vtHFromInput()">
+                <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
+                      onclick="vtToggle('h')">▼</span>
+              </div>
+              <div id="vt-h-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
+            </div>
+            <span style="color:var(--dim);font-size:1.1rem;flex-shrink:0">:</span>
+            <div class="dr-wrap" id="vt-m-wrap" style="flex:1">
+              <div class="dr-display" style="padding:0">
+                <input type="text" id="vt-m-inp" class="pos-input" maxlength="2" placeholder="MM"
+                       style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
+                       value="${mVal}" onclick="this.select()" oninput="vtMFromInput()">
+                <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
+                      onclick="vtToggle('m')">▼</span>
+              </div>
+              <div id="vt-m-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
+            </div>
+          </div>
+          <input type="hidden" id="v-time" value="${val || ''}">`;
+      }
+    }
+
+    function setVType(t) {
+      const cur = document.getElementById('v-time')?.value || '';
+      vs.type = t;
+      document.getElementById('tb-booked').className = 'toggle-btn' + (t==='booked'?' on':'');
+      document.getElementById('tb-walkin').className = 'toggle-btn' + (t==='walkin'?' on':'');
+      const oldW = t === 'walkin' ? 'wreath_booked' : 'wreath_walkin';
+      const newW = t === 'walkin' ? 'wreath_walkin' : 'wreath_booked';
+      const today2 = getBusinessDate();
+      const alreadyCheckedIn = t === 'walkin' && !vs._editId &&
+        visits.some(v => v.customerId === vs.customerId && v.date === today2 && (v.mode === 'checkin' || v.mode === 'pilgrim'));
+      if (vs.services.includes(oldW)) {
+        vs.services.splice(vs.services.indexOf(oldW), 1);
+        const oldEl = document.getElementById('svc-' + oldW);
+        if (oldEl) oldEl.className = 'svc-item';
+        if (!alreadyCheckedIn) {
+          vs.services.push(newW);
+          const newEl = document.getElementById('svc-' + newW);
+          if (newEl) newEl.className = 'svc-item on';
+        }
+      }
+      const keepVal = t === 'booked' ? (OT_SLOTS.includes(cur) ? cur : '') : cur;
+      renderVTimeField(t, keepVal);
+      updateCost();
+    }
+
+    function setAType(t) {
+      vs.apostleType = t;
+      document.getElementById('tb-spec').className   = 'toggle-btn' + (t==='specified'?' on':'');
+      document.getElementById('tb-unspec').className = 'toggle-btn' + (t==='unspecified'?' on':'');
+      const lbl = document.getElementById('apostle-field-label');
+      if (lbl) lbl.textContent = t==='specified' ? '指定使徒' : '接待使徒';
+    }
+
+    function copyToClip(text, el) {
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = el.textContent;
+        const origColor = el.style.color;
+        el.textContent = '已複製';
+        el.style.color = 'var(--green)';
+        setTimeout(() => { el.textContent = orig; el.style.color = origColor; }, 1200);
+      });
+    }
+
+    function tagColor(tag) {
+      if (!tag) return 'var(--dim)';
+      if (tag === '妖異') return 'var(--yi)';
+      return 'var(--sin)'; // 食罪、監禮者 等
+    }
+
+    function toggleSpecialMenu() {
+      const list = document.getElementById('special-menu-list');
+      const chevron = document.getElementById('special-menu-chevron');
+      if (!list) return;
+      const open = list.style.display !== 'none';
+      list.style.display = open ? 'none' : '';
+      if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+    }
+
+    function updateSpecialMenu() {
+      const list = document.getElementById('special-menu-list');
+      if (!list) return;
+      list.innerHTML = vs.specialOrders.map((m, idx) => `
+        <div class="menu-item${m.qty>0?' on':''}" id="smi-${m.id}">
+          <div class="menu-item-name">${esc(m.name)}</div>
+          <div class="menu-item-price">${m.price.toLocaleString()} Gil</div>
+          <div class="qty-row">
+            <button class="qty-btn" onclick="changeSpecialQty(${idx},-1)">−</button>
+            <span class="qty-val" id="sqty-${m.id}">${m.qty}</span>
+            <button class="qty-btn" onclick="changeSpecialQty(${idx},1)">＋</button>
+          </div>
+        </div>`).join('');
+    }
+
+    function changeSpecialQty(idx, delta) {
+      const m = vs.specialOrders[idx];
+      if (!m) return;
+      m.qty = Math.max(0, (m.qty||0) + delta);
+      const qEl = document.getElementById('sqty-'+m.id);
+      const mEl = document.getElementById('smi-'+m.id);
+      if (qEl) qEl.textContent = m.qty;
+      if (mEl) mEl.className = 'menu-item' + (m.qty>0?' on':'');
+      updateCost();
+    }
+
+    function toggleSvc(id) {
+      const i = vs.services.indexOf(id);
+      if (i===-1) vs.services.push(id);
+      else vs.services.splice(i,1);
+      SERVICES.forEach(s => {
+        const el = document.getElementById('svc-'+s.id);
+        if (el) el.className = 'svc-item' + (vs.services.includes(s.id)?' on':'');
+      });
+      updateCost();
+    }
+
+    function changeQty(idx, delta) {
+      const m = vs.orders[idx];
+      m.qty = Math.max(0, (m.qty||0) + delta);
+      const qEl = document.getElementById('qty-'+m.id);
+      const mEl = document.getElementById('mi-'+m.id);
+      if (qEl) qEl.textContent = m.qty;
+      if (mEl) mEl.className = 'menu-item' + (m.qty>0?' on':'');
+      updateCost();
+    }
+
+    function selectEvent(eid) {
+      const ev = eid ? events.find(e => e.id===eid) : null;
+      vs.eventId   = eid;
+      vs.eventName = ev ? ev.name : '';
+      vs.multiplier = ev ? ev.multiplier : 1;
+      document.querySelectorAll('.ev-opt').forEach(el => el.classList.remove('on'));
+      const target = eid ? document.getElementById('ev-opt-'+eid) : document.querySelector('.ev-opt');
+      if (target) target.classList.add('on');
+      updateCost();
+    }
+
+    function updateEntryFeeDisplay() {
+      const el = document.getElementById('entry-fee-display');
+      if (!el) return;
+      const today3 = getBusinessDate();
+      const alreadyCheckedIn = vs.type === 'walkin' && !vs._editId &&
+        visits.some(v => v.customerId === vs.customerId && v.date === today3 && (v.mode === 'checkin' || v.mode === 'pilgrim'));
+      if (alreadyCheckedIn) {
+        const svc = SERVICES.find(s => s.id === 'wreath_walkin');
+        el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;padding:.15rem 0">
+          <span style="font-size:15px">${svc?.name||'現場花環（入場費）'}</span>
+          <span style="font-size:13px;color:var(--dim);font-style:italic">已於簽到時收取</span>
+        </div>`;
+        return;
+      }
+      const wreathId = vs.type === 'booked' ? 'wreath_booked' : 'wreath_walkin';
+      const svc = SERVICES.find(s => s.id === wreathId);
+      if (!svc) return;
+      el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;padding:.15rem 0">
+        <span style="font-size:15px">${svc.name}</span>
+        <span style="font-size:15px;color:var(--gold);font-weight:600">${svc.price.toLocaleString()} Gil</span>
+      </div>`;
+    }
+
+    function updateCost() {
+      const wreathIds  = ['wreath_booked','wreath_walkin'];
+      const wreathTotal = vs.services.filter(sid => wreathIds.includes(sid))
+        .reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0);
+      const svcTotal = vs.services.filter(sid => !wreathIds.includes(sid))
+        .reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0);
+      const ordTotal  = vs.orders.reduce((t,o) => t + o.price*(o.qty||0), 0);
+      const specTotal = (vs.specialOrders||[]).reduce((t,o) => t + o.price*(o.qty||0), 0);
+      const total     = wreathTotal + svcTotal + ordTotal + specTotal;
+      const pts       = vs.multiplier;
+      const el = document.getElementById('cost-box');
+      if (!el) return;
+      el.innerHTML = `
+        ${vs.mode!=='dining'?`<div class="cost-row"><span class="cost-lbl">入場費</span><span class="cost-val">${wreathTotal.toLocaleString()} Gil</span></div>`:''}
+        ${svcTotal>0?`<div class="cost-row"><span class="cost-lbl">服務小計</span><span class="cost-val">${svcTotal.toLocaleString()} Gil</span></div>`:''}
+        ${ordTotal+specTotal>0?`<div class="cost-row"><span class="cost-lbl">點餐小計</span><span class="cost-val">${(ordTotal+specTotal).toLocaleString()} Gil</span></div>`:''}
+        <div class="cost-row total"><span class="cost-lbl">合計</span><span class="cost-val">${total.toLocaleString()} Gil</span></div>
+        ${vs.mode==='nomen'?`<div class="cost-row" style="margin-top:.3rem">
+          <span class="cost-lbl">本次名痕</span>
+          <span class="cost-val" style="color:var(--gold)">＋${pts} pt${vs.eventName?'（'+vs.eventName+' ×'+pts+'）':pts>1?'（×'+pts+'）':''}</span>
+        </div>`:''}`;
+    }
+
+    function saveVisit() {
+      const id = vs.customerId;
+      const c  = customers.find(x => x.id===id);
+      if (!c) return;
+      const svcTotal  = vs.services.reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0);
+      const ordTotal  = vs.orders.reduce((t,o) => t + o.price*(o.qty||0), 0);
+      const specTotal = (vs.specialOrders||[]).reduce((t,o) => t + o.price*(o.qty||0), 0);
+      const isEdit    = !!vs._editId;
+      const existing  = isEdit ? visits.find(x => x.id === vs._editId) : null;
+      const v = {
+        id: isEdit ? vs._editId : 'v_' + Date.now(),
+        customerId: id,
+        mode: vs.mode || 'nomen',
+        date: document.getElementById('v-date')?.value || '',
+        time: document.getElementById('v-time')?.value || '',
+        type: vs.type,
+        apostleType: vs.apostleType,
+        apostleName: document.getElementById('v-apostle')?.value.trim()||'',
+        apostleTag:  APOSTLES.find(a=>a.name===document.getElementById('v-apostle')?.value.trim())?.tag||'',
+        services: [...vs.services],
+        orders: [
+          ...vs.orders.filter(o=>o.qty>0).map(o=>({name:o.name, price:o.price, qty:o.qty})),
+          ...(vs.specialOrders||[]).filter(o=>o.qty>0).map(o=>({name:o.name, price:o.price, qty:o.qty, special:true})),
+        ],
+        servicesTotal: svcTotal,
+        ordersTotal: ordTotal + specTotal,
+        total: svcTotal + ordTotal + specTotal,
+        pointsEarned: vs.services.includes('nomen30') ? vs.multiplier : 0,
+        pointMultiplier: vs.multiplier,
+        eventId: vs.eventId || '',
+        eventName: vs.eventName || '',
+        notes: document.getElementById('v-notes')?.value.trim() || '',
+        tips: existing?.tips || [],
+        createdAt: existing?.createdAt || new Date().toISOString(),
+      };
+      if (isEdit) {
+        const idx = visits.findIndex(x => x.id === vs._editId);
+        if (idx >= 0) visits[idx] = v;
+        c.pointsTotal = (c.pointsTotal||0) - (vs._oldPoints||0) + v.pointsEarned;
+      } else {
+        visits.push(v);
+        c.pointsTotal = (c.pointsTotal||0) + v.pointsEarned;
+      }
+      save('pos_visits', visits);
+      save('pos_customers', customers);
+      renderSidebar();
+      selectCustomer(id);
+    }
+
+    function openEditVisit(visitId, custId) {
+      const v = visits.find(x => x.id === visitId);
+      const c = customers.find(x => x.id === custId);
+      if (!v || !c) return;
+
+      const editMode = (v.mode === 'checkin' || v.mode === 'pilgrim') ? 'pilgrim'
+        : isNomenRecord(v) ? 'nomen' : 'dining';
+      showNewVisit(custId, editMode);
+      vs._editId    = visitId;
+      vs._oldPoints = v.pointsEarned || 0;
+
+      // 標題與按鈕文字
+      const titleEl = document.getElementById('visit-form-title');
+      if (titleEl) titleEl.textContent = `編輯${editMode === 'nomen' ? '召引' : '餐點'}紀錄 — ${c.name}`;
+      const confirmBtn = document.getElementById('visit-form-confirm');
+      if (confirmBtn) confirmBtn.textContent = '更新記錄';
+
+      // 日期
+      const hiddenDate = document.getElementById('v-date');
+      const dateTxt    = document.getElementById('v-date-txt');
+      if (hiddenDate) hiddenDate.value = v.date;
+      if (dateTxt)    dateTxt.textContent = v.date || '';
+
+      vs.type = v.type || 'walkin';
+      if (editMode === 'nomen') setAType(v.apostleType || 'specified');
+
+      // 場次時間
+      if (v.type === 'walkin' && v.time) {
+        const [hh, mm] = v.time.split(':');
+        _vt.h = parseInt(hh); _vt.m = parseInt(mm);
+        const hInp = document.getElementById('vt-h-inp');
+        const mInp = document.getElementById('vt-m-inp');
+        if (hInp) hInp.value = hh;
+        if (mInp) mInp.value = mm;
+        const hidden = document.getElementById('v-time');
+        if (hidden) hidden.value = v.time;
+      } else {
+        const timeEl = document.getElementById('v-time');
+        if (timeEl) timeEl.value = v.time || '';
+      }
+
+      // 使徒
+      const apostleEl = document.getElementById('v-apostle');
+      if (apostleEl) { apostleEl.value = v.apostleName || ''; apostleEl.dispatchEvent(new Event('change')); }
+
+      // 服務項目（先清除自動預選的項目，再套用原始資料）
+      ['wreath_booked', 'wreath_walkin', 'nomen30'].forEach(w => {
+        if (vs.services.includes(w) && !(v.services || []).includes(w)) {
+          vs.services.splice(vs.services.indexOf(w), 1);
+          const el = document.getElementById('svc-' + w);
+          if (el) el.className = 'svc-item';
+        }
+      });
+      (v.services || []).forEach(sid => {
+        if (!vs.services.includes(sid)) toggleSvc(sid);
+      });
+
+      // 點餐（一般菜單）
+      (v.orders || []).filter(o => !o.special).forEach(o => {
+        const idx = vs.orders.findIndex(m => m.name === o.name);
+        if (idx < 0) return;
+        vs.orders[idx].qty = o.qty;
+        const qEl = document.getElementById('qty-' + vs.orders[idx].id);
+        const mEl = document.getElementById('mi-'  + vs.orders[idx].id);
+        if (qEl) qEl.textContent = o.qty;
+        if (mEl) mEl.className = 'menu-item' + (o.qty > 0 ? ' on' : '');
+      });
+
+      // 指名菜單
+      (v.orders || []).filter(o => o.special).forEach(o => {
+        const idx = (vs.specialOrders || []).findIndex(m => m.name === o.name);
+        if (idx >= 0) vs.specialOrders[idx].qty = o.qty;
+      });
+      updateSpecialMenu();
+
+      // 活動
+      if (v.eventId) selectEvent(v.eventId);
+
+      // 備註
+      const notesEl = document.getElementById('v-notes');
+      if (notesEl) notesEl.value = v.notes || '';
+
+      updateCost();
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  名痕兌換
+    // ────────────────────────────────────────────────────────────
+    function redeemUltimate(id) {
+      const c = customers.find(x => x.id===id);
+      if (!c || c.hasRedeemedUltimate) return;
+      if (!confirm(`確認為「${c.name}」標記兌換唯一高級服務？\n此操作無法還原。`)) return;
+      c.hasRedeemedUltimate = true;
+      c.pointsTotal = Math.max(0, (c.pointsTotal||0) - 666);
+      save('pos_customers', customers);
+      renderSidebar();
+      showProfile(id);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  活動管理頁面
+    // ────────────────────────────────────────────────────────────
+    function isEventActive(e) {
+      if (!e.active) return false;
+      if (e.type === 'timed') {
+        const today = getBusinessDate();
+        if (e.startDate && today < e.startDate) return false;
+        if (e.endDate   && today > e.endDate)   return false;
+      }
+      if (e.type === 'fixed') {
+        const now = new Date();
+        if (e.fixedType==='monthly' && e.monthDay) {
+          if (now.getDate() !== e.monthDay) return false;
+        } else if (e.fixedType==='yearly' && e.yearMonth && e.yearDay) {
+          if (now.getMonth()+1 !== e.yearMonth || now.getDate() !== e.yearDay) return false;
+        }
+      }
+      return true;
+    }
+
+    function getActiveEvents() {
+      return events.filter(isEventActive);
+    }
+
+    function showActivityPage() {
+      activeId = null;
+      _fixedType = 'monthly';
+      renderSidebar();
+      const fixed = events.filter(e => e.type==='fixed');
+      const timed = events.filter(e => e.type==='timed');
+
+      document.getElementById('pos-content').innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+          <span style="font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;color:var(--gold)">活動管理</span>
+          <button class="btn btn-outline" onclick="backToCustomers()">← 返回客戶</button>
+        </div>
+
+        <!-- 新增活動 -->
+        <div class="pos-card">
+          <div class="pos-card-title">新增活動</div>
+          <div class="pos-form-grid" style="margin-bottom:.85rem">
+            <div>
+              <label class="pos-lbl">活動名稱 *</label>
+              <input class="pos-input" id="ev-name" type="text" placeholder="例：週年慶特別活動">
+            </div>
+            <div>
+              <label class="pos-lbl">名痕倍率</label>
+              <select class="pos-select" id="ev-mult">
+                <option value="2">×2</option>
+                <option value="3">×3</option>
+                <option value="5">×5</option>
+                <option value="10">×10</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:.85rem">
+            <label class="pos-lbl" style="margin-bottom:.4rem">活動類型</label>
+            <div class="toggle-group" style="max-width:280px">
+              <button class="toggle-btn on" id="evtype-fixed" onclick="setEvType('fixed')">固定活動</button>
+              <button class="toggle-btn"    id="evtype-timed" onclick="setEvType('timed')">期間活動</button>
+            </div>
+          </div>
+          <div id="ev-fixed-date" style="margin-bottom:.85rem">
+            <label class="pos-lbl" style="margin-bottom:.4rem">循環週期</label>
+            <div class="toggle-group" style="max-width:280px;margin-bottom:.7rem">
+              <button class="toggle-btn on" id="evfixed-monthly" onclick="setFixedType('monthly')">每月</button>
+              <button class="toggle-btn"   id="evfixed-yearly"  onclick="setFixedType('yearly')">每年</button>
+            </div>
+            <div id="ev-fixed-monthly" class="pos-form-grid" style="max-width:280px">
+              <div>
+                <label class="pos-lbl">日期</label>
+                <select class="pos-select" id="ev-month-day">
+                  <option value="">不指定（全月）</option>
+                  ${Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1} 日</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div id="ev-fixed-yearly" style="display:none" class="pos-form-grid" style="max-width:280px">
+              <div>
+                <label class="pos-lbl">月份</label>
+                <select class="pos-select" id="ev-year-month">
+                  ${Array.from({length:12},(_,i)=>`<option value="${i+1}">${i+1} 月</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="pos-lbl">日期</label>
+                <select class="pos-select" id="ev-year-day">
+                  ${Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1} 日</option>`).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="ev-date-range" style="display:none;margin-bottom:.85rem">
+            <label class="pos-lbl">活動期間</label>
+            <div class="dr-wrap" id="ev-dr-wrap">
+              <div class="dr-display" id="ev-dr-display" onclick="drToggle()">
+                <span id="ev-dr-txt" style="color:var(--dim)">選擇日期區間</span>
+                <span style="color:var(--dim);font-size:11px">▼</span>
+              </div>
+              <div class="dr-popup" id="ev-dr-popup" style="display:none">
+                <div id="ev-dr-cal"></div>
+              </div>
+            </div>
+            <input type="hidden" id="ev-start">
+            <input type="hidden" id="ev-end">
+          </div>
+          <div style="margin-bottom:.85rem">
+            <label class="pos-lbl">備註說明（選填）</label>
+            <input class="pos-input" id="ev-desc" type="text" placeholder="活動說明">
+          </div>
+          <button class="btn btn-gold" onclick="addEvent()">建立活動</button>
+        </div>
+
+        <!-- 固定活動 -->
+        <div class="pos-card">
+          <div class="pos-card-title">固定活動</div>
+          <div id="ev-list-fixed">
+            ${renderEventGroup(fixed)}
+          </div>
+        </div>
+
+        <!-- 期間活動 -->
+        <div class="pos-card">
+          <div class="pos-card-title">期間活動</div>
+          <div id="ev-list-timed">
+            ${renderEventGroup(timed)}
+          </div>
+        </div>`;
+
+      // 記住上次選的類型
+      if (window._evType) setEvType(window._evType);
+    }
+
+    // ── Date range picker ──
+    let _dr = { s: null, e: null, hov: null, yr: 0, mo: 0 };
+
+    function drToggle() {
+      const popup = document.getElementById('ev-dr-popup');
+      const disp  = document.getElementById('ev-dr-display');
+      if (!popup) return;
+      const opening = popup.style.display === 'none';
+      popup.style.display = opening ? '' : 'none';
+      disp.classList.toggle('open', opening);
+      if (opening) {
+        if (!_dr.yr) { const n = new Date(); _dr.yr = n.getFullYear(); _dr.mo = n.getMonth(); }
+        drRender();
+        setTimeout(() => {
+          const h = e => { if (!document.getElementById('ev-dr-wrap')?.contains(e.target)) { popup.style.display='none'; disp.classList.remove('open'); document.removeEventListener('mousedown',h); } };
+          document.addEventListener('mousedown', h);
+        }, 0);
+      }
+    }
+
+    function drNav(d) {
+      _dr.mo += d;
+      if (_dr.mo > 11) { _dr.mo = 0; _dr.yr++; } else if (_dr.mo < 0) { _dr.mo = 11; _dr.yr--; }
+      drRender();
+    }
+
+    function drClick(ds) {
+      if (!_dr.s || (_dr.s && _dr.e)) {
+        _dr.s = ds; _dr.e = null; _dr.hov = ds;
+      } else {
+        if (ds < _dr.s) { _dr.e = _dr.s; _dr.s = ds; } else { _dr.e = ds; }
+        document.getElementById('ev-start').value = _dr.s;
+        document.getElementById('ev-end').value   = _dr.e;
+        drUpdateClasses();
+        drUpdateLabel();
+        setTimeout(() => {
+          document.getElementById('ev-dr-popup').style.display = 'none';
+          document.getElementById('ev-dr-display').classList.remove('open');
+        }, 150);
+        return;
+      }
+      drUpdateClasses();
+      drUpdateLabel();
+    }
+
+    function drHov(ds) {
+      if (_dr.s && !_dr.e && ds !== _dr.hov) { _dr.hov = ds; drUpdateClasses(); }
+    }
+
+    function drLeave() {
+      if (_dr.s && !_dr.e) { _dr.hov = null; drUpdateClasses(); }
+    }
+
+    function drUpdateLabel() {
+      const el = document.getElementById('ev-dr-txt'); if (!el) return;
+      if (_dr.s && _dr.e) { el.textContent = `${_dr.s} ～ ${_dr.e}`; el.style.color = 'var(--text)'; }
+      else if (_dr.s)     { el.textContent = `${_dr.s} ～ 選擇結束日期`; el.style.color = 'var(--dim)'; }
+      else                { el.textContent = '選擇日期區間'; el.style.color = 'var(--dim)'; }
+    }
+
+    function drUpdateClasses() {
+      const grid = document.getElementById('ev-dr-grid'); if (!grid) return;
+      const { s, e, hov } = _dr;
+      const re   = e || hov;
+      const rMin = s && re ? (s <= re ? s : re) : s;
+      const rMax = s && re ? (s <= re ? re : s) : null;
+      grid.querySelectorAll('.dr-day[data-date]').forEach(el => {
+        const ds = el.dataset.date;
+        el.classList.remove('dr-s', 'dr-e', 'dr-in');
+        if (ds === s && ds === e) el.classList.add('dr-s', 'dr-e');
+        else if (ds === s) el.classList.add('dr-s');
+        else if (ds === e) el.classList.add('dr-e');
+        else if (rMin && rMax && ds > rMin && ds < rMax) el.classList.add('dr-in');
+      });
+    }
+
+    function drReset() { _dr = { s:null, e:null, hov:null, yr:0, mo:0 }; drUpdateLabel(); }
+
+    // ── Single-date picker (reuses dr-* CSS) ──
+    let _dp = { wrapId: null, inputId: null, yr: 0, mo: 0 };
+
+    function dpToggle(wrapId, inputId) {
+      const wrap  = document.getElementById(wrapId); if (!wrap) return;
+      const popup = wrap.querySelector('.dr-popup');
+      const disp  = wrap.querySelector('.dr-display');
+      const opening = popup.style.display === 'none';
+      popup.style.display = opening ? '' : 'none';
+      disp.classList.toggle('open', opening);
+      if (opening) {
+        const val = document.getElementById(inputId)?.value;
+        const n   = val ? new Date(val + 'T00:00:00') : new Date();
+        _dp = { wrapId, inputId, yr: n.getFullYear(), mo: n.getMonth() };
+        dpRender();
+        setTimeout(() => {
+          const h = e => {
+            if (!wrap.contains(e.target)) {
+              popup.style.display = 'none'; disp.classList.remove('open');
+              document.removeEventListener('mousedown', h);
+            }
+          };
+          document.addEventListener('mousedown', h);
+        }, 0);
+      }
+    }
+
+    function dpNav(d) {
+      _dp.mo += d;
+      if (_dp.mo > 11) { _dp.mo = 0; _dp.yr++; } else if (_dp.mo < 0) { _dp.mo = 11; _dp.yr--; }
+      dpRender();
+    }
+
+    function dpClick(ds) {
+      const input = document.getElementById(_dp.inputId); if (!input) return;
+      input.value = ds;
+      const txt = document.getElementById(_dp.inputId + '-txt');
+      if (txt) txt.textContent = ds;
+      const wrap = document.getElementById(_dp.wrapId); if (!wrap) return;
+      wrap.querySelector('.dr-popup').style.display = 'none';
+      wrap.querySelector('.dr-display').classList.remove('open');
+    }
+
+    function dpRender() {
+      const wrap = document.getElementById(_dp.wrapId); if (!wrap) return;
+      const cal  = wrap.querySelector('.dp-cal'); if (!cal) return;
+      const { yr, mo } = _dp;
+      const today    = new Date().toISOString().slice(0, 10);
+      const selected = document.getElementById(_dp.inputId)?.value || '';
+      const months   = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+      const wds      = ['日','一','二','三','四','五','六'];
+      const first    = new Date(yr, mo, 1).getDay();
+      const days     = new Date(yr, mo + 1, 0).getDate();
+      let h = `<div class="dr-nav">
+        <button class="dr-nav-btn" onclick="dpNav(-1)">‹</button>
+        <span class="dr-month-lbl">${yr} 年 ${months[mo]}</span>
+        <button class="dr-nav-btn" onclick="dpNav(1)">›</button>
+      </div>
+      <div class="dr-grid">
+        ${wds.map(w => `<div class="dr-wd">${w}</div>`).join('')}
+        ${Array(first).fill('<div class="dr-day dr-empty"></div>').join('')}`;
+      for (let d = 1; d <= days; d++) {
+        const ds    = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isSel = ds === selected;
+        const isTod = ds === today;
+        h += `<div class="dr-day${isSel?' dr-s dr-e':''}${isTod&&!isSel?' dr-today':''}" data-date="${ds}">${d}</div>`;
+      }
+      h += '</div>';
+      cal.innerHTML = h;
+      cal.querySelectorAll('.dr-day[data-date]').forEach(el => {
+        el.addEventListener('click', () => dpClick(el.dataset.date));
+      });
+    }
+
+    // ── Time picker ──
+    let _tp = { wrapId: null, inputId: null, h: -1, m: -1, slots: null };
+    const TP_HOURS = [22, 23, 0, 1];
+    const TP_MINS  = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+    function tpToggle(wrapId, inputId, slots) {
+      const wrap  = document.getElementById(wrapId);
+      const popup = wrap?.querySelector('.dr-popup');
+      const disp  = wrap?.querySelector('.dr-display');
+      if (!wrap || !popup) return;
+      const opening = popup.style.display === 'none';
+      popup.style.display = opening ? '' : 'none';
+      disp?.classList.toggle('open', opening);
+      if (opening) {
+        _tp.wrapId  = wrapId;
+        _tp.inputId = inputId;
+        _tp.slots   = slots || null;
+        const cur = document.getElementById(inputId)?.value || '';
+        if (cur && cur.includes(':')) {
+          _tp.h = parseInt(cur.split(':')[0]);
+          _tp.m = parseInt(cur.split(':')[1]);
+        } else { _tp.h = -1; _tp.m = -1; }
+        tpRender();
+        setTimeout(() => {
+          const handler = e => {
+            if (!document.getElementById(wrapId)?.contains(e.target)) {
+              const p = document.getElementById(wrapId)?.querySelector('.dr-popup');
+              const d = document.getElementById(wrapId)?.querySelector('.dr-display');
+              if (p) p.style.display = 'none';
+              if (d) d.classList.remove('open');
+              document.removeEventListener('mousedown', handler);
+            }
+          };
+          document.addEventListener('mousedown', handler);
+        }, 0);
+      }
+    }
+
+    function tpRender() {
+      const popup = document.getElementById(_tp.wrapId)?.querySelector('.dr-popup');
+      if (!popup) return;
+      if (_tp.slots) {
+        const cur = document.getElementById(_tp.inputId)?.value || '';
+        popup.innerHTML = `<div class="tp-col" style="min-width:100px">${_tp.slots.map(s =>
+          `<div class="tp-opt${cur===s?' on':''}" onclick="tpPickSlot('${s}')">${s}</div>`
+        ).join('')}</div>`;
+      } else {
+        popup.innerHTML = `<div class="tp-cols">
+          <div class="tp-col">${TP_HOURS.map(h =>
+            `<div class="tp-opt${_tp.h===h?' on':''}" onclick="tpPickH(${h})">${String(h).padStart(2,'0')}</div>`
+          ).join('')}</div>
+          <div class="tp-col">${TP_MINS.map(m =>
+            `<div class="tp-opt${_tp.m===m?' on':''}" onclick="tpPickM(${m})">${String(m).padStart(2,'0')}</div>`
+          ).join('')}</div>
+        </div>`;
+      }
+    }
+
+    function tpPickSlot(val) {
+      const inp = document.getElementById(_tp.inputId);
+      if (inp) inp.value = val;
+      const wrap = document.getElementById(_tp.wrapId);
+      const txt  = wrap?.querySelector('.tp-txt');
+      if (txt) txt.textContent = val;
+      const popup = wrap?.querySelector('.dr-popup');
+      const disp  = wrap?.querySelector('.dr-display');
+      if (popup) popup.style.display = 'none';
+      if (disp)  disp.classList.remove('open');
+    }
+
+    function tpPickH(h) { _tp.h = h; if (_tp.m >= 0) tpCommit(); else tpRender(); }
+    function tpPickM(m) { _tp.m = m; if (_tp.h >= 0) tpCommit(); else tpRender(); }
+
+    function tpCommit() {
+      const val  = `${String(_tp.h).padStart(2,'0')}:${String(_tp.m).padStart(2,'0')}`;
+      const inp  = document.getElementById(_tp.inputId);
+      if (inp) inp.value = val;
+      const wrap = document.getElementById(_tp.wrapId);
+      const txt  = wrap?.querySelector('.tp-txt');
+      if (txt) txt.textContent = val;
+      const popup = wrap?.querySelector('.dr-popup');
+      const disp  = wrap?.querySelector('.dr-display');
+      if (popup) popup.style.display = 'none';
+      if (disp)  disp.classList.remove('open');
+    }
+
+    // ── Overtime time picker (H combobox + M combobox) ──
+    let _ot = { h: -1, m: -1 };
+
+    function _otMins(h, m) { return (h < 6 ? h + 24 : h) * 60 + m; }
+    function _otNowMins()  { const d = new Date(); return _otMins(d.getHours(), d.getMinutes()); }
+
+    function otToggle(which) {
+      const pop  = document.getElementById('ot-' + which + '-pop');
+      const wrap = document.getElementById('ot-' + which + '-wrap');
+      const disp = wrap?.querySelector('.dr-display');
+      if (!pop) return;
+      const opening = pop.style.display === 'none';
+      pop.style.display = opening ? '' : 'none';
+      disp?.classList.toggle('open', opening);
+      if (opening) {
+        which === 'h' ? otRenderH() : otRenderM();
+        setTimeout(() => {
+          const handler = e => {
+            if (!wrap?.contains(e.target)) {
+              pop.style.display = 'none'; disp?.classList.remove('open');
+              document.removeEventListener('mousedown', handler);
+            }
+          };
+          document.addEventListener('mousedown', handler);
+        }, 0);
+      }
+    }
+
+    function otRenderH() {
+      const pop = document.getElementById('ot-h-pop'); if (!pop) return;
+      const now = _otNowMins();
+      pop.innerHTML = [22,23,0,1].map(h => {
+        const dis = _otMins(h, 59) < now;
+        return `<div class="tp-opt${_ot.h===h?' on':''}${dis?' tp-dis':''}" onclick="otPickH(${h})">${String(h).padStart(2,'0')}</div>`;
+      }).join('');
+    }
+
+    function otRenderM() {
+      const pop = document.getElementById('ot-m-pop'); if (!pop) return;
+      const now = _otNowMins();
+      pop.innerHTML = `<div style="max-height:196px;overflow-y:auto">` +
+        Array.from({length:60},(_,m)=>m).map(m => {
+          const dis = _ot.h >= 0 && _otMins(_ot.h, m) < now;
+          return `<div class="tp-opt${_ot.m===m?' on':''}${dis?' tp-dis':''}" onclick="otPickM(${m})">${String(m).padStart(2,'0')}</div>`;
+        }).join('') + '</div>';
+    }
+
+    function otPickH(h) {
+      _ot.h = h;
+      const inp = document.getElementById('ot-h-inp');
+      if (inp) inp.value = String(h).padStart(2,'0');
+      document.getElementById('ot-h-pop').style.display = 'none';
+      document.getElementById('ot-h-wrap')?.querySelector('.dr-display')?.classList.remove('open');
+    }
+
+    function otPickM(m) {
+      _ot.m = m;
+      const inp = document.getElementById('ot-m-inp');
+      if (inp) inp.value = String(m).padStart(2,'0');
+      document.getElementById('ot-m-pop').style.display = 'none';
+      document.getElementById('ot-m-wrap')?.querySelector('.dr-display')?.classList.remove('open');
+    }
+
+    function otHFromInput() {
+      const v = parseInt(document.getElementById('ot-h-inp')?.value);
+      if (!isNaN(v)) _ot.h = v;
+    }
+
+    function otMFromInput() {
+      const v = parseInt(document.getElementById('ot-m-inp')?.value);
+      if (!isNaN(v) && v >= 0 && v <= 59) _ot.m = v;
+    }
+
+    // ── Visit time picker (H combobox + M combobox) ──
+    let _vt = { h: -1, m: -1 };
+
+    function _vtSync() {
+      const h = _vt.h, m = _vt.m;
+      const hidden = document.getElementById('v-time');
+      if (hidden && h >= 0 && m >= 0)
+        hidden.value = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    }
+
+    function vtToggle(which) {
+      const pop  = document.getElementById('vt-' + which + '-pop');
+      const wrap = document.getElementById('vt-' + which + '-wrap');
+      const disp = wrap?.querySelector('.dr-display');
+      if (!pop) return;
+      const opening = pop.style.display === 'none';
+      pop.style.display = opening ? '' : 'none';
+      disp?.classList.toggle('open', opening);
+      if (opening) {
+        which === 'h' ? vtRenderH() : vtRenderM();
+        setTimeout(() => {
+          const handler = e => {
+            if (!wrap?.contains(e.target)) {
+              pop.style.display = 'none'; disp?.classList.remove('open');
+              document.removeEventListener('mousedown', handler);
+            }
+          };
+          document.addEventListener('mousedown', handler);
+        }, 0);
+      }
+    }
+
+    function vtRenderH() {
+      const pop = document.getElementById('vt-h-pop'); if (!pop) return;
+      pop.innerHTML = [22,23,0,1].map(h =>
+        `<div class="tp-opt${_vt.h===h?' on':''}" onclick="vtPickH(${h})">${String(h).padStart(2,'0')}</div>`
+      ).join('');
+    }
+
+    function vtRenderM() {
+      const pop = document.getElementById('vt-m-pop'); if (!pop) return;
+      pop.innerHTML = `<div style="max-height:196px;overflow-y:auto">` +
+        Array.from({length:60},(_,m)=>m).map(m =>
+          `<div class="tp-opt${_vt.m===m?' on':''}" onclick="vtPickM(${m})">${String(m).padStart(2,'0')}</div>`
+        ).join('') + '</div>';
+    }
+
+    function vtPickH(h) {
+      _vt.h = h;
+      const inp = document.getElementById('vt-h-inp');
+      if (inp) inp.value = String(h).padStart(2,'0');
+      document.getElementById('vt-h-pop').style.display = 'none';
+      document.getElementById('vt-h-wrap')?.querySelector('.dr-display')?.classList.remove('open');
+      _vtSync();
+    }
+
+    function vtPickM(m) {
+      _vt.m = m;
+      const inp = document.getElementById('vt-m-inp');
+      if (inp) inp.value = String(m).padStart(2,'0');
+      document.getElementById('vt-m-pop').style.display = 'none';
+      document.getElementById('vt-m-wrap')?.querySelector('.dr-display')?.classList.remove('open');
+      _vtSync();
+    }
+
+    function vtHFromInput() {
+      const v = parseInt(document.getElementById('vt-h-inp')?.value);
+      if (!isNaN(v)) { _vt.h = v; _vtSync(); }
+    }
+
+    function vtMFromInput() {
+      const v = parseInt(document.getElementById('vt-m-inp')?.value);
+      if (!isNaN(v) && v >= 0 && v <= 59) { _vt.m = v; _vtSync(); }
+    }
+
+    function drRender() {
+      const cal = document.getElementById('ev-dr-cal'); if (!cal) return;
+      const { yr, mo } = _dr;
+      const today  = new Date().toISOString().slice(0, 10);
+      const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+      const wds    = ['日','一','二','三','四','五','六'];
+      const first  = new Date(yr, mo, 1).getDay();
+      const days   = new Date(yr, mo + 1, 0).getDate();
+      let h = `<div class="dr-nav">
+        <button class="dr-nav-btn" onclick="drNav(-1)">‹</button>
+        <span class="dr-month-lbl">${yr} 年 ${months[mo]}</span>
+        <button class="dr-nav-btn" onclick="drNav(1)">›</button>
+      </div>
+      <div class="dr-grid" id="ev-dr-grid" onmouseleave="drLeave()">
+        ${wds.map(w => `<div class="dr-wd">${w}</div>`).join('')}
+        ${Array(first).fill('<div class="dr-day dr-empty"></div>').join('')}`;
+      for (let d = 1; d <= days; d++) {
+        const ds   = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const past = ds < today;
+        h += past
+          ? `<div class="dr-day dr-past">${d}</div>`
+          : `<div class="dr-day" data-date="${ds}">${d}</div>`;
+      }
+      h += '</div>';
+      cal.innerHTML = h;
+      const grid = document.getElementById('ev-dr-grid');
+      if (grid) {
+        grid.addEventListener('click', ev => {
+          const el = ev.target.closest('.dr-day[data-date]');
+          if (el) drClick(el.dataset.date);
+        });
+        grid.addEventListener('mousemove', ev => {
+          const el = ev.target.closest('.dr-day[data-date]');
+          if (el) drHov(el.dataset.date);
+        });
+      }
+      drUpdateClasses();
+      drUpdateLabel();
+    }
+
+    let _evType = 'fixed';
+    let _fixedType = 'monthly';
+
+    function setFixedType(t) {
+      _fixedType = t;
+      document.getElementById('evfixed-monthly').className = 'toggle-btn' + (t==='monthly'?' on':'');
+      document.getElementById('evfixed-yearly').className  = 'toggle-btn' + (t==='yearly'?' on':'');
+      document.getElementById('ev-fixed-monthly').style.display = t==='monthly' ? '' : 'none';
+      document.getElementById('ev-fixed-yearly').style.display  = t==='yearly'  ? '' : 'none';
+    }
+
+    function setEvType(t) {
+      _evType = t;
+      const fd = document.getElementById('ev-date-range');
+      const ff = document.getElementById('ev-fixed-date');
+      if (fd) { fd.style.display = t==='timed' ? 'block' : 'none'; if (t==='timed') drReset(); }
+      if (ff) ff.style.display = t==='fixed' ? 'block' : 'none';
+      const bf = document.getElementById('evtype-fixed');
+      const bt = document.getElementById('evtype-timed');
+      if (bf) bf.className = 'toggle-btn' + (t==='fixed'?' on':'');
+      if (bt) bt.className = 'toggle-btn' + (t==='timed'?' on':'');
+    }
+
+    function renderEventGroup(list) {
+      if (!list.length) return `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.3rem 0">尚無活動</div>`;
+      const today = getBusinessDate();
+      return list.map(e => {
+        const on = isEventActive(e);
+        let statusLabel = '';
+        if (e.type==='timed') {
+          if (!e.active) statusLabel = '已停用';
+          else if (e.startDate && today < e.startDate) statusLabel = '尚未開始';
+          else if (e.endDate   && today > e.endDate)   statusLabel = '已結束';
+          else statusLabel = '進行中';
+        } else {
+          if (!e.active) statusLabel = '已停用';
+          else statusLabel = isEventActive(e) ? '進行中' : '未到日期';
+        }
+        const statusColor = statusLabel==='進行中' ? 'var(--green)' : 'var(--dim)';
+        let scheduleLabel = '';
+        if (e.type==='fixed' && e.active) {
+          if (e.fixedType==='monthly' && e.monthDay)
+            scheduleLabel = `<div style="font-size:13px;color:var(--dim);margin-top:3px">每月 ${e.monthDay} 日</div>`;
+          else if (e.fixedType==='yearly' && e.yearMonth && e.yearDay)
+            scheduleLabel = `<div style="font-size:13px;color:var(--dim);margin-top:3px">每年 ${e.yearMonth} 月 ${e.yearDay} 日</div>`;
+        }
+        return `
+        <div class="event-item${on?' active-event':''}">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+              <span style="font-size:15px;font-weight:500">${esc(e.name)}</span>
+              <span class="event-badge">×${e.multiplier}</span>
+              <span style="font-size:12px;color:${statusColor}">${statusLabel}</span>
+            </div>
+            ${scheduleLabel}
+            ${e.type==='timed' && (e.startDate||e.endDate) ? `<div style="font-size:15px;color:var(--dim);margin-top:3px">${e.startDate||'—'} ～ ${e.endDate||'—'}</div>` : ''}
+            ${e.desc ? `<div style="font-size:15px;color:var(--dim);margin-top:2px">${esc(e.desc)}</div>` : ''}
+          </div>
+          <div style="display:flex;gap:.4rem;flex-shrink:0;margin-left:.75rem">
+            <button class="btn btn-outline btn-sm" onclick="toggleEvent('${e.id}')">${e.active?'停用':'啟用'}</button>
+            <button class="btn btn-sm" style="border:1px solid rgba(192,80,80,.3);color:var(--red);background:transparent" onclick="deleteEvent('${e.id}')">刪除</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function addEvent() {
+      const name = document.getElementById('ev-name')?.value.trim();
+      const mult = parseInt(document.getElementById('ev-mult')?.value) || 2;
+      const desc = document.getElementById('ev-desc')?.value.trim() || '';
+      const type = _evType || 'fixed';
+      if (!name) { alert('請填寫活動名稱'); return; }
+      const ev = { id: 'ev_'+Date.now(), name, multiplier: mult, type, active: true, desc, createdAt: new Date().toISOString() };
+      if (type==='timed') {
+        ev.startDate = document.getElementById('ev-start')?.value || '';
+        ev.endDate   = document.getElementById('ev-end')?.value   || '';
+      }
+      if (type==='fixed') {
+        ev.fixedType = _fixedType;
+        if (_fixedType==='monthly') {
+          const d = parseInt(document.getElementById('ev-month-day')?.value) || 0;
+          ev.monthDay = d || null;
+        } else {
+          ev.yearMonth = parseInt(document.getElementById('ev-year-month')?.value) || 1;
+          ev.yearDay   = parseInt(document.getElementById('ev-year-day')?.value)   || 1;
+        }
+      }
+      events.push(ev);
+      save('pos_events', events);
+      showActivityPage();
+    }
+
+    function toggleEvent(id) {
+      const e = events.find(x => x.id===id);
+      if (!e) return;
+      e.active = !e.active;
+      save('pos_events', events);
+      showActivityPage();
+    }
+
+    function deleteEvent(id) {
+      if (!confirm('確定刪除此活動？')) return;
+      events = events.filter(x => x.id!==id);
+      save('pos_events', events);
+      showActivityPage();
+    }
+
+    function backToCustomers() {
+      setNav('customer');
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  導航
+    // ────────────────────────────────────────────────────────────
+    let currentNav = 'customer';
+
+    function setNav(tab) {
+      if (tab !== 'roster') rosterSearch = '';
+      currentNav = tab;
+      ['customer','roster','stats','activity','settlement'].forEach(t => {
+        const btn = document.getElementById('nav-btn-'+t);
+        if (btn) btn.className = 'pos-nav-btn' + (t===tab?' on':'');
+      });
+      const sc = document.getElementById('sidebar-customer');
+      const so = document.getElementById('sidebar-other');
+      if (tab === 'customer') {
+        if (sc) sc.style.display = 'flex';
+        if (so) so.style.display = 'none';
+      } else {
+        if (sc) sc.style.display = 'none';
+        if (so) so.style.display = 'flex';
+      }
+      if (tab === 'customer') {
+        activeId = null;
+        renderSidebar();
+        document.getElementById('pos-content').innerHTML = `
+          <div class="pos-empty">
+            <div class="pos-empty-icon">✦</div>
+            <div class="pos-empty-text">搜尋或選擇客戶以查看資料</div>
+          </div>`;
+      } else if (tab === 'roster')     showRosterPage();
+      else if (tab === 'stats')        showStatsPage();
+      else if (tab === 'activity')     showActivityPage();
+      else if (tab === 'settlement')   showSettlementPage();
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  客人名冊
+    // ────────────────────────────────────────────────────────────
+    let rosterSort = { key: 'name', asc: true };
+    let rosterSearch = '';
+
+    function onRosterSearch(q) {
+      rosterSearch = q.trim().toLowerCase();
+      showRosterPage();
+    }
+
+    function showRosterPage() {
+      const enriched = customers.map(c => {
+        const cv = visits.filter(v => v.customerId === c.id);
+        const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
+        const diningCount  = cv.filter(v => v.mode === 'dining').length;
+        const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+        const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
+        const lastVisit  = cv.length ? cv.sort((a,b) => b.createdAt.localeCompare(a.createdAt))[0].date : '';
+        return { ...c, nomenCount, diningCount, pilgrimCount, visitCount: nomenCount, totalSpend, lastVisit };
+      });
+
+      const filtered = !rosterSearch ? enriched : enriched.filter(c =>
+        (c.name||'').toLowerCase().includes(rosterSearch) ||
+        (c.discord||'').toLowerCase().includes(rosterSearch)
+      );
+
+      const sorted = [...filtered].sort((a,b) => {
+        const v1 = a[rosterSort.key] ?? 0;
+        const v2 = b[rosterSort.key] ?? 0;
+        const cmp = typeof v1==='string' ? v1.localeCompare(v2) : v1 - v2;
+        return rosterSort.asc ? cmp : -cmp;
+      });
+
+      const arrow = (k) => rosterSort.key===k
+        ? `<span style="color:var(--gold);font-size:9px;margin-left:4px">${rosterSort.asc?'▲':'▼'}</span>`
+        : `<span style="color:var(--border);font-size:9px;margin-left:4px">▼</span>`;
+      const th = (k, label) => `<th onclick="sortRoster('${k}')" style="cursor:pointer;user-select:none">${label}${arrow(k)}</th>`;
+
+      document.getElementById('pos-content').innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <span style="font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;color:var(--gold)">客人名冊</span>
+          <span style="font-size:14px;color:var(--dim)">共 ${customers.length} 位</span>
+        </div>
+        <div style="margin-bottom:1rem">
+          <input class="pos-search-input" style="width:100%;box-sizing:border-box"
+            placeholder="搜尋角色名 / Discord…"
+            value="${esc(rosterSearch)}"
+            oninput="onRosterSearch(this.value)">
+        </div>
+        ${!enriched.length
+          ? `<div class="pos-empty" style="height:auto;padding:3rem 0"><div class="pos-empty-icon">✦</div><div class="pos-empty-text">尚無客戶資料</div></div>`
+          : `<div class="pos-card" style="padding:0;overflow:auto">
+              <table class="roster-table">
+                <thead><tr>
+                  ${th('name','角色名稱')}
+                  ${th('discord','Discord')}
+                  ${th('server','伺服器')}
+                  ${th('nomenCount','召引次數')}
+                  ${th('diningCount','純用餐次數')}
+                  ${th('pilgrimCount','朝聖次數')}
+                  ${th('totalSpend','累計消費')}
+                  ${th('pointsTotal','名痕')}
+                  ${th('lastVisit','最後紀錄')}
+                  <th>狀態</th>
+                  <th></th>
+                </tr></thead>
+                <tbody>
+                  ${sorted.map(c => `<tr onclick="goToCustomer('${c.id}')">
+                    <td><span style="font-size:15px;font-weight:500;color:var(--text)">${esc(c.name)}</span></td>
+                    <td style="color:var(--dim)">${esc(c.discord||'—')}</td>
+                    <td style="color:var(--dim)">${esc(c.server||'—')}</td>
+                    <td>${c.nomenCount}</td>
+                    <td style="color:var(--dim)">${c.diningCount}</td>
+                    <td style="color:var(--dim)">${c.pilgrimCount}</td>
+                    <td>${c.totalSpend.toLocaleString()} Gil</td>
+                    <td style="color:var(--gold)">${c.pointsTotal||0} pt</td>
+                    <td style="color:var(--dim)">${c.lastVisit||'—'}</td>
+                    <td>${c.hasRedeemedUltimate
+                      ? `<span class="tag" style="background:rgba(192,80,80,.12);color:var(--red)">已授名</span>`
+                      : ((c.pointsTotal||0)>=666 && c.totalSpend>=33333333) ? `<span class="tag tag-spec">可授名</span>` : ''}</td>
+                    <td onclick="event.stopPropagation()">
+                      <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.2rem .55rem" onclick="gotoCustomerProfile('${c.id}')">查看/編輯</button>
+                    </td>
+                  </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>`}`;
+    }
+
+    function sortRoster(key) {
+      if (rosterSort.key === key) rosterSort.asc = !rosterSort.asc;
+      else { rosterSort.key = key; rosterSort.asc = false; }
+      showRosterPage();
+    }
+
+    function goToCustomer(id) {
+      const c = customers.find(x => x.id === id);
+      if (!c) return;
+      const cv = visits.filter(v => v.customerId === id)
+                       .sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+      const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
+      const diningCount  = cv.filter(v => v.mode === 'dining').length;
+      const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+      const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
+      const canRedeem  = (c.pointsTotal||0) >= 666 && totalSpend >= 33333333 && !c.hasRedeemedUltimate;
+
+      document.getElementById('modal-profile-name').textContent = c.name;
+      document.getElementById('modal-profile-body').innerHTML = `
+        ${canRedeem ? `<div class="pos-redeem-alert" style="margin-bottom:1rem">
+          <span style="font-size:1.1rem">✦</span>
+          <span>已達授名儀兌換條件（名痕 666 pt ＋ 累計消費 33,333,333 Gil）。
+            <button class="btn btn-gold btn-sm" style="margin-left:.6rem" onclick="redeemUltimate('${id}');closeModal('modal-profile')">標記兌換</button>
+          </span></div>` : ''}
+        ${!c.hasRedeemedUltimate && !canRedeem && ((c.pointsTotal||0) > 0 || totalSpend > 0) ? `
+        <div class="pos-redeem-alert" style="border-color:var(--border);background:rgba(255,255,255,.03);margin-bottom:1rem">
+          <span style="font-size:1rem;opacity:.4">✦</span>
+          <span style="color:var(--dim)">授名儀進度 ─ 名痕 ${c.pointsTotal||0} / 666 pt ・累計消費 ${totalSpend.toLocaleString()} / 33,333,333 Gil</span>
+        </div>` : ''}
+        <div class="pos-stats" style="margin-bottom:1rem">
+          <div class="pos-stat"><span class="pos-stat-val">${c.pointsTotal||0}</span><span class="pos-stat-lbl">名痕 pt</span></div>
+          <div class="pos-stat"><span class="pos-stat-val">${nomenCount}</span><span class="pos-stat-lbl">次召引</span></div>
+          <div class="pos-stat"><span class="pos-stat-val">${diningCount}</span><span class="pos-stat-lbl">次純用餐</span></div>
+          <div class="pos-stat"><span class="pos-stat-val">${pilgrimCount}</span><span class="pos-stat-lbl">次朝聖</span></div>
+          <div class="pos-stat"><span class="pos-stat-val">${totalSpend.toLocaleString()}</span><span class="pos-stat-lbl">Gil 累計消費</span></div>
+          ${c.hasRedeemedUltimate ? `<div class="pos-stat" style="border-color:rgba(192,80,80,.3)"><span class="pos-stat-val" style="color:var(--red)">已兌換</span><span class="pos-stat-lbl">授名儀</span></div>` : ''}
+        </div>
+        <div class="pos-card" style="margin-bottom:1rem">
+          <div class="pos-card-title">基本資料</div>
+          <div class="pos-info-grid">
+            <div><div class="pos-info-lbl">角色名稱 <span style="font-size:11px;opacity:.5">（點擊複製 ID@伺服器）</span></div><div class="pos-info-val copyable" onclick="copyToClip('${esc(c.name)}@${esc(c.server||'')}',this)">${esc(c.name)}</div></div>
+            <div><div class="pos-info-lbl">Discord <span style="font-size:11px;opacity:.5">（點擊複製）</span></div><div class="pos-info-val${c.discord?' copyable':''}" ${c.discord?`onclick="copyToClip('${esc(c.discord)}',this)"`:''}">${esc(c.discord||'—')}</div></div>
+            <div><div class="pos-info-lbl">伺服器</div><div class="pos-info-val">${esc(c.server||'—')}</div></div>
+            <div><div class="pos-info-lbl">聯絡方式</div><div class="pos-info-val">${esc(c.contact||'—')}</div></div>
+            ${c.notes ? `<div style="grid-column:1/-1"><div class="pos-info-lbl">備註</div><div class="pos-info-val">${esc(c.notes)}</div></div>` : ''}
+          </div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-card-title">召引紀錄</div>
+          ${cv.length === 0
+            ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無召引紀錄</div>`
+            : `<table class="pos-table">
+              <thead><tr><th>日期</th><th>場次</th><th>類型</th><th>指名</th><th>使徒</th><th>服務</th><th>點餐</th><th>金額</th><th>名痕</th></tr></thead>
+              <tbody>${cv.map(v => `<tr>
+                <td style="white-space:nowrap">${v.date||'—'}</td>
+                <td style="white-space:nowrap">${v.time||'—'}</td>
+                <td><span class="tag ${v.type==='walkin'?'tag-walkin':'tag-booked'}">${v.type==='walkin'?'現場':'預約'}</span></td>
+                <td><span class="tag ${v.apostleType==='specified'?'tag-spec':'tag-unspec'}">${v.apostleType==='specified'?'指定':'不指定'}</span></td>
+                <td>${esc(v.apostleName||'—')}${v.apostleTag?`<div style="font-size:13px;color:${tagColor(v.apostleTag)};margin-top:2px">${esc(v.apostleTag)}</div>`:''}</td>
+                <td style="font-size:13px;color:var(--dim)">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</td>
+                <td style="font-size:13px;color:var(--dim)">${(v.orders||[]).map(o=>`${o.name}×${o.qty}`).join('、')||'—'}</td>
+                <td style="white-space:nowrap">${(v.total||0).toLocaleString()} Gil</td>
+                <td style="color:var(--gold)">＋${v.pointsEarned||0} pt${v.pointMultiplier>1?`<div style="font-size:13px;color:var(--dim);margin-top:2px">×${v.pointMultiplier}</div>`:''}</td>
+              </tr>`).join('')}</tbody></table>`}
+        </div>`;
+      document.getElementById('modal-profile').classList.add('open');
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  統計報表
+    // ────────────────────────────────────────────────────────────
+    function showStatsPage() {
+      const totalRevenue  = visits.reduce((s,v) => s + (v.total||0), 0);
+      const totalVisits   = visits.length;
+      const bookedCount   = visits.filter(v => v.type==='booked').length;
+      const walkinCount   = visits.filter(v => v.type==='walkin').length;
+      const specCount     = visits.filter(v => v.apostleType==='specified').length;
+      const unspecCount   = visits.filter(v => v.apostleType==='unspecified').length;
+
+      // 食罪／妖異 圓環圖
+      const sinTags  = ['食罪', '監禮者'];
+      const sinCount = visits.filter(v => sinTags.includes(v.apostleTag)).length;
+      const yiCount  = visits.filter(v => v.apostleTag === '妖異').length;
+      const donutTot = sinCount + yiCount;
+      const circ     = +(2 * Math.PI * 24).toFixed(2);
+      const sinArc   = donutTot ? +((sinCount / donutTot) * circ).toFixed(2) : 0;
+      const yiArc    = donutTot ? +((yiCount  / donutTot) * circ).toFixed(2) : 0;
+      const donutSvg = `<svg width="68" height="68" style="flex-shrink:0">
+        <circle cx="34" cy="34" r="24" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
+        ${donutTot ? `
+        <circle cx="34" cy="34" r="24" fill="none" stroke="var(--sin)" stroke-width="9"
+          stroke-dasharray="${sinArc} ${circ}" transform="rotate(-90 34 34)"/>
+        <circle cx="34" cy="34" r="24" fill="none" stroke="var(--yi)" stroke-width="9"
+          stroke-dasharray="${yiArc} ${circ}" stroke-dashoffset="${-sinArc}" transform="rotate(-90 34 34)"/>
+        ` : ''}
+        <text x="34" y="39" text-anchor="middle" fill="var(--text)" font-size="13"
+          font-family="Noto Sans TC,sans-serif" font-weight="600">${totalVisits}</text>
+      </svg>`;
+
+      // 餐點銷售統計
+      const menuTally = {};
+      visits.forEach(v => (v.orders||[]).forEach(o => {
+        if (!menuTally[o.name]) menuTally[o.name] = { qty:0, revenue:0 };
+        menuTally[o.name].qty     += o.qty;
+        menuTally[o.name].revenue += o.price * o.qty;
+      }));
+      const menuRank = Object.entries(menuTally)
+        .map(([name, d]) => ({ name, ...d }))
+        .sort((a,b) => b.qty - a.qty);
+
+      // 使徒接待排行
+      const apostleTally = {};
+      visits.filter(v => v.apostleName).forEach(v => {
+        if (!apostleTally[v.apostleName]) apostleTally[v.apostleName] = { count:0, tag: v.apostleTag||'' };
+        apostleTally[v.apostleName].count++;
+        if (!apostleTally[v.apostleName].tag && v.apostleTag) apostleTally[v.apostleName].tag = v.apostleTag;
+      });
+      const apostleRank = Object.entries(apostleTally)
+        .map(([name, d]) => ({ name, count: d.count, tag: d.tag || (APOSTLES.find(a=>a.name===name)?.tag||'') }))
+        .sort((a,b) => b.count - a.count);
+
+      // 累計消費排行（所有客戶，含已兌換）
+      const SPEND_THRESHOLD = 33333333;
+      const spendRank = customers.map(c => ({
+        id:       c.id,
+        name:     c.name,
+        spend:    visits.filter(v => v.customerId===c.id).reduce((s,v) => s+(v.total||0), 0),
+        points:   c.pointsTotal || 0,
+        redeemed: c.hasRedeemedUltimate || false,
+      })).sort((a,b) => b.spend - a.spend).slice(0, 10);
+
+      const maxMenu    = menuRank[0]?.qty || 1;
+      const maxApostle = apostleRank[0]?.count || 1;
+      const maxSpend   = Math.max(spendRank[0]?.spend || 0, SPEND_THRESHOLD);
+
+      // 召引類型 helper
+      const typeRow = (label, count, color) => `
+        <div style="display:flex;align-items:center;gap:.65rem;padding:.3rem 0">
+          <span style="width:4.5em;flex-shrink:0;font-size:15px">${label}</span>
+          <div style="flex:1;background:rgba(255,255,255,.07);height:6px;border-radius:3px;overflow:hidden">
+            <div style="height:100%;border-radius:3px;background:${color};width:${totalVisits?count/totalVisits*100:0}%"></div>
+          </div>
+          <span style="width:2em;text-align:right;font-size:15px;color:${color};flex-shrink:0">${count}</span>
+        </div>`;
+
+      document.getElementById('pos-content').innerHTML = `
+        <div style="font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;color:var(--gold);margin-bottom:1.25rem">統計報表</div>
+
+        <!-- 總覽 -->
+        <div class="stats-grid" style="margin-bottom:1rem">
+          <div class="stat-card">
+            <div class="stat-card-val">${customers.length}</div>
+            <div class="stat-card-lbl">客戶總數</div>
+          </div>
+          <div class="stat-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+              <div>
+                <div class="stat-card-val">${totalVisits}</div>
+                <div class="stat-card-lbl">召引總次數</div>
+                <div style="display:flex;gap:.6rem;margin-top:.45rem">
+                  <span style="font-size:13px;color:var(--sin)">● 食罪 ${sinCount}</span>
+                  <span style="font-size:13px;color:var(--yi)">● 妖異 ${yiCount}</span>
+                </div>
+              </div>
+              ${donutSvg}
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-val">${totalRevenue.toLocaleString()}</div>
+            <div class="stat-card-lbl">總營業額 Gil</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+
+          <!-- 召引類型 -->
+          <div class="pos-card" style="margin:0">
+            <div class="pos-card-title">召引類型</div>
+            ${typeRow('預約',    bookedCount, 'var(--blue)')}
+            ${typeRow('現場',    walkinCount, 'var(--orange)')}
+            <div style="border-top:1px solid var(--border);margin:.4rem 0"></div>
+            ${typeRow('指定使徒', specCount,   'var(--green)')}
+            ${typeRow('不指定',  unspecCount, 'var(--dim)')}
+          </div>
+
+          <!-- 使徒接待排行 -->
+          <div class="pos-card" style="margin:0">
+            <div class="pos-card-title">使徒接待排行</div>
+            ${!apostleRank.length
+              ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無資料</div>`
+              : apostleRank.slice(0,6).map((a,i) => `
+              <div class="rank-row">
+                <span class="rank-num">${i+1}</span>
+                <div style="flex:1;min-width:0;overflow:hidden">
+                  <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.name)}</div>
+                  ${a.tag?`<div style="font-size:12px;color:${tagColor(a.tag)}">${esc(a.tag)}</div>`:''}
+                </div>
+                <div class="rank-bar-wrap"><div class="rank-bar" style="width:${a.count/maxApostle*100}%"></div></div>
+                <span style="font-size:14px;color:var(--gold);min-width:30px;text-align:right">${a.count}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- 餐點銷售排行 -->
+        <div class="pos-card">
+          <div class="pos-card-title">餐點銷售排行</div>
+          ${!menuRank.length
+            ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無點餐紀錄</div>`
+            : `<table style="width:100%;border-collapse:collapse;font-size:14px">
+              <thead><tr>
+                <th style="text-align:left;padding:.4rem .65rem;color:var(--dim);font-weight:400;font-size:13px;border-bottom:1px solid var(--border)">餐點</th>
+                <th style="text-align:left;padding:.4rem .65rem;color:var(--dim);font-weight:400;font-size:13px;border-bottom:1px solid var(--border)">銷售量</th>
+                <th style="text-align:left;padding:.4rem .65rem;color:var(--dim);font-weight:400;font-size:13px;border-bottom:1px solid var(--border)">佔比</th>
+                <th style="text-align:right;padding:.4rem .65rem;color:var(--dim);font-weight:400;font-size:13px;border-bottom:1px solid var(--border)">營業額</th>
+              </tr></thead>
+              <tbody>${menuRank.map((m,i) => `<tr>
+                <td style="padding:.55rem .65rem;border-bottom:1px solid rgba(255,255,255,.04)">${esc(m.name)}${i===0?' <span class="event-badge" style="margin-left:.4rem">No.1</span>':''}</td>
+                <td style="padding:.55rem .65rem;border-bottom:1px solid rgba(255,255,255,.04)">
+                  <div style="display:flex;align-items:center;gap:.5rem">
+                    <span>${m.qty}</span>
+                    <div style="flex:1;background:rgba(255,255,255,.05);height:4px;border-radius:2px;max-width:80px"><div style="height:100%;background:var(--gold);border-radius:2px;width:${m.qty/maxMenu*100}%"></div></div>
+                  </div>
+                </td>
+                <td style="padding:.55rem .65rem;border-bottom:1px solid rgba(255,255,255,.04);color:var(--dim)">
+                  ${menuRank.reduce((s,x)=>s+x.qty,0)?Math.round(m.qty/menuRank.reduce((s,x)=>s+x.qty,0)*100)+'%':'—'}
+                </td>
+                <td style="padding:.55rem .65rem;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;color:var(--gold)">${m.revenue.toLocaleString()} Gil</td>
+              </tr>`).join('')}</tbody>
+            </table>`}
+        </div>
+
+        <!-- 累計消費排行 -->
+        <div class="pos-card">
+          <div class="pos-card-title" style="display:flex;justify-content:space-between;align-items:center">
+            <span>客戶累計消費排行 Top 10</span>
+          </div>
+          ${!spendRank.filter(x=>x.spend>0).length
+            ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無資料</div>`
+            : spendRank.filter(x=>x.spend>0).map((c,i) => {
+                const metSpend  = c.spend  >= SPEND_THRESHOLD;
+                const metPoints = c.points >= 666;
+                const badge = c.redeemed
+                  ? `<span class="tag" style="background:rgba(192,80,80,.12);color:var(--red);flex-shrink:0">已授名</span>`
+                  : (metSpend && metPoints)
+                    ? `<span class="tag tag-spec" style="flex-shrink:0">可授名</span>`
+                    : '';
+                return `
+            <div class="rank-row" style="cursor:pointer" onclick="goToCustomer('${c.id}')">
+              <span class="rank-num">${i+1}</span>
+              <span style="flex:1;min-width:0;margin-right:.5rem">${esc(c.name)}</span>
+              ${badge}
+              <div class="rank-bar-wrap" style="max-width:120px">
+                <div class="rank-bar" style="width:${Math.min(c.spend/maxSpend*100,100)}%;${metSpend?'background:var(--green)':''}"></div>
+              </div>
+              <span style="font-size:14px;color:${metSpend?'var(--green)':'var(--gold)'};white-space:nowrap;min-width:110px;text-align:right">${c.spend.toLocaleString()} Gil</span>
+            </div>`;
+              }).join('')}
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  今日結帳
+    // ────────────────────────────────────────────────────────────
+    let _svPrice = 0, _svQty = 1, _numGuides = 1;
+
+    function _onSettleInput(id, val) {
+      if (id === 'settle-sv-price')   _svPrice   = parseInt(val) || 0;
+      if (id === 'settle-sv-qty')     _svQty     = Math.max(1, parseInt(val) || 1);
+      if (id === 'settle-num-guides') _numGuides = Math.max(1, parseInt(val) || 1);
+      const pos = document.getElementById(id)?.selectionStart;
+      showSettlementPage();
+      const el = document.getElementById(id);
+      if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch(e) {} }
+    }
+
+    function showSettlementPage() {
+      // 保留輸入值
+      const pEl = document.getElementById('settle-sv-price');
+      const qEl = document.getElementById('settle-sv-qty');
+      const gEl = document.getElementById('settle-num-guides');
+      if (pEl) _svPrice    = parseInt(pEl.value) || 0;
+      if (qEl) _svQty      = Math.max(1, parseInt(qEl.value) || 1);
+      if (gEl) _numGuides  = Math.max(1, parseInt(gEl.value) || 1);
+
+      const today = getBusinessDate();
+      const tv = visits.filter(v => v.date === today);
+
+      // 依使徒分組
+      const aMap = {};
+      const ensureA = n => { if (!aMap[n]) aMap[n] = { wreath:0, nomen:0, photos:0, houseOther:0, tips:0 }; };
+      tv.forEach(v => {
+        const name = v.apostleName || '（未指定）';
+        ensureA(name);
+        (v.services || []).forEach(sid => {
+          const svc = SERVICES.find(s => s.id === sid);
+          if (!svc) return;
+          if (sid === 'wreath_booked' || sid === 'wreath_walkin') aMap[name].wreath += svc.price;
+          else if (sid === 'nomen30')    aMap[name].nomen  += svc.price;
+          else if (sid === 'photo')      aMap[name].photos++;
+          else                           aMap[name].houseOther += svc.price;
+        });
+        (v.tips || []).forEach(tip => {
+          ensureA(tip.to);
+          aMap[tip.to].tips += tip.amount;
+        });
+      });
+
+      const names  = Object.keys(aMap);
+      const numA   = names.length || 1;
+
+      // 紀念品計算
+      const svTotal  = _svPrice * _svQty;
+      const svHouse  = Math.floor(svTotal * 0.7);
+      const svPool   = Math.floor(svTotal * 0.2); // 使徒總池
+      const svGuide  = svTotal - svHouse - svPool;
+      const svPerA   = numA > 0 ? Math.floor(svPool / numA) : 0;
+
+      // 匯總
+      let totWreath = 0, totNomen = 0, totPhotos = 0, totOrders = 0, totHouseOther = 0, totTips = 0;
+      names.forEach(n => {
+        totWreath    += aMap[n].wreath;
+        totNomen     += aMap[n].nomen;
+        totPhotos    += aMap[n].photos;
+        totHouseOther+= aMap[n].houseOther;
+        totTips      += aMap[n].tips;
+      });
+      tv.forEach(v => totOrders += (v.ordersTotal || 0));
+
+      const photoSvcPrice   = (SERVICES.find(s=>s.id==='photo')||{price:100000}).price;
+      const photoApostleCut = totPhotos * 20000;
+      const photoHouseCut   = totPhotos * photoSvcPrice - photoApostleCut;
+
+      const guidePool  = Math.floor(totWreath * 0.1) + svGuide;
+      const guideEach  = _numGuides > 0 ? Math.floor(guidePool / _numGuides) : 0;
+      const houseTotal = Math.floor(totWreath * 0.7) + photoHouseCut + svHouse + totOrders + totHouseOther;
+
+      // 使徒區塊
+      const apostleBlocks = names.map(name => {
+        const a = aMap[name];
+        const wCut  = Math.floor(a.wreath  * 0.2);
+        const nCut  = a.nomen;
+        const pCut  = a.photos * 20000;
+        const sCut  = svPerA;
+        const tCut  = a.tips;
+        const sub   = wCut + nCut + pCut + sCut + tCut;
+
+        const rows = [
+          a.wreath  ? `<div class="settle-row"><span class="settle-row-lbl">入場費（花環）</span><span class="settle-row-base">${a.wreath.toLocaleString()}</span><span class="settle-row-rate">× 20%</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
+          a.nomen   ? `<div class="settle-row"><span class="settle-row-lbl">指名費（顯名儀）</span><span class="settle-row-base">${a.nomen.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${nCut.toLocaleString()}</span></div>` : '',
+          a.photos  ? `<div class="settle-row"><span class="settle-row-lbl">拍立得</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
+          svTotal   ? `<div class="settle-row"><span class="settle-row-lbl">紀念品分潤（÷ ${numA} 人）</span><span class="settle-row-base">${svPool.toLocaleString()}</span><span class="settle-row-rate">÷ ${numA}</span><span class="settle-row-cut">${sCut.toLocaleString()}</span></div>` : '',
+          tCut      ? `<div class="settle-row"><span class="settle-row-lbl">打賞</span><span class="settle-row-base">—</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${tCut.toLocaleString()}</span></div>` : '',
+        ].filter(Boolean).join('');
+
+        return `<div class="settle-block">
+          <div class="settle-block-hdr">
+            <span class="settle-block-name">${esc(name)}</span>
+            <span class="settle-block-total">${sub.toLocaleString()} Gil</span>
+          </div>
+          <div class="settle-rows">${rows || '<div style="font-size:13px;color:var(--dim);padding:.2rem 0">無紀錄</div>'}</div>
+        </div>`;
+      }).join('');
+
+      const apostleTotal = names.reduce((s, n) => {
+        const a = aMap[n];
+        return s + Math.floor(a.wreath*0.2) + a.nomen + a.photos*20000 + svPerA + a.tips;
+      }, 0);
+      const recorded  = tv.reduce((s,v) => s + (v.total||0), 0);
+      const revenue   = recorded + svTotal + totTips;
+      const wages     = apostleTotal + guidePool;
+      const profit    = houseTotal;
+
+      document.getElementById('pos-content').innerHTML = `
+        <div style="font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;color:var(--gold);margin-bottom:1.25rem">今日結帳</div>
+
+        <div class="settle-souvenir">
+          <div class="settle-sv-row" style="margin-top:0;margin-bottom:.55rem">
+            <span style="font-size:12px;color:var(--dim);letter-spacing:.06em;min-width:48px">紀念品</span>
+            <input id="settle-sv-price" type="number" class="settle-input" placeholder="扣稅後單價" value="${_svPrice||''}" min="0" style="width:140px" oninput="_onSettleInput('settle-sv-price',this.value)">
+            <span style="color:var(--dim)">×</span>
+            <input id="settle-sv-qty" type="number" class="settle-input" placeholder="數量" value="${_svQty}" min="1" style="width:64px" oninput="_onSettleInput('settle-sv-qty',this.value)">
+            <span style="color:var(--dim)">=</span>
+            <span style="color:var(--gold);font-weight:700;font-size:1rem">${svTotal.toLocaleString()} Gil</span>
+            ${svTotal ? `<span style="font-size:12px;color:var(--dim)">（店家 ${svHouse.toLocaleString()} ／使徒 ${svPool.toLocaleString()} ／引路人 ${svGuide.toLocaleString()}）</span>` : ''}
+          </div>
+          <div class="settle-sv-row" style="margin-top:0">
+            <span style="font-size:12px;color:var(--dim);letter-spacing:.06em;min-width:48px">引路人</span>
+            <input id="settle-num-guides" type="number" class="settle-input" placeholder="人數" value="${_numGuides}" min="1" max="4" style="width:64px" oninput="_onSettleInput('settle-num-guides',this.value)">
+            <span style="font-size:12px;color:var(--dim)">位</span>
+          </div>
+        </div>
+
+        ${!names.length ? `<div class="pos-empty"><div class="pos-empty-icon">—</div><div class="pos-empty-text">今日尚無造訪紀錄</div></div>` : `
+
+        <div class="settle-sub-lbl">店員薪酬</div>
+        ${apostleBlocks}
+
+        <div class="settle-divider"></div>
+
+        <div class="settle-other-grid">
+          <div class="settle-other-card">
+            <div class="settle-other-lbl">引路人（接待）× ${_numGuides} 位</div>
+            <div class="settle-other-detail">
+              ${totWreath ? `入場費 ${totWreath.toLocaleString()} × 10% = ${Math.floor(totWreath*0.1).toLocaleString()}<br>` : ''}
+              ${svTotal   ? `紀念品 ${svTotal.toLocaleString()} × 10% = ${svGuide.toLocaleString()}<br>` : ''}
+              ${!totWreath && !svTotal ? '—<br>' : ''}
+              ${_numGuides > 1 ? `<span style="color:var(--text)">每位 ${guideEach.toLocaleString()} Gil</span>` : ''}
+            </div>
+            <div class="settle-other-val">${guidePool.toLocaleString()} Gil</div>
+          </div>
+          <div class="settle-other-card">
+            <div class="settle-other-lbl">店家</div>
+            <div class="settle-other-detail">
+              ${totWreath    ? `入場費 × 70% = ${Math.floor(totWreath*0.7).toLocaleString()}<br>` : ''}
+              ${totPhotos    ? `拍立得差額 = ${photoHouseCut.toLocaleString()}<br>` : ''}
+              ${svTotal      ? `紀念品 × 70% = ${svHouse.toLocaleString()}<br>` : ''}
+              ${totOrders    ? `餐飲 = ${totOrders.toLocaleString()}<br>` : ''}
+              ${totHouseOther? `其他 = ${totHouseOther.toLocaleString()}` : ''}
+            </div>
+            <div class="settle-other-val">${houseTotal.toLocaleString()} Gil</div>
+          </div>
+        </div>
+
+        <div class="settle-grand">
+          <div>
+            <div class="settle-grand-lbl">今日營業總額</div>
+            <div style="font-size:12px;color:var(--dim);margin-top:.1rem">系統紀錄 ${recorded.toLocaleString()}${svTotal ? ` ＋ 紀念品 ${svTotal.toLocaleString()}` : ''}${totTips ? ` ＋ 打賞 ${totTips.toLocaleString()}` : ''} Gil</div>
+          </div>
+          <div class="settle-grand-val">${revenue.toLocaleString()} Gil</div>
+        </div>
+        <div class="settle-wages">
+          <span>薪酬支出（使徒 ${apostleTotal.toLocaleString()} ＋ 引路人 ${guidePool.toLocaleString()}）</span>
+          <span style="color:var(--red)">－ ${wages.toLocaleString()} Gil</span>
+        </div>
+        <div class="settle-profit ${profit >= 0 ? 'pos' : 'neg'}">
+          <div class="settle-profit-lbl">${profit >= 0 ? '店家盈餘' : '本日虧損'}</div>
+          <div class="settle-profit-val">${profit < 0 ? '－' : ''}${Math.abs(profit).toLocaleString()} Gil</div>
+        </div>
+        `}
+      `;
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  舊客到訪快速搜尋
+    // ────────────────────────────────────────────────────────────
+    function openWalkinSearchModal() {
+      const inp = document.getElementById('walkin-search-inp');
+      if (inp) inp.value = '';
+      renderWalkinSearch();
+      document.getElementById('modal-walkin-search').classList.add('open');
+      setTimeout(() => inp?.focus(), 80);
+    }
+
+    function renderWalkinSearch() {
+      const q = (document.getElementById('walkin-search-inp')?.value || '').toLowerCase().trim();
+      const list = document.getElementById('walkin-search-list');
+      if (!list) return;
+      const results = q
+        ? customers.filter(c =>
+            (c.name||'').toLowerCase().includes(q) ||
+            (c.discord||'').toLowerCase().includes(q))
+        : customers.slice().sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||'')).slice(0, 20);
+      if (!results.length) {
+        list.innerHTML = `<div style="padding:1rem;font-size:14px;color:var(--dim);text-align:center">查無結果</div>`;
+        return;
+      }
+      list.innerHTML = results.map(c => `
+        <div class="pos-customer-item" style="cursor:pointer" onclick="walkinSelectCustomer('${c.id}')">
+          <div class="pos-ci-name">${esc(c.name)}</div>
+          <div class="pos-ci-discord">${esc(c.discord||'—')} · ${esc(c.server||'—')}</div>
+          <div class="pos-ci-pts">名痕 ${c.pointsTotal||0} pt</div>
+        </div>`).join('');
+    }
+
+    function createWalkinCheckin(customerId) {
+      const today = getBusinessDate();
+      const alreadyHasVisit = visits.some(v => v.customerId === customerId && v.date === today);
+      if (alreadyHasVisit) return;
+      const now = new Date();
+      const timeStr = pad(now.getHours()) + ':' + pad(now.getMinutes());
+      const wreathSvc = SERVICES.find(s => s.id === 'wreath_walkin');
+      const wp = wreathSvc?.price || 0;
+      const v = {
+        id: 'v_' + Date.now(),
+        customerId,
+        mode: 'checkin',
+        date: today,
+        time: timeStr,
+        type: 'walkin',
+        apostleType: 'unspecified',
+        apostleName: '', apostleTag: '',
+        services: ['wreath_walkin'],
+        orders: [],
+        servicesTotal: wp,
+        ordersTotal: 0,
+        total: wp,
+        pointsEarned: 0,
+        pointMultiplier: 1,
+        eventId: '', eventName: '',
+        notes: '',
+        tips: [],
+        createdAt: new Date().toISOString(),
+      };
+      visits.push(v);
+      save('pos_visits', visits);
+    }
+
+    function walkinSelectCustomer(id) {
+      closeModal('modal-walkin-search');
+      createWalkinCheckin(id);
+      renderSidebar();
+      gotoCustomerProfile(id);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  客戶 Modal（新增 / 編輯）
+    // ────────────────────────────────────────────────────────────
+    function openNewCustomerModal() {
+      ['nc-name','nc-discord','nc-contact','nc-notes'].forEach(k => document.getElementById(k).value='');
+      document.getElementById('nc-server').value = '';
+      document.getElementById('modal-customer-title').textContent = '新增客戶';
+      document.getElementById('modal-customer-confirm').onclick = createCustomer;
+      document.getElementById('modal-customer').classList.add('open');
+    }
+
+    function openEditCustomerModal(id) {
+      const c = customers.find(x => x.id===id);
+      if (!c) return;
+      document.getElementById('nc-name').value    = c.name    || '';
+      document.getElementById('nc-discord').value = c.discord || '';
+      document.getElementById('nc-server').value  = c.server  || '';
+      document.getElementById('nc-contact').value = c.contact || '';
+      document.getElementById('nc-notes').value   = c.notes   || '';
+      document.getElementById('modal-customer-title').textContent = '編輯客戶資料';
+      document.getElementById('modal-customer-confirm').onclick = () => updateCustomer(id);
+      document.getElementById('modal-customer').classList.add('open');
+    }
+
+    function createCustomer() {
+      const name = document.getElementById('nc-name').value.trim();
+      if (!name) { alert('請填寫角色名稱'); return; }
+      const c = {
+        id: 'c_' + Date.now(),
+        name,
+        discord: document.getElementById('nc-discord').value.trim(),
+        server:  document.getElementById('nc-server').value,
+        contact: document.getElementById('nc-contact').value.trim(),
+        notes:   document.getElementById('nc-notes').value.trim(),
+        pointsTotal: 0,
+        hasRedeemedUltimate: false,
+        createdAt: new Date().toISOString(),
+      };
+      customers.push(c);
+      save('pos_customers', customers);
+      createWalkinCheckin(c.id);
+      closeModal('modal-customer');
+      currentNav = 'customer';
+      activeId = c.id;
+      ['customer','roster','stats','activity','settlement'].forEach(t => {
+        const btn = document.getElementById('nav-btn-'+t);
+        if (btn) btn.className = 'pos-nav-btn' + (t==='customer' ? ' on' : '');
+      });
+      document.getElementById('sidebar-customer').style.display = 'flex';
+      const _soC = document.getElementById('sidebar-other');
+      if (_soC) _soC.style.display = 'none';
+      renderSidebar();
+      showProfile(c.id);
+    }
+
+    function updateCustomer(id) {
+      const c = customers.find(x => x.id===id);
+      if (!c) return;
+      c.name    = document.getElementById('nc-name').value.trim();
+      c.discord = document.getElementById('nc-discord').value.trim();
+      c.server  = document.getElementById('nc-server').value;
+      c.contact = document.getElementById('nc-contact').value.trim();
+      c.notes   = document.getElementById('nc-notes').value.trim();
+      save('pos_customers', customers);
+      closeModal('modal-customer');
+      renderSidebar();
+      showProfile(id);
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // ────────────────────────────────────────────────────────────
+    //  工具
+    // ────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  測試資料
+    // ────────────────────────────────────────────────────────────
+    function loadDemoData() {
+      if (customers.length && !confirm('已有資料，確定覆蓋並載入測試資料？')) return;
+      const now = new Date().toISOString();
+      const today = now.slice(0, 10);
+      customers = [
+        { id:'c_demo1', name:'星落·伊華', discord:'starhaven_iwa', server:'鳳凰', contact:'', notes:'偏好安靜的角落', pointsTotal:3, hasRedeemedUltimate:false, createdAt:now },
+        { id:'c_demo2', name:'緋夜·碎鏡', discord:'scarletnight_', server:'巴哈姆特', contact:'', notes:'', pointsTotal:660, hasRedeemedUltimate:false, createdAt:now },
+        { id:'c_demo3', name:'霧白·淵聲', discord:'mistwhisper99', server:'泰坦', contact:'', notes:'已使用高級服務一次', pointsTotal:1, hasRedeemedUltimate:true, createdAt:now },
+      ];
+      visits = [
+        { id:'v_d1', customerId:'c_demo1', date:'2026-06-01', time:'22:00', type:'booked', apostleType:'specified', apostleName:'落花有意', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[{name:'晚禱',price:7000,qty:1}], servicesTotal:120000, ordersTotal:7000, total:127000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-01T13:00:00.000Z' },
+        { id:'v_d2', customerId:'c_demo1', date:'2026-06-08', time:'22:00', type:'walkin', apostleType:'unspecified', apostleName:'著魔', apostleTag:'監禮者', services:['wreath_walkin','nomen30'], orders:[], servicesTotal:130000, ordersTotal:0, total:130000, pointsEarned:1, pointMultiplier:1, notes:'臨時到訪', createdAt:'2026-06-08T14:00:00.000Z' },
+        { id:'v_d3', customerId:'c_demo1', date:'2026-06-14', time:'22:30', type:'booked', apostleType:'specified', apostleName:'安怛', apostleTag:'妖異', services:['wreath_booked','nomen30','photo'], orders:[{name:'心像殘響',price:10000,qty:1},{name:'彌撒',price:7000,qty:2}], servicesTotal:220000, ordersTotal:24000, total:244000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-14T13:00:00.000Z' },
+        { id:'v_d4', customerId:'c_demo2', date:'2026-05-10', time:'23:00', type:'booked', apostleType:'specified', apostleName:'落花有意', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[], servicesTotal:120000, ordersTotal:0, total:120000, pointsEarned:2, pointMultiplier:2, notes:'活動加倍', createdAt:'2026-05-10T13:00:00.000Z' },
+        { id:'v_d5', customerId:'c_demo3', date:'2026-04-20', time:'22:00', type:'booked', apostleType:'specified', apostleName:'掠影', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[{name:'懺悔',price:7000,qty:1}], servicesTotal:120000, ordersTotal:7000, total:33216334, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-04-20T14:00:00.000Z' },
+        { id:'v_d6', customerId:'c_demo1', date:today, time:'22:00', type:'booked', apostleType:'specified', apostleName:'落花有意', apostleTag:'食罪', services:['wreath_booked'], orders:[{name:'堅振',price:7000,qty:1}], servicesTotal:100000, ordersTotal:7000, total:107000, pointsEarned:0, pointMultiplier:1, notes:'', createdAt:now },
+        { id:'v_d7', customerId:'c_demo2', date:today, time:'22:30', type:'booked', apostleType:'specified', apostleName:'掠影', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[], servicesTotal:120000, ordersTotal:0, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
+        { id:'v_d8', customerId:'c_demo3', date:today, time:'22:00', type:'walkin', apostleType:'unspecified', apostleName:'安怛', apostleTag:'妖異', services:['wreath_walkin'], orders:[{name:'彌撒',price:7000,qty:1}], servicesTotal:110000, ordersTotal:7000, total:117000, pointsEarned:0, pointMultiplier:1, notes:'現場到訪', createdAt:now },
+      ];
+      save('pos_customers', customers);
+      save('pos_visits', visits);
+      activeId = null;
+      renderSidebar();
+      document.getElementById('pos-content').innerHTML = `
+        <div class="pos-empty">
+          <div class="pos-empty-icon">✦</div>
+          <div class="pos-empty-text">測試資料已載入，請從左側選擇客戶</div>
+        </div>`;
+    }
+
+    // ────────────────────────────────────────────────────────────
+    //  Init — Firebase listeners 負責觸發初始化
+    // ────────────────────────────────────────────────────────────
+  </script>
+</body>
+</html>
+
+
