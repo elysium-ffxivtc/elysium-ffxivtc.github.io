@@ -783,11 +783,12 @@
     ];
 
     const SERVICES = [
-      { id:'wreath_booked', name:'花環（預約）',       price:20000  },
-      { id:'wreath_walkin', name:'花環（現場）',       price:30000  },
-      { id:'nomen30',       name:'顯名儀',             price:100000 },
-      { id:'photo',         name:'交名留影',           price:100000 },
-      { id:'photo_sig',     name:'加選：簽名拍立得',   price:20000  },
+      { id:'wreath_booked', name:'花環（預約）',         price:20000  },
+      { id:'wreath_walkin', name:'花環（現場）',         price:30000  },
+      { id:'nomen30',       name:'顯名儀',               price:100000 },
+      { id:'photo',         name:'交名留影',             price:100000 },
+      { id:'photo_sig',     name:'加簽',                 price:20000  },
+      { id:'photo_extra',   name:'多人合照（每人）',     price:20000  },
     ];
 
     // ────────────────────────────────────────────────────────────
@@ -1380,7 +1381,16 @@
         <div class="pos-card">
           <div class="pos-card-title">服務項目</div>
           <div class="svc-list">
-            ${SERVICES.filter(s => !s.id.startsWith('wreath')).map(s => `
+            ${SERVICES.filter(s => !s.id.startsWith('wreath')).map(s => s.id === 'photo_extra' ? `
+            <div class="svc-item" id="svc-photo_extra">
+              <span class="svc-name">${s.name}</span>
+              <span class="svc-price">${s.price.toLocaleString()} Gil</span>
+              <div style="display:flex;align-items:center;gap:.5rem;margin-top:.35rem">
+                <button class="qty-btn" onclick="event.stopPropagation();changePhotoExtra(-1)">−</button>
+                <span id="photo-extra-qty" style="min-width:1rem;text-align:center">0</span>
+                <button class="qty-btn" onclick="event.stopPropagation();changePhotoExtra(1)">＋</button>
+              </div>
+            </div>` : `
             <div class="svc-item" id="svc-${s.id}" onclick="toggleSvc('${s.id}')">
               <span class="svc-name">${s.name}</span>
               <span class="svc-price">${s.price.toLocaleString()} Gil</span>
@@ -1581,6 +1591,18 @@
       updateCost();
     }
 
+    function changePhotoExtra(delta) {
+      const count = vs.services.filter(s => s === 'photo_extra').length;
+      const next  = Math.max(0, count + delta);
+      vs.services = vs.services.filter(s => s !== 'photo_extra');
+      for (let i = 0; i < next; i++) vs.services.push('photo_extra');
+      const qEl = document.getElementById('photo-extra-qty');
+      if (qEl) qEl.textContent = next;
+      const el = document.getElementById('svc-photo_extra');
+      if (el) el.className = 'svc-item' + (next > 0 ? ' on' : '');
+      updateCost();
+    }
+
     function changeQty(idx, delta) {
       const m = vs.orders[idx];
       m.qty = Math.max(0, (m.qty||0) + delta);
@@ -1758,7 +1780,9 @@
           if (el) el.className = 'svc-item';
         }
       });
-      (v.services || []).forEach(sid => {
+      const extraCount = (v.services || []).filter(s => s === 'photo_extra').length;
+      for (let i = 0; i < extraCount; i++) changePhotoExtra(1);
+      (v.services || []).filter(s => s !== 'photo_extra').forEach(sid => {
         if (!vs.services.includes(sid)) toggleSvc(sid);
       });
 
@@ -2889,7 +2913,7 @@
 
       // 依使徒分組
       const aMap = {};
-      const ensureA = n => { if (!aMap[n]) aMap[n] = { wreath:0, nomen:0, photos:0, houseOther:0 }; };
+      const ensureA = n => { if (!aMap[n]) aMap[n] = { wreath:0, nomen:0, photos:0, photoExtras:0, photoSig:0, houseOther:0 }; };
       tv.forEach(v => {
         const name = v.apostleName || '（未指定）';
         ensureA(name);
@@ -2897,9 +2921,11 @@
           const svc = SERVICES.find(s => s.id === sid);
           if (!svc) return;
           if (sid === 'wreath_booked' || sid === 'wreath_walkin') aMap[name].wreath += svc.price;
-          else if (sid === 'nomen30')    aMap[name].nomen  += svc.price;
-          else if (sid === 'photo')      aMap[name].photos++;
-          else                           aMap[name].houseOther += svc.price;
+          else if (sid === 'nomen30')      aMap[name].nomen       += svc.price;
+          else if (sid === 'photo')        aMap[name].photos++;
+          else if (sid === 'photo_sig')    aMap[name].photoSig    += svc.price;
+          else if (sid === 'photo_extra')  aMap[name].photoExtras++;
+          else                             aMap[name].houseOther  += svc.price;
         });
       });
 
@@ -2914,18 +2940,18 @@
       const svPerA   = numA > 0 ? Math.floor(svPool / numA) : 0;
 
       // 匯總
-      let totWreath = 0, totNomen = 0, totPhotos = 0, totOrders = 0, totHouseOther = 0;
+      let totWreath = 0, totNomen = 0, totPhotos = 0, totPhotoExtras = 0, totPhotoSig = 0, totOrders = 0, totHouseOther = 0;
       names.forEach(n => {
-        totWreath    += aMap[n].wreath;
-        totNomen     += aMap[n].nomen;
-        totPhotos    += aMap[n].photos;
-        totHouseOther+= aMap[n].houseOther;
+        totWreath      += aMap[n].wreath;
+        totNomen       += aMap[n].nomen;
+        totPhotos      += aMap[n].photos;
+        totPhotoExtras += aMap[n].photoExtras;
+        totPhotoSig    += aMap[n].photoSig;
+        totHouseOther  += aMap[n].houseOther;
       });
       tv.forEach(v => totOrders += (v.ordersTotal || 0));
 
-      const photoSvcPrice   = (SERVICES.find(s=>s.id==='photo')||{price:100000}).price;
-      const photoApostleCut = totPhotos * 20000;
-      const photoHouseCut   = totPhotos * photoSvcPrice - photoApostleCut;
+      const photoHouseCut = totPhotos * 80000 + totPhotoSig;
 
       const guidePool  = Math.floor(totWreath * 0.1) + svGuide;
       const guideEach  = _numGuides > 0 ? Math.floor(guidePool / _numGuides) : 0;
@@ -2937,14 +2963,16 @@
         const wCut  = Math.floor(a.wreath  * 0.2);
         const nCut  = a.nomen;
         const pCut  = a.photos * 20000;
+        const exCut = a.photoExtras * 20000;
         const sCut  = svPerA;
-        const sub   = wCut + nCut + pCut + sCut;
+        const sub   = wCut + nCut + pCut + exCut + sCut;
 
         const rows = [
-          a.wreath  ? `<div class="settle-row"><span class="settle-row-lbl">入場費（花環）</span><span class="settle-row-base">${a.wreath.toLocaleString()}</span><span class="settle-row-rate">× 20%</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
-          a.nomen   ? `<div class="settle-row"><span class="settle-row-lbl">指名費（顯名儀）</span><span class="settle-row-base">${a.nomen.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${nCut.toLocaleString()}</span></div>` : '',
-          a.photos  ? `<div class="settle-row"><span class="settle-row-lbl">拍立得</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
-          svTotal   ? `<div class="settle-row"><span class="settle-row-lbl">紀念品分潤（÷ ${numA} 人）</span><span class="settle-row-base">${svPool.toLocaleString()}</span><span class="settle-row-rate">÷ ${numA}</span><span class="settle-row-cut">${sCut.toLocaleString()}</span></div>` : '',
+          a.wreath      ? `<div class="settle-row"><span class="settle-row-lbl">入場費（花環）</span><span class="settle-row-base">${a.wreath.toLocaleString()}</span><span class="settle-row-rate">× 20%</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
+          a.nomen       ? `<div class="settle-row"><span class="settle-row-lbl">指名費（顯名儀）</span><span class="settle-row-base">${a.nomen.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${nCut.toLocaleString()}</span></div>` : '',
+          a.photos      ? `<div class="settle-row"><span class="settle-row-lbl">交名留影</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
+          a.photoExtras ? `<div class="settle-row"><span class="settle-row-lbl">多人合照</span><span class="settle-row-base">${a.photoExtras} 人</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${exCut.toLocaleString()}</span></div>` : '',
+          svTotal       ? `<div class="settle-row"><span class="settle-row-lbl">紀念品分潤（÷ ${numA} 人）</span><span class="settle-row-base">${svPool.toLocaleString()}</span><span class="settle-row-rate">÷ ${numA}</span><span class="settle-row-cut">${sCut.toLocaleString()}</span></div>` : '',
         ].filter(Boolean).join('');
 
         return `<div class="settle-block">
@@ -2958,7 +2986,7 @@
 
       const apostleTotal = names.reduce((s, n) => {
         const a = aMap[n];
-        return s + Math.floor(a.wreath*0.2) + a.nomen + a.photos*20000 + svPerA;
+        return s + Math.floor(a.wreath*0.2) + a.nomen + a.photos*20000 + a.photoExtras*20000 + svPerA;
       }, 0);
       const recorded  = tv.reduce((s,v) => s + (v.total||0), 0);
       const revenue   = recorded + svTotal;
@@ -3007,7 +3035,8 @@
             <div class="settle-other-lbl">店家</div>
             <div class="settle-other-detail">
               ${totWreath    ? `入場費 × 70% = ${Math.floor(totWreath*0.7).toLocaleString()}<br>` : ''}
-              ${totPhotos    ? `拍立得差額 = ${photoHouseCut.toLocaleString()}<br>` : ''}
+              ${totPhotos    ? `交名留影（店家）= ${(totPhotos*80000).toLocaleString()}<br>` : ''}
+              ${totPhotoSig  ? `加簽 = ${totPhotoSig.toLocaleString()}<br>` : ''}
               ${svTotal      ? `紀念品 × 70% = ${svHouse.toLocaleString()}<br>` : ''}
               ${totOrders    ? `餐飲 = ${totOrders.toLocaleString()}<br>` : ''}
               ${totHouseOther? `其他 = ${totHouseOther.toLocaleString()}` : ''}
