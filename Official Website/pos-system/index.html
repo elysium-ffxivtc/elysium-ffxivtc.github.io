@@ -1652,6 +1652,14 @@
       const id = vs.customerId;
       const c  = customers.find(x => x.id===id);
       if (!c) return;
+      if (vs.mode === 'nomen' && vs.apostleType === 'specified') {
+        const name = document.getElementById('v-apostle')?.value.trim() || '';
+        if (!name) {
+          alert('請選擇指定使徒，或切換為「不指定」。');
+          document.getElementById('v-apostle')?.focus();
+          return;
+        }
+      }
       const svcTotal  = vs.services.reduce((t,sid) => t + (SERVICES.find(s=>s.id===sid)?.price||0), 0);
       const ordTotal  = vs.orders.reduce((t,o) => t + o.price*(o.qty||0), 0);
       const specTotal = (vs.specialOrders||[]).reduce((t,o) => t + o.price*(o.qty||0), 0);
