@@ -219,7 +219,7 @@
     .seg-btn:disabled { opacity: .25; cursor: not-allowed; }
 
     /* ── Buttons ── */
-    .btn { padding: .48rem 1rem; font-size: 13px; cursor: pointer; border: none; font-family: inherit; transition: all .15s; }
+    .btn { padding: .48rem 1rem; font-size: 13px; cursor: pointer; border: none; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; }
     .btn-gold { background: var(--gold); color: #1c1208; font-weight: 600; }
     .btn-gold:hover { background: #d4a456; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
@@ -247,8 +247,7 @@
     .auth-box { text-align: center; width: 340px; padding: 2rem; }
     .auth-logo { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: .25em; margin-bottom: .4rem; }
     .auth-tagline { font-size: 13px; color: var(--dim); margin-bottom: 2.5rem; letter-spacing: .08em; }
-    .auth-google-btn { display: flex; align-items: center; justify-content: center; gap: .75rem; background: #fff; color: #3c4043; border: none; padding: .85rem 1.5rem; font-size: 14px; cursor: pointer; width: 100%; font-family: inherit; font-weight: 500; transition: box-shadow .15s; }
-    .auth-google-btn:hover { box-shadow: 0 2px 12px rgba(0,0,0,.35); }
+    .auth-google-btn { width: 100%; justify-content: center; }
     .auth-err { color: var(--red); font-size: 13px; margin-top: .75rem; min-height: 1.2em; }
     .auth-info-box { background: var(--card); border: 1px solid var(--border); padding: .7rem 1rem; margin-top: 1rem; font-size: 13px; }
 
@@ -290,15 +289,7 @@
   <div id="auth-login" class="auth-box" style="display:none">
     <div class="auth-logo">安息地</div>
     <div class="auth-tagline">排班系統</div>
-    <button class="auth-google-btn" onclick="signInGoogle()">
-      <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
-      使用 Google 帳號登入
-    </button>
+    <button class="btn btn-gold auth-google-btn" onclick="signInGoogle()">Google 登入</button>
     <div class="auth-err" id="auth-err"></div>
   </div>
   <div id="auth-pending" class="auth-box" style="display:none">
