@@ -475,10 +475,12 @@
       <button class="btn btn-outline btn-sm" onclick="doSignOut()" style="font-size:11px;padding:.2rem .55rem">登出</button>`;
   }
 
+  auth.getRedirectResult()
+    .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
+
   function signInGoogle() {
     document.getElementById('auth-err').textContent = '';
-    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
+    auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
   }
   function doSignOut() { auth.signOut().then(() => location.reload()); }
 
