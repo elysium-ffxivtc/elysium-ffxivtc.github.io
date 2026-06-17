@@ -64,7 +64,7 @@
     .biz-sum-count { font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weight: 700; color: #e8b060; line-height: 1; }
     .biz-sum-unit { font-size: 13px; color: var(--dim); }
     .biz-sum-grid { display: flex; flex-wrap: wrap; gap: .45rem; }
-    .biz-date-card { background: var(--bg); border: 1px solid rgba(200,152,74,.22); padding: .4rem .65rem; text-align: center; min-width: 46px; }
+    .biz-date-card { background: var(--bg); border: 1px solid rgba(200,152,74,.22); padding: .5rem 1rem; text-align: center; min-width: 62px; }
     .biz-date-mo { font-size: 10px; color: var(--dim); margin-bottom: 2px; }
     .biz-date-day { font-size: 1.35rem; font-weight: 700; color: #e8b060; line-height: 1.1; font-family: 'Noto Serif TC', serif; }
     .biz-sum-mobile { display: none; }
@@ -117,7 +117,7 @@
       .biz-sum-card { padding: .65rem .85rem; }
       .biz-sum-desktop { display: none; }
       .biz-sum-mobile { display: flex; align-items: center; gap: .85rem; }
-      .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: #e8b060; line-height: 1; min-width: 2.4rem; text-align: center; }
+      .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: #1a1000; background: #e8b060; line-height: 1; min-width: 3rem; text-align: center; padding: .5rem .6rem; }
       .biz-sum-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .3rem; }
       .biz-date-tag { font-size: 11px; background: rgba(200,152,74,.18); color: #e8b060; padding: .15rem .45rem; }
     }
@@ -701,7 +701,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     return `<div class="biz-sum-card">
       <div class="biz-sum-desktop">
         <div class="biz-sum-hdr">
-          <span class="biz-sum-title">${mo}月預計營業天數</span>
+          <span class="biz-sum-title">當月預計營業天數</span>
           <span class="biz-sum-count">${count}</span>
           <span class="biz-sum-unit">天</span>
         </div>
@@ -710,7 +710,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
       <div class="biz-sum-mobile">
         <div class="biz-sum-num">${count}</div>
         <div>
-          <div class="biz-sum-title">${mo}月預計營業天數</div>
+          <div class="biz-sum-title">當月預計營業天數</div>
           <div class="biz-sum-tags">${dateTags}</div>
         </div>
       </div>
