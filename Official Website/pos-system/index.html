@@ -3390,16 +3390,6 @@
             <span style="color:var(--gold);font-weight:700;font-size:1rem">${svTotal.toLocaleString()} Gil</span>
             ${svTotal ? `<span style="font-size:12px;color:var(--dim)">（店家 ${svHouse.toLocaleString()} ／使徒 ${svPool.toLocaleString()} ／引路人 ${svPilgrim.toLocaleString()}）</span>` : ''}
           </div>
-          <div class="settle-sv-row" style="margin-top:0;align-items:flex-start">
-            <span style="font-size:12px;color:var(--dim);letter-spacing:.06em;min-width:48px;padding-top:.25rem">引路人</span>
-            ${PILGRIMS.length
-              ? `<div style="display:flex;flex-wrap:wrap;gap:.3rem">
-                  ${PILGRIMS.map(g => `<button class="btn btn-sm ${_selectedPilgrims.includes(g.name) ? 'btn-gold' : 'btn-outline'}" style="font-size:12px;padding:.2rem .55rem" onclick="togglePilgrimSelect(${JSON.stringify(g.name)})">${esc(g.name)}</button>`).join('')}
-                 </div>`
-              : `<input id="settle-num-pilgrims" type="number" class="settle-input" placeholder="人數" value="${_numPilgrims}" min="1" max="4" style="width:64px" oninput="_onSettleInput('settle-num-pilgrims',this.value)">
-                 <span style="font-size:12px;color:var(--dim)">位</span>`
-            }
-          </div>
         </div>
 
         ${!names.length ? `<div class="pos-empty"><div class="pos-empty-icon">—</div><div class="pos-empty-text">今日尚無造訪紀錄</div></div>` : `
