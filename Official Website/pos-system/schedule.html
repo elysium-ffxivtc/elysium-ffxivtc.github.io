@@ -562,6 +562,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
       schedData = snap.val() || {};
       render();
       if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
+      syncBizStatus();
     });
     onValue(dbRef(db, 'staff'), snap => {
       staff = snap.val() ? Object.values(snap.val()) : [];
@@ -1131,8 +1132,30 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
   function toggleBiz(date) {
     const isOpen = bizStatus[date]?.isOpen || false;
     set(dbRef(db, 'bizStatus/' + date), {
-      isOpen: !isOpen, setBy: currentUser.displayName, setAt: new Date().toISOString()
+      isOpen: !isOpen, autoSet: false,
+      setBy: currentUser.displayName, setAt: new Date().toISOString()
     });
+  }
+
+  async function syncBizStatus() {
+    const dates = new Set([
+      ...Object.keys(schedData).map(k => k.slice(0, 10)),
+      ...Object.keys(bizStatus),
+    ]);
+    const writes = [];
+    for (const date of dates) {
+      const shouldBeOpen = isBizDay(date);
+      const cur = bizStatus[date];
+      if (cur?.autoSet === false) continue; // 管理員手動設定，不覆蓋
+      if (shouldBeOpen && !cur?.isOpen) {
+        writes.push(set(dbRef(db, 'bizStatus/' + date), {
+          isOpen: true, autoSet: true, setAt: new Date().toISOString()
+        }));
+      } else if (!shouldBeOpen && cur?.isOpen) {
+        writes.push(remove(dbRef(db, 'bizStatus/' + date)));
+      }
+    }
+    if (writes.length) await Promise.all(writes);
   }
 
   // ── Add person modal ──────────────────────────────────────────
