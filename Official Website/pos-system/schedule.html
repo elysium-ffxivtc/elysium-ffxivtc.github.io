@@ -6,8 +6,7 @@
   <title>安息地 · 排班系統</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     :root {
@@ -371,7 +370,11 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue, get, set, update, remove } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
   (function tickClock() {
     const now = new Date();
     const h = String(now.getHours()).padStart(2,'0');
@@ -384,7 +387,7 @@
     setTimeout(tickClock, 1000 - now.getMilliseconds());
   })();
 
-  firebase.initializeApp({
+  const app = initializeApp({
     apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
     authDomain:        "elysiumpos.firebaseapp.com",
     databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -393,8 +396,11 @@
     messagingSenderId: "430177597593",
     appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
   });
-  const db = firebase.database();
-  let auth, _GoogleAuthProvider, _signInWithPopup, _onAuthStateChanged, _signOut;
+  const db   = getDatabase(app);
+  const auth = initializeAuth(app, {
+    persistence:           [indexedDBLocalPersistence],
+    popupRedirectResolver: browserPopupRedirectResolver,
+  });
 
   // ── State ──────────────────────────────────────────────────────
   let currentUser  = null;
@@ -429,48 +435,30 @@
   let bulkSelectedDay = null;
   let _bulkWeeks = [];
 
-  // 使用模組化 Auth SDK（IndexedDB persistence）解決 iOS Safari sessionStorage 問題
-  import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js').then(authM => {
-    // firebase.app()._delegate 是 compat 包裝器底下的真正 modular FirebaseApp
-    const app = firebase.app()._delegate;
-
-    _GoogleAuthProvider = authM.GoogleAuthProvider;
-    _signInWithPopup    = (provider) => authM.signInWithPopup(auth, provider);
-    _signOut            = () => authM.signOut(auth);
-
-    auth = authM.initializeAuth(app, {
-      persistence:           [authM.indexedDBLocalPersistence],
-      popupRedirectResolver: authM.browserPopupRedirectResolver,
-    });
-
-    authM.onAuthStateChanged(auth, async user => {
-      if (!user) { showScreen('login'); return; }
-      try {
-        const staffSnap = await db.ref('staff/' + user.uid).once('value');
-        if (staffSnap.exists()) {
-          currentUser = { uid: user.uid, email: user.email, ...staffSnap.val() };
-          renderBadge(); hideAuth(); startListeners();
-          return;
-        }
-        const allSnap = await db.ref('staff').once('value');
-        if (!allSnap.exists()) {
-          showScreen('bootstrap', user);
-          return;
-        }
-        const pendingSnap = await db.ref('pendingStaff/' + user.uid).once('value');
-        if (pendingSnap.exists()) {
-          showScreen('pending', user);
-        } else {
-          showScreen('register', user);
-        }
-      } catch(e) {
-        document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
-        showScreen('login');
+  onAuthStateChanged(auth, async user => {
+    if (!user) { showScreen('login'); return; }
+    try {
+      const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
+      if (staffSnap.exists()) {
+        currentUser = { uid: user.uid, email: user.email, ...staffSnap.val() };
+        renderBadge(); hideAuth(); startListeners();
+        return;
       }
-    });
-  }).catch(e => {
-    document.getElementById('auth-err').textContent = '載入失敗：' + e.message;
-    showScreen('login');
+      const allSnap = await get(dbRef(db, 'staff'));
+      if (!allSnap.exists()) {
+        showScreen('bootstrap', user);
+        return;
+      }
+      const pendingSnap = await get(dbRef(db, 'pendingStaff/' + user.uid));
+      if (pendingSnap.exists()) {
+        showScreen('pending', user);
+      } else {
+        showScreen('register', user);
+      }
+    } catch(e) {
+      document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+      showScreen('login');
+    }
   });
 
   function showScreen(s, user) {
@@ -499,17 +487,17 @@
 
   function signInGoogle() {
     document.getElementById('auth-err').textContent = '';
-    _signInWithPopup(new _GoogleAuthProvider())
+    signInWithPopup(auth, new GoogleAuthProvider())
       .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
   }
-  function doSignOut() { _signOut().then(() => location.reload()); }
+  function doSignOut() { signOut(auth).then(() => location.reload()); }
 
   async function doRegister() {
     const user = window._regUser; if (!user) return;
     const gameId = document.getElementById('reg-gameid').value.trim();
     if (!gameId) { document.getElementById('reg-err').textContent = '請輸入遊戲ID'; return; }
     document.getElementById('reg-err').textContent = '';
-    await db.ref('pendingStaff/' + user.uid).set({
+    await set(dbRef(db, 'pendingStaff/' + user.uid), {
       uid: user.uid, email: user.email,
       displayName: gameId,
       requestedAt: new Date().toISOString()
@@ -520,40 +508,40 @@
   async function doBootstrap() {
     const user = window._bsUser; if (!user) return;
     const name = document.getElementById('bs-name').value.trim() || user.displayName || '管理員';
-    await db.ref('staff/' + user.uid).set({
+    await set(dbRef(db, 'staff/' + user.uid), {
       uid: user.uid, email: user.email, displayName: name, role: 'admin',
       createdAt: new Date().toISOString()
     });
-    await db.ref('pendingStaff/' + user.uid).remove();
+    await remove(dbRef(db, 'pendingStaff/' + user.uid));
     location.reload();
   }
 
   // ── Firebase listeners ────────────────────────────────────────
   function startListeners() {
-    db.ref('schedules').on('value', snap => {
+    onValue(dbRef(db, 'schedules'), snap => {
       schedData = snap.val() || {};
       render();
       if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
     });
-    db.ref('staff').on('value', snap => {
+    onValue(dbRef(db, 'staff'), snap => {
       staff = snap.val() ? Object.values(snap.val()) : [];
       if (adminTab === 'accounts') renderAccounts();
     });
-    db.ref('bizStatus').on('value', snap => {
+    onValue(dbRef(db, 'bizStatus'), snap => {
       bizStatus = snap.val() || {};
       render();
       if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
     });
-    db.ref('announcement').on('value', snap => {
+    onValue(dbRef(db, 'announcement'), snap => {
       announcement = snap.val() || null;
       render();
     });
-    db.ref(`memos/${currentUser.uid}`).on('value', snap => {
+    onValue(dbRef(db, `memos/${currentUser.uid}`), snap => {
       myMemo = snap.val()?.text || '';
       const el = document.getElementById('memo-input');
       if (el && document.activeElement !== el) el.value = myMemo;
     });
-    db.ref('settings/discordWebhook').on('value', snap => {
+    onValue(dbRef(db, 'settings/discordWebhook'), snap => {
       discordWebhook = snap.val() || '';
     });
   }
@@ -957,7 +945,7 @@
           const entry = schedData[`${date}_${sKey(t)}`] || {};
           if (!Object.values(entry).some(p => p.role === 'admin')) continue;
         }
-        writes.push(db.ref(`schedules/${date}_${sKey(t)}/${currentUser.uid}`).set({
+        writes.push(set(dbRef(db, `schedules/${date}_${sKey(t)}/${currentUser.uid}`), {
           uid: currentUser.uid, displayName: currentUser.displayName,
           role: currentUser.role, apostleTag: currentUser.apostleTag || '',
           signedAt: new Date().toISOString()
@@ -977,7 +965,7 @@
     for (const key of Object.keys(schedData)) {
       if (!key.startsWith(monthPrefix)) continue;
       if (!schedData[key][currentUser.uid]) continue;
-      removes.push(db.ref(`schedules/${key}/${currentUser.uid}`).remove());
+      removes.push(remove(dbRef(db, `schedules/${key}/${currentUser.uid}`)));
     }
     await Promise.all(removes);
     showToast('已清除本月所有排班');
@@ -990,7 +978,7 @@
     const text = el.value;
     if (text === myMemo) return;
     myMemo = text;
-    await db.ref(`memos/${currentUser.uid}`).set({ text, updatedAt: new Date().toISOString() });
+    await set(dbRef(db, `memos/${currentUser.uid}`), { text, updatedAt: new Date().toISOString() });
   }
 
   function showToast(msg) {
@@ -1013,15 +1001,15 @@
         if (!adminInSlot) { showToast('22:00 時段需要店長先排班才可加入'); return; }
       }
     }
-    const ref  = db.ref(`schedules/${date}_${sKey(time)}/${currentUser.uid}`);
-    const snap = await ref.once('value');
+    const r    = dbRef(db, `schedules/${date}_${sKey(time)}/${currentUser.uid}`);
+    const snap = await get(r);
     const existing = snap.val();
     if (existing) {
       if (existing.isLeave) { showToast('已請假，可從個人面板恢復排班'); return; }
-      await ref.remove();
+      await remove(r);
       sendDiscord(`❌ **${currentUser.displayName}** 取消了 ${fmtDateDisc(date)} ${time} 的班`);
     } else {
-      await ref.set({
+      await set(r, {
         uid: currentUser.uid, displayName: currentUser.displayName,
         role: currentUser.role, apostleTag: currentUser.apostleTag || '',
         signedAt: new Date().toISOString()
@@ -1096,13 +1084,13 @@
   async function removePerson(date, time, uid) {
     const entry  = schedData[`${date}_${sKey(time)}`] || {};
     const person = entry[uid];
-    await db.ref(`schedules/${date}_${sKey(time)}/${uid}`).remove();
+    await remove(dbRef(db, `schedules/${date}_${sKey(time)}/${uid}`));
     if (person) sendDiscord(`🔧 管理員 **${currentUser.displayName}** 移除了 **${person.displayName}** 在 ${fmtDateDisc(date)} ${time} 的班`);
   }
 
   function toggleBiz(date) {
     const isOpen = bizStatus[date]?.isOpen || false;
-    db.ref('bizStatus/' + date).set({
+    set(dbRef(db, 'bizStatus/' + date), {
       isOpen: !isOpen, setBy: currentUser.displayName, setAt: new Date().toISOString()
     });
   }
@@ -1129,7 +1117,7 @@
     const uid    = document.getElementById('add-who').value;
     const member = staff.find(s => s.uid === uid);
     if (!member) return;
-    await db.ref(`schedules/${_addDate}_${sKey(_addTime)}/${uid}`).set({
+    await set(dbRef(db, `schedules/${_addDate}_${sKey(_addTime)}/${uid}`), {
       uid: member.uid, displayName: member.displayName,
       role: member.role, apostleTag: member.apostleTag || '',
       signedAt: new Date().toISOString()
@@ -1150,7 +1138,7 @@
   async function saveAnnouncement() {
     const text = document.getElementById('anno-text').value.trim();
     if (!text) { await clearAnnouncement(); return; }
-    await db.ref('announcement').set({
+    await set(dbRef(db, 'announcement'), {
       text, updatedBy: currentUser.displayName, updatedAt: new Date().toISOString()
     });
     closeAnnoModal();
@@ -1158,13 +1146,13 @@
 
   async function clearAnnouncement() {
     if (announcement?.text && !confirm('確定清除公告？')) return;
-    await db.ref('announcement').remove();
+    await remove(dbRef(db, 'announcement'));
     closeAnnoModal();
   }
 
   // ── Accounts ──────────────────────────────────────────────────
   function renderAccounts() {
-    db.ref('pendingStaff').once('value').then(snap => {
+    get(dbRef(db, 'pendingStaff')).then(snap => {
       const pending = snap.val() ? Object.values(snap.val()) : [];
 
       const pendingHtml = pending.map(p => `
@@ -1221,28 +1209,28 @@
   }
 
   async function approveStaff(uid) {
-    const snap = await db.ref('pendingStaff/' + uid).once('value');
+    const snap = await get(dbRef(db, 'pendingStaff/' + uid));
     const p = snap.val(); if (!p) return;
     const name = document.getElementById('pn-' + uid)?.value.trim() || p.displayName || p.email;
     const role = document.getElementById('pr-' + uid)?.value || 'apostle';
     const tag  = document.getElementById('pt-' + uid)?.value.trim() || '';
-    await db.ref('staff/' + uid).set({
+    await set(dbRef(db, 'staff/' + uid), {
       uid, email: p.email, displayName: name, role, apostleTag: tag,
       createdAt: new Date().toISOString()
     });
-    await db.ref('pendingStaff/' + uid).remove();
+    await remove(dbRef(db, 'pendingStaff/' + uid));
     renderAccounts();
   }
 
   async function rejectStaff(uid) {
     if (!confirm('確定拒絕此請求？')) return;
-    await db.ref('pendingStaff/' + uid).remove();
+    await remove(dbRef(db, 'pendingStaff/' + uid));
     renderAccounts();
   }
 
   async function removeStaff(uid) {
     if (!confirm('確定移除此帳號？')) return;
-    await db.ref('staff/' + uid).remove();
+    await remove(dbRef(db, 'staff/' + uid));
   }
 
   // ── Discord Webhook ───────────────────────────────────────────
@@ -1264,7 +1252,7 @@
 
   async function saveWebhook() {
     const url = document.getElementById('webhook-url-input').value.trim();
-    await db.ref('settings/discordWebhook').set(url || null);
+    await set(dbRef(db, 'settings/discordWebhook'), url || null);
     showToast(url ? 'Webhook 已儲存' : 'Webhook 已清除');
   }
   async function testWebhook() {
@@ -1286,18 +1274,18 @@
   // ── Leave ─────────────────────────────────────────────────────
   async function requestLeave(date, time) {
     if (!currentUser) return;
-    const ref  = db.ref(`schedules/${date}_${sKey(time)}/${currentUser.uid}`);
-    const snap = await ref.once('value');
+    const r    = dbRef(db, `schedules/${date}_${sKey(time)}/${currentUser.uid}`);
+    const snap = await get(r);
     if (!snap.exists()) { showToast('尚未排班'); return; }
-    await ref.update({ isLeave: true, leaveAt: new Date().toISOString() });
+    await update(r, { isLeave: true, leaveAt: new Date().toISOString() });
     sendDiscord(`🏖️ **${currentUser.displayName}** 在 ${fmtDateDisc(date)} ${time} 申請請假`);
     showToast('已申請請假');
   }
 
   async function cancelLeave(date, time) {
     if (!currentUser) return;
-    const ref = db.ref(`schedules/${date}_${sKey(time)}/${currentUser.uid}`);
-    await ref.update({ isLeave: null, leaveAt: null });
+    const r = dbRef(db, `schedules/${date}_${sKey(time)}/${currentUser.uid}`);
+    await update(r, { isLeave: null, leaveAt: null });
     sendDiscord(`✅ **${currentUser.displayName}** 取消了在 ${fmtDateDisc(date)} ${time} 的請假`);
     showToast('已恢復排班');
   }
@@ -1346,7 +1334,7 @@
   async function downloadScheduleImg() {
     const el = document.getElementById('export-table-wrap');
     try {
-      const canvas = await html2canvas(el, { backgroundColor: '#1a1510', scale: 2, useCORS: true });
+      const canvas = await window.html2canvas(el, { backgroundColor: '#1a1510', scale: 2, useCORS: true });
       const a = document.createElement('a');
       a.download = `安息地排班_${viewYear}${pad(viewMonth + 1)}.png`;
       a.href = canvas.toDataURL('image/png');
@@ -1355,6 +1343,22 @@
       showToast('匯出失敗，請稍後再試');
     }
   }
+
+  // ── Export globals for onclick handlers ──────────────────────
+  Object.assign(window, {
+    signInGoogle, doSignOut, doBootstrap, doRegister,
+    setTab, setScheduleSubTab, prevMonth, nextMonth,
+    openSlotView, closeSlotView, tapSlot,
+    openDayModal, closeDayModal, removePerson, toggleBiz,
+    openAddModal, closeAddModal, confirmAdd,
+    openAnnoModal, closeAnnoModal, saveAnnouncement, clearAnnouncement,
+    openBulkModal, closeBulkModal, confirmBulk, setBulkMode, selectBulkDay, onWeekCheck,
+    clearMonthSchedule, saveMemo,
+    openExportModal, closeExportModal, downloadScheduleImg,
+    requestLeave, cancelLeave,
+    approveStaff, rejectStaff, removeStaff,
+    saveWebhook, testWebhook,
+  });
 </script>
 </body>
 </html>
