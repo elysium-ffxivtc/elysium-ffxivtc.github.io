@@ -57,9 +57,10 @@
     .anno-empty:hover { color: var(--gold); }
 
     /* ── Biz summary ── */
-    .biz-sum-card { background: var(--gold-dim); border: 1px solid rgba(200,152,74,.22); padding: .75rem 1rem; margin-bottom: .75rem; display: flex; align-items: center; gap: .85rem; }
-    .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; font-weight: 700; color: var(--gold); line-height: 1; min-width: 2.4rem; text-align: center; }
-    .biz-sum-dates { font-size: 11px; color: var(--dim); margin-top: .2rem; line-height: 1.6; }
+    .biz-sum-card { background: rgba(200,152,74,.14); border-left: 4px solid var(--gold); padding: .9rem 1.15rem; margin-bottom: .75rem; display: flex; align-items: center; gap: 1rem; }
+    .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 3rem; font-weight: 700; color: #e8b060; line-height: 1; min-width: 3rem; text-align: center; }
+    .biz-sum-title { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: .03em; }
+    .biz-sum-dates { font-size: 12px; color: #e8b060; margin-top: .3rem; line-height: 1.6; }
 
     /* ── Two-column layout ── */
     .schedule-layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 1rem; align-items: start; }
@@ -101,7 +102,8 @@
 
       /* ── Announcement / Biz summary ── */
       .anno-text { font-size: 12px; }
-      .biz-sum-card { padding: .6rem .8rem; }
+      .biz-sum-card { padding: .65rem .85rem; }
+      .biz-sum-num { font-size: 2.4rem; min-width: 2.4rem; }
     }
 
     /* ── Month nav ── */
@@ -672,7 +674,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     return `<div class="biz-sum-card">
       <div class="biz-sum-num">${bizDates.length}</div>
       <div>
-        <div style="font-size:12px;font-weight:500">${viewMonth + 1}月預計營業天數</div>
+        <div class="biz-sum-title">${viewMonth + 1}月預計營業天數</div>
         <div class="biz-sum-dates">${labels}</div>
       </div>
     </div>`;
@@ -1048,14 +1050,13 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     if (existing) {
       if (existing.isLeave) { showToast('已請假，可從個人面板恢復排班'); return; }
       await remove(r);
-      sendDiscord(`❌ **${currentUser.displayName}** 取消了 ${fmtDateDisc(date)} ${time} 的班`);
+      sendDiscord(`❌ **${currentUser.displayName}** 取消了 ${fmtDateDisc(date)} ${time} 的班`, date);
     } else {
       await set(r, {
         uid: currentUser.uid, displayName: currentUser.displayName,
         role: currentUser.role, apostleTag: currentUser.apostleTag || '',
         signedAt: new Date().toISOString()
       });
-      sendDiscord(`📋 **${currentUser.displayName}** 登記了 ${fmtDateDisc(date)} ${time} 的班`);
     }
   }
 
@@ -1126,7 +1127,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     const entry  = schedData[`${date}_${sKey(time)}`] || {};
     const person = entry[uid];
     await remove(dbRef(db, `schedules/${date}_${sKey(time)}/${uid}`));
-    if (person) sendDiscord(`🔧 管理員 **${currentUser.displayName}** 移除了 **${person.displayName}** 在 ${fmtDateDisc(date)} ${time} 的班`);
+    if (person) sendDiscord(`🔧 管理員 **${currentUser.displayName}** 移除了 **${person.displayName}** 在 ${fmtDateDisc(date)} ${time} 的班`, date);
   }
 
   function toggleBiz(date) {
@@ -1302,8 +1303,13 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     return `${dt.getMonth()+1}月${dt.getDate()}日（${'日一二三四五六'[dt.getDay()]}）`;
   }
 
-  async function sendDiscord(content) {
+  async function sendDiscord(content, date = null) {
     if (!discordWebhook) return;
+    if (date) {
+      const now = new Date();
+      const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+      if (!date.startsWith(prefix)) return;
+    }
     try {
       await fetch(discordWebhook, {
         method: 'POST',
@@ -1341,7 +1347,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     const snap = await get(r);
     if (!snap.exists()) { showToast('尚未排班'); return; }
     await update(r, { isLeave: true, leaveAt: new Date().toISOString() });
-    sendDiscord(`🏖️ **${currentUser.displayName}** 在 ${fmtDateDisc(date)} ${time} 申請請假`);
+    sendDiscord(`🏖️ **${currentUser.displayName}** 在 ${fmtDateDisc(date)} ${time} 申請請假`, date);
     showToast('已申請請假');
   }
 
@@ -1349,7 +1355,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     if (!currentUser) return;
     const r = dbRef(db, `schedules/${date}_${sKey(time)}/${currentUser.uid}`);
     await update(r, { isLeave: null, leaveAt: null });
-    sendDiscord(`✅ **${currentUser.displayName}** 取消了在 ${fmtDateDisc(date)} ${time} 的請假`);
+    sendDiscord(`✅ **${currentUser.displayName}** 取消了在 ${fmtDateDisc(date)} ${time} 的請假`, date);
     showToast('已恢復排班');
   }
 
