@@ -1376,8 +1376,8 @@
                     ${esc(v.apostleName||'—')}
                     ${v.apostleTag?`<div style="font-size:13px;color:${tagColor(v.apostleTag)};margin-top:2px">${esc(v.apostleTag)}</div>`:''}
                   </td>
-                  <td style="font-size:15px;color:var(--dim)">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</td>
-                  <td style="font-size:15px;color:var(--dim)">${(v.orders||[]).map(o=>`${o.name}×${o.qty}`).join('、')||'—'}</td>
+                  <td style="font-size:12px;color:var(--dim);white-space:normal;word-break:break-word;max-width:140px">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</td>
+                  <td style="font-size:12px;color:var(--dim);white-space:normal;word-break:break-word;max-width:120px">${(v.orders||[]).map(o=>`${o.name}×${o.qty}`).join('、')||'—'}</td>
                   <td style="white-space:nowrap">
                     ${(v.total||0).toLocaleString()} Gil
                     ${(v.tips||[]).map(t=>`<div style="font-size:12px;color:var(--gold);margin-top:2px">打賞 ${t.amount.toLocaleString()} → ${esc(t.to)}</div>`).join('')}
@@ -1534,25 +1534,14 @@
         <div class="pos-card">
           <div class="pos-card-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleSpecialMenu()">
             <span>心像殘響</span>
-            <span id="special-menu-chevron" style="font-size:11px;color:var(--dim);transition:transform .2s">▼</span>
+            <span id="special-menu-chevron" style="font-size:11px;color:var(--dim);transition:transform .2s;transform:rotate(180deg)">▼</span>
           </div>
-          <div id="special-menu-list" class="menu-grid" style="display:none"></div>
+          <div id="special-menu-list" class="menu-grid"></div>
         </div>
         ` : isSingle ? `
         <input type="hidden" id="v-date" value="${today}">
-        <div class="pos-card">
-          <div class="pos-card-title">場次資訊</div>
-          <div class="pos-form-grid">
-            <div>
-              <label class="pos-lbl">時間</label>
-              <div id="v-time-wrap"></div>
-            </div>
-            <div class="field-full">
-              <label class="pos-lbl">備註</label>
-              <input class="pos-input" id="v-notes" type="text" placeholder="備注">
-            </div>
-          </div>
-        </div>
+        <input type="hidden" id="v-time" value="">
+        <input type="hidden" id="v-notes" value="">
 
         <div class="pos-card">
           <div class="pos-card-title">單點拍立得</div>
