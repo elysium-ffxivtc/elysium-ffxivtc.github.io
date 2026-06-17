@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     :root {
@@ -394,8 +393,8 @@
     messagingSenderId: "430177597593",
     appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
   });
-  const db   = firebase.database();
-  const auth = firebase.auth();
+  const db = firebase.database();
+  let auth, _GoogleAuthProvider, _signInWithPopup, _onAuthStateChanged, _signOut;
 
   // ── State ──────────────────────────────────────────────────────
   let currentUser  = null;
@@ -430,25 +429,42 @@
   let bulkSelectedDay = null;
   let _bulkWeeks = [];
 
-  auth.onAuthStateChanged(async user => {
-    if (!user) { showScreen('login'); return; }
-    const staffSnap = await db.ref('staff/' + user.uid).once('value');
-    if (staffSnap.exists()) {
-      currentUser = { uid: user.uid, email: user.email, ...staffSnap.val() };
-      renderBadge(); hideAuth(); startListeners();
-      return;
-    }
-    const allSnap = await db.ref('staff').once('value');
-    if (!allSnap.exists()) {
-      showScreen('bootstrap', user);
-      return;
-    }
-    const pendingSnap = await db.ref('pendingStaff/' + user.uid).once('value');
-    if (pendingSnap.exists()) {
-      showScreen('pending', user);
-    } else {
-      showScreen('register', user);
-    }
+  // 使用模組化 Auth SDK（IndexedDB persistence）解決 iOS Safari sessionStorage 問題
+  import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js').then(m => {
+    _GoogleAuthProvider = m.GoogleAuthProvider;
+    _signInWithPopup    = (provider) => m.signInWithPopup(auth, provider);
+    _signOut            = () => m.signOut(auth);
+
+    auth = m.initializeAuth(firebase.app(), {
+      persistence:           [m.indexedDBLocalPersistence],
+      popupRedirectResolver: m.browserPopupRedirectResolver,
+    });
+
+    m.onAuthStateChanged(auth, async user => {
+      if (!user) { showScreen('login'); return; }
+      try {
+        const staffSnap = await db.ref('staff/' + user.uid).once('value');
+        if (staffSnap.exists()) {
+          currentUser = { uid: user.uid, email: user.email, ...staffSnap.val() };
+          renderBadge(); hideAuth(); startListeners();
+          return;
+        }
+        const allSnap = await db.ref('staff').once('value');
+        if (!allSnap.exists()) {
+          showScreen('bootstrap', user);
+          return;
+        }
+        const pendingSnap = await db.ref('pendingStaff/' + user.uid).once('value');
+        if (pendingSnap.exists()) {
+          showScreen('pending', user);
+        } else {
+          showScreen('register', user);
+        }
+      } catch(e) {
+        document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+        showScreen('login');
+      }
+    });
   });
 
   function showScreen(s, user) {
@@ -477,10 +493,10 @@
 
   function signInGoogle() {
     document.getElementById('auth-err').textContent = '';
-    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    _signInWithPopup(new _GoogleAuthProvider())
       .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
   }
-  function doSignOut() { auth.signOut().then(() => location.reload()); }
+  function doSignOut() { _signOut().then(() => location.reload()); }
 
   async function doRegister() {
     const user = window._regUser; if (!user) return;
