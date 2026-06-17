@@ -1643,19 +1643,25 @@
         _vtMDrum = ((mVal >= 0 && mVal < 60) ? mVal : 0);
         _vt.h = VT_HOURS[_vtHIdx]; _vt.m = _vtMDrum;
         const hn = VT_HOURS.length;
+        const initTime = `${String(VT_HOURS[_vtHIdx]).padStart(2,'0')}:${String(_vtMDrum).padStart(2,'0')}`;
         wrap.innerHTML = `
-          <div style="display:flex;align-items:center;gap:.4rem">
+          <div style="display:inline-flex;align-items:center;gap:.5rem">
             <div id="vt-h-drum" style="${_drumStyle}">
               <div onclick="vtHDrumScroll(-1)" style="${_drumPrev}">${String(VT_HOURS[(_vtHIdx-1+hn)%hn]).padStart(2,'0')}</div>
               <div style="${_drumCur}">${String(VT_HOURS[_vtHIdx]).padStart(2,'0')}</div>
               <div onclick="vtHDrumScroll(1)"  style="${_drumNext}">${String(VT_HOURS[(_vtHIdx+1)%hn]).padStart(2,'0')}</div>
             </div>
-            <span style="color:var(--dim);font-size:1.1rem">:</span>
+            <span style="color:var(--dim);font-size:1.1rem;line-height:1">:</span>
             <div id="vt-m-drum" style="${_drumStyle}">
               <div onclick="vtMDrumScroll(-1)" style="${_drumPrev}">${String((_vtMDrum-1+60)%60).padStart(2,'0')}</div>
               <div style="${_drumCur}">${String(_vtMDrum).padStart(2,'0')}</div>
               <div onclick="vtMDrumScroll(1)"  style="${_drumNext}">${String((_vtMDrum+1)%60).padStart(2,'0')}</div>
             </div>
+            <span style="color:var(--dim);font-size:11px;padding:0 .1rem">/</span>
+            <input id="vt-manual" class="pos-input" type="text" maxlength="5" placeholder="HH:MM"
+              value="${initTime}"
+              style="width:70px;text-align:center;font-size:13px;align-self:center"
+              oninput="vtManualInput(this.value)">
           </div>
           <input type="hidden" id="v-time" value="${val||''}">`;
         const dh = document.getElementById('vt-h-drum');
@@ -2091,17 +2097,17 @@
         <!-- 新增活動 -->
         <div class="pos-card">
           <div class="pos-card-title">新增活動</div>
-          <div style="display:grid;grid-template-columns:1fr auto;gap:.85rem;align-items:end;margin-bottom:.85rem">
-            <div>
-              <label class="pos-lbl">活動名稱 *</label>
-              <input class="pos-input" id="ev-name" type="text" placeholder="例：週年慶特別活動">
-            </div>
-            <div>
-              <label class="pos-lbl">名痕倍率</label>
-              <div id="ev-mult-drum" style="display:inline-flex;flex-direction:column;align-items:stretch;width:64px;border:1px solid var(--border);border-radius:6px;background:var(--card);overflow:hidden;cursor:ns-resize;user-select:none;text-align:center">
-                <div onclick="drumScroll(-1)" style="padding:.35rem 0;font-size:12px;color:var(--dim);opacity:.6">${_drumMult > 1 ? _drumMult - 1 : ''}</div>
-                <div style="padding:.4rem 0;font-size:1.05rem;color:var(--gold);font-weight:700;background:rgba(180,150,80,.08);border-top:1px solid rgba(180,150,80,.2);border-bottom:1px solid rgba(180,150,80,.2)">×${_drumMult}</div>
-                <div onclick="drumScroll(1)"  style="padding:.35rem 0;font-size:12px;color:var(--dim);opacity:.6">${_drumMult + 1}</div>
+          <div style="margin-bottom:.85rem">
+            <label class="pos-lbl">活動名稱 *</label>
+            <div style="display:flex;align-items:center;gap:.75rem;margin-top:.3rem">
+              <input class="pos-input" id="ev-name" type="text" placeholder="例：週年慶特別活動" style="flex:0 0 260px">
+              <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
+                <span style="font-size:12px;color:var(--dim);white-space:nowrap">名痕倍率</span>
+                <div id="ev-mult-drum" style="display:inline-flex;flex-direction:column;align-items:stretch;width:64px;border:1px solid var(--border);border-radius:6px;background:var(--card);overflow:hidden;cursor:ns-resize;user-select:none;text-align:center">
+                  <div onclick="drumScroll(-1)" style="padding:.35rem 0;font-size:12px;color:var(--dim);opacity:.6">${_drumMult > 1 ? _drumMult - 1 : ''}</div>
+                  <div style="padding:.4rem 0;font-size:1.05rem;color:var(--gold);font-weight:700;background:rgba(180,150,80,.08);border-top:1px solid rgba(180,150,80,.2);border-bottom:1px solid rgba(180,150,80,.2)">×${_drumMult}</div>
+                  <div onclick="drumScroll(1)"  style="padding:.35rem 0;font-size:12px;color:var(--dim);opacity:.6">${_drumMult + 1}</div>
+                </div>
               </div>
               <input type="hidden" id="ev-mult" value="${_drumMult}">
             </div>
@@ -2511,6 +2517,10 @@
       drum.children[2].textContent = BOOKED_TIMES[(_vtBookedIdx+1)%n];
       const h = document.getElementById('v-time'); if (h) h.value = BOOKED_TIMES[_vtBookedIdx];
     }
+    function _vtManualSync() {
+      const inp = document.getElementById('vt-manual');
+      if (inp) inp.value = `${String(_vt.h >= 0 ? _vt.h : VT_HOURS[_vtHIdx]).padStart(2,'0')}:${String(_vtMDrum).padStart(2,'0')}`;
+    }
     function vtHDrumScroll(d) {
       const n = VT_HOURS.length;
       _vtHIdx = (_vtHIdx + d + n) % n;
@@ -2519,7 +2529,7 @@
       drum.children[0].textContent = String(VT_HOURS[(_vtHIdx-1+n)%n]).padStart(2,'0');
       drum.children[1].textContent = String(VT_HOURS[_vtHIdx]).padStart(2,'0');
       drum.children[2].textContent = String(VT_HOURS[(_vtHIdx+1)%n]).padStart(2,'0');
-      _vtSync();
+      _vtSync(); _vtManualSync();
     }
     function vtMDrumScroll(d) {
       _vtMDrum = (_vtMDrum + d + 60) % 60;
@@ -2528,6 +2538,29 @@
       drum.children[0].textContent = String((_vtMDrum-1+60)%60).padStart(2,'0');
       drum.children[1].textContent = String(_vtMDrum).padStart(2,'0');
       drum.children[2].textContent = String((_vtMDrum+1)%60).padStart(2,'0');
+      _vtSync(); _vtManualSync();
+    }
+    function vtManualInput(raw) {
+      const m = raw.match(/^(\d{1,2}):(\d{2})$/);
+      if (!m) return;
+      const h = parseInt(m[1]), min = parseInt(m[2]);
+      if (h < 0 || h > 23 || min < 0 || min > 59) return;
+      const hi = VT_HOURS.indexOf(h);
+      if (hi >= 0) { _vtHIdx = hi; _vt.h = h; }
+      _vtMDrum = min; _vt.m = min;
+      const hn = VT_HOURS.length;
+      const hDrum = document.getElementById('vt-h-drum');
+      const mDrum = document.getElementById('vt-m-drum');
+      if (hDrum) {
+        hDrum.children[0].textContent = String(VT_HOURS[(_vtHIdx-1+hn)%hn]).padStart(2,'0');
+        hDrum.children[1].textContent = String(VT_HOURS[_vtHIdx]).padStart(2,'0');
+        hDrum.children[2].textContent = String(VT_HOURS[(_vtHIdx+1)%hn]).padStart(2,'0');
+      }
+      if (mDrum) {
+        mDrum.children[0].textContent = String((_vtMDrum-1+60)%60).padStart(2,'0');
+        mDrum.children[1].textContent = String(_vtMDrum).padStart(2,'0');
+        mDrum.children[2].textContent = String((_vtMDrum+1)%60).padStart(2,'0');
+      }
       _vtSync();
     }
 
