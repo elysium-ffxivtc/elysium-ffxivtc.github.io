@@ -775,13 +775,13 @@
     // ────────────────────────────────────────────────────────────
     const API_URL = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
     let APOSTLES = [];
-    let GUIDES   = [];
+    let PILGRIMS   = [];
     let posUser  = null; // { uid, displayName, role: 'admin'|'staff' }
 
     function photoStaff() {
       return [
         ...APOSTLES,
-        ...GUIDES.map(g => ({ name: g.name, tag: '引路人' }))
+        ...PILGRIMS.map(g => ({ name: g.name, tag: '引路人' }))
       ];
     }
 
@@ -798,7 +798,7 @@
 
     function renderApostleStatus() {
       const el = document.getElementById('apostle-status');
-      if (el) el.textContent = `已載入 ${APOSTLES.length} 位使徒` + (GUIDES.length ? `・${GUIDES.length} 位引路人` : '');
+      if (el) el.textContent = `已載入 ${APOSTLES.length} 位使徒` + (PILGRIMS.length ? `・${PILGRIMS.length} 位引路人` : '');
     }
 
     // ────────────────────────────────────────────────────────────
@@ -943,8 +943,8 @@
         _ready.events = true;
         _uiInited ? fbRefresh() : tryInit();
       }, onFbErr('events'));
-      db.ref('guides').on('value', snap => {
-        GUIDES = snap.val() ? Object.values(snap.val()) : [];
+      db.ref('pilgrims').on('value', snap => {
+        PILGRIMS = snap.val() ? Object.values(snap.val()) : [];
         renderApostleStatus();
         if (_uiInited && currentNav === 'staff') showStaffPage();
       });
@@ -2797,40 +2797,40 @@
         <div class="pos-card">
           <div class="pos-card-title">引路人（手動管理）</div>
           <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
-            <input class="pos-input" id="new-guide-name" type="text" placeholder="引路人名稱" style="flex:1" onkeydown="if(event.key==='Enter')addGuide()">
-            <button class="btn btn-gold" style="white-space:nowrap" onclick="addGuide()">新增</button>
+            <input class="pos-input" id="new-pilgrim-name" type="text" placeholder="引路人名稱" style="flex:1" onkeydown="if(event.key==='Enter')addPilgrim()">
+            <button class="btn btn-gold" style="white-space:nowrap" onclick="addPilgrim()">新增</button>
           </div>
-          ${GUIDES.length
-            ? `<div style="display:flex;flex-wrap:wrap;gap:.4rem" id="guides-list">
-                ${GUIDES.map(g => `<span style="display:inline-flex;align-items:center;gap:.35rem;background:rgba(180,150,80,.12);border:1px solid rgba(180,150,80,.25);border-radius:4px;padding:.2rem .55rem;font-size:13px">
+          ${PILGRIMS.length
+            ? `<div style="display:flex;flex-wrap:wrap;gap:.4rem" id="pilgrims-list">
+                ${PILGRIMS.map(g => `<span style="display:inline-flex;align-items:center;gap:.35rem;background:rgba(180,150,80,.12);border:1px solid rgba(180,150,80,.25);border-radius:4px;padding:.2rem .55rem;font-size:13px">
                   ${esc(g.name)}<span style="color:var(--dim);font-size:11px">引路人</span>
-                  <span style="cursor:pointer;color:var(--red);font-size:11px;line-height:1;padding:.05rem .1rem" onclick="deleteGuide('${g.id}')" title="移除">✕</span>
+                  <span style="cursor:pointer;color:var(--red);font-size:11px;line-height:1;padding:.05rem .1rem" onclick="deletePilgrim('${g.id}')" title="移除">✕</span>
                 </span>`).join('')}
                </div>`
-            : `<div style="font-size:13px;color:var(--dim)" id="guides-list">尚無引路人。</div>`}
+            : `<div style="font-size:13px;color:var(--dim)" id="pilgrims-list">尚無引路人。</div>`}
         </div>
 
         `;
     }
 
-    function addGuide() {
-      const name = document.getElementById('new-guide-name')?.value.trim();
+    function addPilgrim() {
+      const name = document.getElementById('new-pilgrim-name')?.value.trim();
       if (!name) { alert('請填入引路人名稱。'); return; }
-      if (GUIDES.some(g => g.name === name)) { alert('此名稱已存在。'); return; }
-      const guide = { id: 'g_' + Date.now(), name };
-      GUIDES.push(guide);
+      if (PILGRIMS.some(g => g.name === name)) { alert('此名稱已存在。'); return; }
+      const pilgrim = { id: 'g_' + Date.now(), name };
+      PILGRIMS.push(pilgrim);
       const obj = {};
-      GUIDES.forEach(g => { obj[g.id] = g; });
-      db.ref('guides').set(obj);
-      document.getElementById('new-guide-name').value = '';
+      PILGRIMS.forEach(g => { obj[g.id] = g; });
+      db.ref('pilgrims').set(obj);
+      document.getElementById('new-pilgrim-name').value = '';
     }
 
-    function deleteGuide(id) {
+    function deletePilgrim(id) {
       if (!confirm('確定要移除此引路人？')) return;
-      GUIDES = GUIDES.filter(g => g.id !== id);
+      PILGRIMS = PILGRIMS.filter(g => g.id !== id);
       const obj = {};
-      GUIDES.forEach(g => { obj[g.id] = g; });
-      db.ref('guides').set(GUIDES.length === 0 ? null : obj);
+      PILGRIMS.forEach(g => { obj[g.id] = g; });
+      db.ref('pilgrims').set(PILGRIMS.length === 0 ? null : obj);
       showStaffPage();
     }
 
@@ -3187,22 +3187,22 @@
     // ────────────────────────────────────────────────────────────
     //  今日結帳
     // ────────────────────────────────────────────────────────────
-    let _svPrice = 0, _svQty = 1, _numGuides = 1, _selectedGuides = [];
+    let _svPrice = 0, _svQty = 1, _numPilgrims = 1, _selectedPilgrims = [];
 
     function _onSettleInput(id, val) {
       if (id === 'settle-sv-price')   _svPrice   = parseInt(val) || 0;
       if (id === 'settle-sv-qty')     _svQty     = Math.max(1, parseInt(val) || 1);
-      if (id === 'settle-num-guides') _numGuides = Math.max(1, parseInt(val) || 1);
+      if (id === 'settle-num-pilgrims') _numPilgrims = Math.max(1, parseInt(val) || 1);
       const pos = document.getElementById(id)?.selectionStart;
       showSettlementPage();
       const el = document.getElementById(id);
       if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch(e) {} }
     }
 
-    function toggleGuideSelect(name) {
-      const i = _selectedGuides.indexOf(name);
-      if (i >= 0) _selectedGuides.splice(i, 1);
-      else _selectedGuides.push(name);
+    function togglePilgrimSelect(name) {
+      const i = _selectedPilgrims.indexOf(name);
+      if (i >= 0) _selectedPilgrims.splice(i, 1);
+      else _selectedPilgrims.push(name);
       showSettlementPage();
     }
 
@@ -3210,10 +3210,10 @@
       // 保留輸入值
       const pEl = document.getElementById('settle-sv-price');
       const qEl = document.getElementById('settle-sv-qty');
-      const gEl = document.getElementById('settle-num-guides');
+      const gEl = document.getElementById('settle-num-pilgrims');
       if (pEl) _svPrice   = parseInt(pEl.value) || 0;
       if (qEl) _svQty     = Math.max(1, parseInt(qEl.value) || 1);
-      if (gEl) _numGuides = Math.max(1, parseInt(gEl.value) || 1);
+      if (gEl) _numPilgrims = Math.max(1, parseInt(gEl.value) || 1);
 
       const today = getBusinessDate();
       const tv = visits.filter(v => v.date === today);
@@ -3241,17 +3241,17 @@
         });
       });
 
-      const guideNms   = new Set(GUIDES.map(g => g.name));
+      const pilgrimNms   = new Set(PILGRIMS.map(g => g.name));
       const allNames   = Object.keys(aMap);
-      const names      = allNames.filter(n => !guideNms.has(n));  // apostles only for svPerA calc
-      const guidePhotoNames = allNames.filter(n => guideNms.has(n));
+      const names      = allNames.filter(n => !pilgrimNms.has(n));  // apostles only for svPerA calc
+      const pilgrimPhotoNames = allNames.filter(n => pilgrimNms.has(n));
       const numA   = names.length || 1;
 
       // 紀念品計算
       const svTotal  = _svPrice * _svQty;
       const svHouse  = Math.floor(svTotal * 0.7);
       const svPool   = Math.floor(svTotal * 0.2); // 使徒總池
-      const svGuide  = svTotal - svHouse - svPool;
+      const svPilgrim  = svTotal - svHouse - svPool;
       const svPerA   = numA > 0 ? Math.floor(svPool / numA) : 0;
 
       // 匯總
@@ -3264,8 +3264,8 @@
         totPhotoSig    += aMap[n].photoSig;
         totHouseOther  += aMap[n].houseOther;
       });
-      // Include guide photos in house-side photo count (guides still get 20,000 each; house gets 80,000)
-      guidePhotoNames.forEach(n => {
+      // Include pilgrim photos in house-side photo count (pilgrims still get 20,000 each; house gets 80,000)
+      pilgrimPhotoNames.forEach(n => {
         totPhotos      += aMap[n].photos;
         totPhotoExtras += aMap[n].photoExtras;
       });
@@ -3274,9 +3274,9 @@
 
       const photoHouseCut = totPhotos * 80000 + totPhotoSig + totExtraSig;
 
-      const numGuidesEff = GUIDES.length ? (_selectedGuides.length || 1) : _numGuides;
-      const guidePool  = Math.floor(totWreath * 0.1) + svGuide;
-      const guideEach  = numGuidesEff > 0 ? Math.floor(guidePool / numGuidesEff) : 0;
+      const numPilgrimsEff = PILGRIMS.length ? (_selectedPilgrims.length || PILGRIMS.length) : _numPilgrims;
+      const pilgrimPool  = Math.floor(totWreath * 0.1) + svPilgrim;
+      const pilgrimEach  = numPilgrimsEff > 0 ? Math.floor(pilgrimPool / numPilgrimsEff) : 0;
       const houseTotal = Math.floor(totWreath * 0.7) + photoHouseCut + svHouse + totOrders + totHouseOther;
 
       // 使徒區塊
@@ -3310,11 +3310,11 @@
         const a = aMap[n];
         return s + Math.floor(a.wreath*0.2) + a.nomen + a.photos*20000 + a.photoExtras*20000 + svPerA;
       }, 0);
-      // Guide photo cuts (separate from guide pool)
-      const guidePhotoCuts = guidePhotoNames.reduce((s,n) => {
+      // Pilgrim photo cuts (separate from pilgrim pool)
+      const pilgrimPhotoCuts = pilgrimPhotoNames.reduce((s,n) => {
         const a = aMap[n]; return s + a.photos*20000 + a.photoExtras*20000;
       }, 0);
-      const guidePhotoLines = guidePhotoNames.map(n => {
+      const pilgrimPhotoLines = pilgrimPhotoNames.map(n => {
         const a = aMap[n];
         const pCut  = a.photos * 20000;
         const exCut = a.photoExtras * 20000;
@@ -3327,17 +3327,18 @@
             `</div>`
           : '';
       }).filter(Boolean).join('');
-      // 引路人個人薪酬明細 (when named guides are selected)
-      const guideSettleBlocks = (GUIDES.length && _selectedGuides.length) ? _selectedGuides.map(name => {
+      // 引路人個人薪酬明細
+      const _pilgrimBlockList = PILGRIMS.length ? (_selectedPilgrims.length ? _selectedPilgrims : PILGRIMS.map(g => g.name)) : [];
+      const pilgrimSettleBlocks = _pilgrimBlockList.length ? _pilgrimBlockList.map(name => {
         const a = aMap[name] || { photos: 0, photoExtras: 0 };
-        const wreathShare = totWreath && numGuidesEff > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numGuidesEff) : 0;
-        const svShare     = svGuide   && numGuidesEff > 0 ? Math.floor(svGuide / numGuidesEff) : 0;
+        const wreathShare = totWreath && numPilgrimsEff > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numPilgrimsEff) : 0;
+        const svShare     = svPilgrim   && numPilgrimsEff > 0 ? Math.floor(svPilgrim / numPilgrimsEff) : 0;
         const pCut  = (a.photos || 0) * 20000;
         const exCut = (a.photoExtras || 0) * 20000;
         const sub   = wreathShare + svShare + pCut + exCut;
         const rows = [
-          totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numGuidesEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numGuidesEff}</span><span class="settle-row-cut">${wreathShare.toLocaleString()}</span></div>` : '',
-          svGuide   ? `<div class="settle-row"><span class="settle-row-lbl">紀念品分潤（÷ ${numGuidesEff}）</span><span class="settle-row-base">${svGuide.toLocaleString()}</span><span class="settle-row-rate">÷ ${numGuidesEff}</span><span class="settle-row-cut">${svShare.toLocaleString()}</span></div>` : '',
+          totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numPilgrimsEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numPilgrimsEff}</span><span class="settle-row-cut">${wreathShare.toLocaleString()}</span></div>` : '',
+          svPilgrim   ? `<div class="settle-row"><span class="settle-row-lbl">紀念品分潤（÷ ${numPilgrimsEff}）</span><span class="settle-row-base">${svPilgrim.toLocaleString()}</span><span class="settle-row-rate">÷ ${numPilgrimsEff}</span><span class="settle-row-cut">${svShare.toLocaleString()}</span></div>` : '',
           pCut      ? `<div class="settle-row"><span class="settle-row-lbl">交名留影</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
           exCut     ? `<div class="settle-row"><span class="settle-row-lbl">多人合照</span><span class="settle-row-base">${a.photoExtras} 人</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${exCut.toLocaleString()}</span></div>` : '',
         ].filter(Boolean).join('');
@@ -3352,7 +3353,7 @@
 
       const recorded  = tv.reduce((s,v) => s + (v.total||0), 0);
       const revenue   = recorded + svTotal;
-      const wages     = apostleTotal + guidePool + guidePhotoCuts;
+      const wages     = apostleTotal + pilgrimPool + pilgrimPhotoCuts;
       const profit    = houseTotal;
 
       document.getElementById('pos-content').innerHTML = `
@@ -3366,15 +3367,15 @@
             <input id="settle-sv-qty" type="number" class="settle-input" placeholder="數量" value="${_svQty}" min="1" style="width:64px" oninput="_onSettleInput('settle-sv-qty',this.value)">
             <span style="color:var(--dim)">=</span>
             <span style="color:var(--gold);font-weight:700;font-size:1rem">${svTotal.toLocaleString()} Gil</span>
-            ${svTotal ? `<span style="font-size:12px;color:var(--dim)">（店家 ${svHouse.toLocaleString()} ／使徒 ${svPool.toLocaleString()} ／引路人 ${svGuide.toLocaleString()}）</span>` : ''}
+            ${svTotal ? `<span style="font-size:12px;color:var(--dim)">（店家 ${svHouse.toLocaleString()} ／使徒 ${svPool.toLocaleString()} ／引路人 ${svPilgrim.toLocaleString()}）</span>` : ''}
           </div>
           <div class="settle-sv-row" style="margin-top:0;align-items:flex-start">
             <span style="font-size:12px;color:var(--dim);letter-spacing:.06em;min-width:48px;padding-top:.25rem">引路人</span>
-            ${GUIDES.length
+            ${PILGRIMS.length
               ? `<div style="display:flex;flex-wrap:wrap;gap:.3rem">
-                  ${GUIDES.map(g => `<button class="btn btn-sm ${_selectedGuides.includes(g.name) ? 'btn-gold' : 'btn-outline'}" style="font-size:12px;padding:.2rem .55rem" onclick="toggleGuideSelect(${JSON.stringify(g.name)})">${esc(g.name)}</button>`).join('')}
+                  ${PILGRIMS.map(g => `<button class="btn btn-sm ${_selectedPilgrims.includes(g.name) ? 'btn-gold' : 'btn-outline'}" style="font-size:12px;padding:.2rem .55rem" onclick="togglePilgrimSelect(${JSON.stringify(g.name)})">${esc(g.name)}</button>`).join('')}
                  </div>`
-              : `<input id="settle-num-guides" type="number" class="settle-input" placeholder="人數" value="${_numGuides}" min="1" max="4" style="width:64px" oninput="_onSettleInput('settle-num-guides',this.value)">
+              : `<input id="settle-num-pilgrims" type="number" class="settle-input" placeholder="人數" value="${_numPilgrims}" min="1" max="4" style="width:64px" oninput="_onSettleInput('settle-num-pilgrims',this.value)">
                  <span style="font-size:12px;color:var(--dim)">位</span>`
             }
           </div>
@@ -3384,21 +3385,21 @@
 
         <div class="settle-sub-lbl">店員薪酬</div>
         ${apostleBlocks}
-        ${guideSettleBlocks}
+        ${pilgrimSettleBlocks}
 
         <div class="settle-divider"></div>
 
         <div class="settle-other-grid">
           <div class="settle-other-card">
-            <div class="settle-other-lbl">引路人（接待）× ${numGuidesEff} 位</div>
+            <div class="settle-other-lbl">引路人（接待）× ${numPilgrimsEff} 位</div>
             <div class="settle-other-detail">
               ${totWreath ? `入場費 ${totWreath.toLocaleString()} × 10% = ${Math.floor(totWreath*0.1).toLocaleString()}<br>` : ''}
-              ${svTotal   ? `紀念品 ${svTotal.toLocaleString()} × 10% = ${svGuide.toLocaleString()}<br>` : ''}
+              ${svTotal   ? `紀念品 ${svTotal.toLocaleString()} × 10% = ${svPilgrim.toLocaleString()}<br>` : ''}
               ${!totWreath && !svTotal ? '—<br>' : ''}
-              ${numGuidesEff > 1 ? `<span style="color:var(--text)">每位 ${guideEach.toLocaleString()} Gil</span>` : ''}
-              ${guidePhotoLines ? `<div style="border-top:1px solid var(--border);margin-top:.3rem;padding-top:.3rem;font-size:12px;color:var(--dim)">拍立得（引路人）${guidePhotoCuts.toLocaleString()} Gil${guidePhotoLines}</div>` : ''}
+              ${numPilgrimsEff > 1 ? `<span style="color:var(--text)">每位 ${pilgrimEach.toLocaleString()} Gil</span>` : ''}
+              ${pilgrimPhotoLines ? `<div style="border-top:1px solid var(--border);margin-top:.3rem;padding-top:.3rem;font-size:12px;color:var(--dim)">拍立得（引路人）${pilgrimPhotoCuts.toLocaleString()} Gil${pilgrimPhotoLines}</div>` : ''}
             </div>
-            <div class="settle-other-val">${(guidePool + guidePhotoCuts).toLocaleString()} Gil</div>
+            <div class="settle-other-val">${(pilgrimPool + pilgrimPhotoCuts).toLocaleString()} Gil</div>
           </div>
           <div class="settle-other-card">
             <div class="settle-other-lbl">店家</div>
@@ -3422,7 +3423,7 @@
           <div class="settle-grand-val">${revenue.toLocaleString()} Gil</div>
         </div>
         <div class="settle-wages">
-          <span>薪酬支出（使徒 ${apostleTotal.toLocaleString()} ＋ 引路人 ${(guidePool + guidePhotoCuts).toLocaleString()}）</span>
+          <span>薪酬支出（使徒 ${apostleTotal.toLocaleString()} ＋ 引路人 ${(pilgrimPool + pilgrimPhotoCuts).toLocaleString()}）</span>
           <span style="color:var(--red)">－ ${wages.toLocaleString()} Gil</span>
         </div>
         <div class="settle-profit ${profit >= 0 ? 'pos' : 'neg'}">
