@@ -430,11 +430,9 @@
   let _bulkWeeks = [];
 
   // 使用模組化 Auth SDK（IndexedDB persistence）解決 iOS Safari sessionStorage 問題
-  Promise.all([
-    import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
-    import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js'),
-  ]).then(([appM, authM]) => {
-    const app = appM.getApp(); // 取得模組化 app（非 compat 包裝器）
+  import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js').then(authM => {
+    // firebase.app()._delegate 是 compat 包裝器底下的真正 modular FirebaseApp
+    const app = firebase.app()._delegate;
 
     _GoogleAuthProvider = authM.GoogleAuthProvider;
     _signInWithPopup    = (provider) => authM.signInWithPopup(auth, provider);
