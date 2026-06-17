@@ -1383,7 +1383,7 @@
                     ${(v.tips||[]).map(t=>`<div style="font-size:12px;color:var(--gold);margin-top:2px">打賞 ${t.amount.toLocaleString()} → ${esc(t.to)}</div>`).join('')}
                     <div style="display:flex;gap:.35rem;margin-top:4px;flex-wrap:wrap">
                       ${v.date === _today && isNomenVisit && !visits.some(x=>x.customerId===v.customerId&&x.date===_today&&x.id!==v.id&&isNomenRecord(x)&&(x.time||'')>(v.time||'')) ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="addOvertime('${v.id}')">加時</button>` : ''}
-                      <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="openAddTipModal('${v.id}','${id}')">＋ 打賞</button>
+                      ${v.date === _today ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="openAddTipModal('${v.id}','${id}')">＋ 打賞</button>` : ''}
                       ${isEditableVisit(v) ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="openEditVisit('${v.id}','${id}')">編輯</button>` : ''}
                       ${v.date === _today ? `<button class="btn btn-sm" style="font-size:11px;padding:.15rem .45rem;color:var(--red);border:1px solid rgba(192,80,80,.35);background:rgba(192,80,80,.08)" onclick="deleteVisit('${v.id}','${id}')">刪除</button>` : ''}
                     </div>
@@ -1553,26 +1553,20 @@
         </div>
 
         <div class="pos-card">
-          <div class="pos-card-title">拍立得 — 使徒</div>
-          ${(function(){
-            const staff = photoStaff();
-            return staff.length
-              ? `<select class="pos-select" id="v-apostle" style="width:100%">
-                  <option value="">選擇使徒 / 引路人（如有拍立得）</option>
-                  ${staff.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
-                 </select>`
-              : `<input class="pos-input" id="v-apostle" type="text" placeholder="拍立得使徒名稱（選填）">`;
-          })()}
-        </div>
-
-        <div class="pos-card">
-          <div class="pos-card-title">單點服務</div>
+          <div class="pos-card-title">單點拍立得</div>
+          <div style="margin-bottom:.75rem">
+            ${(function(){
+              const staff = photoStaff();
+              return staff.length
+                ? `<select class="pos-select" id="v-apostle" style="width:100%">
+                    <option value="">選擇使徒 / 引路人</option>
+                    ${staff.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
+                   </select>`
+                : `<input class="pos-input" id="v-apostle" type="text" placeholder="使徒 / 引路人名稱（選填）">`;
+            })()}
+          </div>
           <div class="svc-list">
-            ${SERVICES.filter(s => !s.id.startsWith('wreath') && s.id !== 'nomen30').map(s => s.disabled ? `
-            <div class="svc-item" style="opacity:.4;cursor:not-allowed;pointer-events:none">
-              <span class="svc-name">${s.name}</span>
-              <span class="svc-price" style="color:var(--dim);font-size:11px">即將開放</span>
-            </div>` : s.id === 'photo_extra' ? `
+            ${SERVICES.filter(s => ['photo','photo_sig','photo_extra'].includes(s.id)).map(s => s.id === 'photo_extra' ? `
             <div class="svc-item" id="svc-photo_extra">
               <span class="svc-name">${s.name}</span>
               <span class="svc-price">${s.price.toLocaleString()} Gil</span>
@@ -1582,6 +1576,21 @@
                 <button class="qty-btn" onclick="event.stopPropagation();changePhotoExtra(1)">＋</button>
               </div>
               <div id="photo-extra-selectors"></div>
+            </div>` : `
+            <div class="svc-item" id="svc-${s.id}" onclick="toggleSvc('${s.id}')">
+              <span class="svc-name">${s.name}</span>
+              <span class="svc-price">${s.price.toLocaleString()} Gil</span>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="pos-card">
+          <div class="pos-card-title">單點服務</div>
+          <div class="svc-list">
+            ${SERVICES.filter(s => !s.id.startsWith('wreath') && s.id !== 'nomen30' && !['photo','photo_sig','photo_extra'].includes(s.id)).map(s => s.disabled ? `
+            <div class="svc-item" style="opacity:.4;cursor:not-allowed;pointer-events:none">
+              <span class="svc-name">${s.name}</span>
+              <span class="svc-price" style="color:var(--dim);font-size:11px">即將開放</span>
             </div>` : `
             <div class="svc-item" id="svc-${s.id}" onclick="toggleSvc('${s.id}')">
               <span class="svc-name">${s.name}</span>
