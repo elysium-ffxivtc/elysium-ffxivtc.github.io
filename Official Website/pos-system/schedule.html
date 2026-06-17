@@ -786,9 +786,9 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
         let sc = 'slot-row';
         if (mine && !onLeave) sc += ' mine';
         else if (onLeave)     sc += ' mine on-leave';
-        else if (count > 0)   sc += ' has-staff';
+        else if (readOnly && count > 0) sc += ' has-staff';
         if (locked) sc += ' locked';
-        const badge = count > 0 ? `<span class="slot-cnt">${count}</span>` : '';
+        const badge = readOnly && count > 0 ? `<span class="slot-cnt">${count}</span>` : '';
         const action = readOnly
           ? `onclick="openSlotView('${date}','${t}')"`
           : `onclick="tapSlot('${date}','${t}')"`;
