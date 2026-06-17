@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <style>
     :root {
       --gold:     #8a5c1e;
@@ -567,9 +568,41 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── Mobile block ── */
+    #pos-mobile-block { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--bg); flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; }
+    @media (max-width: 1100px) { #pos-mobile-block { display: flex; } }
+    .mobile-block-icon { font-size: 3rem; opacity: .5; }
+    .mobile-block-title { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; color: var(--text); letter-spacing: .08em; }
+    .mobile-block-sub { font-size: 13px; color: var(--dim); text-align: center; line-height: 1.7; }
+
+    /* ── Auth overlay ── */
+    #pos-auth-overlay { display: none; position: fixed; inset: 0; z-index: 9000; background: var(--bg); align-items: center; justify-content: center; }
+    #pos-auth-overlay.show { display: flex; }
+    .pos-auth-box { background: var(--card); border: 1px solid var(--border); padding: 2.5rem 2.25rem; width: 340px; text-align: center; }
+    .pos-auth-logo { font-family: 'Noto Serif TC', serif; font-size: 1.2rem; color: var(--gold); letter-spacing: .15em; margin-bottom: .4rem; }
+    .pos-auth-sub { font-size: 13px; color: var(--dim); margin-bottom: 2rem; }
+    .pos-auth-err { font-size: 12px; color: var(--red); min-height: 1.2em; margin-top: 1rem; }
   </style>
 </head>
 <body>
+
+  <!-- Mobile block -->
+  <div id="pos-mobile-block">
+    <div class="mobile-block-icon">🖥</div>
+    <div class="mobile-block-title">安息地 · POS系統</div>
+    <div class="mobile-block-sub">此系統僅支援桌機操作<br>請使用電腦開啟此頁面</div>
+  </div>
+
+  <!-- Auth overlay -->
+  <div id="pos-auth-overlay" class="show">
+    <div class="pos-auth-box">
+      <div class="pos-auth-logo">✦ 安息地管理系統</div>
+      <div class="pos-auth-sub">POS · 僅限授權人員使用</div>
+      <button class="btn btn-gold" style="width:100%" onclick="signInGoogle()">Google 登入</button>
+      <div class="pos-auth-err" id="pos-auth-err"></div>
+    </div>
+  </div>
 
   <header class="pos-header">
     <div class="pos-header-title">✦ 安息地管理系統</div>
@@ -742,7 +775,7 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
     let APOSTLES = [];
     let GUIDES   = [];
-    let userMode = localStorage.getItem('posMode') || 'guide'; // pontifex | custodian | guide
+    let posUser  = null; // { uid, displayName, role: 'admin'|'staff' }
 
     function photoStaff() {
       return [
@@ -853,8 +886,38 @@
         appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
       });
       db = firebase.database();
+      const auth = firebase.auth();
 
-      // ── POS 資料監聽 ──
+      firebase.auth().onAuthStateChanged(async user => {
+        if (!user) {
+          document.getElementById('pos-auth-overlay').classList.add('show');
+          posUser = null;
+          return;
+        }
+        try {
+          const snap = await db.ref('staff/' + user.uid).get();
+          if (!snap.exists()) {
+            document.getElementById('pos-auth-err').textContent = '帳號尚未授權，請聯絡管理員';
+            await firebase.auth().signOut();
+            return;
+          }
+          const s = snap.val();
+          posUser = { uid: user.uid, displayName: s.displayName, role: s.role };
+          document.getElementById('pos-auth-overlay').classList.remove('show');
+          applyUserMode();
+          updateModeIndicator();
+          startListeners();
+        } catch(e) {
+          document.getElementById('pos-auth-err').textContent = '系統錯誤：' + e.message;
+        }
+      });
+
+    } catch (fbInitErr) {
+      console.error('Firebase 初始化失敗:', fbInitErr.message);
+    }
+
+    function startListeners() {
+      if (!db) return;
       const onFbErr = key => err => {
         console.error(`Firebase ${key} error:`, err.message);
         _ready[key] = true; tryInit();
@@ -874,8 +937,6 @@
         _ready.events = true;
         _uiInited ? fbRefresh() : tryInit();
       }, onFbErr('events'));
-
-      // ── 共用資料監聽 ──
       db.ref('guides').on('value', snap => {
         GUIDES = snap.val() ? Object.values(snap.val()) : [];
         renderApostleStatus();
@@ -889,9 +950,18 @@
         bizStatus = snap.val() || {};
         updateBizBtn();
       });
+    }
 
-    } catch (fbInitErr) {
-      console.error('Firebase 初始化失敗:', fbInitErr.message);
+    function signInGoogle() {
+      document.getElementById('pos-auth-err').textContent = '';
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider).catch(e => {
+        document.getElementById('pos-auth-err').textContent = '登入失敗：' + e.message;
+      });
+    }
+
+    function doSignOut() {
+      firebase.auth().signOut();
     }
 
     function tryInit() {
@@ -2660,44 +2730,26 @@
     }
 
     // ────────────────────────────────────────────────────────────
-    //  身份切換（司祭 / 監禮者 / 引路人）
+    //  身份 / 權限
     // ────────────────────────────────────────────────────────────
-    const ROLE_NAMES = { pontifex: '司祭', custodian: '監禮者', guide: '引路人' };
-    const ADMIN_ROLES = ['pontifex', 'custodian'];
-
-    function isAdmin() { return ADMIN_ROLES.includes(userMode); }
+    function isAdmin() { return posUser?.role === 'admin'; }
 
     function applyUserMode() {
-      if (userMode === 'guide') {
-        document.body.classList.add('guide-mode');
-      } else {
+      if (isAdmin()) {
         document.body.classList.remove('guide-mode');
+      } else {
+        document.body.classList.add('guide-mode');
       }
-      updateModeIndicator();
       const adminOnly = ['stats','activity','settlement','staff'];
       if (!isAdmin() && adminOnly.includes(currentNav)) setNav('customer');
     }
 
     function updateModeIndicator() {
       const el = document.getElementById('mode-indicator');
-      if (!el) return;
-      const name = ROLE_NAMES[userMode] || userMode;
-      const isG  = userMode === 'guide';
+      if (!el || !posUser) return;
       el.innerHTML = `
-        <span style="font-size:11px;color:${isG?'var(--dim)':'var(--gold)'}">${name}</span>
-        <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.2rem .5rem" onclick="switchRolePrompt()">切換身份</button>`;
-    }
-
-    function switchRolePrompt() {
-      const keys  = Object.keys(ROLE_NAMES);
-      const lines = keys.map((k,i) => `${i+1}. ${ROLE_NAMES[k]}`).join('\n');
-      const choice = prompt('切換身份：\n' + lines + '\n\n請輸入數字：');
-      if (!choice) return;
-      const idx = parseInt(choice.trim()) - 1;
-      if (idx < 0 || idx >= keys.length) return;
-      userMode = keys[idx];
-      localStorage.setItem('posMode', userMode);
-      applyUserMode();
+        <span style="font-size:12px;color:var(--dim)">${posUser.displayName}</span>
+        <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.2rem .5rem" onclick="doSignOut()">登出</button>`;
     }
 
     // ────────────────────────────────────────────────────────────
