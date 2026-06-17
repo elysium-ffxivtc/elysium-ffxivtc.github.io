@@ -3365,7 +3365,7 @@
         ].filter(Boolean).join('');
         return `<div class="settle-block">
           <div class="settle-block-hdr">
-            <div><span class="settle-block-name">${esc(name)}</span><span style="font-size:11px;color:var(--dim);margin-left:.35rem">引路人</span></div>
+            <span class="settle-block-name">${esc(name)}</span>
             <span class="settle-block-total">${sub.toLocaleString()} Gil</span>
           </div>
           <div class="settle-rows">${rows || '<div style="font-size:13px;color:var(--dim);padding:.2rem 0">無紀錄</div>'}</div>
@@ -3410,18 +3410,21 @@
 
         <div class="settle-divider"></div>
 
-        <div class="settle-other-grid">
-          <div class="settle-other-card">
-            <div class="settle-other-lbl">店家</div>
-            <div class="settle-other-detail">
-              ${totWreath    ? `入場費 × 70% = ${Math.floor(totWreath*0.7).toLocaleString()}<br>` : ''}
-              ${totPhotos    ? `交名留影（店家）= ${(totPhotos*80000).toLocaleString()}<br>` : ''}
-              ${totPhotoSig  ? `加簽 = ${totPhotoSig.toLocaleString()}<br>` : ''}
-              ${svTotal      ? `紀念品 × 70% = ${svHouse.toLocaleString()}<br>` : ''}
-              ${totOrders    ? `餐飲 = ${totOrders.toLocaleString()}<br>` : ''}
-              ${totHouseOther? `其他 = ${totHouseOther.toLocaleString()}` : ''}
-            </div>
-            <div class="settle-other-val">${houseTotal.toLocaleString()} Gil</div>
+        <div class="settle-block" style="margin-bottom:1.1rem">
+          <div class="settle-block-hdr">
+            <span class="settle-block-name">店家</span>
+            <span class="settle-block-total">${houseTotal.toLocaleString()} Gil</span>
+          </div>
+          <div class="settle-rows">
+            ${[
+              totWreath     ? `<div class="settle-row"><span class="settle-row-lbl">入場費（花環）</span><span class="settle-row-base">${totWreath.toLocaleString()}</span><span class="settle-row-rate">× 70%</span><span class="settle-row-cut">${Math.floor(totWreath*0.7).toLocaleString()}</span></div>` : '',
+              totPhotos     ? `<div class="settle-row"><span class="settle-row-lbl">交名留影（店家）</span><span class="settle-row-base">${totPhotos} 張</span><span class="settle-row-rate">固定 80,000</span><span class="settle-row-cut">${(totPhotos*80000).toLocaleString()}</span></div>` : '',
+              totPhotoSig   ? `<div class="settle-row"><span class="settle-row-lbl">加簽（交名留影）</span><span class="settle-row-base">${totPhotoSig.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totPhotoSig.toLocaleString()}</span></div>` : '',
+              totExtraSig   ? `<div class="settle-row"><span class="settle-row-lbl">加簽（多人合照）</span><span class="settle-row-base">${totExtraSig.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totExtraSig.toLocaleString()}</span></div>` : '',
+              svTotal       ? `<div class="settle-row"><span class="settle-row-lbl">紀念品</span><span class="settle-row-base">${svTotal.toLocaleString()}</span><span class="settle-row-rate">× 70%</span><span class="settle-row-cut">${svHouse.toLocaleString()}</span></div>` : '',
+              totOrders     ? `<div class="settle-row"><span class="settle-row-lbl">餐飲</span><span class="settle-row-base">${totOrders.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totOrders.toLocaleString()}</span></div>` : '',
+              totHouseOther ? `<div class="settle-row"><span class="settle-row-lbl">其他</span><span class="settle-row-base">${totHouseOther.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totHouseOther.toLocaleString()}</span></div>` : '',
+            ].filter(Boolean).join('') || '<div style="font-size:13px;color:var(--dim);padding:.2rem 0">無紀錄</div>'}
           </div>
         </div>
 
