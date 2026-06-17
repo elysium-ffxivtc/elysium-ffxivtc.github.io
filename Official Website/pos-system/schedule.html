@@ -57,10 +57,17 @@
     .anno-empty:hover { color: var(--gold); }
 
     /* ── Biz summary ── */
-    .biz-sum-card { background: rgba(200,152,74,.14); border-left: 4px solid var(--gold); padding: .9rem 1.15rem; margin-bottom: .75rem; display: flex; align-items: center; gap: 1rem; }
-    .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 3rem; font-weight: 700; color: #e8b060; line-height: 1; min-width: 3rem; text-align: center; }
-    .biz-sum-title { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: .03em; }
-    .biz-sum-dates { font-size: 12px; color: #e8b060; margin-top: .3rem; line-height: 1.6; }
+    .biz-sum-card { background: rgba(200,152,74,.1); border: 1px solid rgba(200,152,74,.25); border-left: 4px solid var(--gold); padding: .9rem 1.15rem; margin-bottom: .75rem; }
+    .biz-sum-title { font-size: 12px; color: var(--dim); }
+    /* desktop */
+    .biz-sum-hdr { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .7rem; }
+    .biz-sum-count { font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weight: 700; color: #e8b060; line-height: 1; }
+    .biz-sum-unit { font-size: 13px; color: var(--dim); }
+    .biz-sum-grid { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .biz-date-card { background: var(--bg); border: 1px solid rgba(200,152,74,.22); padding: .4rem .65rem; text-align: center; min-width: 46px; }
+    .biz-date-mo { font-size: 10px; color: var(--dim); margin-bottom: 2px; }
+    .biz-date-day { font-size: 1.35rem; font-weight: 700; color: #e8b060; line-height: 1.1; font-family: 'Noto Serif TC', serif; }
+    .biz-sum-mobile { display: none; }
 
     /* ── Two-column layout ── */
     .schedule-layout { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 1.25rem; align-items: start; }
@@ -108,7 +115,11 @@
       /* ── Announcement / Biz summary ── */
       .anno-text { font-size: 12px; }
       .biz-sum-card { padding: .65rem .85rem; }
-      .biz-sum-num { font-size: 2.4rem; min-width: 2.4rem; }
+      .biz-sum-desktop { display: none; }
+      .biz-sum-mobile { display: flex; align-items: center; gap: .85rem; }
+      .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: #e8b060; line-height: 1; min-width: 2.4rem; text-align: center; }
+      .biz-sum-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .3rem; }
+      .biz-date-tag { font-size: 11px; background: rgba(200,152,74,.18); color: #e8b060; padding: .15rem .45rem; }
     }
 
     /* ── Month nav ── */
@@ -676,12 +687,32 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
       .filter(([d, b]) => d.startsWith(monthPrefix) && b.isOpen)
       .map(([d]) => d).sort();
     if (!bizDates.length) return '';
-    const labels = bizDates.map(d => `${pad(parseInt(d.slice(5)))}/${pad(parseInt(d.slice(8)))}`).join('・');
+    const mo = viewMonth + 1;
+    const count = bizDates.length;
+    const dateCards = bizDates.map(d =>
+      `<div class="biz-date-card">
+        <div class="biz-date-mo">${pad(parseInt(d.slice(5)))}月</div>
+        <div class="biz-date-day">${pad(parseInt(d.slice(8)))}</div>
+      </div>`
+    ).join('');
+    const dateTags = bizDates.map(d =>
+      `<span class="biz-date-tag">${pad(parseInt(d.slice(5)))}/${pad(parseInt(d.slice(8)))}</span>`
+    ).join('');
     return `<div class="biz-sum-card">
-      <div class="biz-sum-num">${bizDates.length}</div>
-      <div>
-        <div class="biz-sum-title">${viewMonth + 1}月預計營業天數</div>
-        <div class="biz-sum-dates">${labels}</div>
+      <div class="biz-sum-desktop">
+        <div class="biz-sum-hdr">
+          <span class="biz-sum-title">${mo}月預計營業天數</span>
+          <span class="biz-sum-count">${count}</span>
+          <span class="biz-sum-unit">天</span>
+        </div>
+        <div class="biz-sum-grid">${dateCards}</div>
+      </div>
+      <div class="biz-sum-mobile">
+        <div class="biz-sum-num">${count}</div>
+        <div>
+          <div class="biz-sum-title">${mo}月預計營業天數</div>
+          <div class="biz-sum-tags">${dateTags}</div>
+        </div>
       </div>
     </div>`;
   }
