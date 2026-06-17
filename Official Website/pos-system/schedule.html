@@ -31,7 +31,8 @@
     .hdr-clock { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: .5rem; }
     .hdr-clock-time { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--gold); letter-spacing: .05em; }
     .hdr-clock-date { font-size: 12px; color: var(--dim); }
-    .user-badge { display: flex; align-items: center; gap: .5rem; font-size: 12px; }
+    .user-badge { display: flex; align-items: center; gap: .5rem; font-size: 12px; min-width: 0; }
+    .user-badge-name { color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
 
     /* ── Main ── */
     .main { flex: 1; padding: .85rem; max-width: 1280px; width: 100%; margin: 0 auto; }
@@ -62,7 +63,46 @@
 
     /* ── Two-column layout ── */
     .schedule-layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 1rem; align-items: start; }
-    @media (max-width: 640px) { .schedule-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) {
+      /* ── Header ── */
+      .hdr { padding: .5rem .7rem; gap: .5rem; }
+      .hdr-title { font-size: .82rem; letter-spacing: .08em; white-space: nowrap; }
+      .hdr-clock-date { display: none; }
+      .hdr-clock-time { font-size: .82rem; }
+
+      /* ── Main ── */
+      .main { padding: .55rem .45rem; }
+      .cal-tab-content { padding: .6rem .4rem; }
+
+      /* ── Calendar ── */
+      .slot-row { min-height: 20px; padding: 2px 2px; }
+      .slot-hr { font-size: 9px; }
+
+      /* ── Sub-tab bar ── */
+      .sub-tab-btn { padding: .32rem .8rem .38rem; font-size: 11px; }
+
+      /* ── Personal panel ── */
+      .schedule-layout { grid-template-columns: 1fr; }
+      .personal-panel { position: static; }
+      .panel-card { max-height: none; }
+
+      /* ── Cards ── */
+      .card { padding: .75rem .8rem; }
+
+      /* ── Modal ── */
+      .modal-overlay { padding-top: 2vh; align-items: flex-start; }
+      .modal-box { padding: 1rem .9rem; width: 100%; max-width: 100vw; max-height: 92vh; border-left: none; border-right: none; border-radius: 0; }
+
+      /* ── Accounts rows ── */
+      .acct-row { font-size: 12px; }
+
+      /* ── Auth box ── */
+      .auth-box { width: 100%; padding: 2rem 1.5rem; }
+
+      /* ── Announcement / Biz summary ── */
+      .anno-text { font-size: 12px; }
+      .biz-sum-card { padding: .6rem .8rem; }
+    }
 
     /* ── Month nav ── */
     .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
@@ -480,9 +520,9 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     const el = document.getElementById('user-badge');
     el.style.display = 'flex';
     el.innerHTML = `
-      <span style="color:var(--dim)">${esc(currentUser.displayName)}</span>
-      <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border)">${ROLE_LABEL[currentUser.role]||''}</span>
-      <button class="btn btn-outline btn-sm" onclick="doSignOut()" style="font-size:11px;padding:.2rem .55rem">登出</button>`;
+      <span class="user-badge-name">${esc(currentUser.displayName)}</span>
+      <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border);white-space:nowrap;flex-shrink:0">${ROLE_LABEL[currentUser.role]||''}</span>
+      <button class="btn btn-outline btn-sm" onclick="doSignOut()" style="font-size:11px;padding:.2rem .55rem;white-space:nowrap;flex-shrink:0">登出</button>`;
   }
 
   function signInGoogle() {
