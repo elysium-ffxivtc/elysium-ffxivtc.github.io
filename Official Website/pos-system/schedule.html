@@ -430,17 +430,22 @@
   let _bulkWeeks = [];
 
   // 使用模組化 Auth SDK（IndexedDB persistence）解決 iOS Safari sessionStorage 問題
-  import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js').then(m => {
-    _GoogleAuthProvider = m.GoogleAuthProvider;
-    _signInWithPopup    = (provider) => m.signInWithPopup(auth, provider);
-    _signOut            = () => m.signOut(auth);
+  Promise.all([
+    import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js'),
+  ]).then(([appM, authM]) => {
+    const app = appM.getApp(); // 取得模組化 app（非 compat 包裝器）
 
-    auth = m.initializeAuth(firebase.app(), {
-      persistence:           [m.indexedDBLocalPersistence],
-      popupRedirectResolver: m.browserPopupRedirectResolver,
+    _GoogleAuthProvider = authM.GoogleAuthProvider;
+    _signInWithPopup    = (provider) => authM.signInWithPopup(auth, provider);
+    _signOut            = () => authM.signOut(auth);
+
+    auth = authM.initializeAuth(app, {
+      persistence:           [authM.indexedDBLocalPersistence],
+      popupRedirectResolver: authM.browserPopupRedirectResolver,
     });
 
-    m.onAuthStateChanged(auth, async user => {
+    authM.onAuthStateChanged(auth, async user => {
       if (!user) { showScreen('login'); return; }
       try {
         const staffSnap = await db.ref('staff/' + user.uid).once('value');
@@ -465,6 +470,9 @@
         showScreen('login');
       }
     });
+  }).catch(e => {
+    document.getElementById('auth-err').textContent = '載入失敗：' + e.message;
+    showScreen('login');
   });
 
   function showScreen(s, user) {
