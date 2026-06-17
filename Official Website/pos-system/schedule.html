@@ -10,17 +10,17 @@
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     :root {
-      --gold:     #c8984a;
-      --gold-dim: rgba(200,152,74,.15);
-      --bg:       #141414;
-      --panel:    #1c1c1c;
-      --card:     #242424;
-      --border:   rgba(255,255,255,.11);
-      --text:     #f0ece8;
-      --dim:      #9a9a9a;
-      --green:    #5aaa7a;
-      --green-dim:rgba(90,170,122,.14);
-      --red:      #d06060;
+      --gold:     #8a5c1e;
+      --gold-dim: rgba(138,92,30,.12);
+      --bg:       #f5f0e8;
+      --panel:    #ece6d8;
+      --card:     #fdfaf5;
+      --border:   rgba(0,0,0,.1);
+      --text:     #1a1208;
+      --dim:      #7a6a52;
+      --green:    #2d7a50;
+      --green-dim:rgba(45,122,80,.1);
+      --red:      #b03838;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
@@ -45,7 +45,7 @@
     .sub-tab-row { display: flex; gap: 2px; margin-bottom: 0; }
     .sub-tab-btn { padding: .35rem 1.1rem .42rem; font-size: 12px; background: var(--panel); border: 1px solid var(--border); border-bottom: none; color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; position: relative; top: 1px; z-index: 0; }
     .sub-tab-btn.on { background: var(--card); border-color: var(--gold); border-bottom: 1px solid var(--card); color: var(--gold); z-index: 2; }
-    .sub-tab-btn:hover:not(.on) { color: var(--text); border-color: rgba(255,255,255,.3); z-index: 1; }
+    .sub-tab-btn:hover:not(.on) { color: var(--text); border-color: rgba(0,0,0,.15); z-index: 1; }
     .cal-tab-content { background: var(--card); border: 1px solid var(--border); padding: 1.1rem; position: relative; z-index: 1; }
 
     /* ── Announcement ── */
@@ -61,12 +61,12 @@
     .biz-sum-title { font-size: 12px; color: var(--dim); }
     /* desktop */
     .biz-sum-hdr { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .7rem; }
-    .biz-sum-count { font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weight: 700; color: #e8b060; line-height: 1; }
+    .biz-sum-count { font-family: 'Noto Serif TC', serif; font-size: 1.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
     .biz-sum-unit { font-size: 13px; color: var(--dim); }
     .biz-sum-grid { display: flex; flex-wrap: wrap; gap: .45rem; }
     .biz-date-card { background: var(--bg); border: 1px solid rgba(200,152,74,.22); padding: .5rem 1rem; text-align: center; min-width: 62px; }
     .biz-date-mo { font-size: 10px; color: var(--dim); margin-bottom: 2px; }
-    .biz-date-day { font-size: 1.35rem; font-weight: 700; color: #e8b060; line-height: 1.1; font-family: 'Noto Serif TC', serif; }
+    .biz-date-day { font-size: 1.35rem; font-weight: 700; color: var(--gold); line-height: 1.1; font-family: 'Noto Serif TC', serif; }
     .biz-sum-mobile { display: none; }
 
     /* ── Two-column layout ── */
@@ -114,12 +114,13 @@
 
       /* ── Announcement / Biz summary ── */
       .anno-text { font-size: 12px; }
-      .biz-sum-card { padding: .65rem .85rem; }
+      .biz-sum-card { padding: 0; overflow: hidden; border-left: 1px solid rgba(200,152,74,.25); }
       .biz-sum-desktop { display: none; }
-      .biz-sum-mobile { display: flex; align-items: center; gap: .85rem; }
-      .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: #1a1000; background: #e8b060; line-height: 1; min-width: 3rem; text-align: center; padding: .5rem .6rem; }
-      .biz-sum-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .3rem; }
-      .biz-date-tag { font-size: 11px; background: rgba(200,152,74,.18); color: #e8b060; padding: .15rem .45rem; }
+      .biz-sum-mobile { display: flex; align-items: stretch; }
+      .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: #1a1000; background: #e8b060; line-height: 1; display: flex; align-items: center; justify-content: center; padding: .6rem .9rem; flex-shrink: 0; }
+      .biz-sum-right { padding: .6rem .85rem; display: flex; flex-direction: column; justify-content: center; }
+      .biz-sum-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
+      .biz-date-tag { font-size: 11px; background: rgba(200,152,74,.18); color: var(--gold); padding: .15rem .45rem; }
     }
 
     /* ── Month nav ── */
@@ -133,7 +134,7 @@
     .legend-swatch { display: inline-flex; align-items: center; gap: .3rem; font-size: 11px; color: var(--dim); }
     .swatch-box { width: 10px; height: 10px; border: 1px solid; flex-shrink: 0; }
     .swatch-box.mine { background: var(--green-dim); border-color: var(--green); }
-    .swatch-box.avail { background: none; border-color: rgba(255,255,255,.18); }
+    .swatch-box.avail { background: none; border-color: rgba(0,0,0,.12); }
     .biz-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
     .biz-dot.open { background: var(--green); }
     .biz-dot.closed { background: var(--red); }
@@ -152,30 +153,30 @@
     .cal-day.past        { opacity: .38; }
     .cal-day.biz-day    { border: 1px solid rgba(90,170,122,.45); border-top: 3px solid rgba(90,170,122,.65); }
     .cal-day.today.biz-day { border-color: rgba(200,152,74,.6); border-top-color: rgba(200,152,74,.8); }
-    .cal-day-num { font-size: 11px; color: var(--dim); padding: 2px 4px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.04); display: flex; align-items: center; gap: 2px; line-height: 1.3; margin-bottom: 2px; }
+    .cal-day-num { font-size: 11px; color: var(--dim); padding: 2px 4px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,.04); display: flex; align-items: center; gap: 2px; line-height: 1.3; margin-bottom: 2px; }
     .cal-day.today .cal-day-num { color: var(--gold); font-weight: 700; background: rgba(200,152,74,.08); }
     .cal-day-num.clickable { cursor: pointer; }
-    .cal-day-num.clickable:hover { background: rgba(255,255,255,.05); color: var(--gold); }
+    .cal-day-num.clickable:hover { background: rgba(0,0,0,.05); color: var(--gold); }
 
     /* ── Slot rows ── */
     .slot-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 1px 2px; cursor: pointer; transition: background .1s;
-      min-height: 22px; border-bottom: 1px solid rgba(255,255,255,.04);
+      min-height: 22px; border-bottom: 1px solid rgba(0,0,0,.04);
     }
     .slot-row:last-child { border-bottom: none; }
-    .slot-row:hover { background: rgba(255,255,255,.05); }
+    .slot-row:hover { background: rgba(0,0,0,.05); }
     .slot-row.mine { background: var(--gold-dim); }
     .slot-row.mine:hover { background: rgba(200,152,74,.22); }
-    .slot-hr { font-size: 11px; color: rgba(255,255,255,.28); }
+    .slot-hr { font-size: 11px; color: rgba(0,0,0,.3); }
     @media (min-width: 641px) { .slot-hr::before { content: attr(data-time); } }
     .slot-row.mine .slot-hr { color: var(--gold); }
-    .slot-row.has-staff .slot-hr { color: rgba(255,255,255,.6); }
-    .slot-cnt { font-size: 11px; color: rgba(255,255,255,.3); background: rgba(255,255,255,.07); padding: 0 3px; min-width: 14px; text-align: center; }
+    .slot-row.has-staff .slot-hr { color: rgba(0,0,0,.55); }
+    .slot-cnt { font-size: 11px; color: rgba(0,0,0,.15); background: rgba(0,0,0,.07); padding: 0 3px; min-width: 14px; text-align: center; }
     .slot-row.mine .slot-cnt { color: var(--gold); background: rgba(200,152,74,.2); }
     .slot-row.has-staff .slot-cnt { color: var(--dim); }
     .slot-row.locked { opacity: .35; cursor: not-allowed; }
-    .slot-row.locked .slot-hr { color: rgba(255,255,255,.2); }
+    .slot-row.locked .slot-hr { color: rgba(0,0,0,.18); }
     .slot-row.mine.on-leave { background: rgba(208,96,96,.13); }
     .slot-row.mine.on-leave:hover { background: rgba(208,96,96,.2); }
     .slot-row.mine.on-leave .slot-hr { color: var(--red); opacity: .8; }
@@ -214,7 +215,7 @@
     .seg-row { display: flex; }
     .seg-btn { flex: 1; padding: .33rem .5rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; margin-right: -1px; position: relative; text-align: center; }
     .seg-btn.on { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); z-index: 1; }
-    .seg-btn:hover:not(.on) { color: var(--text); border-color: rgba(255,255,255,.25); z-index: 1; }
+    .seg-btn:hover:not(.on) { color: var(--text); border-color: rgba(0,0,0,.15); z-index: 1; }
     .seg-btn:disabled { opacity: .25; cursor: not-allowed; }
 
     /* ── Buttons ── */
@@ -238,7 +239,7 @@
     /* ── Cards ── */
     .card { background: var(--card); border: 1px solid var(--border); padding: .9rem 1rem; margin-bottom: .75rem; }
     .card-title { font-size: 11px; color: var(--dim); letter-spacing: .08em; margin-bottom: .65rem; }
-    .acct-row { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; }
+    .acct-row { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; padding: .45rem 0; border-bottom: 1px solid rgba(0,0,0,.05); font-size: 13px; }
     .acct-row:last-child { border-bottom: none; }
 
     /* ── Auth overlay ── */
@@ -259,7 +260,7 @@
     .modal-actions { display: flex; gap: .6rem; justify-content: flex-end; margin-top: 1rem; }
     .day-slot-block { margin-bottom: 1rem; }
     .day-slot-hdr { font-size: 12px; color: var(--gold); padding-bottom: .3rem; border-bottom: 1px solid var(--border); margin-bottom: .5rem; display: flex; align-items: center; justify-content: space-between; }
-    .person-row { display: flex; align-items: center; justify-content: space-between; padding: .3rem 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; }
+    .person-row { display: flex; align-items: center; justify-content: space-between; padding: .3rem 0; border-bottom: 1px solid rgba(0,0,0,.04); font-size: 13px; }
     .person-row:last-of-type { border-bottom: none; }
     .biz-toggle-row { display: flex; align-items: center; justify-content: space-between; padding-bottom: .85rem; margin-bottom: .85rem; border-bottom: 1px solid var(--border); }
 
@@ -709,7 +710,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
       </div>
       <div class="biz-sum-mobile">
         <div class="biz-sum-num">${count}</div>
-        <div>
+        <div class="biz-sum-right">
           <div class="biz-sum-title">當月預計營業天數</div>
           <div class="biz-sum-tags">${dateTags}</div>
         </div>
@@ -898,7 +899,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     document.getElementById('modal-slot-view-title').textContent = title;
     document.getElementById('modal-slot-view-body').innerHTML = people.length
       ? people.map(p => `
-          <div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;${p.isLeave?'opacity:.55':''}">
+          <div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px;${p.isLeave?'opacity:.55':''}">
             <span style="font-weight:500;${p.isLeave?'text-decoration:line-through;color:var(--red)':''}">${esc(p.displayName)}</span>
             <span style="font-size:11px;color:var(--dim)">${ROLE_LABEL[p.role]||''}${p.apostleTag?' · '+esc(p.apostleTag):''}</span>
             ${p.isLeave ? '<span style="font-size:11px;color:var(--red);margin-left:auto">請假</span>' : ''}
@@ -942,7 +943,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
 
     _bulkWeeks = getUpcomingWeeks(8);
     document.getElementById('bulk-week-list').innerHTML = _bulkWeeks
-      .map((w, i) => `<label style="display:flex;align-items:center;gap:.55rem;font-size:12px;cursor:pointer;padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      .map((w, i) => `<label style="display:flex;align-items:center;gap:.55rem;font-size:12px;cursor:pointer;padding:.2rem 0;border-bottom:1px solid rgba(0,0,0,.05)">
         <input type="checkbox" value="${i}" style="accent-color:var(--gold);width:13px;height:13px;flex-shrink:0" onchange="onWeekCheck(this)"> ${w.label}
       </label>`).join('');
 
