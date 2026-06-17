@@ -950,7 +950,7 @@
       });
       db.ref('schedules').on('value', snap => {
         schedules = snap.val() ? Object.values(snap.val()) : [];
-        if (_uiInited && currentNav === 'settlement') showSettlementPage();
+        if (_uiInited && currentNav === 'settlement') { showSettlementPage(); initSettlementPilgrims(); }
       });
       db.ref('bizStatus').on('value', snap => {
         bizStatus = snap.val() || {};
@@ -1009,7 +1009,7 @@
       renderSidebar();
       if      (currentNav === 'roster')     showRosterPage();
       else if (currentNav === 'stats')      showStatsPage();
-      else if (currentNav === 'settlement') showSettlementPage();
+      else if (currentNav === 'settlement') { showSettlementPage(); initSettlementPilgrims(); }
       else if (currentNav === 'staff')      showStaffPage();
       else if (currentNav === 'customer' && activeId) showProfile(activeId);
     }
@@ -2744,7 +2744,7 @@
       } else if (tab === 'roster')     showRosterPage();
       else if (tab === 'stats')        showStatsPage();
       else if (tab === 'activity')     showActivityPage();
-      else if (tab === 'settlement')   showSettlementPage();
+      else if (tab === 'settlement')   { showSettlementPage(); initSettlementPilgrims(); }
       else if (tab === 'staff')        showStaffPage();
     }
 
@@ -3187,7 +3187,7 @@
     // ────────────────────────────────────────────────────────────
     //  今日結帳
     // ────────────────────────────────────────────────────────────
-    let _svPrice = 0, _svQty = 1, _numPilgrims = 1, _selectedPilgrims = [];
+    let _svPrice = 0, _svQty = 1, _numPilgrims = 1, _selectedPilgrims = [], _schedPilgrimsDate = '';
 
     function _onSettleInput(id, val) {
       if (id === 'settle-sv-price')   _svPrice   = parseInt(val) || 0;
@@ -3204,6 +3204,27 @@
       if (i >= 0) _selectedPilgrims.splice(i, 1);
       else _selectedPilgrims.push(name);
       showSettlementPage();
+    }
+
+    function initSettlementPilgrims() {
+      const today = getBusinessDate();
+      if (_schedPilgrimsDate === today) return;
+      _schedPilgrimsDate = today;
+      db.ref('schedules').orderByKey()
+        .startAt(today + '_').endAt(today + '_')
+        .once('value', snap => {
+          const names = new Set();
+          snap.forEach(slotSnap => {
+            slotSnap.forEach(entrySnap => {
+              const e = entrySnap.val();
+              if (e.role === 'pilgrim' && e.displayName) names.add(e.displayName);
+            });
+          });
+          if (names.size > 0) {
+            _selectedPilgrims = [...names];
+            showSettlementPage();
+          }
+        });
     }
 
     function showSettlementPage() {
