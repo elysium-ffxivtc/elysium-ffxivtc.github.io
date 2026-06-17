@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安息地 · 排班系統</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --gold:     #c8984a;
+      --gold-dim: rgba(200,152,74,.15);
+      --bg:       #141414;
+      --panel:    #1c1c1c;
+      --card:     #242424;
+      --border:   rgba(255,255,255,.11);
+      --text:     #f0ece8;
+      --dim:      #9a9a9a;
+      --green:    #5aaa7a;
+      --green-dim:rgba(90,170,122,.14);
+      --red:      #d06060;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Header ── */
+    .hdr { display: flex; align-items: center; justify-content: space-between; padding: .65rem 1rem; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
+    .hdr-title { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--gold); letter-spacing: .15em; }
+    .hdr-clock { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: .5rem; }
+    .hdr-clock-time { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--gold); letter-spacing: .05em; }
+    .hdr-clock-date { font-size: 12px; color: var(--dim); }
+    .user-badge { display: flex; align-items: center; gap: .5rem; font-size: 12px; }
+
+    /* ── Main ── */
+    .main { flex: 1; padding: .85rem; max-width: 1280px; width: 100%; margin: 0 auto; }
+
+    /* ── Tabs ── */
+    .tab-row { display: flex; gap: .5rem; margin-bottom: .85rem; border-bottom: 1px solid var(--border); padding-bottom: .7rem; }
+    .tab-btn { padding: .35rem .85rem; font-size: 13px; background: none; border: 1px solid transparent; color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; }
+    .tab-btn.on { border-color: var(--gold); color: var(--gold); }
+    .tab-btn:hover { color: var(--text); }
+    .sub-tab-row { display: flex; gap: 2px; margin-bottom: 0; }
+    .sub-tab-btn { padding: .35rem 1.1rem .42rem; font-size: 12px; background: var(--panel); border: 1px solid var(--border); border-bottom: none; color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; position: relative; top: 1px; z-index: 0; }
+    .sub-tab-btn.on { background: var(--card); border-color: var(--gold); border-bottom: 1px solid var(--card); color: var(--gold); z-index: 2; }
+    .sub-tab-btn:hover:not(.on) { color: var(--text); border-color: rgba(255,255,255,.3); z-index: 1; }
+    .cal-tab-content { background: var(--card); border: 1px solid var(--border); padding: .85rem; position: relative; z-index: 1; }
+
+    /* ── Announcement ── */
+    .anno-card { background: var(--card); border: 1px solid var(--border); border-left: 2px solid var(--gold); padding: .7rem 1rem; margin-bottom: .75rem; }
+    .anno-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .45rem; }
+    .anno-label { font-family: 'Noto Serif TC', serif; font-size: 12px; color: var(--gold); letter-spacing: .12em; }
+    .anno-text { font-size: 13px; line-height: 1.8; white-space: pre-wrap; color: var(--text); }
+    .anno-empty { font-size: 12px; color: var(--dim); cursor: pointer; padding: .4rem 0; }
+    .anno-empty:hover { color: var(--gold); }
+
+    /* ── Biz summary ── */
+    .biz-sum-card { background: var(--gold-dim); border: 1px solid rgba(200,152,74,.22); padding: .75rem 1rem; margin-bottom: .75rem; display: flex; align-items: center; gap: .85rem; }
+    .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; font-weight: 700; color: var(--gold); line-height: 1; min-width: 2.4rem; text-align: center; }
+    .biz-sum-dates { font-size: 11px; color: var(--dim); margin-top: .2rem; line-height: 1.6; }
+
+    /* ── Two-column layout ── */
+    .schedule-layout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 1rem; align-items: start; }
+    @media (max-width: 640px) { .schedule-layout { grid-template-columns: 1fr; } }
+
+    /* ── Month nav ── */
+    .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+    .month-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .08em; }
+    .nav-btn { background: none; border: 1px solid var(--border); color: var(--dim); padding: .25rem .6rem; cursor: pointer; font-size: 14px; font-family: inherit; transition: all .15s; line-height: 1; }
+    .nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── Legend ── */
+    .legend { display: flex; align-items: center; gap: .75rem; margin-bottom: .55rem; flex-wrap: wrap; }
+    .legend-swatch { display: inline-flex; align-items: center; gap: .3rem; font-size: 11px; color: var(--dim); }
+    .swatch-box { width: 10px; height: 10px; border: 1px solid; flex-shrink: 0; }
+    .swatch-box.mine { background: var(--green-dim); border-color: var(--green); }
+    .swatch-box.avail { background: none; border-color: rgba(255,255,255,.18); }
+    .biz-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+    .biz-dot.open { background: var(--green); }
+    .biz-dot.closed { background: var(--red); }
+
+    /* ── Calendar ── */
+    .cal-weekrow, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+    .cal-weekrow { margin-bottom: 1px; }
+    .cal-weekday { text-align: center; font-size: 10px; color: var(--dim); padding: .2rem 0; }
+    .cal-weekday.weekend { color: var(--red); opacity: .75; }
+    .cal-day.weekend { background: rgba(208,96,96,.04); }
+    .cal-day.weekend .cal-day-num { color: rgba(208,96,96,.6); background: rgba(208,96,96,.06); border-bottom-color: rgba(208,96,96,.15); }
+    .cal-day.today.weekend .cal-day-num { color: var(--gold); background: rgba(200,152,74,.08); }
+    .cal-day { background: var(--card); border: 1px solid var(--border); padding: 3px 3px 2px; }
+    .cal-day.today      { border-color: rgba(200,152,74,.5); }
+    .cal-day.other-month { opacity: .2; pointer-events: none; }
+    .cal-day.past        { opacity: .38; }
+    .cal-day.biz-day    { border-top: 2px solid rgba(90,170,122,.45); }
+    .cal-day.today.biz-day { border-top-color: rgba(200,152,74,.6); }
+    .cal-day-num { font-size: 10px; color: var(--dim); padding: 2px 3px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.04); display: flex; align-items: center; gap: 2px; line-height: 1.3; margin-bottom: 1px; }
+    .cal-day.today .cal-day-num { color: var(--gold); font-weight: 700; background: rgba(200,152,74,.08); }
+    .cal-day-num.clickable { cursor: pointer; }
+    .cal-day-num.clickable:hover { background: rgba(255,255,255,.05); color: var(--gold); }
+
+    /* ── Slot rows ── */
+    .slot-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1px 2px; cursor: pointer; transition: background .1s;
+      min-height: 15px; border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .slot-row:last-child { border-bottom: none; }
+    .slot-row:hover { background: rgba(255,255,255,.05); }
+    .slot-row.mine { background: var(--gold-dim); }
+    .slot-row.mine:hover { background: rgba(200,152,74,.22); }
+    .slot-hr { font-size: 10px; color: rgba(255,255,255,.28); }
+    .slot-row.mine .slot-hr { color: var(--gold); }
+    .slot-row.has-staff .slot-hr { color: rgba(255,255,255,.6); }
+    .slot-cnt { font-size: 9px; color: rgba(255,255,255,.3); background: rgba(255,255,255,.07); padding: 0 2px; min-width: 12px; text-align: center; }
+    .slot-row.mine .slot-cnt { color: var(--gold); background: rgba(200,152,74,.2); }
+    .slot-row.has-staff .slot-cnt { color: var(--dim); }
+    .slot-row.locked { opacity: .35; cursor: not-allowed; }
+    .slot-row.locked .slot-hr { color: rgba(255,255,255,.2); }
+    .slot-row.mine.on-leave { background: rgba(208,96,96,.13); }
+    .slot-row.mine.on-leave:hover { background: rgba(208,96,96,.2); }
+    .slot-row.mine.on-leave .slot-hr { color: var(--red); opacity: .8; }
+    .slot-row.mine.on-leave .slot-cnt { color: var(--red); background: rgba(208,96,96,.2); }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .5rem 1.2rem; font-size: 13px; z-index: 9999; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
+
+    /* ── Personal panel ── */
+    .personal-panel { position: sticky; top: 56px; }
+    .panel-card { background: var(--card); border: 1px solid var(--border); padding: .85rem; max-height: calc(100vh - 80px); overflow-y: auto; }
+    .panel-actions { display: flex; flex-direction: column; gap: .38rem; margin-bottom: .75rem; }
+    .panel-name { font-weight: 500; font-size: 14px; }
+    .panel-role { font-size: 11px; color: var(--dim); margin-top: .15rem; margin-bottom: .75rem; }
+    .panel-section-title { font-size: 11px; color: var(--dim); letter-spacing: .07em; padding-bottom: .35rem; border-bottom: 1px solid var(--border); margin-bottom: .55rem; }
+    .panel-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; margin-bottom: .75rem; }
+    .panel-stat { background: var(--bg); border: 1px solid var(--border); padding: .5rem .5rem .4rem; text-align: center; }
+    .panel-stat-num { font-family: 'Noto Serif TC', serif; font-size: 1.5rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .panel-stat-label { font-size: 10px; color: var(--dim); margin-top: .2rem; }
+    .panel-date-row { margin-bottom: .45rem; }
+    .panel-date-label { font-size: 11px; color: var(--gold); margin-bottom: .15rem; }
+    .panel-time-row { display: flex; align-items: center; justify-content: space-between; padding-left: .5rem; margin: .1rem 0; }
+    .panel-time-lbl { font-size: 11px; color: var(--text); }
+    .panel-time-leave-tag { font-size: 10px; color: var(--red); margin-left: .3rem; opacity: .85; }
+    .panel-empty { font-size: 12px; color: var(--dim); }
+
+    /* ── Export table ── */
+    .export-wrap { overflow: auto; max-height: calc(80vh - 160px); }
+    .export-tbl { border-collapse: collapse; font-size: 12px; width: 100%; }
+    .export-tbl th { background: var(--panel); border: 1px solid var(--border); padding: .42rem .75rem; color: var(--gold); font-weight: 500; white-space: nowrap; text-align: center; }
+    .export-tbl td { background: var(--bg); border: 1px solid var(--border); padding: .38rem .65rem; vertical-align: top; }
+    .export-tbl .date-col { text-align: center; white-space: nowrap; color: var(--gold); font-family: 'Noto Serif TC', serif; font-size: 12px; }
+    .export-tbl .biz-row td { border-top: 2px solid rgba(90,170,122,.35); }
+    .export-person { display: block; font-size: 11px; line-height: 1.75; color: var(--text); }
+    .export-person.leave { color: var(--red); text-decoration: line-through; opacity: .65; }
+
+    /* ── Segmented toggle (modals) ── */
+    .seg-row { display: flex; }
+    .seg-btn { flex: 1; padding: .33rem .5rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; margin-right: -1px; position: relative; text-align: center; }
+    .seg-btn.on { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); z-index: 1; }
+    .seg-btn:hover:not(.on) { color: var(--text); border-color: rgba(255,255,255,.25); z-index: 1; }
+    .seg-btn:disabled { opacity: .25; cursor: not-allowed; }
+
+    /* ── Buttons ── */
+    .btn { padding: .48rem 1rem; font-size: 13px; cursor: pointer; border: none; font-family: inherit; transition: all .15s; }
+    .btn-gold { background: var(--gold); color: #1c1208; font-weight: 600; }
+    .btn-gold:hover { background: #d4a456; }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-danger { background: none; border: 1px solid var(--red); color: var(--red); }
+    .btn-danger:hover { background: rgba(208,96,96,.1); }
+    .btn-sm { padding: .28rem .65rem; font-size: 12px; }
+    .btn-xs { padding: .18rem .5rem; font-size: 11px; }
+
+    /* ── Forms ── */
+    .form-label { font-size: 12px; color: var(--dim); margin-bottom: .28rem; }
+    .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: .45rem .65rem; font-size: 13px; font-family: inherit; }
+    .form-input:focus { outline: none; border-color: var(--gold); }
+    .form-grid { display: grid; gap: .65rem; }
+    textarea.form-input { resize: vertical; min-height: 90px; }
+
+    /* ── Cards ── */
+    .card { background: var(--card); border: 1px solid var(--border); padding: .9rem 1rem; margin-bottom: .75rem; }
+    .card-title { font-size: 11px; color: var(--dim); letter-spacing: .08em; margin-bottom: .65rem; }
+    .acct-row { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; }
+    .acct-row:last-child { border-bottom: none; }
+
+    /* ── Auth overlay ── */
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+    .auth-logo { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: .25em; margin-bottom: .4rem; }
+    .auth-tagline { font-size: 13px; color: var(--dim); margin-bottom: 2.5rem; letter-spacing: .08em; }
+    .auth-google-btn { display: flex; align-items: center; justify-content: center; gap: .75rem; background: #fff; color: #3c4043; border: none; padding: .85rem 1.5rem; font-size: 14px; cursor: pointer; width: 100%; font-family: inherit; font-weight: 500; transition: box-shadow .15s; }
+    .auth-google-btn:hover { box-shadow: 0 2px 12px rgba(0,0,0,.35); }
+    .auth-err { color: var(--red); font-size: 13px; margin-top: .75rem; min-height: 1.2em; }
+    .auth-info-box { background: var(--card); border: 1px solid var(--border); padding: .7rem 1rem; margin-top: 1rem; font-size: 13px; }
+
+    /* ── Modals ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 500; display: none; align-items: flex-start; justify-content: center; padding-top: 5vh; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--panel); border: 1px solid var(--border); padding: 1.4rem; width: 360px; max-width: 96vw; max-height: 85vh; overflow-y: auto; }
+    .modal-title { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--gold); margin-bottom: 1rem; letter-spacing: .1em; }
+    .modal-actions { display: flex; gap: .6rem; justify-content: flex-end; margin-top: 1rem; }
+    .day-slot-block { margin-bottom: 1rem; }
+    .day-slot-hdr { font-size: 12px; color: var(--gold); padding-bottom: .3rem; border-bottom: 1px solid var(--border); margin-bottom: .5rem; display: flex; align-items: center; justify-content: space-between; }
+    .person-row { display: flex; align-items: center; justify-content: space-between; padding: .3rem 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; }
+    .person-row:last-of-type { border-bottom: none; }
+    .biz-toggle-row { display: flex; align-items: center; justify-content: space-between; padding-bottom: .85rem; margin-bottom: .85rem; border-bottom: 1px solid var(--border); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-title">✦ 安息地 · 排班系統</div>
+  <div style="display:flex;align-items:center;gap:.85rem">
+    <div id="hdr-clock" class="hdr-clock"></div>
+    <div id="user-badge" class="user-badge" style="display:none"></div>
+  </div>
+</header>
+
+<div class="main" id="main" style="display:none"></div>
+
+<!-- ── Auth overlay ── -->
+<div id="auth-overlay" class="auth-overlay">
+  <div id="auth-loading" class="auth-box">
+    <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">驗證中…</div>
+  </div>
+  <div id="auth-login" class="auth-box" style="display:none">
+    <div class="auth-logo">安息地</div>
+    <div class="auth-tagline">排班系統</div>
+    <button class="auth-google-btn" onclick="signInGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      使用 Google 帳號登入
+    </button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+  <div id="auth-pending" class="auth-box" style="display:none">
+    <div class="auth-logo" style="font-size:1.5rem;margin-bottom:1rem">等待授權</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">你的帳號尚未取得授權。<br>請將以下 Email 提供給管理員：</div>
+    <div class="auth-info-box" style="color:var(--gold)" id="auth-pending-email"></div>
+    <button class="btn btn-outline" style="width:100%;margin-top:1rem" onclick="doSignOut()">登出</button>
+  </div>
+  <div id="auth-bootstrap" class="auth-box" style="display:none">
+    <div class="auth-logo" style="font-size:1.5rem;margin-bottom:.5rem">初始設定</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">系統尚無任何帳號。<br>請設定你的管理員遊戲ID：</div>
+    <div class="form-label" style="text-align:left">遊戲ID（角色名）</div>
+    <input id="bs-name" class="form-input" placeholder="例：落花有意" style="margin-bottom:.75rem">
+    <div style="font-size:12px;color:var(--dim);margin-bottom:1rem" id="bs-email"></div>
+    <button class="btn btn-gold" style="width:100%" onclick="doBootstrap()">設定為管理員帳號</button>
+    <button class="btn btn-outline" style="width:100%;margin-top:.6rem" onclick="doSignOut()">取消</button>
+  </div>
+  <div id="auth-register" class="auth-box" style="display:none">
+    <div class="auth-logo" style="font-size:1.5rem;margin-bottom:.5rem">加入申請</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">請輸入你在安息地的遊戲角色名，<br>管理員審核後即可使用排班系統。</div>
+    <div class="form-label" style="text-align:left">遊戲ID（角色名）</div>
+    <input id="reg-gameid" class="form-input" placeholder="例：落花有意" style="margin-bottom:.4rem" onkeydown="if(event.key==='Enter')doRegister()">
+    <div style="font-size:12px;color:var(--dim);margin-bottom:.4rem" id="reg-email"></div>
+    <div class="auth-err" id="reg-err"></div>
+    <button class="btn btn-gold" style="width:100%;margin-top:.4rem" onclick="doRegister()">送出申請</button>
+    <button class="btn btn-outline" style="width:100%;margin-top:.6rem" onclick="doSignOut()">取消</button>
+  </div>
+</div>
+
+<!-- ── 公告編輯 modal ── -->
+<div class="modal-overlay" id="modal-anno" onclick="if(event.target===this)closeAnnoModal()">
+  <div class="modal-box" style="width:400px">
+    <div class="modal-title">編輯公告</div>
+    <div class="form-grid">
+      <div>
+        <div class="form-label">公告內容</div>
+        <textarea id="anno-text" class="form-input" placeholder="輸入公告…"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" onclick="clearAnnouncement()">清除</button>
+      <button class="btn btn-outline btn-sm" onclick="closeAnnoModal()">取消</button>
+      <button class="btn btn-gold btn-sm" onclick="saveAnnouncement()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 日期管理 modal ── -->
+<div class="modal-overlay" id="modal-day" onclick="if(event.target===this)closeDayModal()">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-day-title"></div>
+    <div id="modal-day-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeDayModal()">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 新增人員 modal ── -->
+<div class="modal-overlay" id="modal-add" onclick="if(event.target===this)closeAddModal()">
+  <div class="modal-box" style="width:300px">
+    <div class="modal-title" id="modal-add-title">新增人員</div>
+    <div class="form-grid">
+      <div>
+        <div class="form-label">人員</div>
+        <select id="add-who" class="form-input"></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeAddModal()">取消</button>
+      <button class="btn btn-gold btn-sm" onclick="confirmAdd()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 一次排班 modal ── -->
+<div class="modal-overlay" id="modal-bulk" onclick="if(event.target===this)closeBulkModal()">
+  <div class="modal-box" style="width:340px">
+    <div class="modal-title">一次排班</div>
+    <div class="form-grid">
+      <div>
+        <div class="form-label">排班方式</div>
+        <div class="seg-row">
+          <button class="seg-btn on" id="bulk-mode-week" onclick="setBulkMode('week')">依週設定</button>
+          <button class="seg-btn" id="bulk-mode-day" onclick="setBulkMode('day')">依日設定</button>
+        </div>
+      </div>
+      <div id="bulk-week-wrap">
+        <div class="form-label" style="margin-top:.6rem">選擇星期 <span id="bulk-week-hint" style="color:var(--dim);font-weight:400">（最多 4 週）</span></div>
+        <div id="bulk-week-list" style="max-height:148px;overflow-y:auto;padding:.2rem 0;border:1px solid var(--border);background:var(--bg);padding:.35rem .6rem"></div>
+      </div>
+      <div id="bulk-day-wrap" style="display:none">
+        <div class="form-label" style="margin-top:.6rem">選擇星期幾</div>
+        <div class="seg-row" id="bulk-weekday-btns"></div>
+      </div>
+      <div>
+        <div class="form-label" style="margin-top:.6rem">選擇時段（可複選）</div>
+        <div id="bulk-slots" style="padding:.35rem 0"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeBulkModal()">取消</button>
+      <button class="btn btn-gold btn-sm" onclick="confirmBulk()">確認排班</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 排班總表 匯出 modal ── -->
+<div class="modal-overlay" id="modal-export" onclick="if(event.target===this)closeExportModal()">
+  <div class="modal-box" style="width:720px;max-width:95vw">
+    <div class="modal-title">排班總表 · <span id="export-month-label"></span></div>
+    <div class="export-wrap" id="export-table-wrap"></div>
+    <div style="font-size:11px;color:var(--dim);margin:.55rem 0 0">★ 預定營業日</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeExportModal()">關閉</button>
+      <button class="btn btn-gold btn-sm" onclick="downloadScheduleImg()">⬇ 下載圖片</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 完整班表 時段檢視 modal ── -->
+<div class="modal-overlay" id="modal-slot-view" onclick="if(event.target===this)closeSlotView()">
+  <div class="modal-box" style="width:320px">
+    <div class="modal-title" id="modal-slot-view-title"></div>
+    <div id="modal-slot-view-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeSlotView()">關閉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function tickClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    const el = document.getElementById('hdr-clock');
+    if (el) el.innerHTML =
+      `<span class="hdr-clock-time">${h}:${m}:${s}</span>` +
+      `<span class="hdr-clock-date">${now.getMonth()+1}月${now.getDate()}日（${'日一二三四五六'[now.getDay()]}）</span>`;
+    setTimeout(tickClock, 1000 - now.getMilliseconds());
+  })();
+
+  firebase.initializeApp({
+    apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+    authDomain:        "elysiumpos.firebaseapp.com",
+    databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "elysiumpos",
+    storageBucket:     "elysiumpos.firebasestorage.app",
+    messagingSenderId: "430177597593",
+    appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+  });
+  const db   = firebase.database();
+  const auth = firebase.auth();
+
+  // ── State ──────────────────────────────────────────────────────
+  let currentUser  = null;
+  let staff        = [];
+  let schedData    = {}; // { 'YYYY-MM-DD_HHMM': { uid: {...} } }
+  let bizStatus    = {};
+  let announcement = null; // { text, updatedBy, updatedAt }
+  let myMemo       = '';
+  let discordWebhook = '';
+  let adminTab       = 'schedule';
+  let scheduleSubTab = 'personal'; // 'personal' | 'full'
+
+  const _now = new Date();
+  let viewYear  = _now.getFullYear();
+  let viewMonth = _now.getMonth();
+
+  const TIME_SLOTS = ['22:00', '23:00', '00:00', '01:00'];
+  const ROLE_LABEL = { admin: '管理員', guide: '引路人', apostle: '使徒' };
+  const WEEK_DAYS  = ['日', '一', '二', '三', '四', '五', '六'];
+  const WD_FULL    = ['日', '一', '二', '三', '四', '五', '六'];
+
+  function sKey(t)   { return t.replace(':', ''); }
+  function esc(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function isAdmin() { return currentUser && currentUser.role === 'admin'; }
+  function todayStr(){ return new Date().toISOString().slice(0, 10); }
+  function pad(n)    { return String(n).padStart(2, '0'); }
+
+  let _dayDate = null;
+  let _addDate = null;
+  let _addTime = null;
+  let bulkMode = 'week';
+  let bulkSelectedDay = null;
+  let _bulkWeeks = [];
+
+  auth.onAuthStateChanged(async user => {
+    if (!user) { showScreen('login'); return; }
+    const staffSnap = await db.ref('staff/' + user.uid).once('value');
+    if (staffSnap.exists()) {
+      currentUser = { uid: user.uid, email: user.email, ...staffSnap.val() };
+      renderBadge(); hideAuth(); startListeners();
+      return;
+    }
+    const allSnap = await db.ref('staff').once('value');
+    if (!allSnap.exists()) {
+      showScreen('bootstrap', user);
+      return;
+    }
+    const pendingSnap = await db.ref('pendingStaff/' + user.uid).once('value');
+    if (pendingSnap.exists()) {
+      showScreen('pending', user);
+    } else {
+      showScreen('register', user);
+    }
+  });
+
+  function showScreen(s, user) {
+    document.getElementById('auth-overlay').style.display = 'flex';
+    ['login','loading','pending','bootstrap','register'].forEach(id =>
+      document.getElementById('auth-' + id).style.display = id === s ? '' : 'none'
+    );
+    if (s === 'pending'   && user) document.getElementById('auth-pending-email').textContent = user.email;
+    if (s === 'bootstrap' && user) { document.getElementById('bs-email').textContent = user.email; window._bsUser = user; }
+    if (s === 'register'  && user) { document.getElementById('reg-email').textContent = user.email; window._regUser = user; }
+  }
+
+  function hideAuth() {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('main').style.display = '';
+  }
+
+  function renderBadge() {
+    const el = document.getElementById('user-badge');
+    el.style.display = 'flex';
+    el.innerHTML = `
+      <span style="color:var(--dim)">${esc(currentUser.displayName)}</span>
+      <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border)">${ROLE_LABEL[currentUser.role]||''}</span>
+      <button class="btn btn-outline btn-sm" onclick="doSignOut()" style="font-size:11px;padding:.2rem .55rem">登出</button>`;
+  }
+
+  function signInGoogle() {
+    document.getElementById('auth-err').textContent = '';
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
+  }
+  function doSignOut() { auth.signOut().then(() => location.reload()); }
+
+  async function doRegister() {
+    const user = window._regUser; if (!user) return;
+    const gameId = document.getElementById('reg-gameid').value.trim();
+    if (!gameId) { document.getElementById('reg-err').textContent = '請輸入遊戲ID'; return; }
+    document.getElementById('reg-err').textContent = '';
+    await db.ref('pendingStaff/' + user.uid).set({
+      uid: user.uid, email: user.email,
+      displayName: gameId,
+      requestedAt: new Date().toISOString()
+    });
+    showScreen('pending', user);
+  }
+
+  async function doBootstrap() {
+    const user = window._bsUser; if (!user) return;
+    const name = document.getElementById('bs-name').value.trim() || user.displayName || '管理員';
+    await db.ref('staff/' + user.uid).set({
+      uid: user.uid, email: user.email, displayName: name, role: 'admin',
+      createdAt: new Date().toISOString()
+    });
+    await db.ref('pendingStaff/' + user.uid).remove();
+    location.reload();
+  }
+
+  // ── Firebase listeners ────────────────────────────────────────
+  function startListeners() {
+    db.ref('schedules').on('value', snap => {
+      schedData = snap.val() || {};
+      render();
+      if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
+    });
+    db.ref('staff').on('value', snap => {
+      staff = snap.val() ? Object.values(snap.val()) : [];
+      if (adminTab === 'accounts') renderAccounts();
+    });
+    db.ref('bizStatus').on('value', snap => {
+      bizStatus = snap.val() || {};
+      render();
+      if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
+    });
+    db.ref('announcement').on('value', snap => {
+      announcement = snap.val() || null;
+      render();
+    });
+    db.ref(`memos/${currentUser.uid}`).on('value', snap => {
+      myMemo = snap.val()?.text || '';
+      const el = document.getElementById('memo-input');
+      if (el && document.activeElement !== el) el.value = myMemo;
+    });
+    db.ref('settings/discordWebhook').on('value', snap => {
+      discordWebhook = snap.val() || '';
+    });
+  }
+
+  // ── Routing ───────────────────────────────────────────────────
+  function render() {
+    if (!currentUser) return;
+    if (!isAdmin()) { renderScheduleView(); return; }
+    if (adminTab === 'schedule')  renderScheduleView();
+    else if (adminTab === 'accounts') renderAccounts();
+  }
+
+  function setTab(t) { adminTab = t; render(); }
+
+  function tabBar() {
+    return `<div class="tab-row">
+      <button class="tab-btn${adminTab==='schedule'?' on':''}" onclick="setTab('schedule')">排班月曆</button>
+      <button class="tab-btn${adminTab==='accounts'?' on':''}" onclick="setTab('accounts')">帳號管理</button>
+    </div>`;
+  }
+
+  // ── Schedule view ─────────────────────────────────────────────
+  function schedSubTabBar() {
+    return `<div style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div class="sub-tab-row">
+        <button class="sub-tab-btn${scheduleSubTab==='personal'?' on':''}" onclick="setScheduleSubTab('personal')">個人班表</button>
+        <button class="sub-tab-btn${scheduleSubTab==='full'?' on':''}" onclick="setScheduleSubTab('full')">完整班表</button>
+      </div>
+      <button class="btn btn-outline btn-xs" onclick="openExportModal()" style="margin-bottom:1px;font-size:11px;position:relative;top:0">排班總表 ↗</button>
+    </div>`;
+  }
+
+  function setScheduleSubTab(t) { scheduleSubTab = t; render(); }
+
+  function renderScheduleView() {
+    const calBlock = `
+      <div class="month-nav">
+        <button class="nav-btn" onclick="prevMonth()">‹</button>
+        <div class="month-title">${viewYear} 年 ${viewMonth + 1} 月</div>
+        <button class="nav-btn" onclick="nextMonth()">›</button>
+      </div>
+      ${buildLegendHtml(scheduleSubTab === 'full')}
+      <div class="cal-weekrow">${WEEK_DAYS.map((d,i)=>`<div class="cal-weekday${i===0||i===6?' weekend':''}">${d}</div>`).join('')}</div>
+      <div class="cal-grid">${buildCalGrid(scheduleSubTab === 'full')}</div>`;
+
+    const content = scheduleSubTab === 'personal'
+      ? `<div class="schedule-layout">
+           <div>${calBlock}</div>
+           <div class="personal-panel">${buildPersonalPanel()}</div>
+         </div>`
+      : calBlock;
+
+    document.getElementById('main').innerHTML = `
+      ${isAdmin() ? tabBar() : ''}
+      ${buildAnnoHtml()}
+      ${buildBizSumHtml()}
+      ${schedSubTabBar()}
+      <div class="cal-tab-content">${content}</div>`;
+  }
+
+  // ── Announcement card ─────────────────────────────────────────
+  function buildAnnoHtml() {
+    if (!announcement?.text && !isAdmin()) return '';
+    if (!announcement?.text) {
+      return `<div class="anno-card">
+        <div class="anno-header"><span class="anno-label">✦ 公告</span></div>
+        <div class="anno-empty" onclick="openAnnoModal()">＋ 點此新增公告</div>
+      </div>`;
+    }
+    return `<div class="anno-card">
+      <div class="anno-header">
+        <span class="anno-label">✦ 公告</span>
+        ${isAdmin() ? `<button class="btn btn-xs btn-outline" onclick="openAnnoModal()" style="font-size:11px">編輯</button>` : ''}
+      </div>
+      <div class="anno-text">${esc(announcement.text)}</div>
+    </div>`;
+  }
+
+  // ── Biz summary card ──────────────────────────────────────────
+  function buildBizSumHtml() {
+    const monthPrefix = `${viewYear}-${pad(viewMonth + 1)}`;
+    const bizDates = Object.entries(bizStatus)
+      .filter(([d, b]) => d.startsWith(monthPrefix) && b.isOpen)
+      .map(([d]) => d).sort();
+    if (!bizDates.length) return '';
+    const labels = bizDates.map(d => `${parseInt(d.slice(5))}/${parseInt(d.slice(8))}`).join('・');
+    return `<div class="biz-sum-card">
+      <div class="biz-sum-num">${bizDates.length}</div>
+      <div>
+        <div style="font-size:12px;font-weight:500">${viewMonth + 1}月預計營業天數</div>
+        <div class="biz-sum-dates">${labels}</div>
+      </div>
+    </div>`;
+  }
+
+  // ── Legend ────────────────────────────────────────────────────
+  function buildLegendHtml(fullView = false) {
+    return `<div class="legend">
+      <span class="legend-swatch"><span class="biz-dot open"></span>預計營業</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--dim)">數字 = 該時段人數</span>
+    </div>`;
+  }
+
+  // ── Biz day logic ─────────────────────────────────────────────
+  function isBizDay(date) {
+    const uids = new Set();
+    let hasAdmin = false;
+    for (const t of TIME_SLOTS) {
+      const entry = schedData[`${date}_${sKey(t)}`] || {};
+      for (const [uid, person] of Object.entries(entry)) {
+        if (person.isLeave) continue;
+        uids.add(uid);
+        if (person.role === 'admin') hasAdmin = true;
+      }
+    }
+    return hasAdmin && uids.size >= 4;
+  }
+
+  // ── Calendar grid ─────────────────────────────────────────────
+  function buildCalGrid(readOnly = false) {
+    const today  = todayStr();
+    const first  = new Date(viewYear, viewMonth, 1);
+    const last   = new Date(viewYear, viewMonth + 1, 0);
+    const mo     = viewMonth + 1;
+
+    const offset = first.getDay(); // 0=Sun, week starts Sunday
+
+    const cells = [];
+    for (let i = offset - 1; i >= 0; i--) {
+      const d = new Date(viewYear, viewMonth, -i);
+      cells.push({ date: d.toISOString().slice(0, 10), other: true });
+    }
+    for (let d = 1; d <= last.getDate(); d++) {
+      cells.push({ date: `${viewYear}-${pad(mo)}-${pad(d)}`, other: false });
+    }
+    const rem = (7 - (cells.length % 7)) % 7;
+    for (let i = 1; i <= rem; i++) {
+      const d = new Date(viewYear, viewMonth + 1, i);
+      cells.push({ date: d.toISOString().slice(0, 10), other: true });
+    }
+
+    return cells.map(({ date, other }) => {
+      const dayNum  = parseInt(date.slice(8));
+      const isPast  = !other && date < today;
+      const isToday = date === today;
+      const isBiz   = !other && bizStatus[date]?.isOpen;
+      const dow     = new Date(date + 'T00:00:00').getDay();
+      const isWeekend = !other && (dow === 0 || dow === 6);
+
+      let cls = 'cal-day';
+      if (other)      cls += ' other-month';
+      else if (isPast) cls += ' past';
+      if (isToday)    cls += ' today';
+      if (!other && isBiz) cls += ' biz-day';
+      if (isWeekend)  cls += ' weekend';
+
+      const numEl = (!other && isAdmin() && !readOnly)
+        ? `<div class="cal-day-num clickable" onclick="openDayModal('${date}')">${dayNum}</div>`
+        : `<div class="cal-day-num">${dayNum}</div>`;
+
+      const slotsHtml = other ? '' : TIME_SLOTS.map(t => {
+        const k       = `${date}_${sKey(t)}`;
+        const entry   = schedData[k] || {};
+        const count   = Object.values(entry).filter(p => !p.isLeave).length;
+        const myEntry = currentUser ? entry[currentUser.uid] : null;
+        const mine    = !readOnly && !!myEntry;
+        const onLeave = mine && !!myEntry?.isLeave;
+        const adminInSlot = Object.values(entry).some(p => p.role === 'admin' && !p.isLeave);
+        const locked  = !readOnly && !isAdmin() && t === '22:00' && !adminInSlot && !mine;
+        let sc = 'slot-row';
+        if (mine && !onLeave) sc += ' mine';
+        else if (onLeave)     sc += ' mine on-leave';
+        else if (count > 0)   sc += ' has-staff';
+        if (locked) sc += ' locked';
+        const badge = count > 0 ? `<span class="slot-cnt">${count}</span>` : '';
+        const action = readOnly
+          ? `onclick="openSlotView('${date}','${t}')"`
+          : `onclick="tapSlot('${date}','${t}')"`;
+        return `<div class="${sc}" ${action}>
+          <span class="slot-hr">${t.slice(0, 2)}</span>${badge}
+        </div>`;
+      }).join('');
+
+      return `<div class="${cls}">${numEl}${slotsHtml}</div>`;
+    }).join('');
+  }
+
+  function prevMonth() {
+    if (--viewMonth < 0) { viewMonth = 11; viewYear--; }
+    render();
+  }
+  function nextMonth() {
+    if (++viewMonth > 11) { viewMonth = 0; viewYear++; }
+    render();
+  }
+
+  // ── Personal panel ────────────────────────────────────────────
+  function buildPersonalPanel() {
+    const monthPrefix = `${viewYear}-${pad(viewMonth + 1)}`;
+    const byDate = {};
+    for (const key of Object.keys(schedData)) {
+      if (!key.startsWith(monthPrefix)) continue;
+      const entry = schedData[key];
+      if (!entry[currentUser.uid]) continue;
+      const date  = key.slice(0, 10);
+      const slotK = key.slice(11);
+      const time  = TIME_SLOTS.find(t => sKey(t) === slotK);
+      if (!time) continue;
+      if (!byDate[date]) byDate[date] = [];
+      byDate[date].push({ time, isLeave: !!entry[currentUser.uid].isLeave });
+    }
+
+    const dates    = Object.keys(byDate).sort();
+    const today    = todayStr();
+    const allSlots = dates.flatMap(d => byDate[d]);
+    const totalDays  = dates.filter(d => byDate[d].some(s => !s.isLeave)).length;
+    const totalSlots = allSlots.filter(s => !s.isLeave).length;
+
+    const shiftsHtml = dates.length
+      ? dates.map(date => {
+          const dt    = new Date(date + 'T00:00:00');
+          const label = `${parseInt(date.slice(5))}/${parseInt(date.slice(8))} (${WD_FULL[dt.getDay()]})`;
+          const sorted = byDate[date].sort((a, b) => TIME_SLOTS.indexOf(a.time) - TIME_SLOTS.indexOf(b.time));
+          return `<div class="panel-date-row">
+            <div class="panel-date-label">${label}</div>
+            ${sorted.map(({time: t, isLeave}) => `
+              <div class="panel-time-row">
+                <span class="panel-time-lbl">· ${t}${isLeave ? '<span class="panel-time-leave-tag"> 請假</span>' : ''}</span>
+                ${date >= today
+                  ? isLeave
+                    ? `<button class="btn btn-xs btn-outline" onclick="cancelLeave('${date}','${t}')" style="font-size:10px">恢復</button>`
+                    : `<button class="btn btn-xs btn-danger" onclick="requestLeave('${date}','${t}')" style="font-size:10px">請假</button>`
+                  : ''}
+              </div>`).join('')}
+          </div>`;
+        }).join('')
+      : `<div class="panel-empty">本月尚無排班</div>`;
+
+    return `<div class="panel-card">
+      <div class="panel-name">${esc(currentUser.displayName)}</div>
+      <div class="panel-role">${ROLE_LABEL[currentUser.role]||''}${currentUser.apostleTag ? ' · '+esc(currentUser.apostleTag) : ''}</div>
+      <div class="panel-section-title">本月統計</div>
+      <div class="panel-stats">
+        <div class="panel-stat">
+          <div class="panel-stat-num">${totalDays}</div>
+          <div class="panel-stat-label">排班天</div>
+        </div>
+        <div class="panel-stat">
+          <div class="panel-stat-num">${totalSlots}</div>
+          <div class="panel-stat-label">排班時段</div>
+        </div>
+      </div>
+      <div class="panel-actions">
+        <button class="btn btn-outline btn-sm" onclick="openBulkModal()" style="font-size:12px">一次排班</button>
+        <button class="btn btn-danger btn-sm" onclick="clearMonthSchedule()" style="font-size:12px">清除本月排班</button>
+      </div>
+      <div class="panel-section-title">${viewMonth + 1}月排班</div>
+      ${shiftsHtml}
+      <div class="panel-section-title" style="margin-top:.7rem">備忘錄</div>
+      <textarea id="memo-input" class="form-input" style="min-height:72px;font-size:12px;resize:vertical"
+        placeholder="個人備忘…" onblur="saveMemo()">${esc(myMemo)}</textarea>
+    </div>`;
+  }
+
+  // ── Slot view (完整班表, read-only) ──────────────────────────
+  function openSlotView(date, time) {
+    const dt    = new Date(date + 'T00:00:00');
+    const mo    = parseInt(date.slice(5));
+    const day   = parseInt(date.slice(8));
+    const title = `${mo}/${day}（${WD_FULL[dt.getDay()]}）${time}`;
+    const entry  = schedData[`${date}_${sKey(time)}`] || {};
+    const people = Object.values(entry);
+
+    document.getElementById('modal-slot-view-title').textContent = title;
+    document.getElementById('modal-slot-view-body').innerHTML = people.length
+      ? people.map(p => `
+          <div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;${p.isLeave?'opacity:.55':''}">
+            <span style="font-weight:500;${p.isLeave?'text-decoration:line-through;color:var(--red)':''}">${esc(p.displayName)}</span>
+            <span style="font-size:11px;color:var(--dim)">${ROLE_LABEL[p.role]||''}${p.apostleTag?' · '+esc(p.apostleTag):''}</span>
+            ${p.isLeave ? '<span style="font-size:11px;color:var(--red);margin-left:auto">請假</span>' : ''}
+          </div>`).join('')
+      : `<div style="font-size:13px;color:var(--dim);padding:.3rem 0">尚無排班</div>`;
+
+    document.getElementById('modal-slot-view').classList.add('open');
+  }
+
+  function closeSlotView() {
+    document.getElementById('modal-slot-view').classList.remove('open');
+  }
+
+  // ── Week helper ───────────────────────────────────────────────
+  function getUpcomingWeeks(count = 8) {
+    const weeks = [];
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() - start.getDay()); // back to Sunday
+    for (let i = 0; i < count; i++) {
+      const dates = [];
+      for (let j = 0; j < 7; j++) {
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + j);
+        dates.push(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`);
+      }
+      const f = new Date(start), l = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+      weeks.push({
+        label: `${f.getMonth()+1}/${f.getDate()}（${WD_FULL[f.getDay()]}）～ ${l.getMonth()+1}/${l.getDate()}（${WD_FULL[l.getDay()]}）`,
+        dates
+      });
+      start.setDate(start.getDate() + 7);
+    }
+    return weeks;
+  }
+
+  // ── Bulk schedule modal ───────────────────────────────────────
+  function openBulkModal() {
+    bulkMode = 'week';
+    bulkSelectedDay = null;
+    const today = todayStr();
+
+    _bulkWeeks = getUpcomingWeeks(8);
+    document.getElementById('bulk-week-list').innerHTML = _bulkWeeks
+      .map((w, i) => `<label style="display:flex;align-items:center;gap:.55rem;font-size:12px;cursor:pointer;padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.05)">
+        <input type="checkbox" value="${i}" style="accent-color:var(--gold);width:13px;height:13px;flex-shrink:0" onchange="onWeekCheck(this)"> ${w.label}
+      </label>`).join('');
+
+    const WD_ORDER = [0,1,2,3,4,5,6]; // Sun→Sat
+    document.getElementById('bulk-weekday-btns').innerHTML =
+      WD_ORDER.map(d => {
+        const hasFuture = getDatesForWeekday(viewYear, viewMonth, d).some(date => date >= today);
+        return `<button class="seg-btn" data-day="${d}" ${hasFuture ? `onclick="selectBulkDay(${d})"` : 'disabled'}>${WD_FULL[d]}</button>`;
+      }).join('');
+
+    document.getElementById('bulk-slots').innerHTML =
+      TIME_SLOTS.map(t => `<label style="display:flex;align-items:center;gap:.55rem;font-size:13px;cursor:pointer;padding:.1rem 0">
+        <input type="checkbox" value="${t}" style="accent-color:var(--gold);width:13px;height:13px"> ${t}
+      </label>`).join('');
+
+    document.getElementById('bulk-mode-week').classList.add('on');
+    document.getElementById('bulk-mode-day').classList.remove('on');
+    document.getElementById('bulk-week-wrap').style.display = '';
+    document.getElementById('bulk-day-wrap').style.display = 'none';
+    document.getElementById('modal-bulk').classList.add('open');
+  }
+
+  function onWeekCheck(el) {
+    const checked = document.querySelectorAll('#bulk-week-list input:checked');
+    if (checked.length > 4) { el.checked = false; showToast('最多選擇 4 週'); }
+    const hint = document.getElementById('bulk-week-hint');
+    if (hint) hint.textContent = checked.length ? `（已選 ${checked.length} / 4 週）` : '（最多 4 週）';
+  }
+
+  function setBulkMode(mode) {
+    bulkMode = mode;
+    bulkSelectedDay = null;
+    document.getElementById('bulk-mode-week').classList.toggle('on', mode === 'week');
+    document.getElementById('bulk-mode-day').classList.toggle('on', mode === 'day');
+    document.getElementById('bulk-week-wrap').style.display = mode === 'week' ? '' : 'none';
+    document.getElementById('bulk-day-wrap').style.display = mode === 'day' ? '' : 'none';
+  }
+
+  function selectBulkDay(dayJs) {
+    bulkSelectedDay = dayJs;
+    document.querySelectorAll('#bulk-weekday-btns .seg-btn').forEach(btn => {
+      btn.classList.toggle('on', parseInt(btn.dataset.day) === dayJs);
+    });
+  }
+
+  function getDatesForWeekday(year, month, weekday) {
+    const dates = [];
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= lastDay; d++) {
+      if (new Date(year, month, d).getDay() === weekday)
+        dates.push(`${year}-${pad(month + 1)}-${pad(d)}`);
+    }
+    return dates;
+  }
+
+  function closeBulkModal() {
+    document.getElementById('modal-bulk').classList.remove('open');
+  }
+
+  async function confirmBulk() {
+    const selectedSlots = [...document.querySelectorAll('#bulk-slots input:checked')].map(el => el.value);
+    if (!selectedSlots.length) { showToast('請選擇至少一個時段'); return; }
+
+    let dates;
+    if (bulkMode === 'week') {
+      const selectedIdx = [...document.querySelectorAll('#bulk-week-list input:checked')].map(el => parseInt(el.value));
+      if (!selectedIdx.length) { showToast('請選擇至少一週'); return; }
+      dates = [...new Set(selectedIdx.flatMap(i => _bulkWeeks[i].dates))];
+    } else {
+      if (bulkSelectedDay === null) { showToast('請選擇星期幾'); return; }
+      dates = getDatesForWeekday(viewYear, viewMonth, bulkSelectedDay);
+    }
+
+    const today = todayStr();
+    const writes = [];
+    for (const date of dates) {
+      if (date < today) continue;
+      for (const t of selectedSlots) {
+        if (t === '22:00' && !isAdmin()) {
+          const entry = schedData[`${date}_${sKey(t)}`] || {};
+          if (!Object.values(entry).some(p => p.role === 'admin')) continue;
+        }
+        writes.push(db.ref(`schedules/${date}_${sKey(t)}/${currentUser.uid}`).set({
+          uid: currentUser.uid, displayName: currentUser.displayName,
+          role: currentUser.role, apostleTag: currentUser.apostleTag || '',
+          signedAt: new Date().toISOString()
+        }));
+      }
+    }
+    await Promise.all(writes);
+    closeBulkModal();
+    showToast(`已完成排班（${writes.length} 個時段）`);
+  }
+
+  // ── Clear month schedule ──────────────────────────────────────
+  async function clearMonthSchedule() {
+    if (!confirm(`確定清除 ${viewMonth + 1} 月所有排班？`)) return;
+    const monthPrefix = `${viewYear}-${pad(viewMonth + 1)}`;
+    const removes = [];
+    for (const key of Object.keys(schedData)) {
+      if (!key.startsWith(monthPrefix)) continue;
+      if (!schedData[key][currentUser.uid]) continue;
+      removes.push(db.ref(`schedules/${key}/${currentUser.uid}`).remove());
+    }
+    await Promise.all(removes);
+    showToast('已清除本月所有排班');
+  }
+
+  // ── Memo ─────────────────────────────────────────────────────
+  async function saveMemo() {
+    const el = document.getElementById('memo-input');
+    if (!el) return;
+    const text = el.value;
+    if (text === myMemo) return;
+    myMemo = text;
+    await db.ref(`memos/${currentUser.uid}`).set({ text, updatedAt: new Date().toISOString() });
+  }
+
+  function showToast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2200);
+  }
+
+  // ── Tap slot ──────────────────────────────────────────────────
+  async function tapSlot(date, time) {
+    if (!currentUser) return;
+    if (date < todayStr()) return;
+    if (time === '22:00' && !isAdmin()) {
+      const entry = schedData[`${date}_${sKey(time)}`] || {};
+      const alreadyIn = !!entry[currentUser.uid];
+      if (!alreadyIn) {
+        const adminInSlot = Object.values(entry).some(p => p.role === 'admin' && !p.isLeave);
+        if (!adminInSlot) { showToast('22:00 時段需要店長先排班才可加入'); return; }
+      }
+    }
+    const ref  = db.ref(`schedules/${date}_${sKey(time)}/${currentUser.uid}`);
+    const snap = await ref.once('value');
+    const existing = snap.val();
+    if (existing) {
+      if (existing.isLeave) { showToast('已請假，可從個人面板恢復排班'); return; }
+      await ref.remove();
+      sendDiscord(`❌ **${currentUser.displayName}** 取消了 ${fmtDateDisc(date)} ${time} 的班`);
+    } else {
+      await ref.set({
+        uid: currentUser.uid, displayName: currentUser.displayName,
+        role: currentUser.role, apostleTag: currentUser.apostleTag || '',
+        signedAt: new Date().toISOString()
+      });
+      sendDiscord(`📋 **${currentUser.displayName}** 登記了 ${fmtDateDisc(date)} ${time} 的班`);
+    }
+  }
+
+  // ── Day modal ─────────────────────────────────────────────────
+  function openDayModal(date) {
+    _dayDate = date;
+    refreshDayModal();
+    document.getElementById('modal-day').classList.add('open');
+  }
+
+  function refreshDayModal() {
+    if (!_dayDate) return;
+    const date = _dayDate;
+    const dt   = new Date(date + 'T00:00:00');
+    const biz  = bizStatus[date];
+    document.getElementById('modal-day-title').textContent = `${date}（${WD_FULL[dt.getDay()]}）`;
+
+    const condMet = isBizDay(date);
+    const bizRow = `
+      <div class="biz-toggle-row">
+        <div>
+          <span style="font-size:13px">開業狀態</span>
+          <span style="font-size:11px;color:${condMet ? 'var(--green)' : 'var(--dim)'};margin-left:.5rem">
+            ${condMet ? '● 條件符合' : '○ 條件未符合'}
+          </span>
+        </div>
+        <button onclick="toggleBiz('${date}')"
+          style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .85rem;
+                 border:1px solid ${biz?.isOpen ? 'var(--green)' : 'var(--border)'};
+                 color:${biz?.isOpen ? 'var(--green)' : 'var(--dim)'};
+                 background:none;cursor:pointer;font-family:inherit;font-size:13px">
+          <span style="font-size:8px">●</span>${biz?.isOpen ? '預定營業' : '休業中'}
+        </button>
+      </div>`;
+
+    const slotsHtml = TIME_SLOTS.map(t => {
+      const k      = `${date}_${sKey(t)}`;
+      const entry  = schedData[k] || {};
+      const people = Object.values(entry);
+      const rows   = people.length
+        ? people.map(p => `
+            <div class="person-row"${p.isLeave?' style="opacity:.65"':''}>
+              <span style="${p.isLeave?'text-decoration:line-through;color:var(--red)':''}">
+                ${esc(p.displayName)}<span style="font-size:11px;color:var(--dim);margin-left:.4rem">${ROLE_LABEL[p.role]||''}${p.apostleTag?' · '+esc(p.apostleTag):''}</span>
+                ${p.isLeave?'<span style="font-size:11px;color:var(--red);margin-left:.35rem">請假</span>':''}
+              </span>
+              <button class="btn btn-danger btn-sm" style="font-size:11px" onclick="removePerson('${date}','${t}','${p.uid}')">移除</button>
+            </div>`).join('')
+        : '<div style="font-size:12px;color:var(--dim);padding:.2rem 0">尚無排班</div>';
+      return `<div class="day-slot-block">
+        <div class="day-slot-hdr">
+          <span>${t}</span>
+          <button class="btn btn-outline btn-sm" style="font-size:11px" onclick="openAddModal('${date}','${t}')">＋ 新增</button>
+        </div>
+        ${rows}
+      </div>`;
+    }).join('');
+
+    document.getElementById('modal-day-body').innerHTML = bizRow + slotsHtml;
+  }
+
+  function closeDayModal() {
+    document.getElementById('modal-day').classList.remove('open');
+    _dayDate = null;
+  }
+
+  async function removePerson(date, time, uid) {
+    const entry  = schedData[`${date}_${sKey(time)}`] || {};
+    const person = entry[uid];
+    await db.ref(`schedules/${date}_${sKey(time)}/${uid}`).remove();
+    if (person) sendDiscord(`🔧 管理員 **${currentUser.displayName}** 移除了 **${person.displayName}** 在 ${fmtDateDisc(date)} ${time} 的班`);
+  }
+
+  function toggleBiz(date) {
+    const isOpen = bizStatus[date]?.isOpen || false;
+    db.ref('bizStatus/' + date).set({
+      isOpen: !isOpen, setBy: currentUser.displayName, setAt: new Date().toISOString()
+    });
+  }
+
+  // ── Add person modal ──────────────────────────────────────────
+  function openAddModal(date, time) {
+    _addDate = date;
+    _addTime = time;
+    const k      = `${date}_${sKey(time)}`;
+    const signed = new Set(Object.keys(schedData[k] || {}));
+    const opts   = staff.filter(s => !signed.has(s.uid))
+      .map(s => `<option value="${s.uid}">${esc(s.displayName)} (${ROLE_LABEL[s.role]||''})</option>`)
+      .join('') || '<option disabled>所有人員已在班表中</option>';
+    document.getElementById('add-who').innerHTML = opts;
+    document.getElementById('modal-add-title').textContent = `新增人員 · ${time}`;
+    document.getElementById('modal-add').classList.add('open');
+  }
+
+  function closeAddModal() {
+    document.getElementById('modal-add').classList.remove('open');
+  }
+
+  async function confirmAdd() {
+    const uid    = document.getElementById('add-who').value;
+    const member = staff.find(s => s.uid === uid);
+    if (!member) return;
+    await db.ref(`schedules/${_addDate}_${sKey(_addTime)}/${uid}`).set({
+      uid: member.uid, displayName: member.displayName,
+      role: member.role, apostleTag: member.apostleTag || '',
+      signedAt: new Date().toISOString()
+    });
+    closeAddModal();
+  }
+
+  // ── Announcement modal ────────────────────────────────────────
+  function openAnnoModal() {
+    document.getElementById('anno-text').value = announcement?.text || '';
+    document.getElementById('modal-anno').classList.add('open');
+  }
+
+  function closeAnnoModal() {
+    document.getElementById('modal-anno').classList.remove('open');
+  }
+
+  async function saveAnnouncement() {
+    const text = document.getElementById('anno-text').value.trim();
+    if (!text) { await clearAnnouncement(); return; }
+    await db.ref('announcement').set({
+      text, updatedBy: currentUser.displayName, updatedAt: new Date().toISOString()
+    });
+    closeAnnoModal();
+  }
+
+  async function clearAnnouncement() {
+    if (announcement?.text && !confirm('確定清除公告？')) return;
+    await db.ref('announcement').remove();
+    closeAnnoModal();
+  }
+
+  // ── Accounts ──────────────────────────────────────────────────
+  function renderAccounts() {
+    db.ref('pendingStaff').once('value').then(snap => {
+      const pending = snap.val() ? Object.values(snap.val()) : [];
+
+      const pendingHtml = pending.map(p => `
+        <div class="acct-row">
+          <div style="flex:1">
+            <div style="font-size:12px;color:var(--dim);margin-bottom:.3rem">${esc(p.email)}</div>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+              <input id="pn-${p.uid}" class="form-input" style="width:110px" placeholder="顯示名稱" value="${esc(p.displayName||'')}">
+              <select id="pr-${p.uid}" class="form-input" style="width:82px">
+                <option value="apostle">使徒</option>
+                <option value="guide">引路人</option>
+                <option value="admin">管理員</option>
+              </select>
+              <input id="pt-${p.uid}" class="form-input" style="width:95px" placeholder="標記（食罪…）">
+            </div>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="approveStaff('${p.uid}')">核准</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectStaff('${p.uid}')">拒絕</button>
+        </div>`).join('') || '<div style="color:var(--dim);font-size:13px">無待審請求</div>';
+
+      const staffHtml = staff.map(s => `
+        <div class="acct-row">
+          <span style="min-width:85px;font-weight:500">${esc(s.displayName)}</span>
+          <span style="flex:1;font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.email)}</span>
+          <span style="font-size:11px;padding:.12rem .42rem;border:1px solid var(--border);color:var(--dim);white-space:nowrap">
+            ${ROLE_LABEL[s.role]||''}${s.apostleTag?' · '+esc(s.apostleTag):''}
+          </span>
+          ${s.uid !== currentUser.uid
+            ? `<button class="btn btn-danger btn-sm" style="font-size:11px" onclick="removeStaff('${s.uid}')">移除</button>`
+            : '<span style="font-size:11px;color:var(--dim)">(你)</span>'}
+        </div>`).join('') || '<div style="color:var(--dim);font-size:13px">尚無帳號</div>';
+
+      document.getElementById('main').innerHTML = `
+        ${tabBar()}
+        <div class="card" style="margin-bottom:.75rem">
+          <div class="card-title">待審核登入請求</div>
+          ${pendingHtml}
+        </div>
+        <div class="card" style="margin-bottom:.75rem">
+          <div class="card-title">已授權帳號</div>
+          ${staffHtml}
+        </div>
+        <div class="card">
+          <div class="card-title">Discord 通知設定</div>
+          <div class="form-label">Webhook URL</div>
+          <div style="display:flex;gap:.5rem">
+            <input id="webhook-url-input" class="form-input" placeholder="https://discord.com/api/webhooks/…" value="${esc(discordWebhook)}">
+            <button class="btn btn-gold btn-sm" onclick="saveWebhook()" style="white-space:nowrap">儲存</button>
+            <button class="btn btn-outline btn-sm" onclick="testWebhook()" style="white-space:nowrap">測試</button>
+          </div>
+          <div style="font-size:11px;color:var(--dim);margin-top:.38rem">排班登記、取消、請假時自動傳送通知至指定 Discord 頻道</div>
+        </div>`;
+    });
+  }
+
+  async function approveStaff(uid) {
+    const snap = await db.ref('pendingStaff/' + uid).once('value');
+    const p = snap.val(); if (!p) return;
+    const name = document.getElementById('pn-' + uid)?.value.trim() || p.displayName || p.email;
+    const role = document.getElementById('pr-' + uid)?.value || 'apostle';
+    const tag  = document.getElementById('pt-' + uid)?.value.trim() || '';
+    await db.ref('staff/' + uid).set({
+      uid, email: p.email, displayName: name, role, apostleTag: tag,
+      createdAt: new Date().toISOString()
+    });
+    await db.ref('pendingStaff/' + uid).remove();
+    renderAccounts();
+  }
+
+  async function rejectStaff(uid) {
+    if (!confirm('確定拒絕此請求？')) return;
+    await db.ref('pendingStaff/' + uid).remove();
+    renderAccounts();
+  }
+
+  async function removeStaff(uid) {
+    if (!confirm('確定移除此帳號？')) return;
+    await db.ref('staff/' + uid).remove();
+  }
+
+  // ── Discord Webhook ───────────────────────────────────────────
+  function fmtDateDisc(dateStr) {
+    const dt = new Date(dateStr + 'T00:00:00');
+    return `${dt.getMonth()+1}月${dt.getDate()}日（${'日一二三四五六'[dt.getDay()]}）`;
+  }
+
+  async function sendDiscord(content) {
+    if (!discordWebhook) return;
+    try {
+      await fetch(discordWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+    } catch(e) {}
+  }
+
+  async function saveWebhook() {
+    const url = document.getElementById('webhook-url-input').value.trim();
+    await db.ref('settings/discordWebhook').set(url || null);
+    showToast(url ? 'Webhook 已儲存' : 'Webhook 已清除');
+  }
+  async function testWebhook() {
+    const url = document.getElementById('webhook-url-input').value.trim();
+    if (!url) { showToast('請先輸入 Webhook URL'); return; }
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: '🔔 **安息地排班系統** — Webhook 測試成功！' })
+      });
+      if (res.ok || res.status === 204) showToast('測試訊息已送出');
+      else showToast(`送出失敗 (${res.status})`);
+    } catch(e) {
+      showToast('送出失敗：' + e.message);
+    }
+  }
+
+  // ── Leave ─────────────────────────────────────────────────────
+  async function requestLeave(date, time) {
+    if (!currentUser) return;
+    const ref  = db.ref(`schedules/${date}_${sKey(time)}/${currentUser.uid}`);
+    const snap = await ref.once('value');
+    if (!snap.exists()) { showToast('尚未排班'); return; }
+    await ref.update({ isLeave: true, leaveAt: new Date().toISOString() });
+    sendDiscord(`🏖️ **${currentUser.displayName}** 在 ${fmtDateDisc(date)} ${time} 申請請假`);
+    showToast('已申請請假');
+  }
+
+  async function cancelLeave(date, time) {
+    if (!currentUser) return;
+    const ref = db.ref(`schedules/${date}_${sKey(time)}/${currentUser.uid}`);
+    await ref.update({ isLeave: null, leaveAt: null });
+    sendDiscord(`✅ **${currentUser.displayName}** 取消了在 ${fmtDateDisc(date)} ${time} 的請假`);
+    showToast('已恢復排班');
+  }
+
+  // ── Export ────────────────────────────────────────────────────
+  function openExportModal() {
+    document.getElementById('export-month-label').textContent = `${viewYear}年${viewMonth + 1}月`;
+    document.getElementById('export-table-wrap').innerHTML = buildExportTable();
+    document.getElementById('modal-export').classList.add('open');
+  }
+
+  function closeExportModal() {
+    document.getElementById('modal-export').classList.remove('open');
+  }
+
+  function buildExportTable() {
+    const monthPrefix = `${viewYear}-${pad(viewMonth + 1)}`;
+    const datesSet = new Set();
+    for (const key of Object.keys(schedData)) {
+      if (!key.startsWith(monthPrefix)) continue;
+      if (!Object.keys(schedData[key]).length) continue;
+      datesSet.add(key.slice(0, 10));
+    }
+    if (!datesSet.size) return '<div style="color:var(--dim);font-size:13px;padding:.5rem 0">本月尚無排班資料</div>';
+    const dates = [...datesSet].sort();
+    const header = `<tr><th>日期</th>${TIME_SLOTS.map(t => `<th>${t}</th>`).join('')}</tr>`;
+    const rows = dates.map(date => {
+      const dt     = new Date(date + 'T00:00:00');
+      const isBiz  = !!bizStatus[date]?.isOpen;
+      const mo     = dt.getMonth() + 1;
+      const d      = dt.getDate();
+      const wd     = WD_FULL[dt.getDay()];
+      const dLabel = `${mo}/${d}（${wd}）${isBiz ? ' ★' : ''}`;
+      const cells  = TIME_SLOTS.map(t => {
+        const people = Object.values(schedData[`${date}_${sKey(t)}`] || {});
+        if (!people.length) return '<td></td>';
+        return `<td>${people.map(p =>
+          `<span class="export-person${p.isLeave?' leave':''}">${esc(p.displayName)}${p.isLeave?' (請假)':''}</span>`
+        ).join('')}</td>`;
+      }).join('');
+      return `<tr${isBiz?' class="biz-row"':''}><td class="date-col">${dLabel}</td>${cells}</tr>`;
+    }).join('');
+    return `<table class="export-tbl">${header}${rows}</table>`;
+  }
+
+  async function downloadScheduleImg() {
+    const el = document.getElementById('export-table-wrap');
+    try {
+      const canvas = await html2canvas(el, { backgroundColor: '#1a1510', scale: 2, useCORS: true });
+      const a = document.createElement('a');
+      a.download = `安息地排班_${viewYear}${pad(viewMonth + 1)}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    } catch(e) {
+      showToast('匯出失敗，請稍後再試');
+    }
+  }
+</script>
+</body>
+</html>
