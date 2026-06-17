@@ -1440,14 +1440,19 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
 
   async function downloadScheduleImg() {
     const el = document.getElementById('export-table-wrap');
+    el.style.maxHeight = 'none';
+    el.style.overflow  = 'visible';
     try {
-      const canvas = await window.html2canvas(el, { backgroundColor: '#1a1510', scale: 2, useCORS: true });
+      const canvas = await window.html2canvas(el, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true });
       const a = document.createElement('a');
       a.download = `安息地排班_${viewYear}${pad(viewMonth + 1)}.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
     } catch(e) {
       showToast('匯出失敗，請稍後再試');
+    } finally {
+      el.style.maxHeight = '';
+      el.style.overflow  = '';
     }
   }
 
