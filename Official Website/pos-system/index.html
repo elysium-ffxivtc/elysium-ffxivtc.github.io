@@ -1614,44 +1614,55 @@
       if (isDining) updateSpecialMenu();
     }
 
+    const BOOKED_TIMES = ['22:00','22:30','23:00','23:30','00:00','00:30'];
+    const VT_HOURS = [22,23,0,1];
+    const _drumStyle = 'display:inline-flex;flex-direction:column;align-items:stretch;width:58px;border:1px solid var(--border);border-radius:6px;background:var(--card);overflow:hidden;cursor:ns-resize;user-select:none;text-align:center';
+    const _drumPrev  = 'padding:.3rem 0;font-size:12px;color:var(--dim);opacity:.55';
+    const _drumCur   = 'padding:.38rem 0;font-size:1rem;color:var(--gold);font-weight:700;background:rgba(180,150,80,.08);border-top:1px solid rgba(180,150,80,.2);border-bottom:1px solid rgba(180,150,80,.2)';
+    const _drumNext  = 'padding:.3rem 0;font-size:12px;color:var(--dim);opacity:.55';
+
     function renderVTimeField(type, val) {
       const wrap = document.getElementById('v-time-wrap');
       if (!wrap) return;
       if (type === 'booked') {
-        wrap.innerHTML = `<select class="pos-select" id="v-time">
-          <option value="">選擇場次</option>
-          <option>22:00</option><option>22:30</option><option>23:00</option>
-          <option>23:30</option><option>00:00</option><option>00:30</option>
-        </select>`;
-        if (val) document.getElementById('v-time').value = val;
-      } else {
-        const hVal = val ? val.split(':')[0] : '';
-        const mVal = val ? val.split(':')[1] : '';
+        _vtBookedIdx = val ? Math.max(0, BOOKED_TIMES.indexOf(val)) : 0;
+        const n = BOOKED_TIMES.length;
         wrap.innerHTML = `
-          <div style="display:flex;align-items:center;gap:.5rem">
-            <div class="dr-wrap" id="vt-h-wrap" style="flex:1">
-              <div class="dr-display" style="padding:0">
-                <input type="text" id="vt-h-inp" class="pos-input" maxlength="2" placeholder="HH"
-                       style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
-                       value="${hVal}" onclick="this.select()" oninput="vtHFromInput()">
-                <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
-                      onclick="vtToggle('h')">▼</span>
-              </div>
-              <div id="vt-h-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
+          <div id="vt-booked-drum" style="${_drumStyle}">
+            <div onclick="vtBookedScroll(-1)" style="${_drumPrev}">${BOOKED_TIMES[(_vtBookedIdx-1+n)%n]}</div>
+            <div style="${_drumCur}">${BOOKED_TIMES[_vtBookedIdx]}</div>
+            <div onclick="vtBookedScroll(1)"  style="${_drumNext}">${BOOKED_TIMES[(_vtBookedIdx+1)%n]}</div>
+          </div>
+          <input type="hidden" id="v-time" value="${BOOKED_TIMES[_vtBookedIdx]}">`;
+        const d = document.getElementById('vt-booked-drum');
+        if (d) d.addEventListener('wheel', e => { e.preventDefault(); vtBookedScroll(e.deltaY>0?1:-1); }, { passive:false });
+      } else {
+        const hVal = val ? parseInt(val.split(':')[0]) : new Date().getHours();
+        const mVal = val ? parseInt(val.split(':')[1]) : new Date().getMinutes();
+        _vtHIdx = Math.max(0, VT_HOURS.indexOf(hVal) >= 0 ? VT_HOURS.indexOf(hVal) : 0);
+        _vtMDrum = ((mVal >= 0 && mVal < 60) ? mVal : 0);
+        _vt.h = VT_HOURS[_vtHIdx]; _vt.m = _vtMDrum;
+        const hn = VT_HOURS.length;
+        wrap.innerHTML = `
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <div id="vt-h-drum" style="${_drumStyle}">
+              <div onclick="vtHDrumScroll(-1)" style="${_drumPrev}">${String(VT_HOURS[(_vtHIdx-1+hn)%hn]).padStart(2,'0')}</div>
+              <div style="${_drumCur}">${String(VT_HOURS[_vtHIdx]).padStart(2,'0')}</div>
+              <div onclick="vtHDrumScroll(1)"  style="${_drumNext}">${String(VT_HOURS[(_vtHIdx+1)%hn]).padStart(2,'0')}</div>
             </div>
-            <span style="color:var(--dim);font-size:1.1rem;flex-shrink:0">:</span>
-            <div class="dr-wrap" id="vt-m-wrap" style="flex:1">
-              <div class="dr-display" style="padding:0">
-                <input type="text" id="vt-m-inp" class="pos-input" maxlength="2" placeholder="MM"
-                       style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
-                       value="${mVal}" onclick="this.select()" oninput="vtMFromInput()">
-                <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
-                      onclick="vtToggle('m')">▼</span>
-              </div>
-              <div id="vt-m-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
+            <span style="color:var(--dim);font-size:1.1rem">:</span>
+            <div id="vt-m-drum" style="${_drumStyle}">
+              <div onclick="vtMDrumScroll(-1)" style="${_drumPrev}">${String((_vtMDrum-1+60)%60).padStart(2,'0')}</div>
+              <div style="${_drumCur}">${String(_vtMDrum).padStart(2,'0')}</div>
+              <div onclick="vtMDrumScroll(1)"  style="${_drumNext}">${String((_vtMDrum+1)%60).padStart(2,'0')}</div>
             </div>
           </div>
-          <input type="hidden" id="v-time" value="${val || ''}">`;
+          <input type="hidden" id="v-time" value="${val||''}">`;
+        const dh = document.getElementById('vt-h-drum');
+        const dm = document.getElementById('vt-m-drum');
+        if (dh) dh.addEventListener('wheel', e => { e.preventDefault(); vtHDrumScroll(e.deltaY>0?1:-1); }, { passive:false });
+        if (dm) dm.addEventListener('wheel', e => { e.preventDefault(); vtMDrumScroll(e.deltaY>0?1:-1); }, { passive:false });
+        _vtSync();
       }
     }
 
@@ -1952,10 +1963,21 @@
       if (v.type === 'walkin' && v.time) {
         const [hh, mm] = v.time.split(':');
         _vt.h = parseInt(hh); _vt.m = parseInt(mm);
-        const hInp = document.getElementById('vt-h-inp');
-        const mInp = document.getElementById('vt-m-inp');
-        if (hInp) hInp.value = hh;
-        if (mInp) mInp.value = mm;
+        _vtHIdx = Math.max(0, VT_HOURS.indexOf(_vt.h) >= 0 ? VT_HOURS.indexOf(_vt.h) : 0);
+        _vtMDrum = _vt.m >= 0 ? _vt.m : 0;
+        const hDrum = document.getElementById('vt-h-drum');
+        const mDrum = document.getElementById('vt-m-drum');
+        const hn = VT_HOURS.length;
+        if (hDrum) {
+          hDrum.children[0].textContent = String(VT_HOURS[(_vtHIdx-1+hn)%hn]).padStart(2,'0');
+          hDrum.children[1].textContent = String(VT_HOURS[_vtHIdx]).padStart(2,'0');
+          hDrum.children[2].textContent = String(VT_HOURS[(_vtHIdx+1)%hn]).padStart(2,'0');
+        }
+        if (mDrum) {
+          mDrum.children[0].textContent = String((_vtMDrum-1+60)%60).padStart(2,'0');
+          mDrum.children[1].textContent = String(_vtMDrum).padStart(2,'0');
+          mDrum.children[2].textContent = String((_vtMDrum+1)%60).padStart(2,'0');
+        }
         const hidden = document.getElementById('v-time');
         if (hidden) hidden.value = v.time;
       } else {
@@ -2069,7 +2091,7 @@
         <!-- 新增活動 -->
         <div class="pos-card">
           <div class="pos-card-title">新增活動</div>
-          <div class="pos-form-grid" style="margin-bottom:.85rem">
+          <div style="display:grid;grid-template-columns:1fr auto;gap:.85rem;align-items:end;margin-bottom:.85rem">
             <div>
               <label class="pos-lbl">活動名稱 *</label>
               <input class="pos-input" id="ev-name" type="text" placeholder="例：週年慶特別活動">
@@ -2475,8 +2497,39 @@
       if (!isNaN(v) && v >= 0 && v <= 59) _ot.m = v;
     }
 
-    // ── Visit time picker (H combobox + M combobox) ──
+    // ── Visit time picker (drum roll) ──
     let _vt = { h: -1, m: -1 };
+    let _vtBookedIdx = 0, _vtHIdx = 0, _vtMDrum = 0;
+
+    function vtBookedScroll(d) {
+      const n = BOOKED_TIMES.length;
+      _vtBookedIdx = (_vtBookedIdx + d + n) % n;
+      const drum = document.getElementById('vt-booked-drum');
+      if (!drum) return;
+      drum.children[0].textContent = BOOKED_TIMES[(_vtBookedIdx-1+n)%n];
+      drum.children[1].textContent = BOOKED_TIMES[_vtBookedIdx];
+      drum.children[2].textContent = BOOKED_TIMES[(_vtBookedIdx+1)%n];
+      const h = document.getElementById('v-time'); if (h) h.value = BOOKED_TIMES[_vtBookedIdx];
+    }
+    function vtHDrumScroll(d) {
+      const n = VT_HOURS.length;
+      _vtHIdx = (_vtHIdx + d + n) % n;
+      _vt.h = VT_HOURS[_vtHIdx];
+      const drum = document.getElementById('vt-h-drum'); if (!drum) return;
+      drum.children[0].textContent = String(VT_HOURS[(_vtHIdx-1+n)%n]).padStart(2,'0');
+      drum.children[1].textContent = String(VT_HOURS[_vtHIdx]).padStart(2,'0');
+      drum.children[2].textContent = String(VT_HOURS[(_vtHIdx+1)%n]).padStart(2,'0');
+      _vtSync();
+    }
+    function vtMDrumScroll(d) {
+      _vtMDrum = (_vtMDrum + d + 60) % 60;
+      _vt.m = _vtMDrum;
+      const drum = document.getElementById('vt-m-drum'); if (!drum) return;
+      drum.children[0].textContent = String((_vtMDrum-1+60)%60).padStart(2,'0');
+      drum.children[1].textContent = String(_vtMDrum).padStart(2,'0');
+      drum.children[2].textContent = String((_vtMDrum+1)%60).padStart(2,'0');
+      _vtSync();
+    }
 
     function _vtSync() {
       const h = _vt.h, m = _vt.m;
