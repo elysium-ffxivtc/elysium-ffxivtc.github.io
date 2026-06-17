@@ -3412,17 +3412,6 @@
 
         <div class="settle-other-grid">
           <div class="settle-other-card">
-            <div class="settle-other-lbl">引路人（接待）× ${numPilgrimsEff} 位</div>
-            <div class="settle-other-detail">
-              ${totWreath ? `入場費 ${totWreath.toLocaleString()} × 10% = ${Math.floor(totWreath*0.1).toLocaleString()}<br>` : ''}
-              ${svTotal   ? `紀念品 ${svTotal.toLocaleString()} × 10% = ${svPilgrim.toLocaleString()}<br>` : ''}
-              ${!totWreath && !svTotal ? '—<br>' : ''}
-              ${numPilgrimsEff > 1 ? `<span style="color:var(--text)">每位 ${pilgrimEach.toLocaleString()} Gil</span>` : ''}
-              ${pilgrimPhotoLines ? `<div style="border-top:1px solid var(--border);margin-top:.3rem;padding-top:.3rem;font-size:12px;color:var(--dim)">拍立得（引路人）${pilgrimPhotoCuts.toLocaleString()} Gil${pilgrimPhotoLines}</div>` : ''}
-            </div>
-            <div class="settle-other-val">${(pilgrimPool + pilgrimPhotoCuts).toLocaleString()} Gil</div>
-          </div>
-          <div class="settle-other-card">
             <div class="settle-other-lbl">店家</div>
             <div class="settle-other-detail">
               ${totWreath    ? `入場費 × 70% = ${Math.floor(totWreath*0.7).toLocaleString()}<br>` : ''}
