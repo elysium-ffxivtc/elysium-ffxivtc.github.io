@@ -779,7 +779,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
         const entry   = schedData[k] || {};
         const count   = Object.values(entry).filter(p => !p.isLeave).length;
         const myEntry = currentUser ? entry[currentUser.uid] : null;
-        const mine    = !readOnly && !!myEntry;
+        const mine    = !!myEntry;
         const onLeave = mine && !!myEntry?.isLeave;
         const adminInSlot = Object.values(entry).some(p => p.role === 'admin' && !p.isLeave);
         const locked  = !readOnly && !isAdmin() && t === '22:00' && !adminInSlot && !mine;
