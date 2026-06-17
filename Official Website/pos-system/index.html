@@ -480,7 +480,7 @@
     }
     .pos-nav-btn:hover { color: var(--text); }
     .pos-nav-btn.on { color: var(--gold); border-bottom-color: var(--gold); }
-    body.guide-mode .admin-only { display: none !important; }
+    body.pilgrim-mode .admin-only { display: none !important; }
 
     /* Roster table */
     .roster-table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -903,6 +903,11 @@
             return;
           }
           const s = snap.val();
+          if (s.role !== 'admin' && s.role !== 'pilgrim') {
+            document.getElementById('pos-auth-err').textContent = '此帳號無權限使用 POS 系統';
+            await firebase.auth().signOut();
+            return;
+          }
           posUser = { uid: user.uid, displayName: s.displayName, role: s.role };
           document.getElementById('pos-auth-overlay').classList.remove('show');
           applyUserMode();
@@ -2737,9 +2742,9 @@
 
     function applyUserMode() {
       if (isAdmin()) {
-        document.body.classList.remove('guide-mode');
+        document.body.classList.remove('pilgrim-mode');
       } else {
-        document.body.classList.add('guide-mode');
+        document.body.classList.add('pilgrim-mode');
       }
       const adminOnly = ['stats','activity','settlement','staff'];
       if (!isAdmin() && adminOnly.includes(currentNav)) setNav('customer');

@@ -469,7 +469,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
   let viewMonth = _now.getMonth();
 
   const TIME_SLOTS = ['22:00', '23:00', '00:00', '01:00'];
-  const ROLE_LABEL = { admin: '管理員', guide: '引路人', apostle: '使徒' };
+  const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
   const WEEK_DAYS  = ['日', '一', '二', '三', '四', '五', '六'];
   const WD_FULL    = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -1256,7 +1256,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
               <input id="pn-${p.uid}" class="form-input" style="width:110px" placeholder="顯示名稱" value="${esc(p.displayName||'')}">
               <select id="pr-${p.uid}" class="form-input" style="width:82px">
                 <option value="apostle">使徒</option>
-                <option value="guide">引路人</option>
+                <option value="pilgrim">引路人</option>
                 <option value="admin">管理員</option>
               </select>
               <input id="pt-${p.uid}" class="form-input" style="width:95px" placeholder="標記（食罪…）">
