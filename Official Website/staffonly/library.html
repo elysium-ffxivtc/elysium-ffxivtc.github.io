@@ -56,8 +56,14 @@
       position: sticky; top: 0; z-index: 10;
     }
     .lib-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; letter-spacing: .2em; color: var(--gold); }
-    .lib-signout { background: none; border: none; color: var(--dim2); font-size: 12px; font-family: inherit; letter-spacing: .08em; padding: .2rem .4rem; transition: color .15s; }
-    .lib-signout:hover { color: var(--dim); }
+    .hdr-clock { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: .5rem; }
+    .hdr-clock-time { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--gold); letter-spacing: .05em; }
+    .hdr-clock-date { font-size: 12px; color: var(--dim); }
+    .user-badge { display: flex; align-items: center; gap: .5rem; font-size: 12px; min-width: 0; }
+    .user-badge-name { color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+    .user-badge-role { font-size: 11px; color: var(--dim); padding: .1rem .4rem; border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; }
+    .user-badge-signout { background: none; border: 1px solid var(--border); color: var(--dim); font-size: 11px; font-family: inherit; padding: .2rem .55rem; white-space: nowrap; flex-shrink: 0; transition: all .15s; }
+    .user-badge-signout:hover { border-color: var(--dim); color: var(--text); }
 
     /* ── Main ── */
     .lib-main { max-width: 980px; margin: 0 auto; padding: 1.75rem; }
@@ -219,7 +225,10 @@
 
   <header class="lib-header">
     <div class="lib-title">✦ 安息地 · 圖書室</div>
-    <button class="lib-signout" onclick="doSignOut()">登出</button>
+    <div style="display:flex;align-items:center;gap:.85rem">
+      <div id="hdr-clock" class="hdr-clock"></div>
+      <div id="user-badge" class="user-badge" style="display:none"></div>
+    </div>
   </header>
 
   <main class="lib-main">
@@ -335,10 +344,33 @@
         document.getElementById('btn-add-meeting').style.display  = '';
         document.getElementById('btn-add-announce').style.display = '';
       }
+      renderBadge();
       loadEntries();
       loadAnnouncements();
     });
+
+    const ROLE_LABEL = { admin: '管理員', staff: '工作人員', pilgrim: '引路人' };
+    function renderBadge() {
+      const el = document.getElementById('user-badge');
+      el.style.display = 'flex';
+      el.innerHTML =
+        `<span class="user-badge-name">${esc(_displayName)}</span>` +
+        `<span class="user-badge-role">${ROLE_LABEL[_role]||''}</span>` +
+        `<button class="user-badge-signout" onclick="doSignOut()">登出</button>`;
+    }
     function doSignOut() { firebase.auth().signOut().then(() => { window.location.href = 'index.html'; }); }
+
+    (function tickClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2,'0');
+      const m = String(now.getMinutes()).padStart(2,'0');
+      const s = String(now.getSeconds()).padStart(2,'0');
+      const el = document.getElementById('hdr-clock');
+      if (el) el.innerHTML =
+        `<span class="hdr-clock-time">${h}:${m}:${s}</span>` +
+        `<span class="hdr-clock-date">${now.getMonth()+1}月${now.getDate()}日（${'日一二三四五六'[now.getDay()]}）</span>`;
+      setTimeout(tickClock, 1000 - now.getMilliseconds());
+    })();
 
     // ── Helpers ──
     function fmtDate(s) {
