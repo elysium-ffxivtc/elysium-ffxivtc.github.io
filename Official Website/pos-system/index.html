@@ -3399,10 +3399,9 @@
       const houseTotal = Math.floor(totWreath * 0.7) + photoHouseCut + svHouse + totOrders + totHouseOther;
 
       // 使徒區塊
-      const apostleBlocks = names.map(name => {
+      const apostleBlocks = names.filter(n => n !== '（未指定）').map(name => {
         const a = aMap[name];
-        const isRealApostle = name !== '（未指定）';
-        const wCut  = isRealApostle && totWreath > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numApostlesEff) : 0;
+        const wCut  = totWreath > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numApostlesEff) : 0;
         const nCut  = a.nomen;
         const pCut  = a.photos * 20000;
         const exCut = a.photoExtras * 20000;
@@ -3410,7 +3409,7 @@
         const sub   = wCut + nCut + pCut + exCut + sCut;
 
         const rows = [
-          isRealApostle && totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numApostlesEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numApostlesEff}</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
+          totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numApostlesEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numApostlesEff}</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
           a.nomen       ? `<div class="settle-row"><span class="settle-row-lbl">指名費（顯名儀）</span><span class="settle-row-base">${a.nomen.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${nCut.toLocaleString()}</span></div>` : '',
           a.photos      ? `<div class="settle-row"><span class="settle-row-lbl">交名留影</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
           a.photoExtras ? `<div class="settle-row"><span class="settle-row-lbl">多人合照</span><span class="settle-row-base">${a.photoExtras} 人</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${exCut.toLocaleString()}</span></div>` : '',
