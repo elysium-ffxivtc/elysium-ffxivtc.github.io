@@ -871,12 +871,6 @@
   // ─────────────────────────────────────────────────────────────
   //  Event handlers
   // ─────────────────────────────────────────────────────────────
-  function toggleAgree2() {
-    st.agreed = !st.agreed;
-    const chk = document.getElementById('agree-chk');
-    if (chk) { chk.className = 'bk2-chk' + (st.agreed ? ' on' : ''); chk.innerHTML = st.agreed ? chkSvg() : ''; }
-    updateSubmitBtn();
-  }
 
   function selectDate2(v) {
     st.date = v; st.time = '';

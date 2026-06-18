@@ -356,7 +356,6 @@
     .tp-opt { padding: .42rem .65rem; font-size: 14px; cursor: pointer; text-align: center; color: var(--dim); user-select: none; }
     .tp-opt:hover { color: var(--text); background: rgba(200,152,74,.08); }
     .tp-opt.on { color: var(--gold); background: rgba(138,92,30,.14); font-weight: 600; }
-    .tp-dis { opacity: .3; cursor: default !important; pointer-events: none; }
 
     /* Toggle */
     .toggle-group { display: flex; gap: .4rem; }
@@ -424,19 +423,6 @@
     .qty-val { font-size: 14px; min-width: 18px; text-align: center; }
 
     /* Multiplier */
-    .mult-group { display: flex; gap: .4rem; }
-    .mult-btn {
-      flex: 1;
-      padding: .45rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--dim);
-      font-size: 14px;
-      cursor: pointer;
-      text-align: center;
-      transition: all .15s;
-    }
-    .mult-btn.on { border-color: var(--gold); color: var(--gold); background: rgba(138,92,30,.14); }
 
     /* Cost summary */
     .cost-box {
@@ -578,11 +564,7 @@
     .settle-row-rate { color:var(--dim); font-size:11px; width:68px; text-align:center; }
     .settle-row-cut  { color:var(--text); font-weight:600; text-align:right; min-width:100px; }
     .settle-divider { height:1px; background:var(--border); margin:1.1rem 0; }
-    .settle-other-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem; }
-    .settle-other-card { background:var(--card); border:1px solid var(--border); padding:.9rem 1.1rem; }
-    .settle-other-lbl { font-size:12px; color:var(--dim); letter-spacing:.06em; margin-bottom:.45rem; }
-    .settle-other-val { font-family:'Noto Serif TC',serif; font-size:1.4rem; color:var(--gold); font-weight:700; }
-    .settle-other-detail { font-size:12px; color:var(--dim); margin-top:.3rem; line-height:1.8; }
+
     .settle-grand { display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:.85rem 1.25rem; background:var(--card); }
     .settle-grand-lbl { font-size:12px; color:var(--dim); letter-spacing:.04em; margin-bottom:.15rem; }
     .settle-grand-val { font-family:'Noto Serif TC',serif; font-size:1.4rem; color:var(--text); font-weight:700; }
@@ -1681,30 +1663,6 @@
       }
     }
 
-    function setVType(t) {
-      const cur = document.getElementById('v-time')?.value || '';
-      vs.type = t;
-      document.getElementById('tb-booked').className = 'toggle-btn' + (t==='booked'?' on':'');
-      document.getElementById('tb-walkin').className = 'toggle-btn' + (t==='walkin'?' on':'');
-      const oldW = t === 'walkin' ? 'wreath_booked' : 'wreath_walkin';
-      const newW = t === 'walkin' ? 'wreath_walkin' : 'wreath_booked';
-      const today2 = getBusinessDate();
-      const alreadyCheckedIn = t === 'walkin' && !vs._editId &&
-        visits.some(v => v.customerId === vs.customerId && v.date === today2 && (v.mode === 'checkin' || v.mode === 'pilgrim'));
-      if (vs.services.includes(oldW)) {
-        vs.services.splice(vs.services.indexOf(oldW), 1);
-        const oldEl = document.getElementById('svc-' + oldW);
-        if (oldEl) oldEl.className = 'svc-item';
-        if (!alreadyCheckedIn) {
-          vs.services.push(newW);
-          const newEl = document.getElementById('svc-' + newW);
-          if (newEl) newEl.className = 'svc-item on';
-        }
-      }
-      const keepVal = t === 'booked' ? (OT_SLOTS.includes(cur) ? cur : '') : cur;
-      renderVTimeField(t, keepVal);
-      updateCost();
-    }
 
     function setAType(t) {
       vs.apostleType = t;
@@ -1839,28 +1797,6 @@
       updateCost();
     }
 
-    function updateEntryFeeDisplay() {
-      const el = document.getElementById('entry-fee-display');
-      if (!el) return;
-      const today3 = getBusinessDate();
-      const alreadyCheckedIn = vs.type === 'walkin' && !vs._editId &&
-        visits.some(v => v.customerId === vs.customerId && v.date === today3 && (v.mode === 'checkin' || v.mode === 'pilgrim'));
-      if (alreadyCheckedIn) {
-        const svc = SERVICES.find(s => s.id === 'wreath_walkin');
-        el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;padding:.15rem 0">
-          <span style="font-size:15px">${svc?.name||'現場花環（入場費）'}</span>
-          <span style="font-size:13px;color:var(--dim);font-style:italic">已於簽到時收取</span>
-        </div>`;
-        return;
-      }
-      const wreathId = vs.type === 'booked' ? 'wreath_booked' : 'wreath_walkin';
-      const svc = SERVICES.find(s => s.id === wreathId);
-      if (!svc) return;
-      el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;padding:.15rem 0">
-        <span style="font-size:15px">${svc.name}</span>
-        <span style="font-size:15px;color:var(--gold);font-weight:600">${svc.price.toLocaleString()} Gil</span>
-      </div>`;
-    }
 
     function updateCost() {
       const wreathIds  = ['wreath_booked','wreath_walkin'];
@@ -2279,165 +2215,6 @@
 
     function drReset() { _dr = { s:null, e:null, hov:null, yr:0, mo:0 }; drUpdateLabel(); }
 
-    // ── Single-date picker (reuses dr-* CSS) ──
-    let _dp = { wrapId: null, inputId: null, yr: 0, mo: 0 };
-
-    function dpToggle(wrapId, inputId) {
-      const wrap  = document.getElementById(wrapId); if (!wrap) return;
-      const popup = wrap.querySelector('.dr-popup');
-      const disp  = wrap.querySelector('.dr-display');
-      const opening = popup.style.display === 'none';
-      popup.style.display = opening ? '' : 'none';
-      disp.classList.toggle('open', opening);
-      if (opening) {
-        const val = document.getElementById(inputId)?.value;
-        const n   = val ? new Date(val + 'T00:00:00') : new Date();
-        _dp = { wrapId, inputId, yr: n.getFullYear(), mo: n.getMonth() };
-        dpRender();
-        setTimeout(() => {
-          const h = e => {
-            if (!wrap.contains(e.target)) {
-              popup.style.display = 'none'; disp.classList.remove('open');
-              document.removeEventListener('mousedown', h);
-            }
-          };
-          document.addEventListener('mousedown', h);
-        }, 0);
-      }
-    }
-
-    function dpNav(d) {
-      _dp.mo += d;
-      if (_dp.mo > 11) { _dp.mo = 0; _dp.yr++; } else if (_dp.mo < 0) { _dp.mo = 11; _dp.yr--; }
-      dpRender();
-    }
-
-    function dpClick(ds) {
-      const input = document.getElementById(_dp.inputId); if (!input) return;
-      input.value = ds;
-      const txt = document.getElementById(_dp.inputId + '-txt');
-      if (txt) txt.textContent = ds;
-      const wrap = document.getElementById(_dp.wrapId); if (!wrap) return;
-      wrap.querySelector('.dr-popup').style.display = 'none';
-      wrap.querySelector('.dr-display').classList.remove('open');
-    }
-
-    function dpRender() {
-      const wrap = document.getElementById(_dp.wrapId); if (!wrap) return;
-      const cal  = wrap.querySelector('.dp-cal'); if (!cal) return;
-      const { yr, mo } = _dp;
-      const today    = new Date().toISOString().slice(0, 10);
-      const selected = document.getElementById(_dp.inputId)?.value || '';
-      const months   = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-      const wds      = ['日','一','二','三','四','五','六'];
-      const first    = new Date(yr, mo, 1).getDay();
-      const days     = new Date(yr, mo + 1, 0).getDate();
-      let h = `<div class="dr-nav">
-        <button class="dr-nav-btn" onclick="dpNav(-1)">‹</button>
-        <span class="dr-month-lbl">${yr} 年 ${months[mo]}</span>
-        <button class="dr-nav-btn" onclick="dpNav(1)">›</button>
-      </div>
-      <div class="dr-grid">
-        ${wds.map(w => `<div class="dr-wd">${w}</div>`).join('')}
-        ${Array(first).fill('<div class="dr-day dr-empty"></div>').join('')}`;
-      for (let d = 1; d <= days; d++) {
-        const ds    = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const isSel = ds === selected;
-        const isTod = ds === today;
-        h += `<div class="dr-day${isSel?' dr-s dr-e':''}${isTod&&!isSel?' dr-today':''}" data-date="${ds}">${d}</div>`;
-      }
-      h += '</div>';
-      cal.innerHTML = h;
-      cal.querySelectorAll('.dr-day[data-date]').forEach(el => {
-        el.addEventListener('click', () => dpClick(el.dataset.date));
-      });
-    }
-
-    // ── Time picker ──
-    let _tp = { wrapId: null, inputId: null, h: -1, m: -1, slots: null };
-    const TP_HOURS = [22, 23, 0, 1];
-    const TP_MINS  = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-
-    function tpToggle(wrapId, inputId, slots) {
-      const wrap  = document.getElementById(wrapId);
-      const popup = wrap?.querySelector('.dr-popup');
-      const disp  = wrap?.querySelector('.dr-display');
-      if (!wrap || !popup) return;
-      const opening = popup.style.display === 'none';
-      popup.style.display = opening ? '' : 'none';
-      disp?.classList.toggle('open', opening);
-      if (opening) {
-        _tp.wrapId  = wrapId;
-        _tp.inputId = inputId;
-        _tp.slots   = slots || null;
-        const cur = document.getElementById(inputId)?.value || '';
-        if (cur && cur.includes(':')) {
-          _tp.h = parseInt(cur.split(':')[0]);
-          _tp.m = parseInt(cur.split(':')[1]);
-        } else { _tp.h = -1; _tp.m = -1; }
-        tpRender();
-        setTimeout(() => {
-          const handler = e => {
-            if (!document.getElementById(wrapId)?.contains(e.target)) {
-              const p = document.getElementById(wrapId)?.querySelector('.dr-popup');
-              const d = document.getElementById(wrapId)?.querySelector('.dr-display');
-              if (p) p.style.display = 'none';
-              if (d) d.classList.remove('open');
-              document.removeEventListener('mousedown', handler);
-            }
-          };
-          document.addEventListener('mousedown', handler);
-        }, 0);
-      }
-    }
-
-    function tpRender() {
-      const popup = document.getElementById(_tp.wrapId)?.querySelector('.dr-popup');
-      if (!popup) return;
-      if (_tp.slots) {
-        const cur = document.getElementById(_tp.inputId)?.value || '';
-        popup.innerHTML = `<div class="tp-col" style="min-width:100px">${_tp.slots.map(s =>
-          `<div class="tp-opt${cur===s?' on':''}" onclick="tpPickSlot('${s}')">${s}</div>`
-        ).join('')}</div>`;
-      } else {
-        popup.innerHTML = `<div class="tp-cols">
-          <div class="tp-col">${TP_HOURS.map(h =>
-            `<div class="tp-opt${_tp.h===h?' on':''}" onclick="tpPickH(${h})">${String(h).padStart(2,'0')}</div>`
-          ).join('')}</div>
-          <div class="tp-col">${TP_MINS.map(m =>
-            `<div class="tp-opt${_tp.m===m?' on':''}" onclick="tpPickM(${m})">${String(m).padStart(2,'0')}</div>`
-          ).join('')}</div>
-        </div>`;
-      }
-    }
-
-    function tpPickSlot(val) {
-      const inp = document.getElementById(_tp.inputId);
-      if (inp) inp.value = val;
-      const wrap = document.getElementById(_tp.wrapId);
-      const txt  = wrap?.querySelector('.tp-txt');
-      if (txt) txt.textContent = val;
-      const popup = wrap?.querySelector('.dr-popup');
-      const disp  = wrap?.querySelector('.dr-display');
-      if (popup) popup.style.display = 'none';
-      if (disp)  disp.classList.remove('open');
-    }
-
-    function tpPickH(h) { _tp.h = h; if (_tp.m >= 0) tpCommit(); else tpRender(); }
-    function tpPickM(m) { _tp.m = m; if (_tp.h >= 0) tpCommit(); else tpRender(); }
-
-    function tpCommit() {
-      const val  = `${String(_tp.h).padStart(2,'0')}:${String(_tp.m).padStart(2,'0')}`;
-      const inp  = document.getElementById(_tp.inputId);
-      if (inp) inp.value = val;
-      const wrap = document.getElementById(_tp.wrapId);
-      const txt  = wrap?.querySelector('.tp-txt');
-      if (txt) txt.textContent = val;
-      const popup = wrap?.querySelector('.dr-popup');
-      const disp  = wrap?.querySelector('.dr-display');
-      if (popup) popup.style.display = 'none';
-      if (disp)  disp.classList.remove('open');
-    }
 
     // ── Overtime time picker (drum roll) ──
     let _ot = { h: -1, m: -1 };
@@ -2577,70 +2354,6 @@
         hidden.value = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
     }
 
-    function vtToggle(which) {
-      const pop  = document.getElementById('vt-' + which + '-pop');
-      const wrap = document.getElementById('vt-' + which + '-wrap');
-      const disp = wrap?.querySelector('.dr-display');
-      if (!pop) return;
-      const opening = pop.style.display === 'none';
-      pop.style.display = opening ? '' : 'none';
-      disp?.classList.toggle('open', opening);
-      if (opening) {
-        which === 'h' ? vtRenderH() : vtRenderM();
-        setTimeout(() => {
-          const handler = e => {
-            if (!wrap?.contains(e.target)) {
-              pop.style.display = 'none'; disp?.classList.remove('open');
-              document.removeEventListener('mousedown', handler);
-            }
-          };
-          document.addEventListener('mousedown', handler);
-        }, 0);
-      }
-    }
-
-    function vtRenderH() {
-      const pop = document.getElementById('vt-h-pop'); if (!pop) return;
-      pop.innerHTML = [22,23,0,1].map(h =>
-        `<div class="tp-opt${_vt.h===h?' on':''}" onclick="vtPickH(${h})">${String(h).padStart(2,'0')}</div>`
-      ).join('');
-    }
-
-    function vtRenderM() {
-      const pop = document.getElementById('vt-m-pop'); if (!pop) return;
-      pop.innerHTML = `<div style="max-height:196px;overflow-y:auto">` +
-        Array.from({length:60},(_,m)=>m).map(m =>
-          `<div class="tp-opt${_vt.m===m?' on':''}" onclick="vtPickM(${m})">${String(m).padStart(2,'0')}</div>`
-        ).join('') + '</div>';
-    }
-
-    function vtPickH(h) {
-      _vt.h = h;
-      const inp = document.getElementById('vt-h-inp');
-      if (inp) inp.value = String(h).padStart(2,'0');
-      document.getElementById('vt-h-pop').style.display = 'none';
-      document.getElementById('vt-h-wrap')?.querySelector('.dr-display')?.classList.remove('open');
-      _vtSync();
-    }
-
-    function vtPickM(m) {
-      _vt.m = m;
-      const inp = document.getElementById('vt-m-inp');
-      if (inp) inp.value = String(m).padStart(2,'0');
-      document.getElementById('vt-m-pop').style.display = 'none';
-      document.getElementById('vt-m-wrap')?.querySelector('.dr-display')?.classList.remove('open');
-      _vtSync();
-    }
-
-    function vtHFromInput() {
-      const v = parseInt(document.getElementById('vt-h-inp')?.value);
-      if (!isNaN(v)) { _vt.h = v; _vtSync(); }
-    }
-
-    function vtMFromInput() {
-      const v = parseInt(document.getElementById('vt-m-inp')?.value);
-      if (!isNaN(v) && v >= 0 && v <= 59) { _vt.m = v; _vtSync(); }
-    }
 
     function drRender() {
       const cal = document.getElementById('ev-dr-cal'); if (!cal) return;

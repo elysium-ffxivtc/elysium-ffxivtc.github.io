@@ -471,7 +471,6 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
 
   const TIME_SLOTS = ['22:00', '23:00', '00:00', '01:00'];
   const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
-  const WEEK_DAYS  = ['日', '一', '二', '三', '四', '五', '六'];
   const WD_FULL    = ['日', '一', '二', '三', '四', '五', '六'];
 
   function sKey(t)   { return t.replace(':', ''); }
@@ -636,8 +635,8 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
         <div class="month-title">${viewYear} 年 ${viewMonth + 1} 月</div>
         <button class="nav-btn" onclick="nextMonth()">›</button>
       </div>
-      ${buildLegendHtml(scheduleSubTab === 'full')}
-      <div class="cal-weekrow">${WEEK_DAYS.map((d,i)=>`<div class="cal-weekday${i===0||i===6?' weekend':''}">${d}</div>`).join('')}</div>
+      ${buildLegendHtml()}
+      <div class="cal-weekrow">${WD_FULL.map((d,i)=>`<div class="cal-weekday${i===0||i===6?' weekend':''}">${d}</div>`).join('')}</div>
       <div class="cal-grid">${buildCalGrid(scheduleSubTab === 'full')}</div>`;
 
     const content = scheduleSubTab === 'personal'
@@ -711,7 +710,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
   }
 
   // ── Legend ────────────────────────────────────────────────────
-  function buildLegendHtml(fullView = false) {
+  function buildLegendHtml() {
     return `<div class="legend">
       <span class="legend-swatch"><span class="biz-dot open"></span>預計營業</span>
       <span style="margin-left:auto;font-size:10px;color:var(--dim)">數字 = 該時段人數</span>
