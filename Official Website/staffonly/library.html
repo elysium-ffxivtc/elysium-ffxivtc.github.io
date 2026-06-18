@@ -237,9 +237,12 @@
       .update-item-title { order: 1; }
       .update-item-date { order: 2; padding-left: 0; }
 
-      /* tables: horizontal scroll */
+      /* tables: horizontal scroll, smaller font, hide article excerpt */
       .lib-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .lib-table { table-layout: auto; min-width: 520px; }
+      .lib-table { table-layout: auto; min-width: 400px; font-size: .82rem; }
+      .lib-table th { padding: .55rem .75rem; font-size: .72rem; }
+      .lib-table td { padding: .75rem .75rem; }
+      .col-excerpt, .col-excerpt-hdr { display: none; }
 
       /* modal */
       .modal-overlay { padding: .75rem .4rem; }
@@ -308,7 +311,7 @@
       <div class="lib-table-wrap" id="wrap-article">
         <table class="lib-table">
           <thead><tr>
-            <th style="width:200px">標題</th><th>摘要</th><th style="width:130px">作者</th><th style="width:155px">發佈時間</th>
+            <th style="width:200px">標題</th><th class="col-excerpt-hdr">摘要</th><th style="width:130px">作者</th><th style="width:155px">發佈時間</th>
           </tr></thead>
           <tbody id="tbody-article"></tbody>
         </table>
