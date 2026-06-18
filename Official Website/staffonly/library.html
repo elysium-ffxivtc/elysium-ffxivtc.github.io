@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>圖書室 · Elysium</title>
+  <link rel="icon" type="image/png" href="../image/Elysium_LOGO_mini.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <style>
+    :root {
+      --bg:      #f7f4ef;
+      --panel:   #ffffff;
+      --panel2:  #f2ede5;
+      --border:  #e0d8cc;
+      --gold:    #885B22;
+      --gold-bg: rgba(136,91,34,.07);
+      --text:    #281e14;
+      --dim:     #7a6750;
+      --dim2:    #b0a090;
+      --red:     #a83030;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    ::selection { background: rgba(136,91,34,.18); color: inherit; }
+    ::-moz-selection { background: rgba(136,91,34,.18); color: inherit; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; font-size: 15px;
+      cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default;
+    }
+    a, button, [onclick], select { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    input, textarea { cursor: url('../image/arr-cursors/arr-small-text.cur'), text; }
+    select { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    input.flatpickr-input, input[type="date"], input[type="time"] {
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      opacity: .5; filter: sepia(.8) saturate(1.2);
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
+    }
+
+    /* ── Header ── */
+    .lib-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .72rem 1.5rem; background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .lib-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; letter-spacing: .2em; color: var(--gold); }
+    .lib-signout { background: none; border: none; color: var(--dim2); font-size: 12px; font-family: inherit; letter-spacing: .08em; padding: .2rem .4rem; transition: color .15s; }
+    .lib-signout:hover { color: var(--dim); }
+
+    /* ── Main ── */
+    .lib-main { max-width: 980px; margin: 0 auto; padding: 1.75rem; }
+
+    /* ── Update panel ── */
+    .update-panel { background: var(--panel); border: 1px solid var(--border); padding: 1.1rem 1.4rem; margin-bottom: 1.75rem; }
+    .update-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: .8rem; }
+    .update-title { font-size: .75rem; font-weight: 500; color: var(--dim2); letter-spacing: .15em; text-transform: uppercase; }
+    .update-add-btn { background: none; border: none; color: var(--dim2); font-size: 1.05rem; line-height: 1; padding: .1rem .3rem; transition: color .15s; letter-spacing: 0; }
+    .update-add-btn:hover { color: var(--gold); }
+    .announce-row { display: flex; gap: .5rem; margin-bottom: .75rem; }
+    .announce-input { flex: 1; padding: .5rem .8rem; background: var(--panel); border: 1px solid var(--border); color: var(--text); font-size: .88rem; font-family: inherit; outline: none; transition: border-color .15s; }
+    .announce-input:focus { border-color: var(--gold); }
+    .announce-submit { padding: .45rem .9rem; background: var(--gold); border: none; color: #fff; font-size: .82rem; font-family: inherit; transition: background .18s; }
+    .announce-submit:hover { background: #7a5020; }
+    .announce-cancel { padding: .45rem .75rem; background: none; border: 1px solid var(--border); color: var(--dim); font-size: .82rem; font-family: inherit; transition: all .15s; }
+    .announce-cancel:hover { border-color: var(--dim); color: var(--text); }
+    .update-list { display: flex; flex-direction: column; gap: .5rem; }
+    .update-item { display: flex; align-items: center; gap: .85rem; font-size: .92rem; }
+    .update-type { font-size: .72rem; padding: .1rem .5rem; border: 1px solid var(--border); color: var(--dim); letter-spacing: .05em; white-space: nowrap; flex-shrink: 0; }
+    .update-type-announce { background: var(--gold-bg); color: var(--gold); border-color: rgba(136,91,34,.2); }
+    .update-item-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+    .update-item-date { font-size: .8rem; color: var(--dim2); white-space: nowrap; flex-shrink: 0; }
+    .update-del-btn { background: none; border: none; color: var(--dim2); font-size: .85rem; line-height: 1; padding: 0 .15rem; transition: color .15s; flex-shrink: 0; }
+    .update-del-btn:hover { color: var(--red); }
+    .update-empty { font-size: .9rem; color: var(--dim2); }
+
+    /* ── Tabs ── */
+    .lib-tabs { display: flex; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border); }
+    .lib-tab { padding: .65rem 1.4rem; font-size: .92rem; letter-spacing: .08em; background: none; border: none; border-bottom: 2px solid transparent; color: var(--dim); font-family: inherit; margin-bottom: -2px; transition: color .15s, border-color .15s; }
+    .lib-tab.on { color: var(--gold); border-bottom-color: var(--gold); font-weight: 500; }
+    .lib-tab:hover { color: var(--text); }
+
+    /* ── Section ── */
+    .lib-section { display: none; }
+    .lib-section.on { display: block; }
+    .lib-section-hdr { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+    .lib-add-btn { padding: .48rem 1.1rem; background: var(--gold); color: #fff; border: none; font-size: .88rem; font-family: inherit; letter-spacing: .06em; transition: background .18s; }
+    .lib-add-btn:hover { background: #7a5020; }
+
+    /* ── Table ── */
+    .lib-table-wrap { background: var(--panel); border: 1px solid var(--border); overflow: hidden; }
+    .lib-table { width: 100%; border-collapse: collapse; font-size: .93rem; table-layout: fixed; }
+    .lib-table th { text-align: left; padding: .65rem 1.1rem; font-size: .8rem; font-weight: 500; color: var(--dim); letter-spacing: .1em; background: var(--panel2); border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
+    .lib-table td { padding: .9rem 1.1rem; border-bottom: 1px solid rgba(0,0,0,.05); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lib-table tbody tr:last-child td { border-bottom: none; }
+    .lib-table tbody tr { transition: background .12s; }
+    .lib-table tbody tr:hover { background: var(--gold-bg); }
+    .col-title   { color: var(--text); font-weight: 500; }
+    .col-excerpt { color: var(--dim2); font-size: .85rem; }
+    .col-date    { color: var(--dim); font-size: .88rem; }
+    .col-dim     { color: var(--dim); font-size: .88rem; }
+
+    /* badge: text-only, no bg/border */
+    .badge      { font-size: .88rem; white-space: nowrap; }
+    .badge-all  { color: #8a2020; }
+    .badge-food { color: #a0a0a0; }
+    .badge-yao  { color: #795061; }
+    .badge-guide{ color: #94aec3; }
+
+    .lib-empty { text-align: center; padding: 3.5rem 1rem; color: var(--dim2); font-size: .93rem; background: var(--panel); border: 1px solid var(--border); }
+
+    /* ── Modals ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 3rem 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--panel); border: 1px solid var(--border); box-shadow: 0 8px 36px rgba(0,0,0,.12); width: 100%; max-width: 720px; padding: 2rem 2.5rem 2.5rem; position: relative; }
+    .modal-close { position: absolute; top: 1rem; right: 1.25rem; background: none; border: none; color: var(--dim2); font-size: 1.1rem; line-height: 1; transition: color .15s; }
+    .modal-close:hover { color: var(--text); }
+
+    /* View */
+    .view-title { font-family: 'Noto Serif TC', serif; font-size: 1.75rem; font-weight: 700; color: var(--text); line-height: 1.3; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: .5rem; }
+    .view-sub { font-size: .78rem; color: var(--dim2); letter-spacing: .08em; margin-bottom: 1.5rem; }
+    .view-meta { display: flex; flex-wrap: wrap; gap: 1.75rem; margin-bottom: 2rem; }
+    .view-meta-item { display: flex; flex-direction: column; gap: .25rem; }
+    .view-meta-lbl { font-size: .72rem; color: var(--dim2); letter-spacing: .1em; text-transform: uppercase; }
+    .view-meta-val { font-size: .93rem; color: var(--text); }
+    .view-section-lbl { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); }
+    .view-content { font-size: .93rem; line-height: 1.9; color: var(--dim); }
+    .view-content h1,.view-content h2,.view-content h3 { font-family:'Noto Serif TC',serif; color:var(--text); margin:1.2rem 0 .5rem; }
+    .view-content h1{font-size:1.3rem;} .view-content h2{font-size:1.1rem;}
+    .view-content p{margin-bottom:.85rem;} .view-content p:last-child{margin-bottom:0;}
+    .view-content strong{color:var(--text);}
+    .view-content ul,.view-content ol{margin:.4rem 0 .85rem 1.5rem;}
+    .view-content li{margin-bottom:.25rem;}
+    .view-content blockquote{border-left:3px solid var(--border);padding-left:1rem;color:var(--dim2);margin:.75rem 0;}
+    .view-content pre{background:var(--panel2);padding:.75rem 1rem;font-size:.85rem;overflow-x:auto;margin:.75rem 0;}
+    .view-content a{color:var(--gold);}
+    .view-actions { display:flex; gap:.65rem; margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border); }
+    .btn-edit { padding:.48rem 1.1rem; background:none; border:1px solid var(--border); color:var(--dim); font-size:.88rem; font-family:inherit; transition:all .15s; }
+    .btn-edit:hover { border-color:var(--gold); color:var(--gold); }
+    .btn-del { padding:.48rem 1.1rem; background:none; border:1px solid rgba(168,48,48,.3); color:rgba(168,48,48,.75); font-size:.88rem; font-family:inherit; transition:all .15s; }
+    .btn-del:hover { background:rgba(168,48,48,.06); border-color:var(--red); color:var(--red); }
+
+    /* ── Form ── */
+    .form-title { font-size:1.05rem; font-weight:500; letter-spacing:.1em; color:var(--gold); margin-bottom:1.5rem; }
+    .form-row { margin-bottom:1.1rem; }
+    .form-row label, .form-col label { display:block; font-size:.8rem; font-weight:500; color:var(--dim); letter-spacing:.07em; margin-bottom:.4rem; }
+    .form-input, .form-select {
+      width:100%; padding:.62rem .9rem;
+      background:var(--panel); border:1px solid var(--border); color:var(--text);
+      font-size:.93rem; font-family:inherit; transition:border-color .15s; outline:none;
+    }
+    .form-input:focus, .form-select:focus { border-color:var(--gold); }
+    .form-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%237a6750' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .85rem center; padding-right:2.4rem; }
+    .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:1.1rem; }
+    .form-col label { display:block; }
+    .form-dt { display:grid; grid-template-columns:1fr 120px; gap:.6rem; }
+    .form-actions { display:flex; gap:.65rem; margin-top:1.75rem; justify-content:flex-end; }
+    .btn-cancel { padding:.55rem 1.25rem; background:none; border:1px solid var(--border); color:var(--dim); font-size:.9rem; font-family:inherit; transition:all .15s; }
+    .btn-cancel:hover { border-color:var(--dim); color:var(--text); }
+    .btn-publish { padding:.55rem 1.4rem; background:var(--gold); border:none; color:#fff; font-size:.9rem; font-family:inherit; letter-spacing:.06em; transition:background .18s; }
+    .btn-publish:hover { background:#7a5020; }
+
+    /* ── Flatpickr theme ── */
+    .flatpickr-calendar { background:var(--panel); border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,.1); border-radius:0; font-family:'Noto Sans TC',sans-serif; font-size:.9rem; }
+    .flatpickr-months { padding:.5rem 0 .25rem; }
+    .flatpickr-month { background:var(--panel); color:var(--text); }
+    .flatpickr-current-month { display:flex; align-items:center; justify-content:center; font-size:.95rem; font-weight:500; color:var(--text); padding-top:0; }
+    .flatpickr-current-month .numInputWrapper { order:-1; }
+    .flatpickr-current-month .numInputWrapper input.cur-year { color:var(--text); font-weight:500; font-family:'Noto Sans TC',sans-serif; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months { background:var(--panel); color:var(--text); font-weight:500; font-family:'Noto Sans TC',sans-serif; border:none; padding:0; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,.flatpickr-current-month .flatpickr-monthDropdown-months:focus { background:var(--panel); outline:none; }
+    .numInputWrapper span.arrowUp:after { border-bottom-color:var(--dim); }
+    .numInputWrapper span.arrowDown:after { border-top-color:var(--dim); }
+    .numInputWrapper:hover { background:transparent; }
+    .flatpickr-months .flatpickr-prev-month,.flatpickr-months .flatpickr-next-month { color:var(--dim); fill:var(--dim); padding:.65rem .8rem; }
+    .flatpickr-months .flatpickr-prev-month:hover svg,.flatpickr-months .flatpickr-next-month:hover svg { fill:var(--gold); }
+    .flatpickr-weekdays { background:var(--panel); margin-top:.3rem; }
+    span.flatpickr-weekday { background:var(--panel); color:var(--dim2); font-size:.78rem; letter-spacing:.04em; }
+    .flatpickr-days { border:none; }
+    .dayContainer { padding:.15rem .3rem .35rem; }
+    .flatpickr-day { border-radius:0; border:none; color:var(--text); max-width:36px; height:34px; line-height:34px; font-size:.88rem; margin:1px; }
+    .flatpickr-day:hover,.flatpickr-day:focus { background:var(--gold-bg); border:none; color:var(--gold); }
+    .flatpickr-day.selected,.flatpickr-day.selected:hover { background:var(--gold); border-color:var(--gold); color:#fff; }
+    .flatpickr-day.today { font-weight:600; color:var(--gold); border-bottom:2px solid var(--gold) !important; }
+    .flatpickr-day.today:hover { background:var(--gold-bg); }
+    .flatpickr-day.today.selected { color:#fff; border-bottom-color:transparent !important; }
+    .flatpickr-day.flatpickr-disabled,.flatpickr-day.flatpickr-disabled:hover { color:var(--dim2); }
+    .flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay { color:var(--dim2); }
+
+    /* ── Quill overrides ── */
+    .ql-toolbar.ql-snow { border:1px solid var(--border); border-bottom:none; background:var(--panel2); padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif; }
+    .ql-container.ql-snow { border:1px solid var(--border); font-family:'Noto Sans TC',sans-serif; font-size:.93rem; }
+    .ql-editor { min-height:220px; line-height:1.9; color:var(--text); }
+    .ql-editor.ql-blank::before { color:var(--dim2); font-style:normal; }
+    .ql-snow .ql-stroke { stroke:var(--dim); }
+    .ql-snow .ql-fill { fill:var(--dim); }
+    .ql-snow .ql-picker { color:var(--dim); }
+    .ql-snow.ql-toolbar button:hover .ql-stroke,.ql-snow.ql-toolbar .ql-active .ql-stroke { stroke:var(--gold); }
+    .ql-snow.ql-toolbar button:hover .ql-fill,.ql-snow.ql-toolbar .ql-active .ql-fill { fill:var(--gold); }
+    .ql-snow.ql-toolbar button:hover,.ql-snow.ql-toolbar .ql-active { color:var(--gold); }
+    .ql-snow .ql-picker-options { background:var(--panel); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .ql-snow .ql-picker-item:hover,.ql-snow .ql-picker-item.ql-selected { color:var(--gold); }
+    .ql-editor a { color:var(--gold); }
+    .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
+  </style>
+</head>
+<body>
+
+  <header class="lib-header">
+    <div class="lib-title">✦ 安息地 · 圖書室</div>
+    <button class="lib-signout" onclick="doSignOut()">登出</button>
+  </header>
+
+  <main class="lib-main">
+
+    <div class="update-panel">
+      <div class="update-hdr">
+        <div class="update-title">最近更新</div>
+        <button class="update-add-btn" id="btn-add-announce" onclick="showAnnounceInput()" style="display:none" title="新增公告">＋</button>
+      </div>
+      <div class="announce-row" id="announce-input-wrap" style="display:none">
+        <input class="announce-input" id="announce-text" placeholder="輸入公告內容…">
+        <button class="announce-submit" onclick="submitAnnounce()">發佈</button>
+        <button class="announce-cancel" onclick="hideAnnounceInput()">取消</button>
+      </div>
+      <div class="update-list" id="update-list"><div class="update-empty">尚無紀錄</div></div>
+    </div>
+
+    <div class="lib-tabs">
+      <button class="lib-tab on" onclick="setTab('meeting')">會議紀錄</button>
+      <button class="lib-tab" onclick="setTab('article')">文章</button>
+    </div>
+
+    <div class="lib-section on" id="sec-meeting">
+      <div class="lib-section-hdr">
+        <button class="lib-add-btn" id="btn-add-meeting" onclick="openAddModal('meeting')" style="display:none">＋ 新增會議</button>
+      </div>
+      <div class="lib-table-wrap" id="wrap-meeting">
+        <table class="lib-table">
+          <thead><tr>
+            <th>會議主題</th><th style="width:165px">排定日期</th><th style="width:110px">會議時間</th><th style="width:110px">出席</th><th style="width:110px">地點</th>
+          </tr></thead>
+          <tbody id="tbody-meeting"></tbody>
+        </table>
+      </div>
+      <div class="lib-empty" id="empty-meeting" style="display:none">尚無會議紀錄</div>
+    </div>
+
+    <div class="lib-section" id="sec-article">
+      <div class="lib-section-hdr">
+        <button class="lib-add-btn" id="btn-add-article" onclick="openAddModal('article')" style="display:none">＋ 新增文章</button>
+      </div>
+      <div class="lib-table-wrap" id="wrap-article">
+        <table class="lib-table">
+          <thead><tr>
+            <th style="width:200px">標題</th><th>摘要</th><th style="width:130px">作者</th><th style="width:155px">發佈時間</th>
+          </tr></thead>
+          <tbody id="tbody-article"></tbody>
+        </table>
+      </div>
+      <div class="lib-empty" id="empty-article" style="display:none">尚無文章</div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="modal-view" onclick="if(event.target===this)closeView()">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeView()">✕</button>
+      <div id="view-body"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-form" onclick="if(event.target===this)closeForm()">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForm()">✕</button>
+      <div id="form-body"></div>
+    </div>
+  </div>
+
+  <script>
+    firebase.initializeApp({
+      apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+      authDomain:        "elysiumpos.firebaseapp.com",
+      databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "elysiumpos",
+      storageBucket:     "elysiumpos.firebasestorage.app",
+      messagingSenderId: "430177597593",
+      appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+    });
+    const db = firebase.database();
+
+    let _user = null, _role = 'staff', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    const zhTW = {
+      firstDayOfWeek: 0, yearSuffix: '年',
+      weekdays: { shorthand:['日','一','二','三','四','五','六'], longhand:['星期日','星期一','星期二','星期三','星期四','星期五','星期六'] },
+      months: { shorthand:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'], longhand:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'] },
+      rangeSeparator:' 至 ', time_24hr:true,
+    };
+
+    firebase.auth().onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      _user = user;
+      try {
+        const [staffSnap, pilgrimSnap] = await Promise.all([
+          db.ref('staff/'+user.uid).get(),
+          db.ref('pilgrims/'+user.uid).get(),
+        ]);
+        if (!staffSnap.exists() && !pilgrimSnap.exists()) {
+          await firebase.auth().signOut();
+          window.location.href = 'index.html';
+          return;
+        }
+        _role = staffSnap.exists() ? (staffSnap.val().role || 'staff') : 'pilgrim';
+      } catch(e) { _role = 'staff'; }
+      document.getElementById('btn-add-article').style.display = '';
+      if (_role === 'admin') {
+        document.getElementById('btn-add-meeting').style.display  = '';
+        document.getElementById('btn-add-announce').style.display = '';
+      }
+      loadEntries();
+      loadAnnouncements();
+    });
+    function doSignOut() { firebase.auth().signOut().then(() => { window.location.href = 'index.html'; }); }
+
+    // ── Helpers ──
+    function fmtDate(s) {
+      if (!s) return '';
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return s;
+    }
+    function excerpt(html, len=90) {
+      const txt = String(html||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+      return txt.length > len ? txt.slice(0,len)+'…' : txt;
+    }
+    const BADGE_CLS = {'全體成員':'badge-all','食罪':'badge-food','妖異':'badge-yao','引路人':'badge-guide'};
+    function badge(val) { return val ? `<span class="badge ${BADGE_CLS[val]||'badge-guide'}">${esc(val)}</span>` : ''; }
+
+    // ── Data ──
+    function loadEntries() {
+      db.ref('library').on('value', snap => {
+        _entries = snap.val() || {};
+        renderMeetings(); renderArticles(); renderUpdates();
+      });
+    }
+    function loadAnnouncements() {
+      db.ref('announcements').on('value', snap => {
+        _announcements = snap.val() || {};
+        renderUpdates();
+      });
+    }
+
+    function renderMeetings() {
+      const rows = Object.entries(_entries).filter(([,e])=>e.type==='meeting').sort((a,b)=>(b[1].date||'').localeCompare(a[1].date||''));
+      const wrap=document.getElementById('wrap-meeting'), empty=document.getElementById('empty-meeting');
+      if (!rows.length) { wrap.style.display='none'; empty.style.display=''; return; }
+      wrap.style.display=''; empty.style.display='none';
+      document.getElementById('tbody-meeting').innerHTML = rows.map(([id,e]) =>
+        `<tr onclick="openView('${id}')">
+          <td class="col-title">${esc(e.title)}</td>
+          <td class="col-date">${fmtDate(e.date)}</td>
+          <td class="col-dim">${esc(e.duration||'')}</td>
+          <td class="col-dim">${badge(e.attendees)}</td>
+          <td class="col-dim">${esc(e.location||'')}</td>
+        </tr>`).join('');
+    }
+
+    function renderArticles() {
+      const rows = Object.entries(_entries).filter(([,e])=>e.type==='article').sort((a,b)=>(b[1].createdAt||'').localeCompare(a[1].createdAt||''));
+      const wrap=document.getElementById('wrap-article'), empty=document.getElementById('empty-article');
+      if (!rows.length) { wrap.style.display='none'; empty.style.display=''; return; }
+      wrap.style.display=''; empty.style.display='none';
+      document.getElementById('tbody-article').innerHTML = rows.map(([id,e]) =>
+        `<tr onclick="openView('${id}')">
+          <td class="col-title">${esc(e.title)}</td>
+          <td class="col-excerpt">${esc(excerpt(e.content))}</td>
+          <td class="col-dim">${esc(e.author||'')}</td>
+          <td class="col-date">${fmtDate(e.createdAt||e.updatedAt)}</td>
+        </tr>`).join('');
+    }
+
+    function renderUpdates() {
+      const annoItems = Object.entries(_announcements)
+        .sort((a,b)=>(b[1].createdAt||'').localeCompare(a[1].createdAt||''))
+        .slice(0,3)
+        .map(([id,a])=>({ type:'公告', title:a.text, date:fmtDate(a.createdAt), id, isAnnounce:true }));
+
+      const entryItems = Object.entries(_entries)
+        .sort((a,b)=>(b[1].updatedAt||b[1].createdAt||'').localeCompare(a[1].updatedAt||a[1].createdAt||''))
+        .slice(0,5)
+        .map(([,e])=>({ type:e.type==='meeting'?'會議':'文章', title:e.title, date:fmtDate(e.updatedAt||e.createdAt), isAnnounce:false }));
+
+      const all = [...annoItems, ...entryItems];
+      const el = document.getElementById('update-list');
+      if (!all.length) { el.innerHTML='<div class="update-empty">尚無紀錄</div>'; return; }
+      el.innerHTML = all.map(item =>
+        `<div class="update-item">
+          <span class="update-type${item.isAnnounce?' update-type-announce':''}">${item.type}</span>
+          <span class="update-item-title">${esc(item.title)}</span>
+          <span class="update-item-date">${item.date}</span>
+          ${item.isAnnounce && _role==='admin' ? `<button class="update-del-btn" onclick="deleteAnnounce('${item.id}')">×</button>` : ''}
+        </div>`).join('');
+    }
+
+    // ── Announcements ──
+    function showAnnounceInput() {
+      document.getElementById('announce-input-wrap').style.display = '';
+      document.getElementById('announce-text').focus();
+    }
+    function hideAnnounceInput() {
+      document.getElementById('announce-input-wrap').style.display = 'none';
+      document.getElementById('announce-text').value = '';
+    }
+    async function submitAnnounce() {
+      const text = document.getElementById('announce-text').value.trim();
+      if (!text) return;
+      await db.ref('announcements').push({ text, createdAt: new Date().toISOString(), createdBy: _user?.uid||'local' })
+        .catch(e => alert('儲存失敗：'+e.message));
+      hideAnnounceInput();
+    }
+    async function deleteAnnounce(id) {
+      if (!confirm('確定刪除此公告？')) return;
+      await db.ref('announcements/'+id).remove();
+    }
+
+    // ── Tabs ──
+    function setTab(tab) {
+      document.querySelectorAll('.lib-tab').forEach((el,i)=>el.classList.toggle('on',i===(tab==='meeting'?0:1)));
+      document.getElementById('sec-meeting').classList.toggle('on',tab==='meeting');
+      document.getElementById('sec-article').classList.toggle('on',tab==='article');
+    }
+
+    // ── View ──
+    function openView(id) {
+      const e = _entries[id]; if (!e) return;
+      const m = e.type==='meeting';
+      const publishDate = fmtDate(e.createdAt||e.updatedAt);
+      const meta = m
+        ? `<div class="view-meta">
+            <div class="view-meta-item"><div class="view-meta-lbl">排定日期</div><div class="view-meta-val">${fmtDate(e.date)||'—'}</div></div>
+            ${e.duration?`<div class="view-meta-item"><div class="view-meta-lbl">會議時間</div><div class="view-meta-val">${esc(e.duration)}</div></div>`:''}
+            <div class="view-meta-item"><div class="view-meta-lbl">出席</div><div class="view-meta-val">${badge(e.attendees)}</div></div>
+            ${e.host?`<div class="view-meta-item"><div class="view-meta-lbl">主持人</div><div class="view-meta-val">${esc(e.host)}</div></div>`:''}
+            ${e.location?`<div class="view-meta-item"><div class="view-meta-lbl">地點</div><div class="view-meta-val">${esc(e.location)}</div></div>`:''}
+           </div>`
+        : `<div class="view-meta">
+            <div class="view-meta-item"><div class="view-meta-lbl">發佈日期</div><div class="view-meta-val">${publishDate||'—'}</div></div>
+            ${e.author?`<div class="view-meta-item"><div class="view-meta-lbl">作者</div><div class="view-meta-val">${esc(e.author)}</div></div>`:''}
+           </div>`;
+      const adminHtml = _role==='admin'
+        ? `<div class="view-actions">
+             <button class="btn-edit" onclick="openEditModal('${id}')">編輯</button>
+             <button class="btn-del"  onclick="confirmDelete('${id}')">刪除</button>
+           </div>` : '';
+      document.getElementById('view-body').innerHTML =
+        `<div class="view-title">${esc(e.title)}</div>
+         <div class="view-sub">檢視詳細資料</div>
+         ${meta}
+         <div class="view-section-lbl">${m?'會議內容':'文章內容'}</div>
+         <div class="view-content" id="view-rich"></div>
+         ${adminHtml}`;
+      document.getElementById('view-rich').innerHTML = e.content || '<span style="color:var(--dim2)">（尚無內容）</span>';
+      document.getElementById('modal-view').classList.add('open');
+    }
+    function closeView() { document.getElementById('modal-view').classList.remove('open'); }
+
+    // ── Form ──
+    function openAddModal(type)  { _editingId=null; buildForm(type,null); document.getElementById('modal-form').classList.add('open'); }
+    function openEditModal(id)   { closeView(); _editingId=id; buildForm(_entries[id].type,_entries[id]); document.getElementById('modal-form').classList.add('open'); }
+    function closeForm() {
+      document.getElementById('modal-form').classList.remove('open');
+      _editingId=null; _quill=null;
+      if (_fpDate) { _fpDate.destroy(); _fpDate=null; }
+    }
+
+    function buildForm(type, d) {
+      const m = type==='meeting'; d=d||{};
+      const dateVal = d.date ? d.date.substring(0,10) : '';
+      const timeVal = d.date && d.date.includes('T') ? d.date.substring(11,16) : '';
+      const host=d.host||'', att=d.attendees||'', loc=d.location||'';
+
+      document.getElementById('form-body').innerHTML = m ? `
+        <div class="form-title">${_editingId?'編輯':'新增'}會議紀錄</div>
+        <div class="form-row">
+          <label>會議主題 *</label>
+          <input class="form-input" id="f-title" value="${esc(d.title||'')}">
+        </div>
+        <div class="form-row-2">
+          <div class="form-col">
+            <label>排定日期 *</label>
+            <div class="form-dt">
+              <input class="form-input" id="f-date" placeholder="選擇日期" readonly>
+              <input class="form-input" type="time" id="f-time" value="${timeVal}">
+            </div>
+          </div>
+          <div class="form-col">
+            <label>主持人 *</label>
+            <select class="form-select" id="f-person">
+              <option value="" disabled ${!host?'selected':''}>請選擇</option>
+              <option value="靜火" ${host==='靜火'?'selected':''}>靜火</option>
+              <option value="著魔" ${host==='著魔'?'selected':''}>著魔</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-col">
+            <label>出席 *</label>
+            <select class="form-select" id="f-attendees">
+              <option value="" disabled ${!att?'selected':''}>請選擇</option>
+              <option value="全體成員" ${att==='全體成員'?'selected':''}>全體成員</option>
+              <option value="食罪" ${att==='食罪'?'selected':''}>食罪</option>
+              <option value="妖異" ${att==='妖異'?'selected':''}>妖異</option>
+              <option value="引路人" ${att==='引路人'?'selected':''}>引路人</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label>地點 *</label>
+            <select class="form-select" id="f-location">
+              <option value="" disabled ${!loc?'selected':''}>請選擇</option>
+              <option value="DISCORD" ${loc==='DISCORD'?'selected':''}>DISCORD</option>
+              <option value="店內" ${loc==='店內'?'selected':''}>店內</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>會議時間</label>
+          <input class="form-input" id="f-duration" placeholder="例：1 小時 30 分" value="${esc(d.duration||'')}">
+        </div>
+        <div class="form-row">
+          <label>會議內容</label>
+          <div id="f-editor"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeForm()">取消</button>
+          <button class="btn-publish" onclick="saveEntry('meeting')">發佈</button>
+        </div>` : `
+        <div class="form-title">${_editingId?'編輯':'新增'}文章</div>
+        <div class="form-row">
+          <label>標題 *</label>
+          <input class="form-input" id="f-title" value="${esc(d.title||'')}">
+        </div>
+        <div class="form-row">
+          <label>作者</label>
+          <div class="form-input" style="background:var(--panel2);color:var(--dim);cursor:default">${esc(_user?.displayName||_user?.email||'—')}</div>
+        </div>
+        <div class="form-row">
+          <label>文章內容</label>
+          <div id="f-editor"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeForm()">取消</button>
+          <button class="btn-publish" onclick="saveEntry('article')">發佈</button>
+        </div>`;
+
+      // Flatpickr for date only (time uses native input)
+      if (m) {
+        _fpDate = flatpickr('#f-date', {
+          locale: zhTW, dateFormat: 'Y-m-d',
+          altInput: true, altFormat: 'Y年n月j日', altInputClass: 'form-input',
+          defaultDate: dateVal || null,
+          minDate: 'today',
+          appendTo: document.body,
+        });
+      }
+
+      _quill = new Quill('#f-editor', {
+        theme: 'snow',
+        placeholder: '請輸入內容…',
+        modules: { toolbar: [
+          [{ header:[1,2,3,false] }],
+          ['bold','italic','underline','strike'],
+          [{ color:[] }, { background:[] }],
+          [{ align:[] }],
+          [{ list:'ordered' }, { list:'bullet' }],
+          [{ indent:'-1' }, { indent:'+1' }],
+          ['blockquote','code-block'],
+          ['link'],
+          ['clean'],
+        ]}
+      });
+      if (d.content) _quill.root.innerHTML = d.content;
+    }
+
+    async function saveEntry(type) {
+      const m = type==='meeting';
+      const title = document.getElementById('f-title').value.trim();
+      if (!title) { alert('請填寫標題'); return; }
+      let date = '';
+      if (m) {
+        const dv = document.getElementById('f-date').value;
+        const tv = document.getElementById('f-time').value || '00:00';
+        if (!dv) { alert('請選擇日期'); return; }
+        date = `${dv}T${tv}`;
+        if (!document.getElementById('f-person').value)    { alert('請選擇主持人'); return; }
+        if (!document.getElementById('f-attendees').value) { alert('請選擇出席');   return; }
+        if (!document.getElementById('f-location').value)  { alert('請選擇地點');   return; }
+      }
+      const now = new Date().toISOString();
+      const content = _quill ? _quill.root.innerHTML : '';
+      const entry = { type, title, content, updatedAt:now, updatedBy:_user?.uid||'local' };
+      if (m) {
+        entry.date      = date;
+        entry.host      = document.getElementById('f-person').value;
+        entry.attendees = document.getElementById('f-attendees').value;
+        entry.location  = document.getElementById('f-location').value;
+        entry.duration  = document.getElementById('f-duration').value.trim();
+      } else {
+        entry.author = _editingId ? (_entries[_editingId].author || '') : (_user?.displayName || _user?.email || '');
+      }
+      if (_editingId) {
+        entry.createdAt = _entries[_editingId].createdAt || now;
+        entry.createdBy = _entries[_editingId].createdBy || 'local';
+        await db.ref('library/'+_editingId).set(entry).catch(e=>alert('儲存失敗：'+e.message));
+      } else {
+        entry.createdAt = now;
+        entry.createdBy = _user?.uid||'local';
+        await db.ref('library').push(entry).catch(e=>alert('儲存失敗：'+e.message));
+      }
+      closeForm();
+    }
+
+    async function confirmDelete(id) {
+      if (!confirm('確定要刪除這筆紀錄嗎？此操作無法復原。')) return;
+      closeView();
+      await db.ref('library/'+id).remove();
+    }
+  </script>
+</body>
+</html>
