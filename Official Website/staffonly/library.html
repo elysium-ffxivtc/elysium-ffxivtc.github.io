@@ -86,7 +86,7 @@
     .update-type { font-size: .72rem; padding: .1rem .5rem; border: 1px solid var(--border); color: var(--dim); letter-spacing: .05em; white-space: nowrap; flex-shrink: 0; }
     .update-type-announce { background: var(--gold-bg); color: var(--gold); border-color: rgba(136,91,34,.2); }
     .update-item-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
-    .update-item-date { font-size: .8rem; color: var(--dim2); white-space: nowrap; flex-shrink: 0; }
+    .update-item-date { font-size: .8rem; color: var(--dim2); white-space: nowrap; flex-shrink: 0; letter-spacing: .06em; padding-left: .6rem; }
     .update-del-btn { background: none; border: none; color: var(--dim2); font-size: .85rem; line-height: 1; padding: 0 .15rem; transition: color .15s; flex-shrink: 0; }
     .update-del-btn:hover { color: var(--red); }
     .update-empty { font-size: .9rem; color: var(--dim2); }
@@ -114,7 +114,7 @@
     .lib-table tbody tr:hover { background: var(--gold-bg); }
     .col-title   { color: var(--text); font-weight: 500; }
     .col-excerpt { color: var(--dim2); font-size: .85rem; }
-    .col-date    { color: var(--dim); font-size: .88rem; }
+    .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
     .col-dim     { color: var(--dim); font-size: .88rem; }
 
     /* badge: text-only, no bg/border */
@@ -141,7 +141,7 @@
     .view-meta-lbl { font-size: .72rem; color: var(--dim2); letter-spacing: .1em; text-transform: uppercase; }
     .view-meta-val { font-size: .93rem; color: var(--text); }
     .view-section-lbl { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); }
-    .view-content { font-size: .93rem; line-height: 1.9; color: var(--dim); }
+    .view-content { font-size: .93rem; line-height: 1.65; color: var(--dim); }
     .view-content h1,.view-content h2,.view-content h3 { font-family:'Noto Serif TC',serif; color:var(--text); margin:1.2rem 0 .5rem; }
     .view-content h1{font-size:1.3rem;} .view-content h2{font-size:1.1rem;}
     .view-content p{margin-bottom:1.6rem;} .view-content p:last-child{margin-bottom:0;}
@@ -207,7 +207,7 @@
     /* ── Quill overrides ── */
     .ql-toolbar.ql-snow { border:1px solid var(--border); border-bottom:none; background:var(--panel2); padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif; }
     .ql-container.ql-snow { border:1px solid var(--border); font-family:'Noto Sans TC',sans-serif; font-size:.93rem; }
-    .ql-editor { min-height:220px; line-height:1.9; color:var(--text); }
+    .ql-editor { min-height:220px; line-height:1.65; color:var(--text); }
     .ql-editor p { margin-bottom: 1.2em; }
     .ql-editor p:last-child { margin-bottom: 0; }
     .ql-editor.ql-blank::before { color:var(--dim2); font-style:normal; }
