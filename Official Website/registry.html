@@ -292,10 +292,40 @@
     #bk-lightbox-close { position: absolute; top: 1.2rem; right: 1.4rem; color: rgba(255,255,255,.7); font-size: 1.6rem; line-height: 1; cursor: pointer; user-select: none; }
 
     /* Mobile */
+    /* ── Sheet handle ── */
+    .bk2-sheet-handle {
+      display: none;
+      width: 36px; height: 4px;
+      background: rgba(0,0,0,.13);
+      border-radius: 2px;
+      margin: 10px auto 4px;
+      flex-shrink: 0;
+    }
+
     @media (max-width: 900px) {
-      .bk2-page { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; }
-      .bk2-form-col { grid-column: 1; grid-row: 3; }
-      .bk2-form-panel { width: 100%; position: static; max-height: none; margin: 0; border: none; border-top: 1px solid var(--border); box-shadow: none; top: auto !important; }
+      .bk2-page { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+      .bk2-grid-content { padding-bottom: 28vh; }
+      .footer-copy { display: none !important; }
+
+      /* Bottom sheet */
+      .bk2-form-col {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: 25vh;
+        z-index: 100;
+        transition: height .38s cubic-bezier(.4,0,.2,1);
+      }
+      .bk2-form-col.sheet-open { height: 100dvh; height: 100vh; }
+      .bk2-form-panel {
+        width: 100%; height: 100%; overflow-y: auto;
+        position: static; max-height: none; margin: 0;
+        border-radius: 14px 14px 0 0;
+        border: none; border-top: 1px solid rgba(184,144,96,.3);
+        box-shadow: 0 -4px 24px rgba(0,0,0,.12);
+        top: auto !important;
+        display: flex; flex-direction: column;
+      }
+      .bk2-sheet-handle { display: block; }
       .bk2-grid-row { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
     }
   </style>
@@ -353,13 +383,15 @@
       <div class="bk2-grid" id="bk2-grid"></div>
       <div id="bk2-grid-hint"></div>
     </div>
-    <div class="bk2-form-col">
+    <div class="bk2-form-col" id="bk2-form-col">
       <div class="bk2-form-panel">
+        <div class="bk2-sheet-handle"></div>
         <div class="bk2-form-inner" id="bk2-form-inner"></div>
       </div>
     </div>
     <p class="footer-copy" style="grid-column:1/-1;grid-row:3;text-align:center;padding:1.2rem 3rem 1.4rem;border-top:1px solid var(--border);">&copy; 2026 Elysium. All rights reserved.</p>
   </div>
+
 
   <script>
   // ─────────────────────────────────────────────────────────────
@@ -400,7 +432,7 @@
   let schedule = {}, reservations = [], previewBlock = false;
   let st = {
     agreed: false, date: '', time: '',
-    services: [], photoSig: false,
+    services: [], photoSig: false, photoExtra: 0,
     apostle: null, designated: false,
     rp: '', rpNote: '',
     gameName: '', server: '', contact: '', notes: '',
@@ -501,7 +533,8 @@
   }
   function calcTotal() {
     return st.services.reduce((t, sid) => t + (SERVICES.find(s => s.id===sid)?.price||0), 0)
-      + (st.photoSig && st.services.includes('photo') ? 20000 : 0);
+      + (st.photoSig && st.services.includes('photo') ? 20000 : 0)
+      + (st.services.includes('photo') ? st.photoExtra * 20000 : 0);
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -618,7 +651,7 @@
     if (!hasDateTime) {
       hintEl.innerHTML = `<div class="bk2-grid-hint">選擇日期與場次後，各位使徒的召引狀態將顯示於此。</div>`;
     } else if (!st.services.includes('nomen30')) {
-      hintEl.innerHTML = `<div class="bk2-grid-hint">於右欄選擇顯名儀後，即可召引使徒。</div>`;
+      hintEl.innerHTML = `<div class="bk2-grid-hint">選擇顯名儀後，即可召引使徒。</div>`;
     } else if (!anyAvail && APOSTLES.length > 0) {
       hintEl.innerHTML = `<div class="bk2-grid-hint">此場次所有使徒召引已額滿，請返回選擇其他場次。</div>`;
     } else {
@@ -739,7 +772,8 @@
     if (!el) return;
     el.innerHTML = SERVICES.map(s => {
       const sel    = st.services.includes(s.id);
-      const locked = s.id === 'photo' && !st.services.includes('nomen30');
+      const locked = (s.id === 'nomen30' && (!st.date || !st.time))
+                  || (s.id === 'photo'   && !st.services.includes('nomen30'));
       return `<div class="bk2-svc-row${sel?' sel':''}${locked?' locked':''}"
         onclick="${locked ? '' : `toggleSvc2('${s.id}')`}">
         <div style="flex:1;min-width:0;">
@@ -753,6 +787,18 @@
             <div class="bk2-photosig-bar"></div>
             <span style="font-size:12.5px;color:${st.photoSig?'var(--gold)':'var(--dim)'};">加選：簽名拍立得</span>
             <span style="font-size:12px;color:${st.photoSig?'var(--text)':'var(--dim)'};">20,000 Gil</span>
+          </div>
+          <div class="bk2-photosig${st.photoExtra>0?' on':''}">
+            <div class="bk2-photosig-bar"></div>
+            <span style="font-size:12.5px;color:${st.photoExtra>0?'var(--gold)':'var(--dim)'};">加選：多人合影</span>
+            <div style="display:flex;align-items:center;gap:.4rem">
+              <button onclick="event.stopPropagation();changePhotoExtra2(-1)"
+                style="width:22px;height:22px;border:1px solid var(--border);background:none;border-radius:4px;cursor:pointer;font-size:14px;line-height:1;color:var(--dim);padding:0;flex-shrink:0">−</button>
+              <span style="font-size:13px;width:1.2rem;text-align:center;color:${st.photoExtra>0?'var(--text)':'var(--dim)'};flex-shrink:0">${st.photoExtra}</span>
+              <button onclick="event.stopPropagation();changePhotoExtra2(1)"
+                style="width:22px;height:22px;border:1px solid var(--border);background:none;border-radius:4px;cursor:pointer;font-size:14px;line-height:1;color:var(--dim);padding:0;flex-shrink:0${st.photoExtra>=2?';opacity:.35;pointer-events:none':''}">＋</button>
+              <span style="font-size:12px;width:88px;text-align:right;color:${st.photoExtra>0?'var(--text)':'var(--dim)'};flex-shrink:0">${st.photoExtra>0?(st.photoExtra*20000).toLocaleString()+' Gil':'20,000 Gil / 人'}</span>
+            </div>
           </div>`
         : ''
       }`;
@@ -825,6 +871,8 @@
   function selectDate2(v) {
     st.date = v; st.time = '';
     updateTimes();
+    updateSvcCards();
+    updateCost();
     renderGrid();
     updateSubmitBtn();
   }
@@ -834,6 +882,8 @@
     document.querySelectorAll('#bk2-times .bk2-tbtn').forEach(btn => {
       btn.classList.toggle('sel', btn.textContent.trim() === t);
     });
+    updateSvcCards();
+    updateCost();
     renderGrid();
     updateSubmitBtn();
   }
@@ -845,10 +895,10 @@
       st.services.push(id);
     } else {
       st.services.splice(i, 1);
-      if (id === 'photo') st.photoSig = false;
+      if (id === 'photo') { st.photoSig = false; st.photoExtra = 0; }
       if (id === 'nomen30') {
         const pi = st.services.indexOf('photo');
-        if (pi !== -1) { st.services.splice(pi, 1); st.photoSig = false; }
+        if (pi !== -1) { st.services.splice(pi, 1); st.photoSig = false; st.photoExtra = 0; }
         st.apostle = null;
         st.designated = false;
       }
@@ -861,6 +911,12 @@
 
   function togglePhotoSig2() {
     st.photoSig = !st.photoSig;
+    updateSvcCards();
+    updateCost();
+  }
+
+  function changePhotoExtra2(d) {
+    st.photoExtra = Math.max(0, Math.min(2, st.photoExtra + d));
     updateSvcCards();
     updateCost();
   }
@@ -914,6 +970,7 @@
     const res = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       date: st.date, time: st.time, services: [...st.services],
+      photoSig: st.photoSig, photoExtra: st.photoExtra,
       designated: st.designated, apostle: st.apostle, photographer: null,
       rp: st.rp, rpNote: st.rpNote,
       gameName: st.gameName, server: st.server, contact: st.contact, notes: st.notes,
@@ -956,7 +1013,7 @@
       gridContent.style.gridColumn = '';
       gridContent.innerHTML = '<div class="bk2-grid" id="bk2-grid"></div><div id="bk2-grid-hint"></div>';
     }
-    st = { agreed:false, date:'', time:'', services:[], photoSig:false, apostle:null, designated:false, rp:'', rpNote:'', gameName:'', server:'', contact:'', notes:'' };
+    st = { agreed:false, date:'', time:'', services:[], photoSig:false, photoExtra:0, apostle:null, designated:false, rp:'', rpNote:'', gameName:'', server:'', contact:'', notes:'' };
     const modal = document.getElementById('agree-modal');
     const chk   = document.getElementById('modal-agree-chk');
     const btn   = document.getElementById('modal-enter-btn');
@@ -1002,6 +1059,18 @@
     updateSubmitBtn();
   }
   init();
+
+  // Mobile bottom sheet — expand when apostle grid scrolls out of view
+  (function() {
+    if (window.innerWidth > 900) return;
+    var formCol  = document.getElementById('bk2-form-col');
+    var gridArea = document.querySelector('.bk2-grid-content');
+    if (!formCol || !gridArea) return;
+    var obs = new IntersectionObserver(function(entries) {
+      formCol.classList.toggle('sheet-open', !entries[0].isIntersecting);
+    }, { threshold: 0 });
+    obs.observe(gridArea);
+  })();
 
   // Panel lag-follow animation
   (function() {

@@ -703,29 +703,7 @@
       <div style="font-size:14px;color:var(--dim);margin-bottom:1.1rem" id="ot-info"></div>
       <div>
         <div class="pos-label">開始時間</div>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <div class="dr-wrap" id="ot-h-wrap" style="flex:1">
-            <div class="dr-display" style="padding:0">
-              <input type="text" id="ot-h-inp" class="pos-input" maxlength="2" placeholder="HH"
-                     style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
-                     onclick="this.select()" oninput="otHFromInput()">
-              <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
-                    onclick="otToggle('h')">▼</span>
-            </div>
-            <div id="ot-h-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
-          </div>
-          <span style="color:var(--dim);font-size:1.1rem;flex-shrink:0">:</span>
-          <div class="dr-wrap" id="ot-m-wrap" style="flex:1">
-            <div class="dr-display" style="padding:0">
-              <input type="text" id="ot-m-inp" class="pos-input" maxlength="2" placeholder="MM"
-                     style="border:none;background:none;flex:1;padding:.45rem .6rem;outline:none;text-align:center"
-                     onclick="this.select()" oninput="otMFromInput()">
-              <span style="padding:.45rem .55rem;cursor:pointer;color:var(--dim);font-size:11px;flex-shrink:0"
-                    onclick="otToggle('m')">▼</span>
-            </div>
-            <div id="ot-m-pop" class="dr-popup" style="display:none;padding:0;min-width:80px"></div>
-          </div>
-        </div>
+        <div id="ot-time-wrap" style="margin-top:.4rem"></div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-outline" onclick="closeModal('modal-ot')">取消</button>
@@ -839,7 +817,7 @@
     //  資料定義
     // ────────────────────────────────────────────────────────────
     const MENU_ITEMS = [
-      { id:'M1', name:'堅振（厄爾庇斯之麵）',   price:7000 },
+      { id:'M1', name:'堅振', sub:'厄爾庇斯之麵',   price:7000 },
       { id:'M2', name:'懺悔（新薯冷湯）',       price:7000 },
       { id:'M3', name:'彌撒（野生香蕉果昔）',   price:7000 },
       { id:'M4', name:'晚禱（軟果糕）',         price:7000 },
@@ -1072,10 +1050,9 @@
       document.getElementById('ot-info').textContent = `使徒：${v.apostleName || '—'}　現場指名`;
       _ot.h = parseInt(nowStr.split(':')[0]);
       _ot.m = parseInt(nowStr.split(':')[1]);
-      const hInp = document.getElementById('ot-h-inp');
-      const mInp = document.getElementById('ot-m-inp');
-      if (hInp) hInp.value = String(_ot.h).padStart(2,'0');
-      if (mInp) mInp.value = String(_ot.m).padStart(2,'0');
+      _otHIdx  = Math.max(0, VT_HOURS.indexOf(_ot.h) >= 0 ? VT_HOURS.indexOf(_ot.h) : 0);
+      _otMDrum = _ot.m >= 0 ? _ot.m : 0;
+      renderOTDrums();
       document.getElementById('modal-ot').classList.add('open');
     }
 
@@ -1084,10 +1061,8 @@
       if (!v) return;
       const c = customers.find(x => x.id === v.customerId);
       if (!c) return;
-      const hRaw = parseInt(document.getElementById('ot-h-inp')?.value);
-      const mRaw = parseInt(document.getElementById('ot-m-inp')?.value);
-      if (isNaN(hRaw) || isNaN(mRaw) || mRaw < 0 || mRaw > 59) return alert('請輸入正確的時間');
-      const time = `${String(hRaw).padStart(2,'0')}:${String(mRaw).padStart(2,'0')}`;
+      if (_ot.h < 0 || _ot.m < 0 || _ot.m > 59) return alert('請輸入正確的時間');
+      const time = `${String(_ot.h).padStart(2,'0')}:${String(_ot.m).padStart(2,'0')}`;
       const nomenSvc = SERVICES.find(s => s.id === 'nomen30');
       if (!nomenSvc) return;
       const newV = {
@@ -1555,7 +1530,7 @@
           <div class="menu-grid">
             ${vs.orders.map((m, i) => `
             <div class="menu-item" id="mi-${m.id}">
-              <div class="menu-item-name">${m.name}</div>
+              <div class="menu-item-name">${m.name}${m.sub ? `<div style="font-size:11px;color:var(--dim);margin-top:.1rem">${m.sub}</div>` : ''}</div>
               <div class="menu-item-price">${m.price.toLocaleString()} Gil</div>
               <div class="qty-row">
                 <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
@@ -2460,77 +2435,76 @@
       if (disp)  disp.classList.remove('open');
     }
 
-    // ── Overtime time picker (H combobox + M combobox) ──
+    // ── Overtime time picker (drum roll) ──
     let _ot = { h: -1, m: -1 };
+    let _otHIdx = 0, _otMDrum = 0;
 
-    function _otMins(h, m) { return (h < 6 ? h + 24 : h) * 60 + m; }
-    function _otNowMins()  { const d = new Date(); return _otMins(d.getHours(), d.getMinutes()); }
+    function renderOTDrums() {
+      const wrap = document.getElementById('ot-time-wrap'); if (!wrap) return;
+      const n = VT_HOURS.length;
+      const _inpCur = `border:none;outline:none;width:100%;text-align:center;font-size:1rem;color:var(--gold);font-weight:700;font-family:inherit;background:rgba(180,150,80,.08);border-top:1px solid rgba(180,150,80,.2);border-bottom:1px solid rgba(180,150,80,.2);padding:.38rem 0;cursor:text`;
+      wrap.innerHTML = `
+        <div style="display:inline-flex;align-items:center;gap:.5rem">
+          <div id="ot-h-drum" style="${_drumStyle}">
+            <div onclick="otHDrumScroll(-1)" style="${_drumPrev}">${String(VT_HOURS[(_otHIdx-1+n)%n]).padStart(2,'0')}</div>
+            <input id="ot-h-inp" type="text" maxlength="2" value="${String(VT_HOURS[_otHIdx]).padStart(2,'0')}" style="${_inpCur}" oninput="otHInpChange(this.value)" onclick="this.select()">
+            <div onclick="otHDrumScroll(1)"  style="${_drumNext}">${String(VT_HOURS[(_otHIdx+1)%n]).padStart(2,'0')}</div>
+          </div>
+          <span style="color:var(--dim);font-size:1.1rem;line-height:1">:</span>
+          <div id="ot-m-drum" style="${_drumStyle}">
+            <div onclick="otMDrumScroll(-1)" style="${_drumPrev}">${String((_otMDrum-1+60)%60).padStart(2,'0')}</div>
+            <input id="ot-m-inp" type="text" maxlength="2" value="${String(_otMDrum).padStart(2,'0')}" style="${_inpCur}" oninput="otMInpChange(this.value)" onclick="this.select()">
+            <div onclick="otMDrumScroll(1)"  style="${_drumNext}">${String((_otMDrum+1)%60).padStart(2,'0')}</div>
+          </div>
+        </div>`;
+      const dh = document.getElementById('ot-h-drum');
+      const dm = document.getElementById('ot-m-drum');
+      if (dh) dh.addEventListener('wheel', e => { e.preventDefault(); otHDrumScroll(e.deltaY>0?1:-1); }, { passive:false });
+      if (dm) dm.addEventListener('wheel', e => { e.preventDefault(); otMDrumScroll(e.deltaY>0?1:-1); }, { passive:false });
+    }
 
-    function otToggle(which) {
-      const pop  = document.getElementById('ot-' + which + '-pop');
-      const wrap = document.getElementById('ot-' + which + '-wrap');
-      const disp = wrap?.querySelector('.dr-display');
-      if (!pop) return;
-      const opening = pop.style.display === 'none';
-      pop.style.display = opening ? '' : 'none';
-      disp?.classList.toggle('open', opening);
-      if (opening) {
-        which === 'h' ? otRenderH() : otRenderM();
-        setTimeout(() => {
-          const handler = e => {
-            if (!wrap?.contains(e.target)) {
-              pop.style.display = 'none'; disp?.classList.remove('open');
-              document.removeEventListener('mousedown', handler);
-            }
-          };
-          document.addEventListener('mousedown', handler);
-        }, 0);
+    function otHDrumScroll(d) {
+      const n = VT_HOURS.length;
+      _otHIdx = (_otHIdx + d + n) % n;
+      _ot.h = VT_HOURS[_otHIdx];
+      const drum = document.getElementById('ot-h-drum'); if (!drum) return;
+      drum.children[0].textContent = String(VT_HOURS[(_otHIdx-1+n)%n]).padStart(2,'0');
+      drum.children[1].value       = String(VT_HOURS[_otHIdx]).padStart(2,'0');
+      drum.children[2].textContent = String(VT_HOURS[(_otHIdx+1)%n]).padStart(2,'0');
+    }
+
+    function otMDrumScroll(d) {
+      _otMDrum = (_otMDrum + d + 60) % 60;
+      _ot.m = _otMDrum;
+      const drum = document.getElementById('ot-m-drum'); if (!drum) return;
+      drum.children[0].textContent = String((_otMDrum-1+60)%60).padStart(2,'0');
+      drum.children[1].value       = String(_otMDrum).padStart(2,'0');
+      drum.children[2].textContent = String((_otMDrum+1)%60).padStart(2,'0');
+    }
+
+    function otHInpChange(val) {
+      const h = parseInt(val);
+      if (isNaN(h) || h < 0 || h > 23) return;
+      _ot.h = h;
+      const hi = VT_HOURS.indexOf(h);
+      if (hi >= 0) _otHIdx = hi;
+      const n = VT_HOURS.length;
+      const drum = document.getElementById('ot-h-drum');
+      if (drum) {
+        drum.children[0].textContent = String(VT_HOURS[(_otHIdx-1+n)%n]).padStart(2,'0');
+        drum.children[2].textContent = String(VT_HOURS[(_otHIdx+1)%n]).padStart(2,'0');
       }
     }
 
-    function otRenderH() {
-      const pop = document.getElementById('ot-h-pop'); if (!pop) return;
-      const now = _otNowMins();
-      pop.innerHTML = [22,23,0,1].map(h => {
-        const dis = _otMins(h, 59) < now;
-        return `<div class="tp-opt${_ot.h===h?' on':''}${dis?' tp-dis':''}" onclick="otPickH(${h})">${String(h).padStart(2,'0')}</div>`;
-      }).join('');
-    }
-
-    function otRenderM() {
-      const pop = document.getElementById('ot-m-pop'); if (!pop) return;
-      const now = _otNowMins();
-      pop.innerHTML = `<div style="max-height:196px;overflow-y:auto">` +
-        Array.from({length:60},(_,m)=>m).map(m => {
-          const dis = _ot.h >= 0 && _otMins(_ot.h, m) < now;
-          return `<div class="tp-opt${_ot.m===m?' on':''}${dis?' tp-dis':''}" onclick="otPickM(${m})">${String(m).padStart(2,'0')}</div>`;
-        }).join('') + '</div>';
-    }
-
-    function otPickH(h) {
-      _ot.h = h;
-      const inp = document.getElementById('ot-h-inp');
-      if (inp) inp.value = String(h).padStart(2,'0');
-      document.getElementById('ot-h-pop').style.display = 'none';
-      document.getElementById('ot-h-wrap')?.querySelector('.dr-display')?.classList.remove('open');
-    }
-
-    function otPickM(m) {
-      _ot.m = m;
-      const inp = document.getElementById('ot-m-inp');
-      if (inp) inp.value = String(m).padStart(2,'0');
-      document.getElementById('ot-m-pop').style.display = 'none';
-      document.getElementById('ot-m-wrap')?.querySelector('.dr-display')?.classList.remove('open');
-    }
-
-    function otHFromInput() {
-      const v = parseInt(document.getElementById('ot-h-inp')?.value);
-      if (!isNaN(v)) _ot.h = v;
-    }
-
-    function otMFromInput() {
-      const v = parseInt(document.getElementById('ot-m-inp')?.value);
-      if (!isNaN(v) && v >= 0 && v <= 59) _ot.m = v;
+    function otMInpChange(val) {
+      const m = parseInt(val);
+      if (isNaN(m) || m < 0 || m > 59) return;
+      _otMDrum = m; _ot.m = m;
+      const drum = document.getElementById('ot-m-drum');
+      if (drum) {
+        drum.children[0].textContent = String((_otMDrum-1+60)%60).padStart(2,'0');
+        drum.children[2].textContent = String((_otMDrum+1)%60).padStart(2,'0');
+      }
     }
 
     // ── Visit time picker (drum roll) ──
