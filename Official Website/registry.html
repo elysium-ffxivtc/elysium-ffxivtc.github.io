@@ -1077,6 +1077,21 @@
         formCol.classList.toggle('sheet-open');
       });
     }
+    var panel = formCol.querySelector('.bk2-form-panel');
+    if (panel) {
+      var _didScroll = false;
+      panel.addEventListener('scroll', function() {
+        if (panel.scrollTop > 20) {
+          _didScroll = true;
+        } else if (_didScroll && panel.scrollTop === 0) {
+          formCol.classList.remove('sheet-open');
+          _didScroll = false;
+        }
+      });
+      formCol.addEventListener('transitionend', function() {
+        if (!formCol.classList.contains('sheet-open')) _didScroll = false;
+      });
+    }
   })();
 
   // Panel lag-follow animation
