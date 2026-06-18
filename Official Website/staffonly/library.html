@@ -105,7 +105,7 @@
     .lib-add-btn:hover { background: #7a5020; }
 
     /* ── Table ── */
-    .lib-table-wrap { background: var(--panel); border: 1px solid var(--border); overflow: hidden; }
+    .lib-table-wrap { background: var(--panel); border: 1px solid var(--border); overflow: hidden; overflow-x: auto; }
     .lib-table { width: 100%; border-collapse: collapse; font-size: .93rem; table-layout: fixed; }
     .lib-table th { text-align: left; padding: .65rem 1.1rem; font-size: .8rem; font-weight: 500; color: var(--dim); letter-spacing: .1em; background: var(--panel2); border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
     .lib-table td { padding: .9rem 1.1rem; border-bottom: 1px solid rgba(0,0,0,.05); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -221,6 +221,39 @@
     .ql-snow .ql-picker-item:hover,.ql-snow .ql-picker-item.ql-selected { color:var(--gold); }
     .ql-editor a { color:var(--gold); }
     .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .lib-header { padding: .55rem .85rem; }
+      .hdr-clock-date { display: none; }
+      .hdr-clock-time { font-size: .82rem; }
+      .user-badge-name { max-width: 60px; }
+
+      .lib-main { padding: 1rem .75rem; }
+
+      /* update panel: date wraps below title */
+      .update-panel { padding: .85rem 1rem; }
+      .update-item { flex-wrap: wrap; gap: .3rem .6rem; }
+      .update-item-title { order: 1; }
+      .update-item-date { order: 2; padding-left: 0; }
+
+      /* tables: horizontal scroll */
+      .lib-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .lib-table { table-layout: auto; min-width: 520px; }
+
+      /* modal */
+      .modal-overlay { padding: .75rem .4rem; }
+      .modal-box { padding: 1.4rem 1.1rem 1.75rem; }
+      .view-content { overflow-x: auto; }
+      .view-meta { gap: 1rem 1.5rem; }
+      .view-title { font-size: 1.35rem; }
+
+      /* form */
+      .form-row-2 { grid-template-columns: 1fr; }
+      .form-dt { grid-template-columns: 1fr 110px; }
+      .form-actions { flex-direction: column-reverse; }
+      .btn-cancel, .btn-publish { width: 100%; text-align: center; padding: .65rem; }
+    }
   </style>
 </head>
 <body>
