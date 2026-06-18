@@ -263,6 +263,10 @@
     .btn-gold:hover { background: #c9a070; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--dim); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-blue  { background: var(--blue);  color: #fff; }
+    .btn-blue:hover  { background: #3878c0; }
+    .btn-green { background: #5aaa7a; color: #fff; }
+    .btn-green:hover { background: #72c293; }
     .btn-sm { padding: .3rem .7rem; font-size: 13px; }
 
     /* Form */
@@ -282,6 +286,36 @@
     }
     .pos-input:focus, .pos-select:focus { border-color: var(--gold); }
     .pos-select option { background: var(--card); }
+    /* Custom checkbox */
+    .pos-check { display:none; }
+    .pos-check-lbl {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: 13px;
+      color: var(--dim);
+      cursor: pointer;
+      user-select: none;
+    }
+    .pos-check-lbl::before {
+      content: '';
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      transition: border-color .18s, background .18s;
+      box-sizing: border-box;
+    }
+    .pos-check:checked + .pos-check-lbl::before {
+      background: var(--gold);
+      border-color: var(--gold);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M1 5l3.5 3.5L11 1' stroke='%23fff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-size: 11px 9px;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
     /* Date range picker */
     .dr-wrap { position: relative; }
     .dr-display {
@@ -833,7 +867,7 @@
       { id:'wreath_walkin', name:'花環（現場）',         price:30000  },
       { id:'nomen30',       name:'顯名儀',               price:100000 },
       { id:'photo',         name:'交名留影',             price:100000 },
-      { id:'photo_sig',     name:'加簽',                 price:20000  },
+      { id:'photo_sig',     name:'加簽名',                 price:20000  },
       { id:'photo_extra',   name:'多人合照（每人）',     price:20000  },
       { id:'champagne',     name:'香檳塔',               price:0, disabled:true },
       { id:'celebrate',     name:'祝賀服務',             price:0, disabled:true },
@@ -1293,8 +1327,8 @@
           </div>
           <div class="pos-profile-actions">
             <button class="btn btn-gold" onclick="showNewVisit('${id}','nomen')">＋ 新增召引</button>
-            <button class="btn" style="background:var(--blue);color:#fff" onclick="showNewVisit('${id}','dining')">＋ 新增餐點</button>
-            <button class="btn" style="background:#5aaa7a;color:#fff" onclick="showNewVisit('${id}','single')">＋ 新增單點</button>
+            <button class="btn btn-blue"  onclick="showNewVisit('${id}','dining')">＋ 新增餐點</button>
+            <button class="btn btn-green" onclick="showNewVisit('${id}','single')">＋ 新增單點</button>
             <button class="btn btn-outline" onclick="openEditCustomerModal('${id}')">編輯資料</button>
             <button class="btn btn-outline" style="border-color:var(--red);color:var(--red)" onclick="deleteCustomer('${id}')">刪除</button>
           </div>
@@ -1550,7 +1584,7 @@
               const staff = photoStaff();
               return staff.length
                 ? `<select class="pos-select" id="v-apostle" style="width:100%">
-                    <option value="">選擇使徒 / 引路人</option>
+                    <option value="">請選擇人員</option>
                     ${staff.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
                    </select>`
                 : `<input class="pos-input" id="v-apostle" type="text" placeholder="使徒 / 引路人名稱（選填）">`;
@@ -1793,15 +1827,15 @@
         <div style="margin-top:.4rem">
           ${_pstaff.length
             ? `<select class="pos-select" style="width:100%;font-size:13px" onchange="vs.photoExtras[${i}]=this.value">
-                <option value="">選擇使徒 / 引路人</option>
+                <option value="">請選擇人員</option>
                 ${_pstaff.map(a => `<option value="${esc(a.name)}"${name===a.name?' selected':''}>${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
                </select>`
             : `<input class="pos-input" style="width:100%;font-size:13px" type="text" placeholder="使徒 / 引路人名稱" value="${esc(name)}" oninput="vs.photoExtras[${i}]=this.value">`
           }
-          <label style="display:flex;align-items:center;gap:.35rem;font-size:12px;color:var(--dim);margin-top:.3rem;cursor:pointer">
-            <input type="checkbox" ${vs.photoExtraSigs[i]?'checked':''} onchange="vs.photoExtraSigs[${i}]=this.checked;updateCost()">
-            加簽 +20,000 Gil
-          </label>
+          <div style="margin-top:.35rem">
+            <input type="checkbox" class="pos-check" id="photo-sig-${i}" ${vs.photoExtraSigs[i]?'checked':''} onchange="vs.photoExtraSigs[${i}]=this.checked;updateCost()">
+            <label class="pos-check-lbl" for="photo-sig-${i}">加簽名 +20,000 Gil</label>
+          </div>
         </div>`).join('');
     }
 
@@ -1865,7 +1899,7 @@
       el.innerHTML = `
         ${vs.mode!=='dining'&&vs.mode!=='single'?`<div class="cost-row"><span class="cost-lbl">入場費</span><span class="cost-val">${wreathTotal.toLocaleString()} Gil</span></div>`:''}
         ${svcTotal>0?`<div class="cost-row"><span class="cost-lbl">服務小計</span><span class="cost-val">${svcTotal.toLocaleString()} Gil</span></div>`:''}
-        ${extraSigTotal>0?`<div class="cost-row"><span class="cost-lbl">加簽（合照）</span><span class="cost-val">${extraSigTotal.toLocaleString()} Gil</span></div>`:''}
+        ${extraSigTotal>0?`<div class="cost-row"><span class="cost-lbl">加簽名（合照）</span><span class="cost-val">${extraSigTotal.toLocaleString()} Gil</span></div>`:''}
         ${ordTotal+specTotal>0?`<div class="cost-row"><span class="cost-lbl">點餐小計</span><span class="cost-val">${(ordTotal+specTotal).toLocaleString()} Gil</span></div>`:''}
         <div class="cost-row total"><span class="cost-lbl">合計</span><span class="cost-val">${total.toLocaleString()} Gil</span></div>
         ${vs.mode==='nomen'?`<div class="cost-row" style="margin-top:.3rem">
@@ -3494,8 +3528,8 @@
             ${[
               totWreath     ? `<div class="settle-row"><span class="settle-row-lbl">入場費（花環）</span><span class="settle-row-base">${totWreath.toLocaleString()}</span><span class="settle-row-rate">× 70%</span><span class="settle-row-cut">${Math.floor(totWreath*0.7).toLocaleString()}</span></div>` : '',
               totPhotos     ? `<div class="settle-row"><span class="settle-row-lbl">交名留影（店家）</span><span class="settle-row-base">${totPhotos} 張</span><span class="settle-row-rate">固定 80,000</span><span class="settle-row-cut">${(totPhotos*80000).toLocaleString()}</span></div>` : '',
-              totPhotoSig   ? `<div class="settle-row"><span class="settle-row-lbl">加簽（交名留影）</span><span class="settle-row-base">${totPhotoSig.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totPhotoSig.toLocaleString()}</span></div>` : '',
-              totExtraSig   ? `<div class="settle-row"><span class="settle-row-lbl">加簽（多人合照）</span><span class="settle-row-base">${totExtraSig.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totExtraSig.toLocaleString()}</span></div>` : '',
+              totPhotoSig   ? `<div class="settle-row"><span class="settle-row-lbl">加簽名（交名留影）</span><span class="settle-row-base">${totPhotoSig.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totPhotoSig.toLocaleString()}</span></div>` : '',
+              totExtraSig   ? `<div class="settle-row"><span class="settle-row-lbl">加簽名（多人合照）</span><span class="settle-row-base">${totExtraSig.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totExtraSig.toLocaleString()}</span></div>` : '',
               svTotal       ? `<div class="settle-row"><span class="settle-row-lbl">紀念品</span><span class="settle-row-base">${svTotal.toLocaleString()}</span><span class="settle-row-rate">× 70%</span><span class="settle-row-cut">${svHouse.toLocaleString()}</span></div>` : '',
               totOrders     ? `<div class="settle-row"><span class="settle-row-lbl">餐飲</span><span class="settle-row-base">${totOrders.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totOrders.toLocaleString()}</span></div>` : '',
               totHouseOther ? `<div class="settle-row"><span class="settle-row-lbl">其他</span><span class="settle-row-base">${totHouseOther.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${totHouseOther.toLocaleString()}</span></div>` : '',
