@@ -163,6 +163,8 @@
     .bk2-form-panel::-webkit-scrollbar { display: none; }
 
     .bk2-form-inner { padding: 0; }
+    .bk2-panel-copy { display: none; font-size: 11px; color: var(--dim); text-align: center; padding: .9rem 1rem 1.2rem; letter-spacing: .05em; flex-shrink: 0; }
+    @media (max-width: 900px) { .bk2-panel-copy { display: block; } .footer-copy { display: none !important; } }
 
     /* Form section */
     .bk2-fsec { padding: 1.6rem 1.5rem; margin-bottom: 0; border-bottom: 1px solid rgba(184,144,96,.3); }
@@ -394,6 +396,7 @@
       <div class="bk2-form-panel">
         <div class="bk2-sheet-handle"></div>
         <div class="bk2-form-inner" id="bk2-form-inner"></div>
+        <p class="bk2-panel-copy">&copy; 2026 Elysium. All rights reserved.</p>
       </div>
     </div>
     <p class="footer-copy" style="grid-column:1/-1;grid-row:3;text-align:center;padding:1.2rem 3rem 1.4rem;border-top:1px solid var(--border);">&copy; 2026 Elysium. All rights reserved.</p>
