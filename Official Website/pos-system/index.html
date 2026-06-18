@@ -97,7 +97,7 @@
     .pos-ci-discord { font-size: 13px; color: var(--dim); margin-top: 2px; }
     .pos-ci-pts { font-size: 13px; color: var(--gold); margin-top: 2px; }
 
-    .pos-add-btns { display: flex; flex-direction: column; gap: 0; margin: .9rem; flex-shrink: 0; }
+    .pos-add-btns { display: flex; flex-direction: column; gap: 6px; margin: .9rem; flex-shrink: 0; }
     .pos-add-btn {
       padding: .5rem;
       background: transparent;
@@ -108,10 +108,9 @@
       cursor: pointer;
       transition: all .2s;
     }
-    .pos-add-btn + .pos-add-btn { border-top: none; }
     .pos-add-btn:hover { border-color: var(--gold); color: var(--gold); }
-    .pos-add-btn.dark { background: var(--text); color: var(--bg); border-color: var(--text); }
-    .pos-add-btn.dark:hover { background: #2d2010; border-color: var(--gold); color: var(--gold); }
+    .pos-add-btn.dark { background: #885B22; color: #fdfaf5; border-color: #885B22; }
+    .pos-add-btn.dark:hover { background: #7a5020; border-color: var(--gold); color: #fff; }
 
     /* ── Content ── */
     .pos-content { flex: 1; overflow-y: auto; padding: 1.5rem; }
@@ -3701,9 +3700,9 @@
       const now = new Date().toISOString();
       const today = now.slice(0, 10);
       customers = [
-        { id:'c_demo1', name:'星落·伊華', discord:'starhaven_iwa', server:'鳳凰', contact:'', notes:'偏好安靜的角落', pointsTotal:3, hasRedeemedUltimate:false, createdAt:now },
+        { id:'c_demo1', name:'星落·伊華', discord:'starhaven_iwa', server:'鳳凰', contact:'', notes:'偏好安靜的角落', pointsTotal:4, hasRedeemedUltimate:false, createdAt:now },
         { id:'c_demo2', name:'緋夜·碎鏡', discord:'scarletnight_', server:'巴哈姆特', contact:'', notes:'', pointsTotal:660, hasRedeemedUltimate:false, createdAt:now },
-        { id:'c_demo3', name:'霧白·淵聲', discord:'mistwhisper99', server:'泰坦', contact:'', notes:'已使用高級服務一次', pointsTotal:1, hasRedeemedUltimate:true, createdAt:now },
+        { id:'c_demo3', name:'霧白·淵聲', discord:'mistwhisper99', server:'泰坦', contact:'', notes:'已使用高級服務一次', pointsTotal:2, hasRedeemedUltimate:true, createdAt:now },
       ];
       visits = [
         { id:'v_d1', customerId:'c_demo1', date:'2026-06-01', time:'22:00', type:'booked', apostleType:'specified', apostleName:'落花有意', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[{name:'晚禱',price:7000,qty:1}], servicesTotal:120000, ordersTotal:7000, total:127000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-01T13:00:00.000Z' },
@@ -3711,7 +3710,7 @@
         { id:'v_d3', customerId:'c_demo1', date:'2026-06-14', time:'22:30', type:'booked', apostleType:'specified', apostleName:'安怛', apostleTag:'妖異', services:['wreath_booked','nomen30','photo'], orders:[{name:'心像殘響',price:10000,qty:1},{name:'彌撒',price:7000,qty:2}], servicesTotal:220000, ordersTotal:24000, total:244000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-14T13:00:00.000Z' },
         { id:'v_d4', customerId:'c_demo2', date:'2026-05-10', time:'23:00', type:'booked', apostleType:'specified', apostleName:'落花有意', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[], servicesTotal:120000, ordersTotal:0, total:120000, pointsEarned:2, pointMultiplier:2, notes:'活動加倍', createdAt:'2026-05-10T13:00:00.000Z' },
         { id:'v_d5', customerId:'c_demo3', date:'2026-04-20', time:'22:00', type:'booked', apostleType:'specified', apostleName:'掠影', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[{name:'懺悔',price:7000,qty:1}], servicesTotal:120000, ordersTotal:7000, total:33216334, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-04-20T14:00:00.000Z' },
-        { id:'v_d6', customerId:'c_demo1', date:today, time:'22:00', type:'booked', apostleType:'specified', apostleName:'落花有意', apostleTag:'食罪', services:['wreath_booked'], orders:[{name:'堅振',price:7000,qty:1}], servicesTotal:100000, ordersTotal:7000, total:107000, pointsEarned:0, pointMultiplier:1, notes:'', createdAt:now },
+        { id:'v_d6', customerId:'c_demo1', date:today, time:'22:00', type:'booked', apostleType:'specified', apostleName:'落花有意', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[{name:'堅振',price:7000,qty:1}], servicesTotal:120000, ordersTotal:7000, total:127000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
         { id:'v_d7', customerId:'c_demo2', date:today, time:'22:30', type:'booked', apostleType:'specified', apostleName:'掠影', apostleTag:'食罪', services:['wreath_booked','nomen30'], orders:[], servicesTotal:120000, ordersTotal:0, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
         { id:'v_d8', customerId:'c_demo3', date:today, time:'22:00', type:'walkin', apostleType:'specified', apostleName:'安怛', apostleTag:'妖異', services:['wreath_walkin','nomen30'], orders:[{name:'彌撒',price:7000,qty:1}], servicesTotal:130000, ordersTotal:7000, total:137000, pointsEarned:1, pointMultiplier:1, notes:'現場到訪', createdAt:now },
       ];
