@@ -1086,7 +1086,7 @@
     var panel = formCol.querySelector('.bk2-form-panel');
     if (panel) {
       panel.addEventListener('scroll', function() {
-        if (formCol.classList.contains('sheet-open') && panel.scrollTop < 5) {
+        if (formCol.classList.contains('sheet-open') && panel.scrollTop < -40) {
           formCol.style.transition = 'height .2s cubic-bezier(.4,0,.2,1)';
           formCol.classList.remove('sheet-open');
           formCol.addEventListener('transitionend', function reset() {
