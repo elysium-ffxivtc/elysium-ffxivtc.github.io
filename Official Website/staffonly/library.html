@@ -299,7 +299,7 @@
     });
     const db = firebase.database();
 
-    let _user = null, _role = 'staff', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
+    let _user = null, _role = 'staff', _displayName = '', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
     const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
     const zhTW = {
@@ -322,7 +322,13 @@
           window.location.href = 'index.html';
           return;
         }
-        _role = staffSnap.exists() ? (staffSnap.val().role || 'staff') : 'pilgrim';
+        if (staffSnap.exists()) {
+          _role = staffSnap.val().role || 'staff';
+          _displayName = staffSnap.val().displayName || user.displayName || user.email || '';
+        } else {
+          _role = 'pilgrim';
+          _displayName = pilgrimSnap.val().name || user.displayName || user.email || '';
+        }
       } catch(e) { _role = 'staff'; }
       document.getElementById('btn-add-article').style.display = '';
       if (_role === 'admin') {
@@ -553,7 +559,7 @@
         </div>
         <div class="form-row">
           <label>作者</label>
-          <div class="form-input" style="background:var(--panel2);color:var(--dim);cursor:default">${esc(_user?.displayName||_user?.email||'—')}</div>
+          <div class="form-input" style="background:var(--panel2);color:var(--dim);cursor:default">${esc(_displayName||'—')}</div>
         </div>
         <div class="form-row">
           <label>文章內容</label>
@@ -617,7 +623,7 @@
         entry.location  = document.getElementById('f-location').value;
         entry.duration  = document.getElementById('f-duration').value.trim();
       } else {
-        entry.author = _editingId ? (_entries[_editingId].author || '') : (_user?.displayName || _user?.email || '');
+        entry.author = _editingId ? (_entries[_editingId].author || '') : (_displayName || '');
       }
       if (_editingId) {
         entry.createdAt = _entries[_editingId].createdAt || now;
