@@ -378,11 +378,11 @@
         </div>
       </div>
       <div id="bulk-week-wrap">
-        <div class="form-label" style="margin-top:.6rem">選擇星期 <span id="bulk-week-hint" style="color:var(--dim);font-weight:400">（最多 4 週）</span></div>
+        <div class="form-label" style="margin-top:.6rem">選擇週期 <span id="bulk-week-hint" style="color:var(--dim);font-weight:400">（最多 4 週）</span></div>
         <div id="bulk-week-list" style="max-height:148px;overflow-y:auto;padding:.2rem 0;border:1px solid var(--border);background:var(--bg);padding:.35rem .6rem"></div>
       </div>
       <div id="bulk-day-wrap" style="display:none">
-        <div class="form-label" style="margin-top:.6rem">選擇星期幾</div>
+        <div class="form-label" style="margin-top:.6rem">選擇星期</div>
         <div class="seg-row" id="bulk-weekday-btns"></div>
       </div>
       <div>
@@ -483,7 +483,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
   let _addDate = null;
   let _addTime = null;
   let bulkMode = 'week';
-  let bulkSelectedDay = null;
+  let bulkSelectedDays = [];
   let _bulkWeeks = [];
 
   onAuthStateChanged(auth, async user => {
@@ -929,7 +929,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
   // ── Bulk schedule modal ───────────────────────────────────────
   function openBulkModal() {
     bulkMode = 'week';
-    bulkSelectedDay = null;
+    bulkSelectedDays = [];
     const today = todayStr();
 
     _bulkWeeks = getUpcomingWeeks(8);
@@ -942,7 +942,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
     document.getElementById('bulk-weekday-btns').innerHTML =
       WD_ORDER.map(d => {
         const hasFuture = getDatesForWeekday(viewYear, viewMonth, d).some(date => date >= today);
-        return `<button class="seg-btn" data-day="${d}" ${hasFuture ? `onclick="selectBulkDay(${d})"` : 'disabled'}>${WD_FULL[d]}</button>`;
+        return `<button class="seg-btn" data-day="${d}" ${hasFuture ? `onclick="toggleBulkDay(${d})"` : 'disabled'}>${WD_FULL[d]}</button>`;
       }).join('');
 
     document.getElementById('bulk-slots').innerHTML =
@@ -966,17 +966,19 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
 
   function setBulkMode(mode) {
     bulkMode = mode;
-    bulkSelectedDay = null;
+    bulkSelectedDays = [];
     document.getElementById('bulk-mode-week').classList.toggle('on', mode === 'week');
     document.getElementById('bulk-mode-day').classList.toggle('on', mode === 'day');
     document.getElementById('bulk-week-wrap').style.display = mode === 'week' ? '' : 'none';
     document.getElementById('bulk-day-wrap').style.display = mode === 'day' ? '' : 'none';
   }
 
-  function selectBulkDay(dayJs) {
-    bulkSelectedDay = dayJs;
+  function toggleBulkDay(dayJs) {
+    const idx = bulkSelectedDays.indexOf(dayJs);
+    if (idx >= 0) bulkSelectedDays.splice(idx, 1);
+    else bulkSelectedDays.push(dayJs);
     document.querySelectorAll('#bulk-weekday-btns .seg-btn').forEach(btn => {
-      btn.classList.toggle('on', parseInt(btn.dataset.day) === dayJs);
+      btn.classList.toggle('on', bulkSelectedDays.includes(parseInt(btn.dataset.day)));
     });
   }
 
@@ -1004,8 +1006,8 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
       if (!selectedIdx.length) { showToast('請選擇至少一週'); return; }
       dates = [...new Set(selectedIdx.flatMap(i => _bulkWeeks[i].dates))];
     } else {
-      if (bulkSelectedDay === null) { showToast('請選擇星期幾'); return; }
-      dates = getDatesForWeekday(viewYear, viewMonth, bulkSelectedDay);
+      if (!bulkSelectedDays.length) { showToast('請選擇至少一個星期'); return; }
+      dates = [...new Set(bulkSelectedDays.flatMap(d => getDatesForWeekday(viewYear, viewMonth, d)))];
     }
 
     const today = todayStr();
