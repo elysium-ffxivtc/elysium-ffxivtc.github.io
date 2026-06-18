@@ -3369,9 +3369,15 @@
       const svPerA   = numA > 0 ? Math.floor(svPool / numA) : 0;
 
       // 匯總
-      let totWreath = 0, totNomen = 0, totPhotos = 0, totPhotoExtras = 0, totPhotoSig = 0, totOrders = 0, totHouseOther = 0;
+      let totNomen = 0, totPhotos = 0, totPhotoExtras = 0, totPhotoSig = 0, totOrders = 0, totHouseOther = 0;
+      // 花環從所有來訪加總（不依使徒歸屬）
+      let totWreath = 0;
+      tv.forEach(v => (v.services||[]).forEach(sid => {
+        if (sid === 'wreath_booked' || sid === 'wreath_walkin') {
+          const svc = SERVICES.find(s => s.id === sid); if (svc) totWreath += svc.price;
+        }
+      }));
       names.forEach(n => {
-        totWreath      += aMap[n].wreath;
         totNomen       += aMap[n].nomen;
         totPhotos      += aMap[n].photos;
         totPhotoExtras += aMap[n].photoExtras;
@@ -3388,15 +3394,15 @@
 
       const photoHouseCut = totPhotos * 80000 + totPhotoSig + totExtraSig;
 
-      const numPilgrimsEff = PILGRIMS.length ? (_selectedPilgrims.length || PILGRIMS.length) : _numPilgrims;
-      const pilgrimPool  = Math.floor(totWreath * 0.1) + svPilgrim;
-      const pilgrimEach  = numPilgrimsEff > 0 ? Math.floor(pilgrimPool / numPilgrimsEff) : 0;
+      const numPilgrimsEff  = PILGRIMS.length ? (_selectedPilgrims.length || PILGRIMS.length) : _numPilgrims;
+      const numApostlesEff  = names.filter(n => n !== '（未指定）').length || 1;
       const houseTotal = Math.floor(totWreath * 0.7) + photoHouseCut + svHouse + totOrders + totHouseOther;
 
       // 使徒區塊
       const apostleBlocks = names.map(name => {
         const a = aMap[name];
-        const wCut  = Math.floor(a.wreath  * 0.2);
+        const isRealApostle = name !== '（未指定）';
+        const wCut  = isRealApostle && totWreath > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numApostlesEff) : 0;
         const nCut  = a.nomen;
         const pCut  = a.photos * 20000;
         const exCut = a.photoExtras * 20000;
@@ -3404,7 +3410,7 @@
         const sub   = wCut + nCut + pCut + exCut + sCut;
 
         const rows = [
-          a.wreath      ? `<div class="settle-row"><span class="settle-row-lbl">入場費（花環）</span><span class="settle-row-base">${a.wreath.toLocaleString()}</span><span class="settle-row-rate">× 20%</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
+          isRealApostle && totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numApostlesEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numApostlesEff}</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
           a.nomen       ? `<div class="settle-row"><span class="settle-row-lbl">指名費（顯名儀）</span><span class="settle-row-base">${a.nomen.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${nCut.toLocaleString()}</span></div>` : '',
           a.photos      ? `<div class="settle-row"><span class="settle-row-lbl">交名留影</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
           a.photoExtras ? `<div class="settle-row"><span class="settle-row-lbl">多人合照</span><span class="settle-row-base">${a.photoExtras} 人</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${exCut.toLocaleString()}</span></div>` : '',
@@ -3422,7 +3428,8 @@
 
       const apostleTotal = names.reduce((s, n) => {
         const a = aMap[n];
-        return s + Math.floor(a.wreath*0.2) + a.nomen + a.photos*20000 + a.photoExtras*20000 + svPerA;
+        const wc = n !== '（未指定）' && totWreath > 0 ? Math.floor(Math.floor(totWreath*0.1) / numApostlesEff) : 0;
+        return s + wc + a.nomen + a.photos*20000 + a.photoExtras*20000 + svPerA;
       }, 0);
       // Pilgrim photo cuts (separate from pilgrim pool)
       const pilgrimPhotoCuts = pilgrimPhotoNames.reduce((s,n) => {
@@ -3445,13 +3452,13 @@
       const _pilgrimBlockList = PILGRIMS.length ? (_selectedPilgrims.length ? _selectedPilgrims : PILGRIMS.map(g => g.name)) : [];
       const pilgrimSettleBlocks = _pilgrimBlockList.length ? _pilgrimBlockList.map(name => {
         const a = aMap[name] || { photos: 0, photoExtras: 0 };
-        const wreathShare = totWreath && numPilgrimsEff > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numPilgrimsEff) : 0;
+        const wreathShare = totWreath && numPilgrimsEff > 0 ? Math.floor(Math.floor(totWreath * 0.2) / numPilgrimsEff) : 0;
         const svShare     = svPilgrim   && numPilgrimsEff > 0 ? Math.floor(svPilgrim / numPilgrimsEff) : 0;
         const pCut  = (a.photos || 0) * 20000;
         const exCut = (a.photoExtras || 0) * 20000;
         const sub   = wreathShare + svShare + pCut + exCut;
         const rows = [
-          totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numPilgrimsEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numPilgrimsEff}</span><span class="settle-row-cut">${wreathShare.toLocaleString()}</span></div>` : '',
+          totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numPilgrimsEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.2).toLocaleString()}</span><span class="settle-row-rate">÷ ${numPilgrimsEff}</span><span class="settle-row-cut">${wreathShare.toLocaleString()}</span></div>` : '',
           svPilgrim   ? `<div class="settle-row"><span class="settle-row-lbl">紀念品分潤（÷ ${numPilgrimsEff}）</span><span class="settle-row-base">${svPilgrim.toLocaleString()}</span><span class="settle-row-rate">÷ ${numPilgrimsEff}</span><span class="settle-row-cut">${svShare.toLocaleString()}</span></div>` : '',
           pCut      ? `<div class="settle-row"><span class="settle-row-lbl">交名留影</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
           exCut     ? `<div class="settle-row"><span class="settle-row-lbl">多人合照</span><span class="settle-row-base">${a.photoExtras} 人</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${exCut.toLocaleString()}</span></div>` : '',

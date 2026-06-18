@@ -2,6 +2,9 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+::selection { background: rgba(184,144,96,.28); color: inherit; }
+::-moz-selection { background: rgba(184,144,96,.28); color: inherit; }
+
 html { scrollbar-width: thin; scrollbar-color: rgba(184,144,96,.35) transparent; }
 html::-webkit-scrollbar { width: 5px; }
 html::-webkit-scrollbar-thumb { background: rgba(184,144,96,.35); border-radius: 4px; }
