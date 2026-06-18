@@ -3472,6 +3472,8 @@
         </div>`;
       }).join('') : '';
 
+      const pilgrimPool = Math.floor(totWreath * 0.2) + svPilgrim;
+
       const recorded  = tv.reduce((s,v) => s + (v.total||0), 0);
       const revenue   = recorded + svTotal;
       const wages     = apostleTotal + pilgrimPool + pilgrimPhotoCuts;
