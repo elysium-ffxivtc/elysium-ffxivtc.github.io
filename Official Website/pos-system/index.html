@@ -28,6 +28,18 @@
       --yi:       #795061;   /* 妖異 */
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { cursor: url('../image/arr-cursors/arr-pointer.cur'), default; }
+    a, button, [role="button"], select, label, .pos-add-btn, .pos-customer-card,
+    .pos-action-btn, .modal-close, .tab, .chip, [onclick] {
+      cursor: url('../image/arr-cursors/arr-link.cur'), pointer;
+    }
+    input, textarea { cursor: url('../image/arr-cursors/arr-text.cur'), text; }
+    [disabled], .disabled { cursor: url('../image/arr-cursors/arr-forbidden.cur'), not-allowed; }
+    [draggable="true"] { cursor: url('../image/arr-cursors/arr-hand-open.cur'), grab; }
+    [draggable="true"]:active { cursor: url('../image/arr-cursors/arr-hand-closed.cur'), grabbing; }
+    .resize-h { cursor: url('../image/arr-cursors/arr-resize-hor.cur'), ew-resize; }
+    .resize-v { cursor: url('../image/arr-cursors/arr-resize-ver.cur'), ns-resize; }
+    .pos-loading, .loading { cursor: url('../image/arr-cursors/arr-loading.ani'), wait; }
     body {
       font-family: 'Noto Sans TC', sans-serif;
       background: var(--bg);
