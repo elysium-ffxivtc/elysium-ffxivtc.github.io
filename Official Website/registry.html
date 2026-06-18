@@ -297,6 +297,7 @@
       display: none;
       width: 36px; height: 4px;
       background: rgba(0,0,0,.13);
+      cursor: pointer;
       border-radius: 2px;
       margin: 10px auto 4px;
       flex-shrink: 0;
@@ -1070,6 +1071,12 @@
       formCol.classList.toggle('sheet-open', !entries[0].isIntersecting);
     }, { threshold: 0 });
     obs.observe(gridArea);
+    var handle = formCol.querySelector('.bk2-sheet-handle');
+    if (handle) {
+      handle.addEventListener('click', function() {
+        formCol.classList.toggle('sheet-open');
+      });
+    }
   })();
 
   // Panel lag-follow animation
