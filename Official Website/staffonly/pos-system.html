@@ -912,8 +912,7 @@
           }
           const s = snap.val();
           if (s.role !== 'admin' && s.role !== 'pilgrim') {
-            document.getElementById('pos-auth-err').textContent = '此帳號無權限使用 POS 系統';
-            await firebase.auth().signOut();
+            window.location.replace('./');
             return;
           }
           posUser = { uid: user.uid, displayName: s.displayName, role: s.role };

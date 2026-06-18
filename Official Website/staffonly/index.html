@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elysium</title>
+  <title>Elysium · Staff Portal</title>
   <link rel="icon" type="image/png" href="../image/Elysium_LOGO_mini_dark.png">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
     ::selection { background: rgba(184,144,96,.4); color: inherit; }
@@ -16,95 +19,196 @@
       color: #d4c8b8;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+    }
+
+    /* ── Login overlay ── */
+    .auth-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #111010;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-overlay.show { display: flex; }
+    .auth-box {
+      background: #1a1814;
+      border: 1px solid #2a2520;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      width: 100%;
+      max-width: 300px;
+    }
+    .auth-logo { font-size: .85rem; letter-spacing: .28em; color: #885B22; text-transform: uppercase; margin-bottom: .5rem; }
+    .auth-sub { font-size: .72rem; color: #4a3f2e; letter-spacing: .08em; margin-bottom: 1.8rem; }
+    .auth-btn {
+      width: 100%; padding: .72rem;
+      background: #885B22; color: #fdfaf5;
+      border: none; font-size: .82rem; font-family: inherit; letter-spacing: .1em;
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
+      transition: background .18s;
+    }
+    .auth-btn:hover { background: #7a5020; }
+    .auth-err { font-size: 12px; color: #c05050; margin-top: .75rem; min-height: 18px; }
+
+    /* ── Portal ── */
+    .portal {
+      display: none;
+      flex-direction: column;
+      align-items: center;
       padding: 2rem;
       padding-bottom: 14vh;
     }
-    .logo {
-      width: 44px;
-      opacity: .7;
-      margin-bottom: 1.6rem;
-    }
-    .title {
-      font-size: .75rem;
-      letter-spacing: .28em;
-      color: #6b5a3e;
-      text-transform: uppercase;
-      margin-bottom: 2.4rem;
-    }
+    .portal.show { display: flex; }
+    .logo { width: 44px; opacity: .7; margin-bottom: 1.6rem; }
+    .title { font-size: .75rem; letter-spacing: .28em; color: #6b5a3e; text-transform: uppercase; margin-bottom: 2.4rem; }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: .75rem;
       width: 100%;
-      max-width: 480px;
+      max-width: 580px;
     }
-    @media (max-width: 480px) {
-      .grid { grid-template-columns: 1fr; max-width: 260px; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); max-width: 440px; }
+    @media (max-width: 580px) {
+      .grid { grid-template-columns: repeat(2, 1fr); max-width: 320px; }
+      .grid.three { grid-template-columns: repeat(2, 1fr); max-width: 320px; }
     }
+
     .card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .5rem;
-      padding: 1.4rem .8rem 1.2rem;
-      background: #1a1814;
-      border: 1px solid #2a2520;
-      text-decoration: none;
-      color: #c8baa8;
+      display: flex; flex-direction: column; align-items: center;
+      gap: .5rem; padding: 1.4rem .8rem 1.2rem;
+      background: #1a1814; border: 1px solid #2a2520;
+      text-decoration: none; color: #c8baa8;
       transition: border-color .18s, background .18s;
       cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
     }
-    .card:hover {
-      background: #201e1a;
-      border-color: #885B22;
-      color: #e0cfa8;
-    }
+    .card:hover { background: #201e1a; border-color: #885B22; color: #e0cfa8; }
     .card svg { opacity: .6; }
     .card:hover svg { opacity: .9; }
-    .card-name {
-      font-size: .8rem;
-      letter-spacing: .1em;
+    .card-name { font-size: .8rem; letter-spacing: .1em; }
+
+    .signout-wrap { margin-top: 2rem; }
+    .signout-btn {
+      background: none; border: none; color: #4a3f2e;
+      font-size: .7rem; letter-spacing: .1em; font-family: inherit;
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
+      transition: color .15s;
     }
+    .signout-btn:hover { color: #6b5a3e; }
   </style>
 </head>
 <body>
 
-  <img class="logo" src="../image/Elysium_LOGO_mini.png" alt="Elysium">
-  <div class="title">Staff Portal</div>
-
-  <div class="grid">
-
-    <a target="_blank" href="../index.html" class="card">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <path d="M14 3L4 10v15h7v-6h6v6h7V10L14 3z" stroke="#c8a87a" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
-      </svg>
-      <div class="card-name">官方網站</div>
-    </a>
-
-    <a target="_blank" href="pos-system.html" class="card">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="6" width="22" height="14" rx="1.5" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
-        <path d="M9 22h10M14 20v2" stroke="#c8a87a" stroke-width="1.3" stroke-linecap="round"/>
-        <path d="M7 11h4M7 14.5h7" stroke="#c8a87a" stroke-width="1.3" stroke-linecap="round"/>
-      </svg>
-      <div class="card-name">POS 系統</div>
-    </a>
-
-    <a target="_blank" href="schedule.html" class="card">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <rect x="4" y="6" width="20" height="17" rx="1.5" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
-        <path d="M9 4v4M19 4v4M4 13h20" stroke="#c8a87a" stroke-width="1.3" stroke-linecap="round"/>
-        <rect x="8" y="16" width="3" height="3" rx=".4" fill="#c8a87a" opacity=".5"/>
-        <rect x="12.5" y="16" width="3" height="3" rx=".4" fill="#c8a87a" opacity=".5"/>
-        <rect x="17" y="16" width="3" height="3" rx=".4" fill="#c8a87a" opacity=".5"/>
-      </svg>
-      <div class="card-name">排班系統</div>
-    </a>
-
+  <div class="auth-overlay show" id="auth-overlay">
+    <div class="auth-box">
+      <div class="auth-logo">Elysium</div>
+      <div class="auth-sub">Staff Portal · 僅限授權人員</div>
+      <button class="auth-btn" onclick="signIn()">Google 登入</button>
+      <div class="auth-err" id="auth-err"></div>
+    </div>
   </div>
 
+  <div class="portal" id="portal">
+    <img class="logo" src="../image/Elysium_LOGO_mini.png" alt="Elysium">
+    <div class="title">Staff Portal</div>
+
+    <div class="grid" id="card-grid">
+
+      <a target="_blank" href="../index.html" class="card">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 3L4 10v15h7v-6h6v6h7V10L14 3z" stroke="#c8a87a" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <div class="card-name">官方網站</div>
+      </a>
+
+      <a target="_blank" href="pos-system.html" class="card" id="card-pos">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="3" y="6" width="22" height="14" rx="1.5" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+          <path d="M9 22h10M14 20v2" stroke="#c8a87a" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M7 11h4M7 14.5h7" stroke="#c8a87a" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <div class="card-name">POS 系統</div>
+      </a>
+
+      <a target="_blank" href="schedule.html" class="card">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="4" y="6" width="20" height="17" rx="1.5" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+          <path d="M9 4v4M19 4v4M4 13h20" stroke="#c8a87a" stroke-width="1.3" stroke-linecap="round"/>
+          <rect x="8" y="16" width="3" height="3" rx=".4" fill="#c8a87a" opacity=".5"/>
+          <rect x="12.5" y="16" width="3" height="3" rx=".4" fill="#c8a87a" opacity=".5"/>
+          <rect x="17" y="16" width="3" height="3" rx=".4" fill="#c8a87a" opacity=".5"/>
+        </svg>
+        <div class="card-name">排班系統</div>
+      </a>
+
+      <a target="_blank" href="library.html" class="card">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="4" y="4" width="5" height="20" rx="1" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+          <rect x="11" y="4" width="5" height="20" rx="1" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+          <rect x="18" y="4" width="6" height="20" rx="1" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+        </svg>
+        <div class="card-name">圖書室</div>
+      </a>
+
+    </div>
+
+    <div class="signout-wrap">
+      <button class="signout-btn" onclick="signOut()">登出</button>
+    </div>
+  </div>
+
+  <script>
+    firebase.initializeApp({
+      apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+      authDomain:        "elysiumpos.firebaseapp.com",
+      databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "elysiumpos",
+      storageBucket:     "elysiumpos.firebasestorage.app",
+      messagingSenderId: "430177597593",
+      appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+    });
+    const db = firebase.database();
+
+    firebase.auth().onAuthStateChanged(async user => {
+      if (!user) {
+        document.getElementById('auth-overlay').classList.add('show');
+        document.getElementById('portal').classList.remove('show');
+        return;
+      }
+      try {
+        const snap = await db.ref('staff/' + user.uid).get();
+        if (!snap.exists()) {
+          document.getElementById('auth-err').textContent = '帳號尚未授權，請聯絡管理員';
+          await firebase.auth().signOut();
+          return;
+        }
+        const role = snap.val().role;
+        if (role === 'staff') {
+          document.getElementById('card-pos').style.display = 'none';
+          document.getElementById('card-grid').classList.add('three');
+        }
+        document.getElementById('auth-overlay').classList.remove('show');
+        document.getElementById('portal').classList.add('show');
+      } catch(e) {
+        document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+      }
+    });
+
+    function signIn() {
+      document.getElementById('auth-err').textContent = '';
+      firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => {
+        document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
+      });
+    }
+
+    function signOut() {
+      firebase.auth().signOut();
+    }
+  </script>
 </body>
 </html>
