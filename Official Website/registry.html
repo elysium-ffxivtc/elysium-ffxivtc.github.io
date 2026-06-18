@@ -295,18 +295,24 @@
     /* ── Sheet handle ── */
     .bk2-sheet-handle {
       display: none;
+      width: 100%; height: 36px;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+    }
+    .bk2-sheet-handle::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
       width: 36px; height: 4px;
       background: rgba(0,0,0,.13);
-      cursor: pointer;
       border-radius: 2px;
-      margin: 10px auto 4px;
-      flex-shrink: 0;
     }
 
     @media (max-width: 900px) {
       .bk2-page { grid-template-columns: 1fr; grid-template-rows: auto auto; }
       .bk2-grid-content { padding-bottom: 28vh; }
-      .footer-copy { display: none !important; }
 
       /* Bottom sheet */
       .bk2-form-col {
@@ -1079,17 +1085,15 @@
     }
     var panel = formCol.querySelector('.bk2-form-panel');
     if (panel) {
-      var _didScroll = false;
       panel.addEventListener('scroll', function() {
-        if (panel.scrollTop > 20) {
-          _didScroll = true;
-        } else if (_didScroll && panel.scrollTop === 0) {
+        if (formCol.classList.contains('sheet-open') && panel.scrollTop < 5) {
+          formCol.style.transition = 'height .2s cubic-bezier(.4,0,.2,1)';
           formCol.classList.remove('sheet-open');
-          _didScroll = false;
+          formCol.addEventListener('transitionend', function reset() {
+            formCol.style.transition = '';
+            formCol.removeEventListener('transitionend', reset);
+          });
         }
-      });
-      formCol.addEventListener('transitionend', function() {
-        if (!formCol.classList.contains('sheet-open')) _didScroll = false;
       });
     }
   })();
