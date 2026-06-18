@@ -44,7 +44,7 @@
 
     /* ── Apostle card ── */
     .bk2-card {
-      position: relative; cursor: pointer;
+      position: relative; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
       border: 1px solid var(--border);
       background: #fff;
       transition: border-color .22s, box-shadow .22s;
@@ -66,14 +66,14 @@
       z-index: 2;
     }
     .bk2-card.unavail {
-      cursor: not-allowed;
+      cursor: url('image/arr-cursors/arr-small-forbidden.cur'), not-allowed;
     }
     .bk2-card.unavail .bk2-card-photo::after {
       content: ''; position: absolute; inset: 0;
       background: rgba(239,239,239,.65);
     }
     .bk2-card.unavail .bk2-card-body { opacity: .45; }
-    .bk2-card.locked { opacity: .52; cursor: not-allowed; }
+    .bk2-card.locked { opacity: .52; cursor: url('image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
 
     /* Photo area */
     .bk2-card-photo {
@@ -132,7 +132,7 @@
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       min-height: 160px; gap: .5rem;
-      cursor: pointer; border: 1px dashed var(--border);
+      cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; border: 1px dashed var(--border);
       background: transparent; transition: all .22s;
     }
     .bk2-card-nodesig:hover { border-color: rgba(184,144,96,.45); background: rgba(184,144,96,.04); }
@@ -197,7 +197,7 @@
     .bk2-tbtn {
       padding: .55rem .3rem; border: 1px solid var(--border); background: #fff;
       color: var(--dim); border-radius: 2px; font-size: 13px;
-      font-family: 'Noto Serif TC', serif; cursor: pointer; text-align: center; transition: all .2s;
+      font-family: 'Noto Serif TC', serif; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; text-align: center; transition: all .2s;
     }
     .bk2-tbtn:hover { border-color: var(--gold); color: var(--text); }
     .bk2-tbtn.sel   { border-color: var(--gold); background: rgba(184,144,96,.13); color: var(--gold); }
@@ -206,12 +206,12 @@
     .bk2-svc-row {
       display: flex; align-items: flex-start; gap: .75rem;
       padding: .8rem 0; border-bottom: 1px solid var(--border);
-      cursor: pointer; transition: all .18s; position: relative; padding-left: .75rem;
+      cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; transition: all .18s; position: relative; padding-left: .75rem;
     }
     .bk2-svc-row:first-of-type { border-top: 1px solid var(--border); }
     .bk2-svc-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--gold); transform: scaleY(0); transform-origin: center; transition: transform .2s; }
     .bk2-svc-row.sel::before { transform: scaleY(1); }
-    .bk2-svc-row.locked { opacity: .35; cursor: not-allowed; }
+    .bk2-svc-row.locked { opacity: .35; cursor: url('image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
     .bk2-svc-name { font-family: 'Noto Serif TC', serif; font-size: .92rem; font-weight: 700; color: var(--text); letter-spacing: .05em; transition: color .18s; }
     .bk2-svc-row.sel .bk2-svc-name { color: var(--gold); }
     .bk2-svc-desc-sm { font-size: 12px; color: var(--dim); line-height: 1.65; margin-top: 2px; }
@@ -221,7 +221,7 @@
     .bk2-rp-row {
       display: flex; align-items: flex-start; gap: .7rem;
       padding: .65rem 0; border-bottom: 1px solid var(--border);
-      cursor: pointer; transition: all .18s; position: relative; padding-left: .75rem;
+      cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; transition: all .18s; position: relative; padding-left: .75rem;
     }
     .bk2-rp-row:first-of-type { border-top: 1px solid var(--border); }
     .bk2-rp-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--gold); transform: scaleY(0); transform-origin: center; transition: transform .2s; }
@@ -233,7 +233,7 @@
     /* Agree row */
     .bk2-agree-row {
       display: flex; align-items: flex-start; gap: .7rem;
-      padding: .8rem 0; cursor: pointer;
+      padding: .8rem 0; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
     }
     .bk2-chk {
       width: 15px; height: 15px; min-width: 15px; border: 1px solid var(--border);
@@ -255,7 +255,7 @@
     .bk2-photosig {
       display: flex; align-items: center; justify-content: space-between;
       padding: .6rem .75rem .6rem 1.2rem;
-      background: rgba(0,0,0,.02); cursor: pointer; position: relative;
+      background: rgba(0,0,0,.02); cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; position: relative;
       border-top: 1px solid var(--border); transition: background .18s;
     }
     .bk2-photosig-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform .2s; }
@@ -266,10 +266,10 @@
       display: block; width: 100%; padding: .9rem;
       background: var(--text); border: none; color: #fff;
       font-family: 'Noto Serif TC', serif; font-size: 13.5px; letter-spacing: .18em;
-      cursor: pointer; transition: opacity .2s; font-weight: 500;
+      cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; transition: opacity .2s; font-weight: 500;
     }
     .bk2-submit-btn:hover    { opacity: .78; }
-    .bk2-submit-btn:disabled { opacity: .2; cursor: not-allowed; }
+    .bk2-submit-btn:disabled { opacity: .2; cursor: url('image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
 
     /* Modal tweaks */
     #agree-modal .welcome-divider { margin-bottom: .6rem; }
@@ -288,10 +288,10 @@
     }
 
     /* Lightbox */
-    #bk-lightbox { position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+    #bk-lightbox { position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; cursor: url('image/arr-cursors/arr-zoom-out.cur'), zoom-out; }
     #bk-lightbox.open { display: flex; }
     #bk-lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; display: block; pointer-events: none; }
-    #bk-lightbox-close { position: absolute; top: 1.2rem; right: 1.4rem; color: rgba(255,255,255,.7); font-size: 1.6rem; line-height: 1; cursor: pointer; user-select: none; }
+    #bk-lightbox-close { position: absolute; top: 1.2rem; right: 1.4rem; color: rgba(255,255,255,.7); font-size: 1.6rem; line-height: 1; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; user-select: none; }
 
     /* Mobile */
     /* ── Sheet handle ── */
@@ -299,7 +299,7 @@
       display: none;
       width: 100%; height: 36px;
       flex-shrink: 0;
-      cursor: pointer;
+      cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
       position: relative;
     }
     .bk2-sheet-handle::after {
@@ -367,7 +367,7 @@
         𓊆 禮堂規約 𓊇
       </a>
       <div onclick="toggleModalAgree()"
-        style="cursor:pointer;display:flex;align-items:flex-start;gap:.85rem;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:1.4rem;text-align:left;">
+        style="cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;display:flex;align-items:flex-start;gap:.85rem;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:1.4rem;text-align:left;">
         <div class="bk-cchk" id="modal-agree-chk" style="border-radius:0;margin-top:4px;flex-shrink:0;"></div>
         <div style="font-family:'Noto Serif TC',serif;font-size:.88rem;color:var(--text);letter-spacing:.04em;line-height:1.75;">
           本人已閱讀並同意 Elysium 規約及隱私權政策。<br>
@@ -803,10 +803,10 @@
             <span style="font-size:12.5px;color:${st.photoExtra>0?'var(--gold)':'var(--dim)'};">加選：多人合影</span>
             <div style="display:flex;align-items:center;gap:.4rem">
               <button onclick="event.stopPropagation();changePhotoExtra2(-1)"
-                style="width:22px;height:22px;border:1px solid var(--border);background:none;border-radius:4px;cursor:pointer;font-size:14px;line-height:1;color:var(--dim);padding:0;flex-shrink:0">−</button>
+                style="width:22px;height:22px;border:1px solid var(--border);background:none;border-radius:4px;cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;font-size:14px;line-height:1;color:var(--dim);padding:0;flex-shrink:0">−</button>
               <span style="font-size:13px;width:1.2rem;text-align:center;color:${st.photoExtra>0?'var(--text)':'var(--dim)'};flex-shrink:0">${st.photoExtra}</span>
               <button onclick="event.stopPropagation();changePhotoExtra2(1)"
-                style="width:22px;height:22px;border:1px solid var(--border);background:none;border-radius:4px;cursor:pointer;font-size:14px;line-height:1;color:var(--dim);padding:0;flex-shrink:0${st.photoExtra>=2?';opacity:.35;pointer-events:none':''}">＋</button>
+                style="width:22px;height:22px;border:1px solid var(--border);background:none;border-radius:4px;cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;font-size:14px;line-height:1;color:var(--dim);padding:0;flex-shrink:0${st.photoExtra>=2?';opacity:.35;pointer-events:none':''}">＋</button>
               <span style="font-size:12px;width:88px;text-align:right;color:${st.photoExtra>0?'var(--text)':'var(--dim)'};flex-shrink:0">${st.photoExtra>0?(st.photoExtra*20000).toLocaleString()+' Gil':'20,000 Gil / 人'}</span>
             </div>
           </div>`
@@ -1003,8 +1003,8 @@
           等待司祭確認本次召引結果。<br><br>
           在回應到來之前，願你得以片刻安歇。
         </p>
-        <span style="display:inline-flex;align-items:center;justify-content:center;width:100%;max-width:240px;padding:.75rem;background:var(--text);color:#fff;font-family:'Noto Serif TC',serif;font-size:13px;letter-spacing:.15em;cursor:pointer;font-weight:500;margin-top:1.5rem;">加入 Discord 伺服器</span><br>
-        <button onclick="resetForm2()" style="display:block;max-width:240px;margin:.8rem auto 0;padding:.7rem;background:transparent;border:1px solid var(--border);color:var(--dim);font-family:'Noto Serif TC',serif;font-size:13px;letter-spacing:.1em;cursor:pointer;transition:all .2s;width:100%;">再次預約</button>
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:100%;max-width:240px;padding:.75rem;background:var(--text);color:#fff;font-family:'Noto Serif TC',serif;font-size:13px;letter-spacing:.15em;cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;font-weight:500;margin-top:1.5rem;">加入 Discord 伺服器</span><br>
+        <button onclick="resetForm2()" style="display:block;max-width:240px;margin:.8rem auto 0;padding:.7rem;background:transparent;border:1px solid var(--border);color:var(--dim);font-family:'Noto Serif TC',serif;font-size:13px;letter-spacing:.1em;cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;transition:all .2s;width:100%;">再次預約</button>
       </div>`;
   }
 
@@ -1023,7 +1023,7 @@
     const btn   = document.getElementById('modal-enter-btn');
     if (modal) modal.style.display = '';
     if (chk) { chk.className = 'bk-cchk'; chk.innerHTML = ''; }
-    if (btn) { btn.disabled = true; btn.style.opacity = '.2'; btn.style.cursor = 'not-allowed'; }
+    if (btn) { btn.disabled = true; btn.style.opacity = '.2'; }
     renderGrid();
     initForm();
   }

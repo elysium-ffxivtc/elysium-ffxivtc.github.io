@@ -6,10 +6,11 @@
   <title>Elysium</title>
   <link rel="icon" type="image/png" href="image/Elysium_LOGO_mini.png">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
     body {
       font-family: 'Noto Sans TC', 'Helvetica Neue', sans-serif;
       background: #111010;
+      cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
       color: #d4c8b8;
       min-height: 100vh;
       display: flex;
@@ -52,7 +53,7 @@
       text-decoration: none;
       color: #c8baa8;
       transition: border-color .18s, background .18s;
-      cursor: pointer;
+      cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
     }
     .card:hover {
       background: #201e1a;

@@ -23,8 +23,11 @@
       --green-dim:rgba(45,122,80,.1);
       --red:      #b03838;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
+    a, button, [role="button"], select, [onclick] { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    input, textarea { cursor: url('../image/arr-cursors/arr-small-text.cur'), text; }
+    [disabled] { cursor: url('../image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
 
     /* ── Header ── */
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: .65rem 1rem; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
@@ -40,11 +43,11 @@
 
     /* ── Tabs ── */
     .tab-row { display: flex; gap: .5rem; margin-bottom: .85rem; border-bottom: 1px solid var(--border); padding-bottom: .7rem; }
-    .tab-btn { padding: .35rem .85rem; font-size: 13px; background: none; border: 1px solid transparent; color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; }
+    .tab-btn { padding: .35rem .85rem; font-size: 13px; background: none; border: 1px solid transparent; color: var(--dim); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; font-family: inherit; transition: all .15s; }
     .tab-btn.on { border-color: var(--gold); color: var(--gold); }
     .tab-btn:hover { color: var(--text); }
     .sub-tab-row { display: flex; gap: 2px; margin-bottom: 0; }
-    .sub-tab-btn { padding: .35rem 1.1rem .42rem; font-size: 12px; background: var(--panel); border: 1px solid var(--border); border-bottom: none; color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; position: relative; top: 1px; z-index: 0; }
+    .sub-tab-btn { padding: .35rem 1.1rem .42rem; font-size: 12px; background: var(--panel); border: 1px solid var(--border); border-bottom: none; color: var(--dim); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; font-family: inherit; transition: all .15s; position: relative; top: 1px; z-index: 0; }
     .sub-tab-btn.on { background: var(--card); border-color: var(--gold); border-bottom: 1px solid var(--card); color: var(--gold); z-index: 2; }
     .sub-tab-btn:hover:not(.on) { color: var(--text); border-color: rgba(0,0,0,.15); z-index: 1; }
     .cal-tab-content { background: var(--card); border: 1px solid var(--border); padding: 1.1rem; position: relative; z-index: 1; }
@@ -54,7 +57,7 @@
     .anno-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .45rem; }
     .anno-label { font-family: 'Noto Serif TC', serif; font-size: 12px; color: var(--gold); letter-spacing: .12em; }
     .anno-text { font-size: 13px; line-height: 1.8; white-space: pre-wrap; color: var(--text); }
-    .anno-empty { font-size: 12px; color: var(--dim); cursor: pointer; padding: .4rem 0; }
+    .anno-empty { font-size: 12px; color: var(--dim); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; padding: .4rem 0; }
     .anno-empty:hover { color: var(--gold); }
 
     /* ── Biz summary ── */
@@ -127,7 +130,7 @@
     /* ── Month nav ── */
     .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
     .month-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .08em; }
-    .nav-btn { background: none; border: 1px solid var(--border); color: var(--dim); padding: .25rem .6rem; cursor: pointer; font-size: 14px; font-family: inherit; transition: all .15s; line-height: 1; }
+    .nav-btn { background: none; border: 1px solid var(--border); color: var(--dim); padding: .25rem .6rem; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; font-size: 14px; font-family: inherit; transition: all .15s; line-height: 1; }
     .nav-btn:hover { border-color: var(--gold); color: var(--gold); }
 
     /* ── Legend ── */
@@ -156,13 +159,13 @@
     .cal-day.today.biz-day { border-color: rgba(200,152,74,.6); border-top-color: rgba(200,152,74,.8); }
     .cal-day-num { font-size: 11px; color: var(--dim); padding: 2px 4px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,.04); display: flex; align-items: center; gap: 2px; line-height: 1.3; margin-bottom: 2px; }
     .cal-day.today .cal-day-num { color: var(--gold); font-weight: 700; background: rgba(200,152,74,.08); }
-    .cal-day-num.clickable { cursor: pointer; }
+    .cal-day-num.clickable { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
     .cal-day-num.clickable:hover { background: rgba(0,0,0,.05); color: var(--gold); }
 
     /* ── Slot rows ── */
     .slot-row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 1px 2px; cursor: pointer; transition: background .1s;
+      padding: 1px 2px; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; transition: background .1s;
       min-height: 22px; border-bottom: 1px solid rgba(0,0,0,.04);
     }
     .slot-row:last-child { border-bottom: none; }
@@ -176,7 +179,7 @@
     .slot-cnt { font-size: 11px; color: rgba(0,0,0,.15); background: rgba(0,0,0,.07); padding: 0 3px; min-width: 14px; text-align: center; }
     .slot-row.mine .slot-cnt { color: var(--gold); background: rgba(200,152,74,.2); }
     .slot-row.has-staff .slot-cnt { color: var(--dim); }
-    .slot-row.locked { opacity: .35; cursor: not-allowed; }
+    .slot-row.locked { opacity: .35; cursor: url('../image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
     .slot-row.locked .slot-hr { color: rgba(0,0,0,.18); }
     .slot-row.mine.on-leave { background: rgba(208,96,96,.13); }
     .slot-row.mine.on-leave:hover { background: rgba(208,96,96,.2); }
@@ -214,13 +217,13 @@
 
     /* ── Segmented toggle (modals) ── */
     .seg-row { display: flex; }
-    .seg-btn { flex: 1; padding: .33rem .5rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); cursor: pointer; font-family: inherit; transition: all .15s; margin-right: -1px; position: relative; text-align: center; }
+    .seg-btn { flex: 1; padding: .33rem .5rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; font-family: inherit; transition: all .15s; margin-right: -1px; position: relative; text-align: center; }
     .seg-btn.on { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); z-index: 1; }
     .seg-btn:hover:not(.on) { color: var(--text); border-color: rgba(0,0,0,.15); z-index: 1; }
-    .seg-btn:disabled { opacity: .25; cursor: not-allowed; }
+    .seg-btn:disabled { opacity: .25; cursor: url('../image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
 
     /* ── Buttons ── */
-    .btn { padding: .48rem 1rem; font-size: 13px; cursor: pointer; border: none; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; }
+    .btn { padding: .48rem 1rem; font-size: 13px; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; border: none; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; }
     .btn-gold { background: var(--gold); color: #1c1208; font-weight: 600; }
     .btn-gold:hover { background: #d4a456; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
@@ -934,7 +937,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
 
     _bulkWeeks = getUpcomingWeeks(8);
     document.getElementById('bulk-week-list').innerHTML = _bulkWeeks
-      .map((w, i) => `<label style="display:flex;align-items:center;gap:.55rem;font-size:12px;cursor:pointer;padding:.2rem 0;border-bottom:1px solid rgba(0,0,0,.05)">
+      .map((w, i) => `<label style="display:flex;align-items:center;gap:.55rem;font-size:12px;cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;padding:.2rem 0;border-bottom:1px solid rgba(0,0,0,.05)">
         <input type="checkbox" value="${i}" style="accent-color:var(--gold);width:13px;height:13px;flex-shrink:0" onchange="onWeekCheck(this)"> ${w.label}
       </label>`).join('');
 
@@ -946,7 +949,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
       }).join('');
 
     document.getElementById('bulk-slots').innerHTML =
-      TIME_SLOTS.map(t => `<label style="display:flex;align-items:center;gap:.55rem;font-size:13px;cursor:pointer;padding:.1rem 0">
+      TIME_SLOTS.map(t => `<label style="display:flex;align-items:center;gap:.55rem;font-size:13px;cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;padding:.1rem 0">
         <input type="checkbox" value="${t}" style="accent-color:var(--gold);width:13px;height:13px"> ${t}
       </label>`).join('');
 
@@ -1118,7 +1121,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
           style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .85rem;
                  border:1px solid ${biz?.isOpen ? 'var(--green)' : 'var(--border)'};
                  color:${biz?.isOpen ? 'var(--green)' : 'var(--dim)'};
-                 background:none;cursor:pointer;font-family:inherit;font-size:13px">
+                 background:none;cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;font-family:inherit;font-size:13px">
           <span style="font-size:8px">●</span>${biz?.isOpen ? '預定營業' : '休業中'}
         </button>
       </div>`;

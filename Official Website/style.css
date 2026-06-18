@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Libre+Baskerville:wght@400;700&display=swap');
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; cursor: inherit; }
+body { cursor: url('image/arr-cursors/arr-small-pointer.cur'), default; }
+a, button, [role="button"], select, [onclick] { cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; }
+input, textarea { cursor: url('image/arr-cursors/arr-small-text.cur'), text; }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; }
+[disabled] { cursor: url('image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
 
 ::selection { background: rgba(184,144,96,.28); color: inherit; }
 ::-moz-selection { background: rgba(184,144,96,.28); color: inherit; }
@@ -80,7 +85,7 @@ nav {
 .nav-links li.dropdown > span {
   font-family: 'Noto Serif TC', serif;
   font-size: .80rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--dim); cursor: default;
+  color: var(--dim); cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
 }
 
 .nav-links > li:has(> span.active) {
@@ -91,7 +96,7 @@ nav {
 .nav-links .hidden-link {
   font-family: 'Noto Serif TC', serif;
   font-size: .80rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--dim); cursor: default; user-select: none;
+  color: var(--dim); cursor: url('image/arr-cursors/arr-small-pointer.cur'), default; user-select: none;
   opacity: .5;
 }
 
@@ -114,7 +119,7 @@ nav {
   gap: 5px;
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
   padding: 8px;
 }
 .nav-burger span {
@@ -462,7 +467,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 /* ──────────── MEMBER CARDS ──────────── */
 
 .member-card {
-  cursor: pointer;
+  cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
 }
 
 .member-img-wrap {
@@ -520,7 +525,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 
 .modal-close {
   position: absolute; top: 1rem; right: 1.2rem; z-index: 10;
-  background: none; border: none; cursor: pointer;
+  background: none; border: none; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
   font-size: 1.4rem; color: var(--dim); line-height: 1;
   transition: color .25s;
 }
@@ -945,7 +950,7 @@ footer {
   font-family: 'Noto Serif TC', serif;
   font-size: .72rem; letter-spacing: .22em;
   color: #fff; background: var(--text); border: none;
-  padding: .85rem; cursor: pointer;
+  padding: .85rem; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
   transition: opacity .2s;
 }
 
@@ -966,7 +971,7 @@ footer {
 
 .glitch-char {
   display: inline-block;
-  cursor: default;
+  cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
 }
 
 .glitch-char:hover {
