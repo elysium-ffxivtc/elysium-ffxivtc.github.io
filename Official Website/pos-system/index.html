@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安息地 · POS系統</title>
+  <link rel="icon" type="image/png" href="../image/Elysium_LOGO_mini_dark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -1483,7 +1484,7 @@
               ${APOSTLES.length
                 ? `<select class="pos-select" id="v-apostle" onchange="updateSpecialMenu()">
                     <option value="">選擇使徒</option>
-                    ${APOSTLES.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
+                    ${[...APOSTLES].sort((a,b)=>((a.tag==='司祭'||a.tag==='監禮者')?1:0)-((b.tag==='司祭'||b.tag==='監禮者')?1:0)).map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
                   </select>`
                 : `<input class="pos-input" id="v-apostle" type="text" placeholder="填入使徒名稱" oninput="updateSpecialMenu()">`}
             </div>
