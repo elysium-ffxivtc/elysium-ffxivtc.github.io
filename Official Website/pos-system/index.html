@@ -557,7 +557,8 @@
     .settle-sv-row { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-top:.65rem; }
     .settle-input { background:var(--bg); border:1px solid var(--border); color:var(--text); padding:.45rem .65rem; font-size:14px; font-family:inherit; }
     .settle-input:focus { outline:none; border-color:var(--gold); }
-    .settle-input::-webkit-inner-spin-button, .settle-input::-webkit-outer-spin-button { opacity:.4; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    .settle-input::-webkit-inner-spin-button, .settle-input::-webkit-outer-spin-button { opacity:.4; }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
     .settle-block { margin-bottom:1.1rem; }
     .settle-block-hdr { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.5rem; }
     .settle-block-name { font-family:'Noto Serif TC',serif; font-size:15px; color:var(--gold); }
