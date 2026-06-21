@@ -360,21 +360,25 @@
       if (!user) { window.location.href = 'index.html'; return; }
       _user = user;
       try {
-        const [staffSnap, pilgrimSnap] = await Promise.all([
-          db.ref('staff/'+user.uid).get(),
-          db.ref('pilgrims/'+user.uid).get(),
-        ]);
-        if (!staffSnap.exists() && !pilgrimSnap.exists()) {
-          await firebase.auth().signOut();
-          window.location.href = 'index.html';
-          return;
-        }
+        const staffSnap = await db.ref('staff/'+user.uid).get();
         if (staffSnap.exists()) {
           _role = staffSnap.val().role || 'staff';
           _displayName = staffSnap.val().displayName || user.displayName || user.email || '';
         } else {
-          _role = 'pilgrim';
-          _displayName = pilgrimSnap.val().name || user.displayName || user.email || '';
+          let inPilgrims = false;
+          try {
+            const pilgrimSnap = await db.ref('pilgrims/'+user.uid).get();
+            if (pilgrimSnap.exists()) {
+              inPilgrims = true;
+              _role = 'pilgrim';
+              _displayName = pilgrimSnap.val().name || user.displayName || user.email || '';
+            }
+          } catch(e) { /* rules may restrict */ }
+          if (!inPilgrims) {
+            await firebase.auth().signOut();
+            window.location.href = 'index.html';
+            return;
+          }
         }
       } catch(e) { _role = 'staff'; }
       document.getElementById('btn-add-article').style.display = '';

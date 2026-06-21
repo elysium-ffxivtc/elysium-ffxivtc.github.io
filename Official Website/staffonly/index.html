@@ -181,28 +181,32 @@
         return;
       }
       try {
-        const [staffSnap, pilgrimSnap] = await Promise.all([
-          db.ref('staff/' + user.uid).get(),
-          db.ref('pilgrims/' + user.uid).get(),
-        ]);
-        if (!staffSnap.exists() && !pilgrimSnap.exists()) {
-          document.getElementById('auth-err').textContent = '帳號尚未授權，請聯絡管理員';
-          await firebase.auth().signOut();
-          return;
-        }
+        const staffSnap = await db.ref('staff/' + user.uid).get();
         if (staffSnap.exists()) {
           const role = staffSnap.val().role;
           if (role === 'staff') {
             document.getElementById('card-pos').style.display = 'none';
             document.getElementById('card-grid').classList.add('three');
           }
-        } else {
-          // pilgrim — no POS access
+          document.getElementById('auth-overlay').classList.remove('show');
+          document.getElementById('portal').classList.add('show');
+          return;
+        }
+        // Not in staff — check pilgrims
+        let inPilgrims = false;
+        try {
+          const pilgrimSnap = await db.ref('pilgrims/' + user.uid).get();
+          inPilgrims = pilgrimSnap.exists();
+        } catch(e) { /* rules may restrict pilgrims read */ }
+        if (inPilgrims) {
           document.getElementById('card-pos').style.display = 'none';
           document.getElementById('card-grid').classList.add('three');
+          document.getElementById('auth-overlay').classList.remove('show');
+          document.getElementById('portal').classList.add('show');
+        } else {
+          document.getElementById('auth-err').textContent = '帳號尚未授權，請聯絡管理員';
+          await firebase.auth().signOut();
         }
-        document.getElementById('auth-overlay').classList.remove('show');
-        document.getElementById('portal').classList.add('show');
       } catch(e) {
         document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
       }
