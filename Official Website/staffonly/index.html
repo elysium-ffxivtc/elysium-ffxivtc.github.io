@@ -204,8 +204,7 @@
           document.getElementById('auth-overlay').classList.remove('show');
           document.getElementById('portal').classList.add('show');
         } else {
-          document.getElementById('auth-err').textContent = '帳號尚未授權，請聯絡管理員';
-          await firebase.auth().signOut();
+          document.getElementById('auth-err').textContent = '帳號 ' + (user.email || user.uid) + ' 尚未授權，請聯絡管理員';
         }
       } catch(e) {
         document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
@@ -214,9 +213,7 @@
 
 function signIn() {
   document.getElementById('auth-err').textContent = '';
-
   const provider = new firebase.auth.GoogleAuthProvider();
-
   firebase.auth().signInWithRedirect(provider)
     .catch(e => {
       document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
