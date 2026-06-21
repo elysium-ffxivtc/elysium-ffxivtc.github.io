@@ -500,6 +500,12 @@ import { initializeAuth, indexedDBLocalPersistence, browserPopupRedirectResolver
         renderBadge(); hideAuth(); startListeners();
         return;
       }
+      const pilgrimSnap = await get(dbRef(db, 'pilgrims/' + user.uid));
+      if (pilgrimSnap.exists()) {
+        currentUser = { uid: user.uid, email: user.email, role: 'pilgrim', displayName: pilgrimSnap.val().name || user.displayName || '' };
+        renderBadge(); hideAuth(); startListeners();
+        return;
+      }
       const allSnap = await get(dbRef(db, 'staff'));
       if (!allSnap.exists()) {
         showScreen('bootstrap', user);

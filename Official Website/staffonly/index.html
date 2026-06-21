@@ -181,14 +181,23 @@
         return;
       }
       try {
-        const snap = await db.ref('staff/' + user.uid).get();
-        if (!snap.exists()) {
+        const [staffSnap, pilgrimSnap] = await Promise.all([
+          db.ref('staff/' + user.uid).get(),
+          db.ref('pilgrims/' + user.uid).get(),
+        ]);
+        if (!staffSnap.exists() && !pilgrimSnap.exists()) {
           document.getElementById('auth-err').textContent = '帳號尚未授權，請聯絡管理員';
           await firebase.auth().signOut();
           return;
         }
-        const role = snap.val().role;
-        if (role === 'staff') {
+        if (staffSnap.exists()) {
+          const role = staffSnap.val().role;
+          if (role === 'staff') {
+            document.getElementById('card-pos').style.display = 'none';
+            document.getElementById('card-grid').classList.add('three');
+          }
+        } else {
+          // pilgrim — no POS access
           document.getElementById('card-pos').style.display = 'none';
           document.getElementById('card-grid').classList.add('three');
         }
@@ -199,12 +208,16 @@
       }
     });
 
-    function signIn() {
-      document.getElementById('auth-err').textContent = '';
-      firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => {
-        document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
-      });
-    }
+function signIn() {
+  document.getElementById('auth-err').textContent = '';
+
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  firebase.auth().signInWithRedirect(provider)
+    .catch(e => {
+      document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
+    });
+}
 
     function signOut() {
       firebase.auth().signOut();
