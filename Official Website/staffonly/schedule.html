@@ -430,7 +430,7 @@
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getDatabase, ref as dbRef, onValue, get, set, update, remove } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
   (function tickClock() {
     const now = new Date();
@@ -551,15 +551,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   function signInGoogle() {
     document.getElementById('auth-err').textContent = '';
     signInWithPopup(auth, new GoogleAuthProvider())
-      .catch(e => {
-        if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
-          signInWithRedirect(auth, new GoogleAuthProvider()).catch(err => {
-            document.getElementById('auth-err').textContent = '登入失敗：' + err.message;
-          });
-        } else {
-          document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
-        }
-      });
+      .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
   }
   function doSignOut() { signOut(auth).then(() => location.reload()); }
 

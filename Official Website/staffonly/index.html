@@ -214,7 +214,7 @@
 function signIn() {
   document.getElementById('auth-err').textContent = '';
   const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithRedirect(provider)
+  firebase.auth().signInWithPopup(provider)
     .catch(e => {
       document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
     });
