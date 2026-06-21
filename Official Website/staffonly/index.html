@@ -23,7 +23,7 @@
       justify-content: center;
     }
 
-    /* ── Login overlay ── */
+    /* ── Auth overlay ── */
     .auth-overlay {
       display: none;
       position: fixed;
@@ -43,7 +43,7 @@
       max-width: 300px;
     }
     .auth-logo { font-size: .85rem; letter-spacing: .28em; color: #885B22; text-transform: uppercase; margin-bottom: .5rem; }
-    .auth-sub { font-size: .72rem; color: #4a3f2e; letter-spacing: .08em; margin-bottom: 1.8rem; }
+    .auth-sub { font-size: .72rem; color: #4a3f2e; letter-spacing: .08em; margin-bottom: 1.8rem; line-height: 1.7; }
     .auth-btn {
       width: 100%; padding: .72rem;
       background: #885B22; color: #fdfaf5;
@@ -52,6 +52,27 @@
       transition: background .18s;
     }
     .auth-btn:hover { background: #7a5020; }
+    .auth-btn-out {
+      width: 100%; padding: .65rem;
+      background: none; color: #6b5a3e;
+      border: 1px solid #2a2520; font-size: .78rem; font-family: inherit; letter-spacing: .1em;
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
+      transition: border-color .18s, color .18s;
+      margin-top: .6rem;
+    }
+    .auth-btn-out:hover { border-color: #4a3f2e; color: #8a7a60; }
+    .auth-input {
+      width: 100%; padding: .6rem .75rem;
+      background: #111010; color: #d4c8b8;
+      border: 1px solid #2a2520; font-size: .82rem; font-family: inherit;
+      margin-bottom: 1rem; outline: none;
+      transition: border-color .18s;
+    }
+    .auth-input:focus { border-color: #885B22; }
+    .auth-info {
+      font-size: .72rem; color: #4a3f2e; margin-bottom: 1.2rem;
+      line-height: 1.7; word-break: break-all;
+    }
     .auth-err { font-size: 12px; color: #c05050; margin-top: .75rem; min-height: 18px; }
 
     /* ── Portal ── */
@@ -105,12 +126,30 @@
 <body>
 
   <div class="auth-overlay show" id="auth-overlay">
-    <div class="auth-box">
+
+    <div class="auth-box" id="auth-login">
       <div class="auth-logo">Elysium</div>
       <div class="auth-sub">Staff Portal · 僅限授權人員</div>
       <button class="auth-btn" onclick="signIn()">Google 登入</button>
       <div class="auth-err" id="auth-err"></div>
     </div>
+
+    <div class="auth-box" id="auth-register" style="display:none">
+      <div class="auth-logo">加入申請</div>
+      <div class="auth-sub">請輸入你在安息地的遊戲角色名，<br>管理員審核後即可使用各系統。</div>
+      <input id="reg-name" class="auth-input" type="text" placeholder="遊戲角色名">
+      <div class="auth-err" id="reg-err"></div>
+      <button class="auth-btn" onclick="doRegister()">送出申請</button>
+      <button class="auth-btn-out" onclick="signOut()">登出</button>
+    </div>
+
+    <div class="auth-box" id="auth-pending" style="display:none">
+      <div class="auth-logo">等待授權</div>
+      <div class="auth-sub">你的申請正在審核中，<br>請聯絡管理員以取得授權。</div>
+      <div class="auth-info" id="pending-email"></div>
+      <button class="auth-btn-out" onclick="signOut()">登出</button>
+    </div>
+
   </div>
 
   <div class="portal" id="portal">
@@ -174,17 +213,26 @@
     });
     const db = firebase.database();
 
+    let _regUser = null;
+
+    function showBox(id) {
+      ['auth-login','auth-register','auth-pending'].forEach(b =>
+        document.getElementById(b).style.display = b === id ? '' : 'none'
+      );
+    }
+
     firebase.auth().onAuthStateChanged(async user => {
       if (!user) {
         document.getElementById('auth-overlay').classList.add('show');
         document.getElementById('portal').classList.remove('show');
+        showBox('auth-login');
         return;
       }
       try {
         const staffSnap = await db.ref('staff/' + user.uid).get();
         if (staffSnap.exists()) {
           const role = staffSnap.val().role;
-          if (role === 'staff') {
+          if (role === 'staff' || role === 'pilgrim') {
             document.getElementById('card-pos').style.display = 'none';
             document.getElementById('card-grid').classList.add('three');
           }
@@ -192,33 +240,56 @@
           document.getElementById('portal').classList.add('show');
           return;
         }
-        // Not in staff — check pilgrims
         let inPilgrims = false;
         try {
           const pilgrimSnap = await db.ref('pilgrims/' + user.uid).get();
           inPilgrims = pilgrimSnap.exists();
-        } catch(e) { /* rules may restrict pilgrims read */ }
+        } catch(e) {}
         if (inPilgrims) {
           document.getElementById('card-pos').style.display = 'none';
           document.getElementById('card-grid').classList.add('three');
           document.getElementById('auth-overlay').classList.remove('show');
           document.getElementById('portal').classList.add('show');
+          return;
+        }
+        const pendingSnap = await db.ref('pendingStaff/' + user.uid).get();
+        if (pendingSnap.exists()) {
+          document.getElementById('pending-email').textContent = user.email;
+          showBox('auth-pending');
         } else {
-          document.getElementById('auth-err').textContent = '帳號 ' + (user.email || user.uid) + ' 尚未授權，請聯絡管理員';
+          _regUser = user;
+          showBox('auth-register');
         }
       } catch(e) {
         document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+        showBox('auth-login');
       }
     });
 
-function signIn() {
-  document.getElementById('auth-err').textContent = '';
-  const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider)
-    .catch(e => {
-      document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
-    });
-}
+    async function doRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      if (!name) { document.getElementById('reg-err').textContent = '請輸入遊戲角色名'; return; }
+      document.getElementById('reg-err').textContent = '';
+      const user = _regUser || firebase.auth().currentUser;
+      if (!user) return;
+      await db.ref('pendingStaff/' + user.uid).set({
+        uid: user.uid,
+        email: user.email,
+        displayName: name,
+        requestedAt: new Date().toISOString()
+      });
+      document.getElementById('pending-email').textContent = user.email;
+      showBox('auth-pending');
+    }
+
+    function signIn() {
+      document.getElementById('auth-err').textContent = '';
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider)
+        .catch(e => {
+          document.getElementById('auth-err').textContent = '登入失敗：' + e.message;
+        });
+    }
 
     function signOut() {
       firebase.auth().signOut();
