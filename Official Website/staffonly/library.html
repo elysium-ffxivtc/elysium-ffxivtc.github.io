@@ -477,6 +477,7 @@
       el.innerHTML =
         `<span class="user-badge-name">${esc(_displayName)}</span>` +
         `<span class="user-badge-role">${ROLE_LABEL[_role]||''}</span>` +
+        `<button class="user-badge-signout" onclick="window.location.href='index.html'" title="返回首頁" style="display:inline-flex;align-items:center;padding:.2rem .45rem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>` +
         `<button class="user-badge-signout" onclick="doSignOut()">登出</button>`;
     }
     function doSignOut() { firebase.auth().signOut().then(() => { window.location.href = 'index.html'; }); }

@@ -2592,6 +2592,7 @@
       if (!el || !posUser) return;
       el.innerHTML = `
         <span style="font-size:12px;color:var(--dim)">${posUser.displayName}</span>
+        <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'" title="返回首頁" style="font-size:11px;padding:.2rem .45rem;display:inline-flex;align-items:center"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>
         <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.2rem .5rem" onclick="doSignOut()">登出</button>`;
     }
 
