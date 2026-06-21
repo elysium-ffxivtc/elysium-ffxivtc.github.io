@@ -904,18 +904,23 @@
           return;
         }
         try {
-          const snap = await db.ref('staff/' + user.uid).get();
-          if (!snap.exists()) {
-            document.getElementById('pos-auth-err').textContent = '帳號尚未授權，請聯絡管理員';
-            await firebase.auth().signOut();
-            return;
+          const staffSnap = await db.ref('staff/' + user.uid).get();
+          if (staffSnap.exists()) {
+            const s = staffSnap.val();
+            if (s.role !== 'admin' && s.role !== 'pilgrim') {
+              window.location.replace('./');
+              return;
+            }
+            posUser = { uid: user.uid, displayName: s.displayName, role: s.role };
+          } else {
+            const pilgrimSnap = await db.ref('pilgrims/' + user.uid).get();
+            if (!pilgrimSnap.exists()) {
+              document.getElementById('pos-auth-err').textContent = '帳號尚未授權，請聯絡管理員';
+              await firebase.auth().signOut();
+              return;
+            }
+            posUser = { uid: user.uid, displayName: pilgrimSnap.val().name || user.displayName || '', role: 'pilgrim' };
           }
-          const s = snap.val();
-          if (s.role !== 'admin' && s.role !== 'pilgrim') {
-            window.location.replace('./');
-            return;
-          }
-          posUser = { uid: user.uid, displayName: s.displayName, role: s.role };
           document.getElementById('pos-auth-overlay').classList.remove('show');
           applyUserMode();
           updateModeIndicator();
