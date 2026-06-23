@@ -56,7 +56,7 @@
         }
 
         .logo {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: 1rem;
             font-weight: 400;
             letter-spacing: .5em;
@@ -115,7 +115,7 @@
         .photo-placeholder-full svg { width: 36px; height: 36px; stroke: currentColor; fill: none; }
 
         .photo-placeholder-full span {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .8rem;
             letter-spacing: .4em;
         }
@@ -135,7 +135,7 @@
             position: absolute;
             bottom: 3rem;
             left: 3rem;
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .82rem;
             letter-spacing: .45em;
             color: var(--gold);
@@ -197,7 +197,7 @@
         @keyframes dot-blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
 
         .status-label {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .8rem;
             letter-spacing: .3em;
             color: var(--ivory-dim);
@@ -205,7 +205,7 @@
 
         /* title */
         .profile-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-style: italic;
             font-size: clamp(2rem, 3.5vw, 3rem);
             font-weight: 300;
@@ -255,7 +255,7 @@
         .profile-section.vis { opacity: 1; transform: none; }
 
         .section-label {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .82rem;
             letter-spacing: .4em;
             color: var(--gold);
@@ -345,14 +345,14 @@
         .pnav-item.next { align-items: flex-end; text-align: right; }
 
         .pnav-dir {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .72rem;
             letter-spacing: .4em;
             color: var(--ivory-dim);
         }
 
         .pnav-name {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-style: italic;
             font-size: 1.1rem;
             color: var(--ivory);
@@ -374,7 +374,7 @@
         }
 
         .footer-logo {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .85rem;
             letter-spacing: .55em;
             color: var(--gold);
@@ -433,7 +433,9 @@
 
         @media (max-width: 768px) {
             header { padding: 1.2rem 1.5rem; }
-            nav { gap: 1.5rem; }
+            .logo { font-size: .75rem; letter-spacing: .3em; }
+            nav { gap: 1rem; }
+            nav a { font-size: .75rem; letter-spacing: .1em; }
             .profile-nav { grid-template-columns: 1fr; }
             footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
             .footer-nav { align-items: flex-start; }

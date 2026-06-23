@@ -58,7 +58,7 @@
         }
 
         .logo {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: 1rem;
             font-weight: 400;
             letter-spacing: .5em;
@@ -86,7 +86,7 @@
         }
 
         .page-eyebrow {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .9rem;
             letter-spacing: .35em;
             color: var(--gold);
@@ -96,7 +96,7 @@
         }
 
         .page-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: clamp(2rem, 3.5vw, 3rem);
             font-weight: 300;
             letter-spacing: .12em;
@@ -146,7 +146,7 @@
         .rule-header { padding-top: .3rem; }
 
         .rule-num {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .72rem;
             letter-spacing: .45em;
             color: var(--gold);
@@ -154,7 +154,7 @@
         }
 
         .rule-title {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: 1.25rem;
             font-weight: 300;
             letter-spacing: .1em;
@@ -195,7 +195,7 @@
         }
 
         .footer-logo {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .85rem;
             letter-spacing: .55em;
             color: var(--gold);
@@ -237,7 +237,9 @@
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
             header { padding: 1.2rem 1.5rem; }
-            nav { gap: 1.5rem; }
+            .logo { font-size: .75rem; letter-spacing: .3em; }
+            nav { gap: 1rem; }
+            nav a { font-size: .75rem; letter-spacing: .1em; }
             #page-intro { padding: 14rem 1.5rem 6rem; }
             .wrap { padding: 0 1.5rem 8rem; }
             .rule-section { grid-template-columns: 1fr; gap: 1.5rem; padding: 3rem 0; }
