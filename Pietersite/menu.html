@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酒單 — PIETERSITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --bg-card:     #111827;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --blue:        #3a5f8a;
+            --blue-bright: #5a8dc4;
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--gold); color: #06090f; }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.97) 0%, transparent 100%);
+            transition: opacity .4s ease;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* ── PAGE INTRO ── */
+        #page-intro {
+            padding: 18rem 3.5rem 8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: rise .8s ease .1s forwards;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300;
+            letter-spacing: .12em;
+            line-height: 1.1;
+            color: var(--ivory);
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: rise 1s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        .page-desc {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.4;
+            max-width: 640px;
+            opacity: 0;
+            animation: rise .9s ease .4s forwards;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* ── SHARED ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 3.5rem;
+        }
+
+        .section-sep { border-top: 1px solid var(--line); }
+
+        .eyebrow-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .eyebrow-row.vis { opacity: 1; transform: none; }
+
+        .eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .eyebrow::after {
+            content: '';
+            width: 0;
+            height: 1px;
+            background: var(--line);
+            flex-shrink: 0;
+            transition: width .8s ease .3s;
+        }
+
+        .eyebrow-row.vis .eyebrow::after { width: 48px; }
+
+        .section-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            letter-spacing: .2em;
+            color: var(--gold);
+            border: 1px solid var(--gold-dim);
+            display: inline-flex;
+            align-items: baseline;
+            gap: .5rem;
+            padding: .3rem 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .section-price .price-num {
+            font-size: 1.4rem;
+            letter-spacing: .05em;
+        }
+
+        /* ── MENU LIST ── */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 6rem;
+        }
+
+        .menu-item {
+            padding: 2.4rem 0;
+            border-bottom: 1px solid var(--line);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: .8rem 2rem;
+            align-items: start;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .8s ease, transform .8s cubic-bezier(.16,1,.3,1);
+        }
+
+        .menu-item.vis { opacity: 1; transform: none; }
+
+        .menu-item-body { display: flex; flex-direction: column; gap: .5rem; }
+
+        .menu-zh {
+            font-size: 1.2rem;
+            letter-spacing: .08em;
+            color: var(--ivory);
+            line-height: 1.4;
+        }
+
+        .menu-en {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--gold);
+            letter-spacing: .04em;
+        }
+
+        .menu-desc {
+            font-size: .95rem;
+            color: var(--ivory-dim);
+            line-height: 2.1;
+            margin-top: .3rem;
+        }
+
+        .menu-item-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .menu-tag {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .68rem;
+            letter-spacing: .3em;
+            padding: .22rem .8rem;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+
+        .menu-tag.cocktail {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .menu-tag.soft {
+            color: var(--blue-bright);
+            border-color: rgba(90,141,196,.3);
+        }
+
+        /* ── SOFT DRINKS ── */
+        .soft-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 6rem;
+            margin-top: 1px;
+            background: var(--line);
+        }
+
+        .soft-item {
+            background: var(--bg-0);
+            padding: 2.4rem 0;
+            border-bottom: 1px solid var(--line);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: .8rem 2rem;
+            align-items: start;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .8s ease, transform .8s cubic-bezier(.16,1,.3,1);
+        }
+
+        .soft-item.vis { opacity: 1; transform: none; }
+
+        /* ── NOTE ── */
+        .menu-note {
+            margin-top: 4rem;
+            padding: 2rem 2.5rem;
+            border: 1px solid var(--line);
+            background: var(--bg-1);
+            display: flex;
+            gap: 1.2rem;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity .8s ease .3s, transform .8s ease .3s;
+        }
+
+        .menu-note.vis { opacity: 1; transform: none; }
+
+        .menu-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            letter-spacing: .1em;
+            color: var(--gold);
+            margin-top: .8rem;
+        }
+
+        .menu-note-icon {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            color: var(--gold);
+            flex-shrink: 0;
+            line-height: 2;
+        }
+
+        .menu-note p {
+            font-size: .88rem;
+            color: var(--ivory-dim);
+            line-height: 2.3;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4.5rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            letter-spacing: .08em;
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .78rem;
+            letter-spacing: .25em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .62rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .menu-grid  { grid-template-columns: 1fr; gap: 0; }
+            .soft-row   { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.5rem; }
+            nav { gap: 1.5rem; }
+            #page-intro { padding: 14rem 1.5rem 6rem; }
+            .wrap { padding: 6rem 1.5rem; }
+            footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
+            .footer-nav { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo" href="index.html">PIETERSITE</a>
+    <nav>
+        <a href="collections.html">館藏</a>
+        <a href="acquisition.html">競藏</a>
+        <a href="menu.html" class="active">酒單</a>
+        <a href="about.html">關於</a>
+        <a href="rules.html">規章</a>
+    </nav>
+</header>
+
+<!-- PAGE INTRO -->
+<div id="page-intro">
+    <p class="page-eyebrow">MENU</p>
+    <h1 class="page-title">酒單</h1>
+    <p class="page-desc">
+        本館備有精選飲品，供收藏家於鑑賞期間享用。<br>
+        請至吧檯向館員點選品項。
+    </p>
+</div>
+
+<!-- COCKTAILS -->
+<section class="section-sep">
+    <div class="wrap">
+        <div class="eyebrow-row" data-eyebrow>
+            <p class="eyebrow">調酒</p>
+        </div>
+        <div class="section-price"><span class="price-num">20,000</span> Gil</div>
+
+        <div class="menu-grid" data-menu>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">血腥瑪麗</div>
+                    <div class="menu-en">Bloody Mary</div>
+                    <p class="menu-desc">番茄、伏特加、辣醬、芹菜鹽。<br>辛辣鹹香，刺激而清醒。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">蘋果熱托迪</div>
+                    <div class="menu-en">Apple Hot Toddy</div>
+                    <p class="menu-desc">蘋果、威士忌、蜂蜜、檸檬。<br>溫熱甜潤，適合緩緩啜飲。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">含羞草</div>
+                    <div class="menu-en">Mimosa</div>
+                    <p class="menu-desc">香檳、橙汁。<br>輕盈氣泡，帶著陽光般的清新。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">日本拖鞋</div>
+                    <div class="menu-en">Japanese Slipper</div>
+                    <p class="menu-desc">蜜瓜利口酒、白橙皮酒、檸檬汁。<br>果香甜美，後味清爽。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">貝里尼</div>
+                    <div class="menu-en">Bellini</div>
+                    <p class="menu-desc">白桃泥、普羅賽克氣泡酒。<br>柔和細緻，如絲綢般滑順。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">荊棘</div>
+                    <div class="menu-en">Bramble</div>
+                    <p class="menu-desc">琴酒、檸檬汁、糖漿、黑莓利口酒。<br>莓果酸甜，深紫色澤如暮色。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">鳳梨可樂達</div>
+                    <div class="menu-en">Piña Colada</div>
+                    <p class="menu-desc">蘭姆酒、椰奶、鳳梨汁。<br>熱帶風情，甜蜜如夏日海岸。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">三葉草俱樂部</div>
+                    <div class="menu-en">Clover Club</div>
+                    <p class="menu-desc">琴酒、覆盆莓、檸檬、蛋白。<br>粉紅泡沫，酸甜優雅，帶一絲神秘。</p>
+                </div>
+                <span class="menu-tag cocktail">COCKTAIL</span>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- SOFT DRINKS -->
+<section class="section-sep">
+    <div class="wrap">
+        <div class="eyebrow-row" data-eyebrow>
+            <p class="eyebrow">無酒精飲品</p>
+        </div>
+        <div class="section-price"><span class="price-num">10,000</span> Gil</div>
+
+        <div class="menu-grid" data-soft>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">檸檬水</div>
+                    <div class="menu-en">Lemonade</div>
+                    <p class="menu-desc">清新檸檬，微甜帶酸，清爽宜人。</p>
+                </div>
+                <span class="menu-tag soft">SOFT</span>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-item-body">
+                    <div class="menu-zh">熱巧克力</div>
+                    <div class="menu-en">Hot Chocolate</div>
+                    <p class="menu-desc">濃郁可可，溫熱暖心，適合靜夜時分。</p>
+                </div>
+                <span class="menu-tag soft">SOFT</span>
+            </div>
+
+        </div>
+
+        <div class="menu-note" data-reveal>
+            <span class="menu-note-icon">※</span>
+            <p>如對特定成分有疑慮，歡迎向館員洽詢。</p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限受邀者入場
+            <span class="footer-motto">展期有盡，珍藏無期</span>
+        </p>
+    </div>
+    <nav class="footer-nav">
+        <a href="collections.html">COLLECTIONS</a>
+        <a href="acquisition.html">ACQUISITION</a>
+        <a href="menu.html">MENU</a>
+        <a href="about.html">ABOUT</a>
+        <a href="rules.html">RULES</a>
+    </nav>
+</footer>
+
+<script>
+(function () {
+
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+
+            if (el.dataset.eyebrow !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.reveal  !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+
+            if (el.dataset.menu !== undefined || el.dataset.soft !== undefined) {
+                el.querySelectorAll('.menu-item').forEach((item, i) => {
+                    setTimeout(() => item.classList.add('vis'), i * 60);
+                });
+                io.unobserve(el);
+            }
+        });
+    }, { threshold: .06 });
+
+    document.querySelectorAll('[data-eyebrow],[data-reveal],[data-menu],[data-soft]')
+        .forEach(el => io.observe(el));
+
+    /* ── Header hide on scroll ── */
+    const hdr = document.getElementById('site-header');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        hdr.style.opacity       = y > lastY && y > 100 ? '0' : '1';
+        hdr.style.pointerEvents = y > lastY && y > 100 ? 'none' : '';
+        lastY = y;
+    }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>

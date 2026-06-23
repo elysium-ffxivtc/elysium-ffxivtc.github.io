@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>關於典藏館 — PIETERSITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --bg-card:     #111827;
+            --bg-card-h:   #151e30;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --blue:        #3a5f8a;
+            --blue-bright: #5a8dc4;
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--gold); color: #06090f; }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.97) 0%, transparent 100%);
+            transition: opacity .4s ease;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* ── PAGE INTRO ── */
+        #page-intro {
+            padding: 18rem 3.5rem 8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: rise .8s ease .1s forwards;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300;
+            letter-spacing: .12em;
+            line-height: 1.1;
+            color: var(--ivory);
+            opacity: 0;
+            animation: rise 1s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* ── SHARED ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 3.5rem;
+        }
+
+        .section-sep { border-top: 1px solid var(--line); }
+
+        .eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .eyebrow::after {
+            content: '';
+            width: 0;
+            height: 1px;
+            background: var(--line);
+            flex-shrink: 0;
+            transition: width .8s ease .3s;
+        }
+
+        .eyebrow.vis { opacity: 1; transform: none; }
+        .eyebrow.vis::after { width: 48px; }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+            font-weight: 300;
+            line-height: 1.25;
+            color: var(--ivory);
+            margin-bottom: 3.5rem;
+            overflow: hidden;
+        }
+
+        .h2-inner {
+            display: block;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity .9s cubic-bezier(.16,1,.3,1) .15s,
+                        transform .9s cubic-bezier(.16,1,.3,1) .15s;
+        }
+
+        .h2-inner.vis { opacity: 1; transform: none; }
+
+        /* ── ABOUT TEXT ── */
+        .about-wrap { max-width: 760px; }
+
+        .about-p {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.6;
+            margin-bottom: 2.4rem;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .about-p.vis { opacity: 1; transform: none; }
+
+        .about-statement {
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 3.5rem 0;
+            margin: 4rem 0;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .about-statement.vis { opacity: 1; transform: none; }
+
+        .statement-main {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            font-weight: 300;
+            color: var(--ivory);
+            letter-spacing: .05em;
+            line-height: 1.9;
+            margin-bottom: 2.5rem;
+        }
+
+        .statement-body {
+            font-size: .95rem;
+            color: var(--ivory-dim);
+            line-height: 2.6;
+        }
+
+        .about-closing {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--ivory);
+            line-height: 2.4;
+            padding-top: 3.5rem;
+            border-top: 1px solid var(--line);
+            margin-top: 3.5rem;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .about-closing.vis { opacity: 1; transform: none; }
+
+        /* ── CURATORS ── */
+        .curator-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            margin-bottom: 5rem;
+        }
+
+        .curator-card {
+            background: var(--bg-1);
+            overflow: hidden;
+            outline: 1px solid var(--line);
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .curator-card.vis { opacity: 1; transform: none; }
+        .curator-card:nth-child(2) { transition-delay: .15s; }
+
+        .curator-photo {
+            aspect-ratio: 1/1;
+            background: var(--bg-2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .8rem;
+            color: var(--ivory-dim);
+            opacity: .35;
+        }
+
+        .curator-photo svg { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+
+        .curator-photo span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .6rem;
+            letter-spacing: .35em;
+        }
+
+        .curator-info { padding: 2.2rem 2.5rem 3rem; }
+
+        .curator-role {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .72rem;
+            letter-spacing: .45em;
+            color: var(--gold);
+            margin-bottom: .9rem;
+        }
+
+        .curator-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--ivory);
+            letter-spacing: .1em;
+            line-height: 1.2;
+            margin-bottom: 1.2rem;
+        }
+
+        .curator-rule {
+            width: 28px;
+            height: 1px;
+            background: var(--gold-border);
+            margin-bottom: 1.2rem;
+        }
+
+        .curator-bio {
+            font-size: .9rem;
+            color: var(--ivory-dim);
+            line-height: 2.3;
+        }
+
+        /* ── STAFF ── */
+        .staff-eyebrow-gap { margin-top: 5rem; }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--line);
+            margin-top: 2.5rem;
+        }
+
+        .staff-card {
+            background: var(--bg-card);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .staff-card.vis { opacity: 1; transform: none; }
+        .staff-card:nth-child(2) { transition-delay: .12s; }
+        .staff-card:nth-child(3) { transition-delay: .24s; }
+
+        .staff-photo {
+            aspect-ratio: 1/1;
+            background: var(--bg-2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .8rem;
+            color: var(--ivory-dim);
+            opacity: .35;
+        }
+
+        .staff-photo svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
+
+        .staff-photo span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .55rem;
+            letter-spacing: .35em;
+        }
+
+        .staff-info { padding: 2.2rem 2.5rem 3rem; }
+
+        .staff-role {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .7rem;
+            letter-spacing: .45em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .staff-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--ivory);
+            letter-spacing: .1em;
+            line-height: 1.2;
+            margin-bottom: 1.4rem;
+        }
+
+        .staff-rule {
+            width: 24px;
+            height: 1px;
+            background: var(--gold-border);
+            margin-bottom: 1.4rem;
+        }
+
+        .staff-bio {
+            font-size: .9rem;
+            color: var(--ivory-dim);
+            line-height: 2.3;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4.5rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            letter-spacing: .08em;
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .78rem;
+            letter-spacing: .25em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .62rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.5rem; }
+            nav { gap: 1.5rem; }
+            #page-intro { padding: 14rem 1.5rem 6rem; }
+            .wrap { padding: 6rem 1.5rem; }
+            .curator-list, .staff-grid { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
+            .footer-nav { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo" href="index.html">PIETERSITE</a>
+    <nav>
+        <a href="collections.html">館藏</a>
+        <a href="acquisition.html">競藏</a>
+        <a href="menu.html">酒單</a>
+        <a href="about.html" class="active">關於</a>
+        <a href="rules.html">規章</a>
+    </nav>
+</header>
+
+<!-- PAGE INTRO -->
+<div id="page-intro">
+    <p class="page-eyebrow">ABOUT</p>
+    <h1 class="page-title">關於典藏館</h1>
+</div>
+
+<!-- ABOUT TEXT -->
+<section class="section-sep">
+    <div class="wrap">
+        <div class="about-wrap">
+            <p class="about-p" data-reveal>
+                Pietersite 是一間私人的收藏沙龍。在這裡，駐留的精靈族被稱為「館藏」，來訪者則被稱為「收藏家」。我們深信真正寶貴的事物，從不因被擁有而產生價值。它的意義存在於邂逅的瞬間、鑑賞的過程，以及那些無法被複製的痕跡之中。
+            </p>
+            <p class="about-p" data-reveal style="transition-delay:.12s">
+                每位館藏都擁有獨特的故事與魅力。透過公開展區的觀覽，或於私人展廳中的深度鑑賞，收藏家得以從不同角度認識這些館藏，並留下屬於自己的觀展紀錄。
+            </p>
+
+            <div class="about-statement" data-reveal>
+                <p class="statement-main">
+                    Pietersite 不做販售。<br>
+                    所有典藏皆為獨立存在，不因競藏而歸屬於任何人。
+                </p>
+                <p class="statement-body">
+                    我們所提供的從來不是所有權，是一段得以近距離鑑賞的時光、是能夠理解所愛的際遇；競藏所取得的並非館藏本身，是每一次限定展期的入場資格。
+                </p>
+            </div>
+
+            <p class="about-p" data-reveal>
+                展期會有結束的一天，相逢更有離別之時。那些無法被永久保存的片刻，往往才是最值得珍藏的事物。
+            </p>
+
+            <div class="about-closing" data-reveal>
+                歡迎來到 Pietersite。<br>
+                願每位踏入此地的收藏家，都能尋得令自己駐足的館藏，<br>
+                並將那份獨一無二的風景，收錄於記憶之中。
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TEAM -->
+<section class="section-sep">
+    <div class="wrap">
+
+        <p class="eyebrow" data-eyebrow>策展人</p>
+        <h2><span class="h2-inner" data-h2>館方策展團隊</span></h2>
+
+        <div class="curator-list" data-curators>
+
+            <div class="curator-card">
+                <div class="curator-photo">
+                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+                    <span>待上傳</span>
+                </div>
+                <div class="curator-info">
+                    <div class="curator-role">CHIEF CURATOR</div>
+                    <div class="curator-name">靜火</div>
+                    <div class="curator-rule"></div>
+                    <p class="curator-bio">待填寫</p>
+                </div>
+            </div>
+
+            <div class="curator-card">
+                <div class="curator-photo">
+                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+                    <span>待上傳</span>
+                </div>
+                <div class="curator-info">
+                    <div class="curator-role">ASSOCIATE CURATOR</div>
+                    <div class="curator-name">——</div>
+                    <div class="curator-rule"></div>
+                    <p class="curator-bio">待填寫</p>
+                </div>
+            </div>
+
+        </div>
+
+        <p class="eyebrow staff-eyebrow-gap" data-eyebrow>館員</p>
+
+        <div class="staff-grid" data-staff>
+
+            <div class="staff-card">
+                <div class="staff-photo">
+                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+                    <span>待上傳</span>
+                </div>
+                <div class="staff-info">
+                    <div class="staff-role">STAFF</div>
+                    <div class="staff-name">——</div>
+                    <div class="staff-rule"></div>
+                    <p class="staff-bio">待填寫</p>
+                </div>
+            </div>
+
+            <div class="staff-card">
+                <div class="staff-photo">
+                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+                    <span>待上傳</span>
+                </div>
+                <div class="staff-info">
+                    <div class="staff-role">STAFF</div>
+                    <div class="staff-name">——</div>
+                    <div class="staff-rule"></div>
+                    <p class="staff-bio">待填寫</p>
+                </div>
+            </div>
+
+            <div class="staff-card">
+                <div class="staff-photo">
+                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+                    <span>待上傳</span>
+                </div>
+                <div class="staff-info">
+                    <div class="staff-role">STAFF</div>
+                    <div class="staff-name">——</div>
+                    <div class="staff-rule"></div>
+                    <p class="staff-bio">待填寫</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限受邀者入場
+            <span class="footer-motto">展期有盡，珍藏無期。</span>
+        </p>
+    </div>
+    <nav class="footer-nav">
+        <a href="collections.html">COLLECTIONS</a>
+        <a href="acquisition.html">ACQUISITION</a>
+        <a href="menu.html">MENU</a>
+        <a href="about.html">ABOUT</a>
+        <a href="rules.html">RULES</a>
+    </nav>
+</footer>
+
+<script>
+(function () {
+
+    /* ── Scroll reveals ── */
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+
+            if (el.dataset.eyebrow  !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.h2       !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.reveal   !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+
+            if (el.dataset.curators !== undefined) {
+                el.querySelectorAll('.curator-card').forEach((c, i) => {
+                    setTimeout(() => c.classList.add('vis'), i * 150);
+                });
+                io.unobserve(el);
+            }
+
+            if (el.dataset.staff !== undefined) {
+                el.querySelectorAll('.staff-card').forEach((c, i) => {
+                    setTimeout(() => c.classList.add('vis'), i * 100);
+                });
+                io.unobserve(el);
+            }
+        });
+    }, { threshold: .08 });
+
+    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-curators],[data-staff]')
+        .forEach(el => io.observe(el));
+
+    /* ── Header hide on scroll ── */
+    const hdr = document.getElementById('site-header');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        hdr.style.opacity       = y > lastY && y > 100 ? '0' : '1';
+        hdr.style.pointerEvents = y > lastY && y > 100 ? 'none' : '';
+        lastY = y;
+    }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>

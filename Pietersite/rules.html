@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>規章 — PIETERSITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --bg-card:     #111827;
+            --bg-card-h:   #151e30;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --blue:        #3a5f8a;
+            --blue-bright: #5a8dc4;
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--gold); color: #06090f; }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.97) 0%, transparent 100%);
+            transition: opacity .4s ease;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* ── PAGE INTRO ── */
+        #page-intro {
+            padding: 18rem 3.5rem 8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: rise .8s ease .1s forwards;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300;
+            letter-spacing: .12em;
+            line-height: 1.1;
+            color: var(--ivory);
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: rise 1s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        .page-desc {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.4;
+            max-width: 700px;
+            opacity: 0;
+            animation: rise .9s ease .4s forwards;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* ── RULES ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 3.5rem 10rem;
+        }
+
+        .section-sep { border-top: 1px solid var(--line); }
+
+        .rule-section {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 0 5rem;
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--line);
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .rule-section.vis { opacity: 1; transform: none; }
+
+        .rule-header { padding-top: .3rem; }
+
+        .rule-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .72rem;
+            letter-spacing: .45em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .rule-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 300;
+            letter-spacing: .1em;
+            color: var(--ivory);
+            line-height: 1.4;
+        }
+
+        .rule-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+        }
+
+        .rule-item {
+            display: flex;
+            gap: 1.2rem;
+            font-size: .95rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+        }
+
+        .rule-item::before {
+            content: '✦';
+            color: var(--gold);
+            font-size: .65rem;
+            flex-shrink: 0;
+            margin-top: .6rem;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4.5rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            letter-spacing: .08em;
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .78rem;
+            letter-spacing: .25em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .62rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.5rem; }
+            nav { gap: 1.5rem; }
+            #page-intro { padding: 14rem 1.5rem 6rem; }
+            .wrap { padding: 0 1.5rem 8rem; }
+            .rule-section { grid-template-columns: 1fr; gap: 1.5rem; padding: 3rem 0; }
+            footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
+            .footer-nav { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo" href="index.html">PIETERSITE</a>
+    <nav>
+        <a href="collections.html">館藏</a>
+        <a href="acquisition.html">競藏</a>
+        <a href="menu.html">酒單</a>
+        <a href="about.html">關於</a>
+        <a href="rules.html" class="active">規章</a>
+    </nav>
+</header>
+
+<!-- PAGE INTRO -->
+<div id="page-intro">
+    <p class="page-eyebrow">RULES</p>
+    <h1 class="page-title">規章</h1>
+    <p class="page-desc">請各位收藏家進入典藏館前，務必事先詳閱以下守則。</p>
+</div>
+
+<!-- RULES -->
+<div class="wrap section-sep" id="rules">
+
+    <div class="rule-section" data-reveal>
+        <div class="rule-header">
+            <div class="rule-num">01</div>
+            <h2 class="rule-title">沙龍禮儀</h2>
+        </div>
+        <ul class="rule-list">
+            <li class="rule-item">館內禁止攝影、截圖及直播。若因紀錄分享或心得用途需進行拍攝，請事先徵得同意並經過確認後方可發佈。</li>
+            <li class="rule-item">嚴禁穿透傢俱或卡牆等，造成藏館財產受損之行為。</li>
+            <li class="rule-item">典藏館為寧靜場所，請勿奔跑、跳躍。請勿攜帶寵物及武器入內。</li>
+            <li class="rule-item">館內應保持安靜，切勿大聲喧嘩。欲與其他收藏家對話，請善用說話、悄悄話頻道，並關閉情感顯示文字。</li>
+            <li class="rule-item">請以得體而正式之姿赴約，避免過於裸露，或有失典藏館氛圍之裝束。</li>
+        </ul>
+    </div>
+
+    <div class="rule-section" data-reveal>
+        <div class="rule-header">
+            <div class="rule-num">02</div>
+            <h2 class="rule-title">行為約束</h2>
+        </div>
+        <ul class="rule-list">
+            <li class="rule-item">典藏館內嚴禁任何形式之性騷擾、過度性暗示，或使他人感到不適之行為。</li>
+            <li class="rule-item">請勿於典藏館內談論現實政治、宗教，及其他可能引發爭議之敏感議題。</li>
+            <li class="rule-item">館內交談僅止於此，請勿對外揭露任何未經允許之談話內容。</li>
+            <li class="rule-item">請尊重彼此界線，任何互動與情節延伸，皆應建立於雙方意願之上。</li>
+            <li class="rule-item">嚴禁 ERP（Erotic Role Play，色情角色扮演），亦不提供此項服務。</li>
+            <li class="rule-item">若於互動過程中感到不適，請即時聯繫館員或策展人。</li>
+        </ul>
+    </div>
+
+    <div class="rule-section" data-reveal>
+        <div class="rule-header">
+            <div class="rule-num">03</div>
+            <h2 class="rule-title">入館準備</h2>
+        </div>
+        <ul class="rule-list">
+            <li class="rule-item">欲進入典藏館參觀之收藏家，皆需先行購入門票，作為今夜停留於 Pietersite 之憑證。</li>
+            <li class="rule-item">完成入館手續後將附上一份簡易茶水；館內亦備有其他酒水，可依需求另行購買。</li>
+        </ul>
+    </div>
+
+    <div class="rule-section" data-reveal>
+        <div class="rule-header">
+            <div class="rule-num">04</div>
+            <h2 class="rule-title">鑑賞禮儀</h2>
+        </div>
+        <ul class="rule-list">
+            <li class="rule-item">無故缺席、臨時失約，或惡意佔用鑑賞時段者，將視情況限制競藏資格。</li>
+            <li class="rule-item">若需取消或更改鑑賞時段，請提前 5 小時告知策展人。</li>
+            <li class="rule-item">館藏僅可在館內進行鑑賞，未經允許擅自接觸或進行收購行為，皆視為逾越之舉。</li>
+            <li class="rule-item">一旦完成競藏申請，即代表收藏家已知悉並願意遵守 Pietersite 的一切禮儀與規範。</li>
+        </ul>
+    </div>
+
+    <div class="rule-section" data-reveal>
+        <div class="rule-header">
+            <div class="rule-num">05</div>
+            <h2 class="rule-title">個人資料與隱私</h2>
+        </div>
+        <ul class="rule-list">
+            <li class="rule-item">為辦理預約、聯繫及相關服務安排，Pietersite 將蒐集收藏家於預約系統中主動提供之資訊，包括但不限於 Discord 帳號、角色名稱、預約內容及其他必要資料。</li>
+            <li class="rule-item">上述資訊僅用於預約管理、資格審核、服務安排及相關聯繫，不會於未經當事人同意之情況下向第三方公開或提供。</li>
+            <li class="rule-item">預約資料可能透過第三方服務進行傳輸與保存，包括但不限於 Discord、Google Workspace 及相關管理系統。提交資料前，請確認已理解並同意相關服務之使用條款與隱私政策。</li>
+            <li class="rule-item">Pietersite 將以合理方式保管所蒐集之資料，並僅限管理團隊於必要範圍內查閱與使用。</li>
+            <li class="rule-item">提交預約申請、加入 Discord 伺服器或使用相關服務，即視為已閱讀、理解並同意本條款內容。</li>
+        </ul>
+    </div>
+
+    <div class="rule-section" data-reveal>
+        <div class="rule-header">
+            <div class="rule-num">06</div>
+            <h2 class="rule-title">權利保留</h2>
+        </div>
+        <ul class="rule-list">
+            <li class="rule-item">Pietersite 保有調整、拒絕、中止及最終裁定所有互動與相關安排之權利。</li>
+            <li class="rule-item">若言行涉及騷擾、惡意糾纏，或影響典藏館秩序，Pietersite 有權立即中止互動並請離，且視情況限制後續競藏資格。</li>
+            <li class="rule-item">若有違反禮儀情節嚴重者，Pietersite 將列入黑名單並保留公開相關違規紀錄以警示其他收藏家與店家之權利。</li>
+            <li class="rule-item">Pietersite 保有隨時修改、補充與調整各項禮儀及規範內容之權利。</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限受邀者入場
+            <span class="footer-motto">展期有盡，珍藏無期。</span>
+        </p>
+    </div>
+    <nav class="footer-nav">
+        <a href="collections.html">COLLECTIONS</a>
+        <a href="acquisition.html">ACQUISITION</a>
+        <a href="menu.html">MENU</a>
+        <a href="about.html">ABOUT</a>
+        <a href="rules.html">RULES</a>
+    </nav>
+</footer>
+
+<script>
+(function () {
+
+    /* ── Scroll reveals ── */
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            e.target.classList.add('vis');
+            io.unobserve(e.target);
+        });
+    }, { threshold: .08 });
+
+    document.querySelectorAll('[data-reveal]').forEach((el, i) => {
+        el.style.transitionDelay = `${i * 0.07}s`;
+        io.observe(el);
+    });
+
+    /* ── Header hide on scroll ── */
+    const hdr = document.getElementById('site-header');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        hdr.style.opacity       = y > lastY && y > 100 ? '0' : '1';
+        hdr.style.pointerEvents = y > lastY && y > 100 ? 'none' : '';
+        lastY = y;
+    }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>

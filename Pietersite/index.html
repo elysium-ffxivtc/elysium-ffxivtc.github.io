@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIETERSITE — 私人典藏館</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --bg-card:     #111827;
+            --bg-card-h:   #151e30;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --blue:        #3a5f8a;
+            --blue-bright: #5a8dc4;
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--gold); color: #06090f; }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.95) 0%, transparent 100%);
+            transition: opacity .4s ease;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* ── HERO ── */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-glow {
+            position: absolute;
+            inset: -20% 0;
+            background:
+                radial-gradient(ellipse at 25% 55%, rgba(58,95,138,.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 40%, rgba(107,91,149,.13) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 85%, rgba(184,145,58,.09) 0%, transparent 40%);
+            animation: breathe 14s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        @keyframes breathe { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+
+        #particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--gold);
+            opacity: 0;
+            animation: float-up var(--dur) ease-in var(--delay) infinite;
+        }
+
+        @keyframes float-up {
+            0%   { opacity: 0;   transform: translateY(0)    scale(1); }
+            10%  { opacity: .5; }
+            90%  { opacity: .15; }
+            100% { opacity: 0;   transform: translateY(-85vh) scale(.4); }
+        }
+
+        /* Hero entrance animation */
+        .hero-inner {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            will-change: transform;
+        }
+
+        .hero-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .82rem;
+            letter-spacing: .4em;
+            color: var(--gold);
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(12px);
+            animation: hero-rise .9s ease .2s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3.2rem, 11vw, 9rem);
+            font-weight: 300;
+            letter-spacing: .22em;
+            line-height: 1;
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(20px) scale(.98);
+            animation: hero-rise 1.2s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg,
+                var(--ivory)       0%,
+                var(--gold-bright) 35%,
+                var(--blue-bright) 60%,
+                var(--ivory)       100%
+            );
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: iris 10s ease 1.3s infinite;
+        }
+
+        @keyframes iris { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+        @keyframes hero-rise {
+            to { opacity: 1; transform: none; }
+        }
+
+        .hero-rule {
+            width: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            margin: 0 auto 2.5rem;
+            animation: rule-expand 1s ease .7s forwards;
+        }
+
+        @keyframes rule-expand { to { width: 56px; } }
+
+        .hero-tag {
+            font-size: .95rem;
+            letter-spacing: .15em;
+            color: var(--ivory-dim);
+            max-width: 38ch;
+            line-height: 2.4;
+            opacity: 0;
+            animation: hero-rise .9s ease .9s forwards;
+        }
+
+        .hero-cue {
+            position: absolute;
+            bottom: 2.8rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            animation: hero-rise .9s ease 1.4s forwards, cue 2.4s ease 2.3s infinite;
+        }
+
+        .hero-cue-line { width: 1px; height: 56px; background: linear-gradient(to bottom, rgba(184,145,58,.6), transparent); }
+
+        @keyframes cue { 0%,100% { opacity: .25; } 50% { opacity: .7; } }
+
+        /* ── SHARED ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 9rem 3.5rem;
+        }
+
+        .section-sep { border-top: 1px solid var(--line); }
+
+        .eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .82rem;
+            letter-spacing: .4em;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .eyebrow::after {
+            content: '';
+            width: 0;
+            height: 1px;
+            background: var(--line);
+            flex-shrink: 0;
+            transition: width .8s ease .3s;
+        }
+
+        .eyebrow.vis { opacity: 1; transform: none; }
+        .eyebrow.vis::after { width: 48px; }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+            font-weight: 300;
+            line-height: 1.25;
+            color: var(--ivory);
+            margin-bottom: 3.5rem;
+            overflow: hidden;
+        }
+
+        .h2-inner {
+            display: block;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+            transition-delay: .15s;
+        }
+
+        .h2-inner.vis { opacity: 1; transform: none; }
+
+        /* ── PHILOSOPHY ── */
+        #philosophy .wrap { text-align: center; }
+
+        .phi-body {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.6;
+            max-width: 760px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .phi-body.vis { opacity: 1; transform: none; }
+
+        .phi-quote {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.45rem;
+            color: var(--ivory);
+            line-height: 2.2;
+            margin: 4.5rem auto;
+            max-width: 900px;
+        }
+
+        .q-line {
+            display: block;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .q-line.vis { opacity: 1; transform: none; }
+        .q-line:nth-child(2) { transition-delay: .28s; }
+        .q-line:nth-child(3) { transition-delay: .56s; }
+
+        /* ── ZONES ── */
+        .zones-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--line);
+        }
+
+        .zone {
+            background: var(--bg-1);
+            padding: 4rem 3.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .zone::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 2px;
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 1.2s cubic-bezier(.16,1,.3,1);
+        }
+
+        .zone-pub::before { background: linear-gradient(to right, transparent, var(--blue), transparent); }
+        .zone-pvt::before { background: linear-gradient(to right, transparent, var(--gold), transparent); }
+
+        .zone-pub {
+            opacity: 0;
+            transform: translateX(-32px);
+            transition: opacity .9s ease, transform .9s cubic-bezier(.16,1,.3,1);
+        }
+
+        .zone-pvt {
+            opacity: 0;
+            transform: translateX(32px);
+            transition: opacity .9s ease .18s, transform .9s cubic-bezier(.16,1,.3,1) .18s;
+        }
+
+        .zones-trigger.vis .zone-pub,
+        .zones-trigger.vis .zone-pvt { opacity: 1; transform: none; }
+        .zones-trigger.vis .zone::before { transform: scaleX(1); }
+
+        .zone-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 5rem;
+            font-weight: 300;
+            color: rgba(184,145,58,.08);
+            line-height: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .zone-name {
+            font-size: 1.05rem;
+            letter-spacing: .18em;
+            color: var(--ivory);
+            margin-bottom: 1.2rem;
+        }
+
+        .zone-desc {
+            font-size: .95rem;
+            color: var(--ivory-dim);
+            line-height: 2.4;
+        }
+
+        .zone-badge {
+            display: inline-block;
+            margin-top: 2.5rem;
+            padding: .38rem 1.2rem;
+            border: 1px solid;
+            font-size: .6rem;
+            letter-spacing: .35em;
+        }
+
+        .zone-pub .zone-badge { border-color: var(--blue);     color: var(--blue-bright); }
+        .zone-pvt .zone-badge { border-color: var(--gold-dim); color: var(--gold); }
+
+        /* ── COLLECTION PREVIEW ── */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--line);
+            margin-bottom: 3rem;
+        }
+
+        .exhibit {
+            background: var(--bg-card);
+            padding: 3rem 2.8rem;
+            position: relative;
+            overflow: hidden;
+            transition: background .4s;
+            opacity: 0;
+            transform: translateY(28px);
+        }
+
+        .exhibit.vis {
+            opacity: 1;
+            transform: none;
+            transition: background .4s, opacity .9s ease, transform .9s cubic-bezier(.16,1,.3,1);
+        }
+
+        .exhibit:nth-child(1) { transition-delay: 0s; }
+        .exhibit:nth-child(2) { transition-delay: .15s; }
+        .exhibit:nth-child(3) { transition-delay: .3s; }
+
+        .exhibit::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg,
+                rgba(58,95,138,0) 0%,
+                rgba(107,91,149,0) 50%,
+                rgba(184,145,58,0) 100%
+            );
+            transition: background .5s;
+            pointer-events: none;
+        }
+
+        .exhibit:hover { background: var(--bg-card-h); }
+
+        .exhibit:hover::after {
+            background: linear-gradient(135deg,
+                rgba(58,95,138,.06) 0%,
+                rgba(107,91,149,.04) 50%,
+                rgba(184,145,58,.05) 100%
+            );
+        }
+
+        .exhibit-dot {
+            position: absolute;
+            top: 2rem;
+            right: 2.2rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #5fb878;
+            box-shadow: 0 0 8px #5fb878;
+            animation: dot-blink 2.4s ease-in-out infinite;
+        }
+
+        .exhibit-dot.off { background: var(--ivory-dim); box-shadow: none; animation: none; }
+
+        @keyframes dot-blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+        .exhibit-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .82rem;
+            letter-spacing: .3em;
+            color: var(--gold);
+            margin-bottom: 1.8rem;
+        }
+
+        .exhibit-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--ivory);
+            line-height: 1.4;
+            margin-bottom: 2rem;
+        }
+
+        .exhibit-rule {
+            width: 28px;
+            height: 1px;
+            background: var(--gold-border);
+            margin-bottom: 2rem;
+        }
+
+        .meta { display: flex; flex-direction: column; gap: .9rem; }
+        .meta-row { display: flex; gap: 1.2rem; font-size: .9rem; }
+        .meta-lbl { color: var(--ivory-dim); white-space: nowrap; flex-shrink: 0; }
+        .meta-val { color: var(--ivory); line-height: 1.7; }
+
+        /* ── CTA ── */
+        .cta-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease .45s, transform .9s ease .45s;
+        }
+
+        .cta-row.vis { opacity: 1; transform: none; }
+
+        .btn-ghost {
+            border: 1px solid var(--gold-dim);
+            color: var(--gold);
+            padding: .75rem 2.5rem;
+            font-family: 'Noto Serif TC', serif;
+            font-size: .88rem;
+            letter-spacing: .18em;
+            text-decoration: none;
+            transition: all .3s;
+            display: inline-block;
+        }
+
+        .btn-ghost:hover {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+            color: var(--ivory);
+        }
+
+        .btn-ghost.dim {
+            border-color: rgba(154,138,116,.25);
+            color: var(--ivory-dim);
+        }
+
+        .btn-ghost.dim:hover {
+            background: rgba(154,138,116,.1);
+            border-color: var(--ivory-dim);
+            color: var(--ivory);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4.5rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            letter-spacing: .08em;
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .78rem;
+            letter-spacing: .25em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .62rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .preview-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.5rem; }
+            nav { gap: 1.5rem; }
+            .wrap { padding: 6rem 1.5rem; }
+            .zones-grid { grid-template-columns: 1fr; }
+            .zone-pub, .zone-pvt { transform: translateY(24px); }
+            .preview-grid { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
+            .footer-nav { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo" href="index.html">PIETERSITE</a>
+    <nav>
+        <a href="collections.html">館藏</a>
+        <a href="acquisition.html">競藏</a>
+        <a href="menu.html">酒單</a>
+        <a href="about.html">關於</a>
+        <a href="rules.html">規章</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+    <div class="hero-glow" id="hero-glow"></div>
+    <div id="particles"></div>
+
+    <div class="hero-inner" id="hero-inner">
+        <p class="hero-eyebrow">PRIVATE COLLECTION SALON</p>
+        <h1 class="hero-title"><span>PIETERSITE</span></h1>
+        <div class="hero-rule"></div>
+        <p class="hero-tag">有些珍藏，只因無法長久擁有，<br>才顯得格外珍貴。</p>
+    </div>
+
+    <div class="hero-cue">
+        <div class="hero-cue-line"></div>
+    </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy" class="section-sep">
+    <div class="wrap">
+        <p class="phi-body" data-reveal>
+            歡迎蒞臨彼得石私人典藏館。<br>
+            此處不設公開邀約。每位到訪者皆以收藏家身份入館。
+        </p>
+        <p class="phi-quote">
+            <span class="q-line">「在這裡相遇的事物未必會恆久停留，</span>
+            <span class="q-line">卻能留下永遠的記憶。」</span>
+        </p>
+        <p class="phi-body" data-reveal style="transition-delay:.2s">
+            館內每件典藏皆是獨立個體，各擁其姓名、性格，以及被鑑賞的方式。<br>
+            收藏家可於公開展區自由欣賞，<br>
+            或透過競藏取得私人展廳資格，與特定館藏進行一對一鑑賞。
+        </p>
+    </div>
+</section>
+
+<!-- ZONES -->
+<section id="zones" class="section-sep">
+    <div class="wrap">
+        <p class="eyebrow" data-eyebrow>展區介紹</p>
+        <h2><span class="h2-inner" data-h2>館內兩種空間，<br>截然不同的相遇。</span></h2>
+
+        <div class="zones-grid zones-trigger" data-zones>
+            <div class="zone zone-pub">
+                <div class="zone-num">01</div>
+                <div class="zone-name">公開展區</div>
+                <p class="zone-desc">
+                    所有持有入館資格的收藏家均可自由進入。<br><br>
+                    館藏在此以最自然的姿態現身，或閒談、或玩笑、或靜默飲酒。<br>
+                    這裡是相識的起點，亦是相互觀察的空間。<br><br>
+                    不需預約，不設指定。
+                </p>
+                <span class="zone-badge">GENERAL ADMISSION</span>
+            </div>
+            <div class="zone zone-pvt">
+                <div class="zone-num">02</div>
+                <div class="zone-name">私人展廳</div>
+                <p class="zone-desc">
+                    僅限透過競藏取得資格的收藏家進入。<br><br>
+                    展廳內，時間為你們獨有。館藏將以其最完整的面貌現身，<br>
+                    一對一，無旁觀者，亦無打擾。<br><br>
+                    正因難以取得，這段相遇才值得珍藏。
+                </p>
+                <span class="zone-badge">ACQUISITION ACCESS</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COLLECTION PREVIEW -->
+<section id="preview" class="section-sep">
+    <div class="wrap">
+        <p class="eyebrow" data-eyebrow>典藏一瞥</p>
+        <h2><span class="h2-inner" data-h2>館藏</span></h2>
+
+        <div class="preview-grid" data-cards>
+            <div class="exhibit">
+                <div class="exhibit-dot"></div>
+                <div class="exhibit-num">No. 000</div>
+                <div class="exhibit-name">——</div>
+                <div class="exhibit-rule"></div>
+                <div class="meta">
+                    <div class="meta-row"><span class="meta-lbl">展覽形式</span><span class="meta-val">——</span></div>
+                    <div class="meta-row"><span class="meta-lbl">推薦對象</span><span class="meta-val">——</span></div>
+                </div>
+            </div>
+            <div class="exhibit">
+                <div class="exhibit-dot"></div>
+                <div class="exhibit-num">No. 000</div>
+                <div class="exhibit-name">——</div>
+                <div class="exhibit-rule"></div>
+                <div class="meta">
+                    <div class="meta-row"><span class="meta-lbl">展覽形式</span><span class="meta-val">——</span></div>
+                    <div class="meta-row"><span class="meta-lbl">推薦對象</span><span class="meta-val">——</span></div>
+                </div>
+            </div>
+            <div class="exhibit">
+                <div class="exhibit-dot"></div>
+                <div class="exhibit-num">No. 000</div>
+                <div class="exhibit-name">——</div>
+                <div class="exhibit-rule"></div>
+                <div class="meta">
+                    <div class="meta-row"><span class="meta-lbl">展覽形式</span><span class="meta-val">——</span></div>
+                    <div class="meta-row"><span class="meta-lbl">推薦對象</span><span class="meta-val">——</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-row" data-reveal>
+            <a href="collections.html" class="btn-ghost">瀏覽完整館藏目錄</a>
+            <a href="acquisition.html" class="btn-ghost dim">了解競藏制度</a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限受邀者入場
+            <span class="footer-motto">展期有盡，珍藏無期</span>
+        </p>
+    </div>
+    <nav class="footer-nav">
+        <a href="collections.html">COLLECTIONS</a>
+        <a href="acquisition.html">ACQUISITION</a>
+        <a href="menu.html">MENU</a>
+        <a href="about.html">ABOUT</a>
+        <a href="rules.html">RULES</a>
+    </nav>
+</footer>
+
+<script>
+(function () {
+
+    /* ── Particles ── */
+    const pc = document.getElementById('particles');
+    for (let i = 0; i < 28; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() > .7 ? 2 : 1;
+        p.style.cssText = [
+            `left:${Math.random()*100}%`,
+            `top:${Math.random()*100}%`,
+            `--dur:${9+Math.random()*12}s`,
+            `--delay:${Math.random()*10}s`,
+            `width:${size}px`,
+            `height:${size}px`,
+        ].join(';');
+        pc.appendChild(p);
+    }
+
+    /* ── Hero parallax ── */
+    const heroGlow  = document.getElementById('hero-glow');
+    const heroInner = document.getElementById('hero-inner');
+    const hero      = document.getElementById('hero');
+
+    function onScroll() {
+        const y = window.scrollY;
+        const h = hero.offsetHeight;
+        if (y < h) {
+            heroGlow.style.transform  = `translateY(${y * 0.35}px)`;
+            heroInner.style.transform = `translateY(${y * 0.12}px)`;
+            hero.style.opacity        = 1 - (y / h) * 0.85;
+        }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    /* ── Scroll reveals ── */
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+
+            if (el.dataset.reveal !== undefined)  { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.eyebrow !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.h2 !== undefined)      { el.classList.add('vis'); io.unobserve(el); }
+
+            if (el.dataset.zones !== undefined) {
+                el.classList.add('vis');
+                io.unobserve(el);
+            }
+
+            if (el.dataset.cards !== undefined) {
+                el.querySelectorAll('.exhibit').forEach(c => c.classList.add('vis'));
+                io.unobserve(el);
+            }
+        });
+    }, { threshold: .12 });
+
+    document.querySelectorAll('[data-reveal],[data-eyebrow],[data-h2],[data-zones],[data-cards]')
+        .forEach(el => io.observe(el));
+
+    /* ── Quote lines ── */
+    const qio = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            e.target.querySelectorAll('.q-line').forEach(l => l.classList.add('vis'));
+            qio.unobserve(e.target);
+        });
+    }, { threshold: .3 });
+
+    const quote = document.querySelector('.phi-quote');
+    if (quote) qio.observe(quote);
+
+    /* ── Header hide on scroll down ── */
+    const hdr = document.getElementById('site-header');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y > lastY && y > 100) {
+            hdr.style.opacity = '0';
+            hdr.style.pointerEvents = 'none';
+        } else {
+            hdr.style.opacity = '1';
+            hdr.style.pointerEvents = '';
+        }
+        lastY = y;
+    }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>

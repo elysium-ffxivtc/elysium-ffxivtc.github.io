@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>競藏制度 — PIETERSITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --bg-card:     #111827;
+            --bg-card-h:   #151e30;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --blue:        #3a5f8a;
+            --blue-bright: #5a8dc4;
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--gold); color: #06090f; }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.97) 0%, transparent 100%);
+            transition: opacity .4s ease;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* ── PAGE INTRO ── */
+        #page-intro {
+            padding: 18rem 3.5rem 8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: rise .8s ease .1s forwards;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300;
+            letter-spacing: .12em;
+            line-height: 1.1;
+            color: var(--ivory);
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: rise 1s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        .page-desc {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.4;
+            max-width: 640px;
+            opacity: 0;
+            animation: rise .9s ease .4s forwards;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* ── SHARED ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 3.5rem;
+        }
+
+        .section-sep { border-top: 1px solid var(--line); }
+
+        .eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .eyebrow::after {
+            content: '';
+            width: 0;
+            height: 1px;
+            background: var(--line);
+            flex-shrink: 0;
+            transition: width .8s ease .3s;
+        }
+
+        .eyebrow.vis { opacity: 1; transform: none; }
+        .eyebrow.vis::after { width: 48px; }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+            font-weight: 300;
+            line-height: 1.25;
+            color: var(--ivory);
+            margin-bottom: 3.5rem;
+            overflow: hidden;
+        }
+
+        .h2-inner {
+            display: block;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity .9s cubic-bezier(.16,1,.3,1) .15s,
+                        transform .9s cubic-bezier(.16,1,.3,1) .15s;
+        }
+
+        .h2-inner.vis { opacity: 1; transform: none; }
+
+        /* ── CONCEPT ── */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6rem;
+            align-items: start;
+        }
+
+        .concept-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .82rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .concept-label.vis { opacity: 1; transform: none; }
+
+        .concept-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            font-weight: 300;
+            line-height: 1.3;
+            color: var(--ivory);
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .9s ease .1s, transform .9s cubic-bezier(.16,1,.3,1) .1s;
+        }
+
+        .concept-heading.vis { opacity: 1; transform: none; }
+
+        .concept-body {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.6;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity .9s ease .2s, transform .9s ease .2s;
+        }
+
+        .concept-body.vis { opacity: 1; transform: none; }
+
+        .concept-body + .concept-body {
+            margin-top: 1.8rem;
+        }
+
+        .concept-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+            margin-top: 3rem;
+            padding: 1.8rem 2rem;
+            border: 1px solid var(--line);
+            background: var(--bg-1);
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity .9s ease .3s, transform .9s ease .3s;
+        }
+
+        .concept-note.vis { opacity: 1; transform: none; }
+
+        .concept-note-icon {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: var(--gold);
+            flex-shrink: 0;
+            line-height: 1.8;
+        }
+
+        .concept-note p {
+            font-size: .9rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+        }
+
+        /* ── PROCESS STEPS ── */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 2.8rem;
+            left: calc(10% + 1px);
+            right: calc(10% + 1px);
+            height: 1px;
+            background: linear-gradient(to right, var(--gold-dim), var(--gold-border), var(--gold-dim));
+            opacity: 0;
+            transition: opacity .8s ease .5s;
+        }
+
+        .steps.vis::before { opacity: 1; }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 1rem;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .8s ease, transform .8s cubic-bezier(.16,1,.3,1);
+        }
+
+        .step.vis { opacity: 1; transform: none; }
+        .step:nth-child(1) { transition-delay: .0s; }
+        .step:nth-child(2) { transition-delay: .1s; }
+        .step:nth-child(3) { transition-delay: .2s; }
+        .step:nth-child(4) { transition-delay: .3s; }
+        .step:nth-child(5) { transition-delay: .4s; }
+
+        .step-num {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 1px solid var(--gold-border);
+            background: var(--bg-0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: var(--gold);
+            letter-spacing: .05em;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-title {
+            font-size: .9rem;
+            letter-spacing: .12em;
+            color: var(--ivory);
+            margin-bottom: .8rem;
+        }
+
+        .step-desc {
+            font-size: .82rem;
+            color: var(--ivory-dim);
+            line-height: 2.1;
+        }
+
+        /* ── SERVICE CARDS ── */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--line);
+        }
+
+        .service-card {
+            background: var(--bg-card);
+            padding: 3.2rem 2.8rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: background .4s;
+        }
+
+        .service-card.vis {
+            opacity: 1;
+            transform: none;
+            transition: background .4s, opacity .9s ease, transform .9s cubic-bezier(.16,1,.3,1);
+        }
+
+        .service-card:nth-child(1) { transition-delay: .0s; }
+        .service-card:nth-child(2) { transition-delay: .12s; }
+        .service-card:nth-child(3) { transition-delay: .24s; }
+        .service-card:nth-child(4) { transition-delay: .08s; }
+        .service-card:nth-child(5) { transition-delay: .2s; }
+        .service-card:nth-child(6) { transition-delay: .32s; }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+            transform: scaleX(0);
+            transition: transform .6s ease;
+        }
+
+        .service-card:hover { background: var(--bg-card-h); }
+        .service-card:hover::before { transform: scaleX(1); }
+
+        .service-tag {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .72rem;
+            letter-spacing: .35em;
+            color: var(--blue-bright);
+            border: 1px solid rgba(90,141,196,.3);
+            display: inline-block;
+            padding: .25rem .9rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-tag.gold {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .service-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--ivory);
+            margin-bottom: 1.2rem;
+            line-height: 1.4;
+        }
+
+        .service-rule {
+            width: 24px;
+            height: 1px;
+            background: var(--gold-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .service-desc {
+            font-size: .9rem;
+            color: var(--ivory-dim);
+            line-height: 2.3;
+            margin-bottom: 2rem;
+        }
+
+        .service-meta {
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+            border-top: 1px solid var(--line);
+            padding-top: 1.5rem;
+        }
+
+        .service-meta-row {
+            display: flex;
+            gap: 1rem;
+            font-size: .82rem;
+        }
+
+        .service-meta-lbl { color: var(--ivory-dim); flex-shrink: 0; }
+        .service-meta-val { color: var(--ivory); }
+
+        /* ── CTA ── */
+        .cta-block {
+            text-align: center;
+            padding: 6rem 3.5rem;
+            border-top: 1px solid var(--line);
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .cta-block.vis { opacity: 1; transform: none; }
+
+        .cta-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .82rem;
+            letter-spacing: .4em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+            font-weight: 300;
+            color: var(--ivory);
+            margin-bottom: 1.2rem;
+        }
+
+        .cta-sub {
+            font-size: .95rem;
+            color: var(--ivory-dim);
+            line-height: 2.4;
+            margin-bottom: 3rem;
+        }
+
+        .btn-ghost {
+            border: 1px solid var(--gold-dim);
+            color: var(--gold);
+            padding: .85rem 3rem;
+            font-family: 'Noto Serif TC', serif;
+            font-size: .88rem;
+            letter-spacing: .18em;
+            text-decoration: none;
+            transition: all .3s;
+            display: inline-block;
+        }
+
+        .btn-ghost:hover {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+            color: var(--ivory);
+        }
+
+        .btn-ghost.dim {
+            border-color: rgba(154,138,116,.25);
+            color: var(--ivory-dim);
+            margin-left: 1rem;
+        }
+
+        .btn-ghost.dim:hover {
+            background: rgba(154,138,116,.1);
+            border-color: var(--ivory-dim);
+            color: var(--ivory);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4.5rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            letter-spacing: .08em;
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .78rem;
+            letter-spacing: .25em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .62rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+            .service-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 900px) {
+            .concept-grid { grid-template-columns: 1fr; gap: 4rem; }
+            .steps { grid-template-columns: 1fr 1fr; gap: 3rem 1rem; }
+            .steps::before { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.5rem; }
+            nav { gap: 1.5rem; }
+            #page-intro { padding: 14rem 1.5rem 6rem; }
+            .wrap { padding: 6rem 1.5rem; }
+            .cta-block { padding: 5rem 1.5rem; }
+            .service-grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
+            .footer-nav { align-items: flex-start; }
+            .btn-ghost.dim { margin-left: 0; margin-top: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo" href="index.html">PIETERSITE</a>
+    <nav>
+        <a href="collections.html">館藏</a>
+        <a href="acquisition.html" class="active">競藏</a>
+        <a href="menu.html">酒單</a>
+        <a href="about.html">關於</a>
+        <a href="rules.html">規章</a>
+    </nav>
+</header>
+
+<!-- PAGE INTRO -->
+<div id="page-intro">
+    <p class="page-eyebrow">ACQUISITION</p>
+    <h1 class="page-title">競藏制度</h1>
+    <p class="page-desc">
+        私人展廳的唯一入口。<br>
+        每一次相遇，皆源自一份選擇。
+    </p>
+</div>
+
+<!-- CONCEPT -->
+<section class="section-sep">
+    <div class="wrap">
+        <div class="concept-grid">
+            <div>
+                <p class="concept-label" data-reveal>什麼是競藏</p>
+                <h2 class="concept-heading" data-reveal>無法輕易得到的，<br>才值得珍藏。</h2>
+                <p class="concept-body" data-reveal>
+                    競藏，是本館取得私人展廳資格的唯一途徑。
+                <br>公開展區的相遇是自由的，若你希望進一步與特定館藏進行一對一的私人鑑賞，則須透過競藏提出申請。
+                </p>
+                <p class="concept-body" data-reveal style="transition-delay:.08s">
+                    每位收藏家皆可向心儀的館藏提出競藏申請。競藏期間結束後，鑑賞資格將授予最高出價者。
+                <br>為維持制度的公平性，館方與館藏均不參與資格決定，所有結果皆以最終出價紀錄為準。
+                </p>
+                <div class="concept-note" data-reveal style="transition-delay:.16s">
+                    <span class="concept-note-icon">※</span>
+                    <p>競藏申請須在館方公告的競藏期間內提交。<br>
+                    未於期間內提出申請者，將等待下一次開放。<br>
+                    館藏不屬於任何人，也不販售予任何人。</p>
+                </div>
+            </div>
+            <div>
+                <p class="concept-label" data-reveal style="transition-delay:.1s">私人展廳</p>
+                <h2 class="concept-heading" data-reveal style="transition-delay:.1s">一對一，<br>屬於你們的時間。</h2>
+                <p class="concept-body" data-reveal style="transition-delay:.2s">
+                    競藏成功的收藏家，將獲得進入私人展廳的資格。
+                <br>展廳內，時間由你們獨占。館藏將以最完整的姿態現身，不受旁擾，只有你與他。
+                </p>
+                <p class="concept-body" data-reveal style="transition-delay:.28s">
+                    無論是想深入了解某位館藏、想體驗特定的相處氛圍，
+                    或只是想要一段安靜的獨處——
+                    私人展廳，將帶來別緻的鑑賞體驗。
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section-sep">
+    <div class="wrap">
+        <p class="eyebrow" data-eyebrow>申請流程</p>
+        <h2><span class="h2-inner" data-h2>從申請到相遇，五個步驟。</span></h2>
+
+        <div class="steps" data-steps>
+            <div class="step">
+                <div class="step-num">01</div>
+                <div class="step-title">瀏覽館藏</div>
+                <p class="step-desc">前往典藏目錄<br>選定心儀館藏<br>確認其競藏狀態</p>
+            </div>
+            <div class="step">
+                <div class="step-num">02</div>
+                <div class="step-title">提出申請</div>
+                <p class="step-desc">填寫競藏申請表<br>選擇希望鑑賞的館藏<br>留下希望的時段與需求</p>
+            </div>
+            <div class="step">
+                <div class="step-num">03</div>
+                <div class="step-title">競藏期間</div>
+                <p class="step-desc">等待館方公告<br>於競藏期間<br>其他收藏家亦可申請</p>
+            </div>
+            <div class="step">
+                <div class="step-num">04</div>
+                <div class="step-title">資格確認</div>
+                <p class="step-desc">競藏結束後<br>館方將通知結果<br>並安排鑑賞事宜</p>
+            </div>
+            <div class="step">
+                <div class="step-num">05</div>
+                <div class="step-title">進入展廳</div>
+                <p class="step-desc">依約定時間入場<br>與館藏獨處其間<br>開始你們專屬的相遇</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section-sep">
+    <div class="wrap">
+        <p class="eyebrow" data-eyebrow>服務項目</p>
+        <h2><span class="h2-inner" data-h2>私人展廳提供的相遇形式。</span></h2>
+
+        <div class="service-grid" data-services>
+
+            <div class="service-card">
+                <span class="service-tag">STANDARD</span>
+                <div class="service-name">館內休憩</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    自由入座，享用館內酒水。
+                    只是坐在同一個空間裡，各自做著什麼，或什麼都不做。
+                    適合需要安靜卻不想獨處的人。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">至閉館為止</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">館內展廳</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">入場費已包含座席／酒水另計</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag">STANDARD</span>
+                <div class="service-name">輕鬆閒談</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    沒有特定議題，也沒有特別的目的。就只是聊天——說說今天、過去，說那些說不上重要的事。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">至閉館為止</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">館內展廳</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">無須費用</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag">STANDARD</span>
+                <div class="service-name">展場漫遊</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    館內的典藏並非每一件都需要理由才能靠近。收藏家可自在漫遊，帶著自己的眼光，找到那件讓你忍不住多看一眼的。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">至館藏展期更動</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">館內展廳</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">無須費用</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag gold">EXCLUSIVE</span>
+                <div class="service-name">典藏鑑賞</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    每件館藏皆承載著獨特的過往與痕跡。
+                <br>透過館藏親自講述，聆聽其來歷、見聞與故事，作為初次認識彼此的起點。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">30 分鐘起</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">私人展廳</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">100,000Gil</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag gold">EXCLUSIVE</span>
+                <div class="service-name">藏品交換</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    收藏家與館藏各自準備一篇故事相互交換與分享。無論真實或虛構，每一則故事都將成為此次相遇的紀念。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">30 分鐘起</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">依情境協調</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">300,000 Gil</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag gold">EXCLUSIVE</span>
+                <div class="service-name">策展委託</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    由收藏家提出主題，館藏依此構思專屬展覽。可能是一段故事、一首詩，或其他形式的創作，僅於本次展期中展出。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">依策展內容而定</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">專屬展覽</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">依規格調整</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-block" data-reveal>
+    <p class="cta-eyebrow">REGISTRY</p>
+    <h2 class="cta-heading">準備好提出申請了嗎？</h2>
+    <p class="cta-sub">競藏期間由館方定期公告。<br>確認目標館藏的狀態，在期間內提出申請。</p>
+    <span class="btn-ghost">前往競藏申請</span>
+    <a href="collections.html" class="btn-ghost dim">瀏覽館藏目錄</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限受邀者入場
+            <span class="footer-motto">展期有盡，珍藏無期</span>
+        </p>
+    </div>
+    <nav class="footer-nav">
+        <a href="collections.html">COLLECTIONS</a>
+        <a href="acquisition.html">ACQUISITION</a>
+        <a href="menu.html">MENU</a>
+        <a href="about.html">ABOUT</a>
+        <a href="rules.html">RULES</a>
+    </nav>
+</footer>
+
+<script>
+(function () {
+
+    /* ── Scroll reveals ── */
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+
+            if (el.dataset.eyebrow !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.h2     !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.reveal !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+
+            if (el.dataset.steps !== undefined) {
+                el.classList.add('vis');
+                el.querySelectorAll('.step').forEach((s, i) => {
+                    setTimeout(() => s.classList.add('vis'), i * 100);
+                });
+                io.unobserve(el);
+            }
+
+            if (el.dataset.services !== undefined) {
+                el.querySelectorAll('.service-card').forEach((c, i) => {
+                    setTimeout(() => c.classList.add('vis'), i * 80);
+                });
+                io.unobserve(el);
+            }
+        });
+    }, { threshold: .08 });
+
+    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-steps],[data-services]')
+        .forEach(el => io.observe(el));
+
+    /* ── Header hide on scroll ── */
+    const hdr = document.getElementById('site-header');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        hdr.style.opacity       = y > lastY && y > 100 ? '0' : '1';
+        hdr.style.pointerEvents = y > lastY && y > 100 ? 'none' : '';
+        lastY = y;
+    }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>
