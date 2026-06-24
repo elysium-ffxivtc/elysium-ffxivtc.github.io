@@ -163,8 +163,8 @@
     .lib-table tbody tr { transition: background .12s; }
     .lib-table tbody tr:hover { background: var(--gold-bg); }
     .col-title   { color: var(--text); font-weight: 500; overflow: hidden; white-space: nowrap; max-width: 0; }
-    .col-title span { display: inline-block; }
-    .col-title:hover span { animation: marquee-title 4s linear infinite alternate; }
+    .col-title span { display: inline-block; will-change: transform; }
+    .col-title:hover span { animation: marquee-title 2s linear infinite alternate; }
     @keyframes marquee-title {
         0%   { transform: translateX(0); }
         100% { transform: translateX(calc(-100% + 270px)); }
