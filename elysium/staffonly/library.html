@@ -162,12 +162,14 @@
     .lib-table tbody tr:last-child td { border-bottom: none; }
     .lib-table tbody tr { transition: background .12s; }
     .lib-table tbody tr:hover { background: var(--gold-bg); }
-    .col-title   { color: var(--text); font-weight: 500; overflow: hidden; white-space: nowrap; max-width: 0; }
+    .col-title   { color: var(--text); font-weight: 500; position: relative; }
+    .col-title::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 40px; background: linear-gradient(to right, transparent, var(--panel)); pointer-events: none; }
+    .col-title:hover::after { display: none; }
     .col-title span { display: inline-block; will-change: transform; }
     .col-title:hover span { animation: marquee-title 2s linear infinite alternate; }
     @keyframes marquee-title {
-        0%   { transform: translateX(0); }
-        100% { transform: translateX(calc(-100% + 270px)); }
+        from { transform: translateX(0); }
+        to   { transform: translateX(min(0px, calc(-100% + 244px))); }
     }
     .col-excerpt { color: var(--dim2); font-size: .85rem; }
     .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
