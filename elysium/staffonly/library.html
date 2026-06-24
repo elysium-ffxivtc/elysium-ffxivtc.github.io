@@ -164,7 +164,7 @@
     .lib-table tbody tr:hover { background: var(--gold-bg); }
     .col-title   { color: var(--text); font-weight: 500; }
     .col-title span { display: inline-block; will-change: transform; }
-    .col-title:hover span { animation: marquee-title 3s linear infinite alternate; }
+    .col-title:hover span { animation: marquee-title var(--marquee-dur, 3s) linear infinite alternate; }
     @keyframes marquee-title {
         from { transform: translateX(0); }
         to   { transform: translateX(min(0px, calc(-100% + 244px))); }
@@ -528,6 +528,17 @@
       });
     }
 
+    function calibrateMarquee(tbodyId) {
+      requestAnimationFrame(() => {
+        document.querySelectorAll('#' + tbodyId + ' .col-title').forEach(td => {
+          const span = td.querySelector('span');
+          if (!span) return;
+          const overflow = span.scrollWidth - td.clientWidth;
+          if (overflow > 0) td.style.setProperty('--marquee-dur', (overflow / 60).toFixed(2) + 's');
+        });
+      });
+    }
+
     function renderMeetings() {
       const rows = Object.entries(_entries).filter(([,e])=>e.type==='meeting').sort((a,b)=>(b[1].date||'').localeCompare(a[1].date||''));
       const wrap=document.getElementById('wrap-meeting'), empty=document.getElementById('empty-meeting');
@@ -541,6 +552,7 @@
           <td class="col-dim">${badge(e.attendees)}</td>
           <td class="col-dim">${esc(e.location||'')}</td>
         </tr>`).join('');
+      calibrateMarquee('tbody-meeting');
     }
 
     function renderArticles() {
@@ -555,6 +567,7 @@
           <td class="col-dim">${esc(e.author||'')}</td>
           <td class="col-date">${fmtDate(e.createdAt||e.updatedAt)}</td>
         </tr>`).join('');
+      calibrateMarquee('tbody-article');
     }
 
     function renderUpdates() {
