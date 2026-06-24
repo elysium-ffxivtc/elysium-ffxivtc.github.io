@@ -162,7 +162,13 @@
     .lib-table tbody tr:last-child td { border-bottom: none; }
     .lib-table tbody tr { transition: background .12s; }
     .lib-table tbody tr:hover { background: var(--gold-bg); }
-    .col-title   { color: var(--text); font-weight: 500; }
+    .col-title   { color: var(--text); font-weight: 500; overflow: hidden; white-space: nowrap; max-width: 0; }
+    .col-title span { display: inline-block; }
+    .col-title:hover span { animation: marquee-title 4s linear infinite alternate; }
+    @keyframes marquee-title {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(calc(-100% + 270px)); }
+    }
     .col-excerpt { color: var(--dim2); font-size: .85rem; }
     .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
     .col-dim     { color: var(--dim); font-size: .88rem; }
@@ -366,7 +372,7 @@
       <div class="lib-table-wrap" id="wrap-article">
         <table class="lib-table">
           <thead><tr>
-            <th style="width:250px">標題</th><th class="col-excerpt-hdr">摘要</th><th style="width:130px">作者</th><th style="width:155px">發佈時間</th>
+            <th style="width:280px">標題</th><th class="col-excerpt-hdr">摘要</th><th style="width:130px">作者</th><th style="width:155px">發佈時間</th>
           </tr></thead>
           <tbody id="tbody-article"></tbody>
         </table>
@@ -529,7 +535,7 @@
       wrap.style.display=''; empty.style.display='none';
       document.getElementById('tbody-meeting').innerHTML = rows.map(([id,e]) =>
         `<tr onclick="openView('${id}')">
-          <td class="col-title">${esc(e.title)}</td>
+          <td class="col-title"><span>${esc(e.title)}</span></td>
           <td class="col-date">${fmtDate(e.date)}</td>
           <td class="col-dim">${esc(e.duration||'')}</td>
           <td class="col-dim">${badge(e.attendees)}</td>
@@ -544,7 +550,7 @@
       wrap.style.display=''; empty.style.display='none';
       document.getElementById('tbody-article').innerHTML = rows.map(([id,e]) =>
         `<tr onclick="openView('${id}')">
-          <td class="col-title">${esc(e.title)}</td>
+          <td class="col-title"><span>${esc(e.title)}</span></td>
           <td class="col-excerpt">${esc(excerpt(e.content))}</td>
           <td class="col-dim">${esc(e.author||'')}</td>
           <td class="col-date">${fmtDate(e.createdAt||e.updatedAt)}</td>
