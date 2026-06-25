@@ -290,7 +290,7 @@
 <!-- ── Auth overlay ── -->
 <div id="auth-overlay" class="auth-overlay">
   <div id="auth-loading" class="auth-box">
-    <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">驗證中…</div>
+    <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
   </div>
   <div id="auth-login" class="auth-box" style="display:none">
     <div class="auth-logo">安息地</div>
@@ -783,7 +783,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       if (!other && isBiz) cls += ' biz-day';
       if (isWeekend)  cls += ' weekend';
 
-      const numEl = (!other && isAdmin() && !readOnly)
+      const numEl = (!other && isAdmin())
         ? `<div class="cal-day-num clickable" onclick="openDayModal('${date}')">${dayNum}</div>`
         : `<div class="cal-day-num">${dayNum}</div>`;
 
@@ -882,6 +882,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       <div class="panel-actions">
         <button class="btn btn-outline btn-sm" onclick="openBulkModal()" style="font-size:12px">一次排班</button>
         <button class="btn btn-danger btn-sm" onclick="clearMonthSchedule()" style="font-size:12px">清除本月排班</button>
+        ${isAdmin() ? `<button class="btn btn-danger btn-sm" onclick="clearAllMonthSchedules()" style="font-size:12px;border-style:dashed">清空本月全部排班</button>` : ''}
       </div>
       <div class="panel-section-title">${viewMonth + 1}月排班</div>
       ${shiftsHtml}
@@ -1056,6 +1057,17 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     }
     await Promise.all(removes);
     showToast('已清除本月所有排班');
+  }
+
+  async function clearAllMonthSchedules() {
+    if (!isAdmin()) return;
+    if (!confirm(`確定清除 ${viewMonth + 1} 月所有人的排班？此操作無法復原。`)) return;
+    const monthPrefix = `${viewYear}-${pad(viewMonth + 1)}`;
+    const removes = Object.keys(schedData)
+      .filter(key => key.startsWith(monthPrefix))
+      .map(key => remove(dbRef(db, `schedules/${key}`)));
+    await Promise.all(removes);
+    showToast('已清除本月全部排班');
   }
 
   // ── Memo ─────────────────────────────────────────────────────
@@ -1471,7 +1483,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     openAddModal, closeAddModal, confirmAdd,
     openAnnoModal, closeAnnoModal, saveAnnouncement, clearAnnouncement,
     openBulkModal, closeBulkModal, confirmBulk, setBulkMode, toggleBulkDay, onWeekCheck,
-    clearMonthSchedule, saveMemo,
+    clearMonthSchedule, clearAllMonthSchedules, saveMemo,
     openExportModal, closeExportModal, downloadScheduleImg,
     requestLeave, cancelLeave,
     approveStaff, rejectStaff, removeStaff,
