@@ -550,10 +550,15 @@
     })();
 
     // ── Helpers ──
-    function fmtDate(s) {
+    function fmtDate(s, withDay=false) {
       if (!s) return '';
       const d = new Date(s);
-      if (!isNaN(d.getTime())) return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      if (!isNaN(d.getTime())) {
+        const MM = String(d.getMonth()+1).padStart(2,'0');
+        const DD = String(d.getDate()).padStart(2,'0');
+        const day = withDay ? `（${'日一二三四五六'[d.getDay()]}）` : ' ';
+        return `${d.getFullYear()}/${MM}/${DD}${day}${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }
       return s;
     }
     function excerpt(html, len=90) {
@@ -596,7 +601,7 @@
       document.getElementById('tbody-meeting').innerHTML = rows.map(([id,e]) =>
         `<tr onclick="openView('${id}')">
           <td class="col-title"><span>${esc(e.title)}</span></td>
-          <td class="col-date">${fmtDate(e.date)}</td>
+          <td class="col-date">${fmtDate(e.date, true)}</td>
           <td class="col-dim">${esc(e.duration||'')}</td>
           <td class="col-dim">${badge(e.attendees)}</td>
           <td class="col-dim">${esc(e.location||'')}</td>
@@ -680,7 +685,7 @@
       const publishDate = fmtDate(e.createdAt||e.updatedAt);
       const meta = m
         ? `<div class="view-meta">
-            <div class="view-meta-item"><div class="view-meta-lbl">排定日期</div><div class="view-meta-val">${fmtDate(e.date)||'—'}</div></div>
+            <div class="view-meta-item"><div class="view-meta-lbl">排定日期</div><div class="view-meta-val">${fmtDate(e.date, true)||'—'}</div></div>
             ${e.duration?`<div class="view-meta-item"><div class="view-meta-lbl">會議時間</div><div class="view-meta-val">${esc(e.duration)}</div></div>`:''}
             <div class="view-meta-item"><div class="view-meta-lbl">出席</div><div class="view-meta-val">${badge(e.attendees)}</div></div>
             ${e.host?`<div class="view-meta-item"><div class="view-meta-lbl">主持人</div><div class="view-meta-val">${esc(e.host)}</div></div>`:''}
