@@ -126,7 +126,11 @@
 </head>
 <body>
 
-  <div class="auth-overlay show" id="auth-overlay">
+  <div id="loading-state" style="position:fixed;inset:0;background:#111010;display:flex;align-items:center;justify-content:center;z-index:200;">
+    <div style="font-size:.72rem;letter-spacing:.22em;color:#4a3f2e;">載入中</div>
+  </div>
+
+  <div class="auth-overlay" id="auth-overlay">
 
     <div class="auth-box" id="auth-login">
       <div class="auth-logo">Elysium</div>
@@ -229,6 +233,7 @@
     }
 
     firebase.auth().onAuthStateChanged(async user => {
+      document.getElementById('loading-state').style.display = 'none';
       if (!user) {
         document.getElementById('auth-overlay').classList.add('show');
         document.getElementById('portal').classList.remove('show');
