@@ -623,8 +623,12 @@
     <div class="mobile-block-sub">此系統僅支援桌機操作<br>請使用電腦開啟此頁面</div>
   </div>
 
+  <div id="pos-loading-state" style="position:fixed;inset:0;background:#111010;display:flex;align-items:center;justify-content:center;z-index:9100;">
+    <div style="font-size:.72rem;letter-spacing:.22em;color:#4a3f2e;">載入中</div>
+  </div>
+
   <!-- Auth overlay -->
-  <div id="pos-auth-overlay" class="show">
+  <div id="pos-auth-overlay">
     <div class="pos-auth-box">
       <div class="pos-auth-logo">安息地 · POS系統</div>
       <div class="pos-auth-sub">僅限授權人員使用</div>
@@ -898,6 +902,7 @@
       const auth = firebase.auth();
 
       firebase.auth().onAuthStateChanged(async user => {
+        document.getElementById('pos-loading-state').style.display = 'none';
         if (!user) {
           document.getElementById('pos-auth-overlay').classList.add('show');
           posUser = null;

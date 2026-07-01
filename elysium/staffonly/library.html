@@ -358,6 +358,10 @@
 </head>
 <body>
 
+  <div id="loading-state" style="position:fixed;inset:0;background:#111010;display:flex;align-items:center;justify-content:center;z-index:2000;">
+    <div style="font-size:.72rem;letter-spacing:.22em;color:#4a3f2e;">載入中</div>
+  </div>
+
   <header class="lib-header">
     <div class="lib-title">✦ 安息地 · 圖書室</div>
     <div style="display:flex;align-items:center;gap:.85rem">
@@ -487,6 +491,7 @@
     };
 
     firebase.auth().onAuthStateChanged(async user => {
+      document.getElementById('loading-state').style.display = 'none';
       if (!user) { window.location.href = 'index.html'; return; }
       _user = user;
       try {
