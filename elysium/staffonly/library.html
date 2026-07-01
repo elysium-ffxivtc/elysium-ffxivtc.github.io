@@ -278,6 +278,43 @@
     .ql-editor a { color:var(--gold); }
     .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
 
+    /* ── FAQ ── */
+    .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
+    .faq-q-row { display: flex; align-items: center; gap: .85rem; padding: .9rem 1.1rem; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; transition: background .12s; user-select: none; }
+    .faq-q-row:hover { background: var(--gold-bg); }
+    .faq-q-icon { font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700; color: var(--gold); flex-shrink: 0; width: 1.4rem; text-align: center; }
+    .faq-q-text { flex: 1; font-size: .93rem; color: var(--text); line-height: 1.4; min-width: 0; }
+    .faq-q-author { display: block; font-size: .71rem; color: var(--dim2); margin-top: .1rem; letter-spacing: .02em; }
+    .faq-q-meta { display: flex; align-items: center; gap: .65rem; flex-shrink: 0; }
+    .faq-reply-count { font-size: .78rem; color: var(--dim2); }
+    .faq-del-btn { background: none; border: none; color: var(--dim2); font-size: .9rem; line-height: 1; padding: 0 .15rem; transition: color .15s; }
+    .faq-del-btn:hover { color: var(--red); }
+    .faq-arrow { color: var(--dim2); font-size: 1rem; transition: transform .2s; display: inline-block; }
+    .faq-body { border-top: 1px solid var(--border); padding: .85rem 1.1rem; }
+    .faq-replies { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
+    .faq-no-reply { font-size: .88rem; color: var(--dim2); padding: .1rem 0 .5rem; }
+    .faq-reply { background: var(--panel2); padding: .6rem .85rem; }
+    .faq-reply-meta { display: flex; align-items: center; gap: .5rem; margin-bottom: .25rem; }
+    .faq-reply-name { font-size: .78rem; font-weight: 500; color: var(--dim); }
+    .faq-reply-date { font-size: .74rem; color: var(--dim2); }
+    .faq-reply-edit { background: none; border: none; color: var(--dim2); font-size: .78rem; line-height: 1; padding: 0; margin-left: auto; transition: color .15s; }
+    .faq-reply-edit:hover { color: var(--gold); }
+    .faq-reply-del { background: none; border: none; color: var(--dim2); font-size: .78rem; line-height: 1; padding: 0; transition: color .15s; }
+    .faq-reply-del:hover { color: var(--red); }
+    .faq-reply-edited { font-size: .71rem; color: var(--dim2); margin-left: .35rem; }
+    .faq-edit-input { width: 100%; padding: .45rem .7rem; background: var(--panel); border: 1px solid var(--gold); color: var(--text); font-size: .88rem; font-family: inherit; outline: none; resize: vertical; min-height: 56px; line-height: 1.5; margin-top: .25rem; }
+    .faq-edit-actions { display: flex; gap: .5rem; margin-top: .4rem; justify-content: flex-end; }
+    .faq-edit-save { padding: .3rem .75rem; background: var(--gold); border: none; color: #fff; font-size: .8rem; font-family: inherit; transition: background .18s; }
+    .faq-edit-save:hover { background: #7a5020; }
+    .faq-edit-cancel { padding: .3rem .65rem; background: none; border: 1px solid var(--border); color: var(--dim); font-size: .8rem; font-family: inherit; transition: all .15s; }
+    .faq-edit-cancel:hover { border-color: var(--dim); color: var(--text); }
+    .faq-reply-content { font-size: .88rem; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+    .faq-reply-input-row { display: flex; gap: .5rem; }
+    .faq-reply-input { flex: 1; padding: .5rem .8rem; background: var(--panel); border: 1px solid var(--border); color: var(--text); font-size: .88rem; font-family: inherit; outline: none; transition: border-color .15s; }
+    .faq-reply-input:focus { border-color: var(--gold); }
+    .faq-reply-submit { padding: .45rem .9rem; background: var(--gold); border: none; color: #fff; font-size: .82rem; font-family: inherit; transition: background .18s; white-space: nowrap; }
+    .faq-reply-submit:hover { background: #7a5020; }
+
     /* ── Mobile ── */
     @media (max-width: 640px) {
       .lib-header { padding: .55rem .85rem; }
@@ -348,6 +385,7 @@
       <button class="lib-tab on" onclick="setTab('meeting')">會議紀錄</button>
       <button class="lib-tab" onclick="setTab('article')">文章</button>
       <button class="lib-tab" onclick="setTab('polaroid')">拍立得</button>
+      <button class="lib-tab" onclick="setTab('faq')">問答集</button>
     </div>
 
     <div class="lib-section on" id="sec-meeting">
@@ -387,6 +425,14 @@
       </div>
       <div class="polaroid-grid" id="polaroid-grid"></div>
       <div class="lib-empty" id="empty-polaroid" style="display:none">尚無照片</div>
+    </div>
+
+    <div class="lib-section" id="sec-faq">
+      <div class="lib-section-hdr">
+        <button class="lib-add-btn" id="btn-add-faq" onclick="openFaqModal()" style="display:none">＋ 新增問題</button>
+      </div>
+      <div id="faq-list"></div>
+      <div class="lib-empty" id="empty-faq" style="display:none">尚無問題</div>
     </div>
 
   </main>
@@ -430,6 +476,7 @@
 
     let _user = null, _role = 'staff', _displayName = '', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
     let _polaroids = [], _lbIdx = 0;
+    let _faqs = {}, _faqOpen = new Set(), _faqEditing = null;
     const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
     const zhTW = {
@@ -465,6 +512,7 @@
         }
       } catch(e) { _role = 'staff'; }
       document.getElementById('btn-add-article').style.display = '';
+      document.getElementById('btn-add-faq').style.display = '';
       if (_role === 'admin') {
         document.getElementById('btn-add-meeting').style.display     = '';
         document.getElementById('btn-add-announce').style.display    = '';
@@ -474,6 +522,7 @@
       loadEntries();
       loadAnnouncements();
       loadPolaroids();
+      loadFAQ();
     });
 
     const ROLE_LABEL = { admin: '管理員', staff: '工作人員', pilgrim: '引路人' };
@@ -616,11 +665,12 @@
 
     // ── Tabs ──
     function setTab(tab) {
-      const map = { meeting:0, article:1, polaroid:2 };
+      const map = { meeting:0, article:1, polaroid:2, faq:3 };
       document.querySelectorAll('.lib-tab').forEach((el,i)=>el.classList.toggle('on',i===map[tab]));
       document.getElementById('sec-meeting').classList.toggle('on',tab==='meeting');
       document.getElementById('sec-article').classList.toggle('on',tab==='article');
       document.getElementById('sec-polaroid').classList.toggle('on',tab==='polaroid');
+      document.getElementById('sec-faq').classList.toggle('on',tab==='faq');
     }
 
     // ── View ──
@@ -910,6 +960,191 @@
       if (e.key === 'Escape') closeLightbox();
       if (e.key === 'ArrowLeft')  lightboxNav(-1);
       if (e.key === 'ArrowRight') lightboxNav(1);
+    }
+
+    // ── FAQ ──
+    function loadFAQ() {
+      db.ref('faq').on('value', snap => {
+        _faqs = snap.val() || {};
+        renderFAQ();
+      });
+    }
+
+    function renderFAQ() {
+      const savedInputs = {};
+      document.querySelectorAll('[id^="faq-ri-"]').forEach(el => {
+        const id = el.id.replace('faq-ri-', '');
+        if (el.value) savedInputs[id] = el.value;
+      });
+      let savedEditContent = null;
+      if (_faqEditing) {
+        const editEl = document.getElementById('faq-edit-'+_faqEditing.replyId);
+        if (editEl) savedEditContent = editEl.value;
+      }
+
+      const list  = document.getElementById('faq-list');
+      const empty = document.getElementById('empty-faq');
+      const entries = Object.entries(_faqs).sort((a,b) => (b[1].createdAt||'').localeCompare(a[1].createdAt||''));
+
+      if (!entries.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+      empty.style.display = 'none';
+
+      list.innerHTML = entries.map(([id, f]) => {
+        const replies = f.replies
+          ? Object.entries(f.replies).sort((a,b) => (a[1].createdAt||'').localeCompare(b[1].createdAt||''))
+          : [];
+        const repliesHtml = replies.map(([rid, r]) => {
+          const canAct = _role==='admin';
+          const isEditing = _faqEditing && _faqEditing.faqId===id && _faqEditing.replyId===rid;
+          const editedLabel = r.updatedAt ? `<span class="faq-reply-edited">（最後編輯 ${fmtDate(r.updatedAt)}）</span>` : '';
+          const meta = `<div class="faq-reply-meta">
+              <span class="faq-reply-name">${esc(r.displayName||'—')}</span>
+              <span class="faq-reply-date">${fmtDate(r.createdAt)}${editedLabel}</span>
+              ${canAct?`<button class="faq-reply-edit" onclick="event.stopPropagation();editReply('${id}','${rid}')">編輯</button>`:''}
+              ${canAct?`<button class="faq-reply-del" onclick="event.stopPropagation();deleteReply('${id}','${rid}')">×</button>`:''}
+            </div>`;
+          if (isEditing) return `<div class="faq-reply">
+            ${meta}
+            <textarea class="faq-edit-input" id="faq-edit-${rid}">${esc(r.content)}</textarea>
+            <div class="faq-edit-actions">
+              <button class="faq-edit-cancel" onclick="cancelEditReply()">取消</button>
+              <button class="faq-edit-save" onclick="saveReply('${id}','${rid}')">儲存</button>
+            </div>
+          </div>`;
+          return `<div class="faq-reply">
+            ${meta}
+            <div class="faq-reply-content">${esc(r.content)}</div>
+          </div>`;
+        }).join('');
+
+        return `<div class="faq-card">
+          <div class="faq-q-row" onclick="toggleFaq('${id}')">
+            <span class="faq-q-icon">Q</span>
+            <span class="faq-q-text">${esc(f.question)}${_role==='admin'&&f.displayName?`<span class="faq-q-author">由 ${esc(f.displayName)} 提問</span>`:''}</span>
+            <div class="faq-q-meta">
+              <span class="faq-reply-count">${replies.length} 則回覆</span>
+              ${_role==='admin'?`<button class="faq-del-btn" onclick="event.stopPropagation();deleteFaq('${id}')">×</button>`:''}
+              <span class="faq-arrow" id="faq-arrow-${id}" style="${_faqOpen.has(id)?'transform:rotate(90deg)':''}">›</span>
+            </div>
+          </div>
+          <div class="faq-body" id="faq-body-${id}" style="${_faqOpen.has(id)?'':'display:none'}">
+            <div class="faq-replies">${repliesHtml||'<div class="faq-no-reply">尚無回覆</div>'}</div>
+            ${_role==='admin'?`<div class="faq-reply-input-row">
+              <input class="faq-reply-input" id="faq-ri-${id}" placeholder="輸入回覆…" onkeydown="if(event.key==='Enter')addReply('${id}')">
+              <button class="faq-reply-submit" onclick="addReply('${id}')">回覆</button>
+            </div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+
+      _faqOpen.forEach(id => {
+        const body  = document.getElementById('faq-body-'+id);
+        const arrow = document.getElementById('faq-arrow-'+id);
+        if (body)  body.style.display = '';
+        if (arrow) arrow.style.transform = 'rotate(90deg)';
+      });
+      Object.entries(savedInputs).forEach(([id, val]) => {
+        const el = document.getElementById('faq-ri-'+id);
+        if (el) el.value = val;
+      });
+      if (_faqEditing && savedEditContent !== null) {
+        const editEl = document.getElementById('faq-edit-'+_faqEditing.replyId);
+        if (editEl) editEl.value = savedEditContent;
+      }
+    }
+
+    function toggleFaq(id) {
+      const body  = document.getElementById('faq-body-'+id);
+      const arrow = document.getElementById('faq-arrow-'+id);
+      if (_faqOpen.has(id)) {
+        _faqOpen.delete(id);
+        body.style.display = 'none';
+        arrow.style.transform = '';
+      } else {
+        _faqOpen.add(id);
+        body.style.display = '';
+        arrow.style.transform = 'rotate(90deg)';
+      }
+    }
+
+    function openFaqModal() {
+      document.getElementById('form-body').innerHTML = `
+        <div class="form-title">新增問題</div>
+        <div class="form-row">
+          <label>問題 *</label>
+          <input class="form-input" id="f-question" placeholder="請輸入問題…" onkeydown="if(event.key==='Enter')saveFaq()">
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeForm()">取消</button>
+          <button class="btn-publish" onclick="saveFaq()">發佈</button>
+        </div>`;
+      document.getElementById('modal-form').classList.add('open');
+      setTimeout(() => document.getElementById('f-question').focus(), 50);
+    }
+
+    async function saveFaq() {
+      const q = document.getElementById('f-question').value.trim();
+      if (!q) { alert('請輸入問題'); return; }
+      await db.ref('faq').push({
+        question: q,
+        createdAt: new Date().toISOString(),
+        createdBy: _user?.uid || 'local',
+        displayName: _displayName
+      }).catch(e => alert('儲存失敗：'+e.message));
+      closeForm();
+    }
+
+    async function deleteFaq(id) {
+      if (!confirm('確定刪除此問題及所有回覆？')) return;
+      _faqOpen.delete(id);
+      await db.ref('faq/'+id).remove();
+    }
+
+    async function addReply(faqId) {
+      const input   = document.getElementById('faq-ri-'+faqId);
+      const content = input.value.trim();
+      if (!content) return;
+      input.value = '';
+      await db.ref('faq/'+faqId+'/replies').push({
+        content,
+        createdAt: new Date().toISOString(),
+        createdBy: _user?.uid || 'local',
+        displayName: _displayName
+      }).catch(e => { input.value = content; alert('儲存失敗：'+e.message); });
+    }
+
+    async function deleteReply(faqId, replyId) {
+      if (!confirm('確定刪除此回覆？')) return;
+      if (_faqEditing?.replyId === replyId) _faqEditing = null;
+      await db.ref('faq/'+faqId+'/replies/'+replyId).remove();
+    }
+
+    function editReply(faqId, replyId) {
+      _faqEditing = { faqId, replyId };
+      renderFAQ();
+      setTimeout(() => {
+        const el = document.getElementById('faq-edit-'+replyId);
+        if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+      }, 30);
+    }
+
+    function cancelEditReply() {
+      _faqEditing = null;
+      renderFAQ();
+    }
+
+    async function saveReply(faqId, replyId) {
+      const el = document.getElementById('faq-edit-'+replyId);
+      const content = el ? el.value.trim() : '';
+      if (!content) { alert('回覆不能為空'); return; }
+      const existing = _faqs[faqId]?.replies?.[replyId];
+      if (!existing) return;
+      _faqEditing = null;
+      await db.ref('faq/'+faqId+'/replies/'+replyId).set({
+        ...existing,
+        content,
+        updatedAt: new Date().toISOString()
+      }).catch(e => alert('儲存失敗：'+e.message));
     }
 
     document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
