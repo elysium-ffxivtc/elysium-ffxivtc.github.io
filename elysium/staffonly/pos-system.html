@@ -623,13 +623,12 @@
     <div class="mobile-block-sub">此系統僅支援桌機操作<br>請使用電腦開啟此頁面</div>
   </div>
 
-  <div id="pos-loading-state" style="position:fixed;inset:0;background:#111010;display:flex;align-items:center;justify-content:center;z-index:9100;">
-    <div style="font-size:.72rem;letter-spacing:.22em;color:#4a3f2e;">載入中</div>
-  </div>
-
   <!-- Auth overlay -->
-  <div id="pos-auth-overlay">
-    <div class="pos-auth-box">
+  <div id="pos-auth-overlay" class="show">
+    <div id="pos-auth-loading" class="pos-auth-box">
+      <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+    </div>
+    <div id="pos-auth-login" class="pos-auth-box" style="display:none">
       <div class="pos-auth-logo">安息地 · POS系統</div>
       <div class="pos-auth-sub">僅限授權人員使用</div>
       <button class="btn btn-gold" style="width:100%" onclick="signInGoogle()">Google 登入</button>
@@ -902,8 +901,9 @@
       const auth = firebase.auth();
 
       firebase.auth().onAuthStateChanged(async user => {
-        document.getElementById('pos-loading-state').style.display = 'none';
+        document.getElementById('pos-auth-loading').style.display = 'none';
         if (!user) {
+          document.getElementById('pos-auth-login').style.display = '';
           document.getElementById('pos-auth-overlay').classList.add('show');
           posUser = null;
           return;
