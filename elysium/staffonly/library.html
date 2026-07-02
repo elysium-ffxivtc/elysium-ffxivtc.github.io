@@ -354,12 +354,16 @@
       .form-actions { flex-direction: column-reverse; }
       .btn-cancel, .btn-publish { width: 100%; text-align: center; padding: .65rem; }
     }
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
   </style>
 </head>
 <body>
 
-  <div id="loading-state" style="position:fixed;inset:0;background:#111010;display:flex;align-items:center;justify-content:center;z-index:2000;">
-    <div style="font-size:.72rem;letter-spacing:.22em;color:#4a3f2e;">載入中</div>
+  <div id="auth-overlay" class="auth-overlay">
+    <div id="auth-loading" class="auth-box">
+      <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+    </div>
   </div>
 
   <header class="lib-header">
@@ -491,7 +495,7 @@
     };
 
     firebase.auth().onAuthStateChanged(async user => {
-      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('auth-overlay').style.display = 'none';
       if (!user) { window.location.href = 'index.html'; return; }
       _user = user;
       try {
