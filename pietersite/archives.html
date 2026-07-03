@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>典藏檔案 — PIETERSITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --bg-card:     #111827;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--gold); color: #06090f; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.97) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* PAGE INTRO */
+        #page-intro {
+            padding: 14rem 3.5rem 5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .78rem;
+            letter-spacing: .5em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: rise .9s ease .1s forwards;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300;
+            letter-spacing: .12em;
+            line-height: 1.1;
+            color: var(--ivory);
+            margin-bottom: 1.8rem;
+            opacity: 0;
+            animation: rise 1s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        .page-desc {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.4;
+            opacity: 0;
+            animation: rise .9s ease .4s forwards;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* WRAP */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 3.5rem 10rem;
+        }
+
+        .section-sep { border-top: 1px solid var(--line); }
+
+        /* MASONRY */
+        .masonry {
+            columns: 3 240px;
+            column-gap: 1.5rem;
+            padding: 4rem 0 2rem;
+        }
+
+        /* NOTE CARD */
+        .note-card {
+            break-inside: avoid;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 1.4rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(184,145,58,0.15);
+            border-top: 2px solid var(--gold-border);
+            padding: 1.4rem 1.5rem 1.5rem;
+            position: relative;
+            cursor: pointer;
+            transform: translateX(var(--dx,0px)) rotate(var(--r,0deg));
+            filter: blur(var(--blur,0px));
+            opacity: var(--op,1);
+            transition: transform 0.5s cubic-bezier(.23,1,.32,1),
+                        box-shadow 0.4s ease,
+                        border-color 0.3s,
+                        opacity 0.4s ease,
+                        filter 0.4s ease;
+            box-shadow: 0 4px 24px rgba(0,0,0,.3);
+            animation: note-drop 0.7s cubic-bezier(.23,1,.32,1) var(--drop-delay,0s) both,
+                       wobble var(--wobble-dur,5s) ease-in-out var(--wobble-delay,0.8s) infinite;
+        }
+
+        /* Cursor-following shimmer inside hovered card */
+        .note-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(110px circle at var(--gx,50%) var(--gy,50%),
+                rgba(184,145,58,.18) 0%, transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Spotlight: hovered card comes fully to focus */
+        .note-card:hover {
+            transform: translateX(var(--dx,0px)) translateY(-10px) rotate(0deg) scale(1.06);
+            filter: blur(0px);
+            opacity: 1;
+            box-shadow: 0 28px 72px rgba(0,0,0,.85),
+                        0 0 0 2px rgba(184,145,58,.55),
+                        0 0 48px rgba(184,145,58,.2);
+            border-color: rgba(184,145,58,.75);
+            z-index: 10;
+            animation: none;
+        }
+
+        .note-card:hover::after { opacity: 1; }
+
+        /* Spotlight: everything else fades */
+        .masonry:has(.note-card:hover) .note-card:not(:hover) {
+            opacity: 0.08;
+            filter: blur(1px);
+            transform: translateX(var(--dx,0px)) rotate(var(--r,0deg)) scale(0.97);
+            animation: none;
+        }
+
+        @keyframes note-drop {
+            0%   { opacity: 0; transform: translateX(var(--dx,0px)) translateY(18px) rotate(var(--r,0deg)); }
+            100% { opacity: var(--op,1); transform: translateX(var(--dx,0px)) translateY(0) rotate(var(--r,0deg)); }
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: translateX(var(--dx,0px)) rotate(var(--r,0deg)); }
+            30%       { transform: translateX(var(--dx,0px)) rotate(calc(var(--r,0deg) + 0.9deg)) translateY(-3px); }
+            70%       { transform: translateX(var(--dx,0px)) rotate(calc(var(--r,0deg) - 0.7deg)) translateY(2px); }
+        }
+
+        .note-no {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .75rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            margin-bottom: .85rem;
+        }
+
+        .note-divider {
+            height: 1px;
+            background: var(--line);
+            margin-bottom: .85rem;
+        }
+
+        .note-label {
+            font-size: .7rem;
+            letter-spacing: .25em;
+            color: var(--ivory-dim);
+            margin-bottom: .3rem;
+        }
+
+        .note-target {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--ivory);
+            letter-spacing: .08em;
+            margin-bottom: 1rem;
+        }
+
+        .note-content {
+            font-size: .92rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            white-space: pre-wrap;
+            margin-bottom: 1.2rem;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4;
+            overflow: hidden;
+        }
+
+        .note-author {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .88rem;
+            font-style: italic;
+            color: var(--gold);
+            text-align: right;
+            letter-spacing: .08em;
+        }
+
+        .note-delete {
+            position: absolute;
+            top: .55rem;
+            right: .65rem;
+            background: none;
+            border: none;
+            color: rgba(184,145,58,0.2);
+            font-size: .8rem;
+            cursor: pointer;
+            transition: color .2s;
+            padding: .2rem .35rem;
+            line-height: 1;
+        }
+
+        .note-delete:hover { color: #c85f5f; }
+
+        /* EMPTY */
+        .empty-msg {
+            text-align: center;
+            color: var(--ivory-dim);
+            font-size: .95rem;
+            letter-spacing: .1em;
+            padding: 6rem 0;
+        }
+
+        /* ADMIN FAB */
+        #admin-fab {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            z-index: 200;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(10,15,28,.85);
+            border: 1px solid rgba(184,145,58,0.2);
+            color: rgba(184,145,58,0.35);
+            font-size: .9rem;
+            cursor: pointer;
+            transition: all .3s;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #admin-fab:hover, #admin-fab.active {
+            border-color: var(--gold-border);
+            color: var(--gold);
+            box-shadow: 0 0 16px var(--gold-dim);
+        }
+
+        /* ADD FAB */
+        #add-fab {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 5.5rem;
+            z-index: 200;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: none;
+            color: #06090f;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: background .2s;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        #add-fab:hover { background: var(--gold-bright); }
+        #add-fab.show  { display: flex; }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.72);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-box {
+            background: var(--bg-1);
+            border: 1px solid var(--gold-border);
+            padding: 2rem;
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.6rem;
+        }
+
+        .modal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            letter-spacing: .2em;
+            color: var(--gold);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--ivory-dim);
+            cursor: pointer;
+            font-size: .9rem;
+            transition: color .2s;
+            padding: .2rem;
+        }
+
+        .modal-close:hover { color: var(--ivory); }
+
+        .modal-actions {
+            display: flex;
+            gap: .6rem;
+            justify-content: flex-end;
+            margin-top: 1.4rem;
+        }
+
+        /* FORM */
+        .form-group { margin-bottom: 1.1rem; }
+
+        .form-label {
+            display: block;
+            font-size: .72rem;
+            letter-spacing: .22em;
+            color: var(--ivory-dim);
+            margin-bottom: .45rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-2);
+            border: 1px solid rgba(184,145,58,0.15);
+            color: var(--ivory);
+            padding: .62rem .85rem;
+            font-size: .95rem;
+            font-family: inherit;
+            transition: border-color .2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold-border);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 130px;
+            line-height: 1.9;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: .55rem 1.2rem;
+            font-size: .8rem;
+            letter-spacing: .15em;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all .2s;
+        }
+
+        .btn-gold { background: var(--gold); color: #06090f; }
+        .btn-gold:hover { background: var(--gold-bright); }
+
+        .btn-outline {
+            background: none;
+            border: 1px solid rgba(184,145,58,0.3);
+            color: var(--ivory-dim);
+        }
+
+        .btn-outline:hover { border-color: var(--gold-border); color: var(--ivory); }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 5.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-1);
+            border: 1px solid var(--gold-border);
+            color: var(--ivory);
+            padding: .55rem 1.4rem;
+            font-size: .82rem;
+            letter-spacing: .1em;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .3s;
+            white-space: nowrap;
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4.5rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            letter-spacing: .08em;
+        }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .62rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .78rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        /* RESPONSIVE */
+        @media (max-width: 640px) {
+            header { padding: 1.2rem 1.5rem; }
+            .logo { font-size: .75rem; letter-spacing: .3em; }
+            nav { gap: 1rem; }
+            nav a { font-size: .75rem; letter-spacing: .1em; }
+            #page-intro { padding: 10rem 1.5rem 4rem; }
+            .wrap { padding: 0 1.5rem 6rem; }
+            footer { padding: 3rem 1.5rem; flex-direction: column; gap: 2rem; }
+            .footer-nav { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo" href="index.html">PIETERSITE</a>
+    <nav>
+        <a href="collections.html">館藏</a>
+        <a href="acquisition.html">競藏</a>
+        <a href="menu.html">酒單</a>
+        <a href="about.html">關於</a>
+        <a href="rules.html">規章</a>
+        <a href="archives.html" class="active">鑑賞</a>
+    </nav>
+</header>
+
+<!-- PAGE INTRO -->
+<div id="page-intro">
+    <p class="page-eyebrow">EXHIBITION ARCHIVE</p>
+    <h1 class="page-title">典藏檔案</h1>
+    <p class="page-desc">每一份駐足，皆是典藏。</p>
+</div>
+
+<!-- NOTES -->
+<main class="wrap section-sep">
+    <div id="masonry" class="masonry">
+        <div class="note-card" data-no="1" data-target="艾莉絲" data-content="初次拜訪典藏館，館員親切地引導我欣賞每一件藏品，言談之間盡是對珍藏的熱忱。館內氛圍靜謐而優雅，彷彿時間在此駐足，令人流連忘返。" data-author="Lucien A.">
+            <div class="note-no">No.0001</div>
+            <div class="note-divider"></div>
+            <div class="note-label">鑑賞對象</div>
+            <div class="note-target">艾莉絲</div>
+            <div class="note-content">初次拜訪典藏館，館員親切地引導我欣賞每一件藏品，言談之間盡是對珍藏的熱忱。館內氛圍靜謐而優雅，彷彿時間在此駐足，令人流連忘返。</div>
+            <div class="note-author">—— Lucien A.</div>
+        </div>
+        <div class="note-card" data-no="2" data-target="瑞夏" data-content="燈光之下，每一件藏品都有了不同的面貌。與館員的對話讓我對典藏的意義有了新的理解——珍藏從來不只是物件本身，而是附著其上的記憶與情感。" data-author="月影">
+            <div class="note-no">No.0002</div>
+            <div class="note-divider"></div>
+            <div class="note-label">鑑賞對象</div>
+            <div class="note-target">瑞夏</div>
+            <div class="note-content">燈光之下，每一件藏品都有了不同的面貌。與館員的對話讓我對典藏的意義有了新的理解——珍藏從來不只是物件本身，而是附著其上的記憶與情感。</div>
+            <div class="note-author">—— 月影</div>
+        </div>
+        <div class="note-card" data-no="3" data-target="艾莉絲" data-content="再度到訪。" data-author="Lucien A.">
+            <div class="note-no">No.0003</div>
+            <div class="note-divider"></div>
+            <div class="note-label">鑑賞對象</div>
+            <div class="note-target">艾莉絲</div>
+            <div class="note-content">再度到訪。</div>
+            <div class="note-author">—— Lucien A.</div>
+        </div>
+        <div class="note-card" data-no="4" data-target="塞利亞" data-content="典藏館的選品眼光極為精準，每一件入選之物皆有其獨特的敘事。館員以輕柔的語調訴說背後的故事，使鑑賞成為一場沉浸式的體驗。離開之際，仍覺意猶未盡。" data-author="冬霖">
+            <div class="note-no">No.0004</div>
+            <div class="note-divider"></div>
+            <div class="note-label">鑑賞對象</div>
+            <div class="note-target">塞利亞</div>
+            <div class="note-content">典藏館的選品眼光極為精準，每一件入選之物皆有其獨特的敘事。館員以輕柔的語調訴說背後的故事，使鑑賞成為一場沉浸式的體驗。離開之際，仍覺意猶未盡。</div>
+            <div class="note-author">—— 冬霖</div>
+        </div>
+        <div class="note-card" data-no="5" data-target="瑞夏" data-content="僅此一訪，已足以令人難忘。館員的氣質與館內陳設相互呼應，渾然一體。" data-author="S. Veil">
+            <div class="note-no">No.0005</div>
+            <div class="note-divider"></div>
+            <div class="note-label">鑑賞對象</div>
+            <div class="note-target">瑞夏</div>
+            <div class="note-content">僅此一訪，已足以令人難忘。館員的氣質與館內陳設相互呼應，渾然一體。</div>
+            <div class="note-author">—— S. Veil</div>
+        </div>
+        <div class="note-card" data-no="6" data-target="艾莉絲" data-content="三度到訪，每次皆有新的發現。典藏館如同一部永遠讀不完的書，而館員便是那引人入勝的序言。感謝這份珍貴的相遇。期待下一次的鑑賞。" data-author="Lucien A.">
+            <div class="note-no">No.0006</div>
+            <div class="note-divider"></div>
+            <div class="note-label">鑑賞對象</div>
+            <div class="note-target">艾莉絲</div>
+            <div class="note-content">三度到訪，每次皆有新的發現。典藏館如同一部永遠讀不完的書，而館員便是那引人入勝的序言。感謝這份珍貴的相遇。期待下一次的鑑賞。</div>
+            <div class="note-author">—— Lucien A.</div>
+        </div>
+    </div>
+    <p id="empty-msg" class="empty-msg" style="display:none">典藏館尚無鑑賞紀錄。</p>
+</main>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限受邀者入場
+            <span class="footer-motto">展期有盡，珍藏無期</span>
+        </p>
+    </div>
+    <nav class="footer-nav">
+        <a href="collections.html">COLLECTIONS</a>
+        <a href="acquisition.html">ACQUISITION</a>
+        <a href="menu.html">MENU</a>
+        <a href="about.html">ABOUT</a>
+        <a href="rules.html">RULES</a>
+        <a href="archives.html">GUESTBOOK</a>
+    </nav>
+</footer>
+
+<!-- Admin FAB -->
+<button id="admin-fab" onclick="toggleAdminPanel()" title="管理員">✦</button>
+
+<!-- Add note FAB -->
+<button id="add-fab" onclick="openAddModal()">＋</button>
+
+<!-- Auth modal -->
+<div id="modal-auth" class="modal-overlay" onclick="if(event.target===this)closeAuthModal()">
+    <div class="modal-box" style="max-width:340px">
+        <div class="modal-head">
+            <div class="modal-title">管理員</div>
+            <button class="modal-close" onclick="closeAuthModal()">✕</button>
+        </div>
+        <div id="auth-content"></div>
+    </div>
+</div>
+
+<!-- Add note modal -->
+<div id="modal-add" class="modal-overlay" onclick="if(event.target===this)closeAddModal()">
+    <div class="modal-box">
+        <div class="modal-head">
+            <div class="modal-title">新增鑑賞紀錄</div>
+            <button class="modal-close" onclick="closeAddModal()">✕</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">留言編號</label>
+            <input id="f-no" class="form-input" type="number" min="1" placeholder="1">
+        </div>
+        <div class="form-group">
+            <label class="form-label">鑑賞對象</label>
+            <input id="f-target" class="form-input" type="text" placeholder="店員名字">
+        </div>
+        <div class="form-group">
+            <label class="form-label">鑑賞紀錄</label>
+            <textarea id="f-content" class="form-input" placeholder="留言內容…"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">署名</label>
+            <input id="f-author" class="form-input" type="text" placeholder="客人名字">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeAddModal()">取消</button>
+            <button class="btn btn-gold" onclick="submitNote()">新增</button>
+        </div>
+    </div>
+</div>
+
+<!-- Detail modal -->
+<div id="modal-detail" class="modal-overlay" onclick="if(event.target===this)closeDetail()">
+    <div class="modal-box">
+        <div class="modal-head">
+            <div class="modal-title" id="d-no"></div>
+            <button class="modal-close" onclick="closeDetail()">✕</button>
+        </div>
+        <div class="note-label">鑑賞對象</div>
+        <div id="d-target" class="note-target" style="margin-bottom:1rem"></div>
+        <div id="d-content" style="font-size:.92rem;color:var(--ivory-dim);line-height:2.2;white-space:pre-wrap;margin-bottom:1.2rem"></div>
+        <div id="d-author" class="note-author"></div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue, push, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+const app = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+});
+
+const db   = getDatabase(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+let isAdmin     = false;
+let notesData   = {};
+let panelOpen   = false;
+
+onAuthStateChanged(auth, async user => {
+    currentUser = user;
+    if (user) {
+        const snap = await get(dbRef(db, 'admins/' + user.uid));
+        if (snap.exists()) {
+            isAdmin = true;
+        } else {
+            const allSnap = await get(dbRef(db, 'admins'));
+            if (!allSnap.exists()) {
+                await set(dbRef(db, 'admins/' + user.uid), true);
+                isAdmin = true;
+            } else {
+                isAdmin = false;
+            }
+        }
+    } else {
+        isAdmin = false;
+    }
+    document.getElementById('admin-fab').classList.toggle('active', isAdmin);
+    document.getElementById('add-fab').classList.toggle('show', isAdmin);
+    if (Object.keys(notesData).length) renderNotes();
+    if (panelOpen) renderAuthContent();
+});
+
+onValue(dbRef(db, 'guestbook'), snap => {
+    notesData = snap.val() || {};
+    if (Object.keys(notesData).length) renderNotes();
+});
+
+const BLUR_POOL = [0, 0, 0, 0, 0, 0, 0.8, 1.4];
+
+function styleCard(el, i) {
+    const r    = (Math.random() * 18 - 9).toFixed(1);
+    const dx   = (Math.random() * 44 - 22).toFixed(0);
+    const blur = BLUR_POOL[Math.floor(Math.random() * BLUR_POOL.length)];
+    const op   = blur > 0 ? 0.65 : 1;
+    const wobbleDur   = (3.8 + Math.random() * 3).toFixed(1);
+    const wobbleDelay = (Math.random() * 2).toFixed(1);
+    el.style.setProperty('--r',            r + 'deg');
+    el.style.setProperty('--dx',           dx + 'px');
+    el.style.setProperty('--blur',         blur + 'px');
+    el.style.setProperty('--op',           op);
+    el.style.setProperty('--drop-delay',   (i * 0.11).toFixed(2) + 's');
+    el.style.setProperty('--wobble-dur',   wobbleDur + 's');
+    el.style.setProperty('--wobble-delay', wobbleDelay + 's');
+}
+
+function renderNotes() {
+    const masonry = document.getElementById('masonry');
+    const empty   = document.getElementById('empty-msg');
+    const entries = Object.entries(notesData)
+        .sort((a, b) => Number(a[1].no) - Number(b[1].no));
+
+    if (!entries.length) {
+        masonry.innerHTML = '';
+        empty.style.display = '';
+        return;
+    }
+    empty.style.display = 'none';
+    masonry.innerHTML = entries.map(([key, note], i) => `
+        <div class="note-card" data-key="${key}" data-no="${note.no}" data-target="${esc(note.target)}" data-content="${esc(note.content)}" data-author="${esc(note.author)}">
+            <div class="note-no">No.${String(note.no).padStart(4, '0')}</div>
+            <div class="note-divider"></div>
+            <div class="note-label">鑑賞對象</div>
+            <div class="note-target">${esc(note.target)}</div>
+            <div class="note-content">${esc(note.content)}</div>
+            <div class="note-author">—— ${esc(note.author)}</div>
+            ${isAdmin ? `<button class="note-delete" onclick="event.stopPropagation();_del('${key}')" title="刪除">✕</button>` : ''}
+        </div>`).join('');
+    masonry.querySelectorAll('.note-card').forEach((el, i) => {
+        styleCard(el, i);
+        el.addEventListener('click', () => openDetail(el.dataset));
+    });
+}
+
+function openDetail(d) {
+    document.getElementById('d-no').textContent      = 'No.' + String(d.no).padStart(4, '0');
+    document.getElementById('d-target').textContent  = d.target;
+    document.getElementById('d-content').textContent = d.content;
+    document.getElementById('d-author').textContent  = '—— ' + d.author;
+    document.getElementById('modal-detail').classList.add('open');
+}
+
+function closeDetail() {
+    document.getElementById('modal-detail').classList.remove('open');
+}
+
+function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleAdminPanel() {
+    panelOpen = true;
+    renderAuthContent();
+    document.getElementById('modal-auth').classList.add('open');
+}
+
+function renderAuthContent() {
+    const el = document.getElementById('auth-content');
+    if (!currentUser) {
+        el.innerHTML = `
+            <p style="font-size:.88rem;color:var(--ivory-dim);line-height:2;margin-bottom:1.4rem">
+                請以管理員帳號登入。
+            </p>
+            <button class="btn btn-gold" style="width:100%" onclick="_login()">Google 登入</button>`;
+    } else if (!isAdmin) {
+        el.innerHTML = `
+            <p style="font-size:.85rem;color:var(--ivory-dim);margin-bottom:.5rem">${esc(currentUser.email)}</p>
+            <p style="font-size:.85rem;color:#c86060;margin-bottom:1.4rem;letter-spacing:.05em">此帳號無管理員權限。</p>
+            <button class="btn btn-outline" style="width:100%" onclick="_logout()">登出</button>`;
+    } else {
+        el.innerHTML = `
+            <p style="font-size:.85rem;color:var(--ivory-dim);margin-bottom:1.4rem;letter-spacing:.05em">${esc(currentUser.email)}</p>
+            <button class="btn btn-outline" style="width:100%" onclick="_logout()">登出</button>`;
+    }
+}
+
+function closeAuthModal() {
+    panelOpen = false;
+    document.getElementById('modal-auth').classList.remove('open');
+}
+
+function openAddModal() {
+    if (!isAdmin) return;
+    ['f-no','f-target','f-content','f-author'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('modal-add').classList.add('open');
+    setTimeout(() => document.getElementById('f-no').focus(), 50);
+}
+
+function closeAddModal() {
+    document.getElementById('modal-add').classList.remove('open');
+}
+
+async function submitNote() {
+    if (!isAdmin) return;
+    const no      = parseInt(document.getElementById('f-no').value);
+    const target  = document.getElementById('f-target').value.trim();
+    const content = document.getElementById('f-content').value.trim();
+    const author  = document.getElementById('f-author').value.trim();
+    if (!no || !target || !content || !author) { showToast('請填寫所有欄位'); return; }
+    await push(dbRef(db, 'guestbook'), {
+        no, target, content, author,
+        createdAt: new Date().toISOString()
+    });
+    closeAddModal();
+    showToast('已新增鑑賞紀錄');
+}
+
+async function deleteNote(key) {
+    if (!isAdmin || !confirm('確定刪除此留言？')) return;
+    await remove(dbRef(db, 'guestbook/' + key));
+    showToast('已刪除');
+}
+
+function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
+}
+
+// ── Spotlight shimmer: cursor-tracking glow inside hovered card ────
+(function () {
+    const masonry = document.getElementById('masonry');
+    masonry.addEventListener('mousemove', e => {
+        const card = e.target.closest('.note-card');
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--gx', ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%');
+        card.style.setProperty('--gy', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+    });
+    masonry.addEventListener('mouseleave', () => {
+        masonry.querySelectorAll('.note-card').forEach(c => {
+            c.style.removeProperty('--gx');
+            c.style.removeProperty('--gy');
+        });
+    });
+})();
+
+// Style static placeholder cards on load
+document.querySelectorAll('#masonry .note-card').forEach((el, i) => {
+    styleCard(el, i);
+    el.addEventListener('click', () => openDetail(el.dataset));
+});
+
+Object.assign(window, {
+    toggleAdminPanel,
+    closeAuthModal,
+    openAddModal,
+    closeAddModal,
+    closeDetail,
+    submitNote,
+    _login:  () => signInWithPopup(auth, new GoogleAuthProvider()).catch(() => showToast('登入失敗')),
+    _logout: () => signOut(auth),
+    _del:    deleteNote,
+});
+</script>
+</body>
+</html>
