@@ -640,9 +640,9 @@
         .map(([id,a])=>({ type:'公告', title:a.text, date:fmtDate(a.createdAt), id, isAnnounce:true }));
 
       const entryItems = Object.entries(_entries)
-        .sort((a,b)=>(b[1].updatedAt||b[1].createdAt||'').localeCompare(a[1].updatedAt||a[1].createdAt||''))
+        .sort((a,b)=>(b[1].createdAt||'').localeCompare(a[1].createdAt||''))
         .slice(0,5)
-        .map(([,e])=>({ type:e.type==='meeting'?'會議':'文章', title:e.title, date:fmtDate(e.updatedAt||e.createdAt), isAnnounce:false }));
+        .map(([,e])=>({ type:e.type==='meeting'?'會議':'文章', title:e.title, date:fmtDate(e.createdAt), isAnnounce:false }));
 
       const all = [...annoItems, ...entryItems];
       const el = document.getElementById('update-list');
