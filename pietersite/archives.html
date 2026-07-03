@@ -126,8 +126,8 @@
 
         /* MASONRY */
         .masonry {
-            columns: 3 240px;
-            column-gap: 1.5rem;
+            columns: 3 280px;
+            column-gap: 3rem;
             padding: 4rem 0 2rem;
         }
 
@@ -136,7 +136,7 @@
             break-inside: avoid;
             display: inline-block;
             width: 100%;
-            margin-bottom: 1.4rem;
+            margin-bottom: 2.8rem;
             background: var(--bg-card);
             border: 1px solid rgba(184,145,58,0.15);
             border-top: 2px solid var(--gold-border);
@@ -156,18 +156,6 @@
                        wobble var(--wobble-dur,5s) ease-in-out var(--wobble-delay,0.8s) infinite;
         }
 
-        /* Cursor-following shimmer inside hovered card */
-        .note-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(110px circle at var(--gx,50%) var(--gy,50%),
-                rgba(184,145,58,.18) 0%, transparent 70%);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
         /* Spotlight: hovered card comes fully to focus */
         .note-card:hover {
             transform: translateX(var(--dx,0px)) translateY(-10px) rotate(0deg) scale(1.06);
@@ -180,8 +168,6 @@
             z-index: 10;
             animation: none;
         }
-
-        .note-card:hover::after { opacity: 1; }
 
         /* Spotlight: everything else fades */
         .masonry:has(.note-card:hover) .note-card:not(:hover) {
@@ -868,24 +854,6 @@ function showToast(msg) {
     clearTimeout(el._t);
     el._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
 }
-
-// ── Spotlight shimmer: cursor-tracking glow inside hovered card ────
-(function () {
-    const masonry = document.getElementById('masonry');
-    masonry.addEventListener('mousemove', e => {
-        const card = e.target.closest('.note-card');
-        if (!card) return;
-        const r = card.getBoundingClientRect();
-        card.style.setProperty('--gx', ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%');
-        card.style.setProperty('--gy', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
-    });
-    masonry.addEventListener('mouseleave', () => {
-        masonry.querySelectorAll('.note-card').forEach(c => {
-            c.style.removeProperty('--gx');
-            c.style.removeProperty('--gy');
-        });
-    });
-})();
 
 // Style static placeholder cards on load
 document.querySelectorAll('#masonry .note-card').forEach((el, i) => {
