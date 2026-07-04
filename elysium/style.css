@@ -278,11 +278,11 @@ h2.section-title {
 
 h3.sub-title {
   font-family: 'Noto Serif TC', serif;
-  font-size: 29.33px; font-weight: 700; letter-spacing: .07em;
-  color: #111; margin: 4.5rem 0 .9rem;
+  font-size: 1.55rem; font-weight: 700; letter-spacing: .07em;
+  color: #111; margin: 4.5rem 0 1.2rem;
 }
 
-p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem; text-align: justify; letter-spacing: .04em; }
+p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; text-align: justify; letter-spacing: .04em; }
 
 .line-divider {
   width: 50px; height: 1px; background: var(--border);
@@ -320,44 +320,48 @@ p { font-size: .95rem; color: #545454; line-height: 1.45; margin-bottom: 1.1rem;
 .content > h3.sub-title:first-child { margin-top: 0; }
 
 #glossary-heading {
-  font-size: 37.33px;
-  margin-top: 16rem;
+  font-size: 1.8rem;
 }
 
 
 
 .about-dash {
-  font-size: .95rem; color: var(--text); margin-bottom: 1.1rem;
-  letter-spacing: .06em;
+  font-size: .93rem; color: var(--text); line-height: 1.8;
+  letter-spacing: .06em; margin-top: 1.4rem; margin-bottom: 1.2rem;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--gold);
+}
+
+.about-bg-section .content h3.sub-title:not(:first-child) {
+  padding-top: 3.5rem;
+  border-top: 1px solid rgba(184,144,96,.22);
 }
 
 .about-glossary {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 2rem; margin-top: 2rem;
-  width: calc(100% + 10rem);
-  margin-left: -5rem;
+  gap: 1.2rem; margin-top: 1.5rem;
 }
 
 .about-glossary-item {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 1.2rem 1.5rem;
-  display: flex; flex-direction: column; gap: .8rem;
+  padding: 1.4rem 1.6rem;
+  display: flex; flex-direction: column; gap: .6rem;
 }
 
 
 .about-glossary-item dt {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1.15rem; letter-spacing: .1em;
+  font-size: 1.05rem; letter-spacing: .12em;
   color: #111; font-weight: 700;
   text-align: center;
-  padding-bottom: .2rem;
-  border-bottom: 1px dotted var(--border);
+  padding-bottom: .55rem;
+  border-bottom: 1px solid rgba(0,0,0,.08);
 }
 
 .about-glossary-item dd {
-  font-size: .95rem; color: #545454; line-height: 1.5; margin-left: 0;
-  letter-spacing: .06em; text-align: center; margin-top: .2rem;
+  font-size: .87rem; color: #5a5550; line-height: 1.7; margin-left: 0;
+  letter-spacing: .05em; text-align: center; margin-top: 0;
 }
 
 .about-link {
@@ -1055,7 +1059,6 @@ footer {
   .cover-body-text { font-size: .78rem; line-height: 1.7; }
   .content { padding: 3.5rem 1.4rem 5rem; }
   h3.sub-title { font-size: 1.35rem; margin: 2.8rem 0 .7rem; }
-  #glossary-heading { margin-top: 8rem; }
   .about-glossary { grid-template-columns: 1fr; gap: 1.2rem; width: 100%; margin-left: 0; }
 
   /* Members */
