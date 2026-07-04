@@ -482,6 +482,8 @@
     const db      = firebase.database();
     const storage = firebase.storage();
 
+    const DISCORD_WEBHOOK = 'https://ptb.discord.com/api/webhooks/1522876047152910367/2Q-tctW_gxCTm4g25kPgIFKsBnuBdyp43OpOghoA5ueDWvRyeVbOyKYauvXSPHypqOY8';
+
     let _user = null, _role = 'staff', _displayName = '', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
     let _polaroids = [], _lbIdx = 0;
     let _faqs = {}, _faqOpen = new Set(), _faqEditing = null;
@@ -1096,6 +1098,24 @@
       setTimeout(() => document.getElementById('f-question').focus(), 50);
     }
 
+    async function notifyDiscord(question, author) {
+      try {
+        await fetch(DISCORD_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            embeds: [{
+              title: '📋 問答集 · 新提問',
+              description: question,
+              color: 0x885B22,
+              footer: { text: '由 ' + author + ' 提問' },
+              timestamp: new Date().toISOString()
+            }]
+          })
+        });
+      } catch(e) { /* silent */ }
+    }
+
     async function saveFaq() {
       const q = document.getElementById('f-question').value.trim();
       if (!q) { alert('請輸入問題'); return; }
@@ -1105,6 +1125,7 @@
         createdBy: _user?.uid || 'local',
         displayName: _displayName
       }).catch(e => alert('儲存失敗：'+e.message));
+      notifyDiscord(q, _displayName);
       closeForm();
     }
 
