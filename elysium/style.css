@@ -1075,6 +1075,7 @@ footer {
   .modal-box { height: auto; max-height: 96vh; margin: 0 auto; border-radius: 0 0 4px 4px; }
   .modal-inner { grid-template-columns: 1fr; }
   .modal-img-wrap { height: 240px; }
+  .modal-img-wrap img { object-position: 50% 15%; }
   .modal-content { padding: 1.2rem 1.4rem 2rem; }
   .modal-name { font-size: 1.5rem; }
 
