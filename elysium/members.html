@@ -345,15 +345,13 @@
       document.body.style.overflow = '';
       if (id === 'modal-1' && sjBubble) sjBubble.classList.remove('active');
     }
-    var lightbox = document.getElementById('img-lightbox');
-    var lightboxImg = document.getElementById('img-lightbox-img');
     function openLightbox(src) {
-      lightboxImg.src = src;
-      lightbox.classList.add('is-open');
+      document.getElementById('img-lightbox-img').src = src;
+      document.getElementById('img-lightbox').classList.add('is-open');
     }
     function closeLightbox() {
-      lightbox.classList.remove('is-open');
-      lightboxImg.src = '';
+      document.getElementById('img-lightbox').classList.remove('is-open');
+      document.getElementById('img-lightbox-img').src = '';
     }
     document.querySelectorAll('.modal-img-wrap img').forEach(function(img) {
       img.addEventListener('click', function(e) {
@@ -364,7 +362,7 @@
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        if (lightbox.classList.contains('is-open')) { closeLightbox(); return; }
+        if (document.getElementById('img-lightbox').classList.contains('is-open')) { closeLightbox(); return; }
         document.querySelectorAll('.modal-overlay.is-open').forEach(function(m) {
           m.classList.remove('is-open');
           document.body.style.overflow = '';
