@@ -85,6 +85,22 @@
     @media (max-width: 768px) {
       #sj-head-trigger, .sj-bubble { display: none; }
     }
+
+    /* ── 圖片 lightbox ── */
+    #img-lightbox {
+      display: none; position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,.88);
+      align-items: center; justify-content: center;
+      cursor: zoom-out;
+    }
+    #img-lightbox.is-open { display: flex; }
+    #img-lightbox img {
+      max-width: 96vw; max-height: 92vh;
+      object-fit: contain;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .modal-img-wrap img { cursor: zoom-in; }
   </style>
 </head>
 <body>
@@ -329,8 +345,26 @@
       document.body.style.overflow = '';
       if (id === 'modal-1' && sjBubble) sjBubble.classList.remove('active');
     }
+    var lightbox = document.getElementById('img-lightbox');
+    var lightboxImg = document.getElementById('img-lightbox-img');
+    function openLightbox(src) {
+      lightboxImg.src = src;
+      lightbox.classList.add('is-open');
+    }
+    function closeLightbox() {
+      lightbox.classList.remove('is-open');
+      lightboxImg.src = '';
+    }
+    document.querySelectorAll('.modal-img-wrap img').forEach(function(img) {
+      img.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openLightbox(this.src);
+      });
+    });
+
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
+        if (lightbox.classList.contains('is-open')) { closeLightbox(); return; }
         document.querySelectorAll('.modal-overlay.is-open').forEach(function(m) {
           m.classList.remove('is-open');
           document.body.style.overflow = '';
@@ -346,6 +380,10 @@
       sjTrigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
     }
   </script>
+
+  <div id="img-lightbox" onclick="closeLightbox()">
+    <img id="img-lightbox-img" src="" alt="">
+  </div>
 
   <script src="nav.js"></script>
 </body>
