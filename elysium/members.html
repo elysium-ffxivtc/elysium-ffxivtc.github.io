@@ -103,15 +103,15 @@
     .modal-img-wrap img { cursor: zoom-in; }
     .modal-img-btn {
       position: absolute; bottom: .7rem; right: .7rem; z-index: 10;
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,.82); backdrop-filter: blur(4px);
-      border: 1px solid rgba(0,0,0,.12); border-radius: 50%;
+      width: 34px; height: 34px;
+      background: rgba(184,144,96,.28); backdrop-filter: blur(6px);
+      border: 1px solid rgba(184,144,96,.55); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; padding: 0;
-      transition: background .2s;
+      transition: background .25s, border-color .25s;
     }
-    .modal-img-btn:hover { background: #fff; }
-    .modal-img-btn svg { width: 16px; height: 16px; }
+    .modal-img-btn:hover { background: rgba(184,144,96,.5); border-color: rgba(184,144,96,.85); }
+    .modal-img-btn svg { width: 14px; height: 14px; stroke: rgba(184,144,96,1); }
   </style>
 </head>
 <body>
