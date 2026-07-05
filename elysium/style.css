@@ -1121,3 +1121,12 @@ footer {
   }
 
 }
+
+/* 觸控裝置：移除 hover-only 互動 */
+@media (hover: none) {
+  .member-img-hover { display: none; }
+  .member-img-wrap img {
+    filter: brightness(.88) grayscale(.1);
+    transform: none !important;
+  }
+}
