@@ -1071,8 +1071,8 @@ footer {
   .member-grid-3 { grid-template-columns: repeat(2, 1fr); column-gap: 1rem; row-gap: 2rem; }
 
   /* Members Modal */
-  .modal-overlay { padding: 1rem .8rem; }
-  .modal-box { height: auto; max-height: 88vh; margin: 1rem auto; border-radius: 4px; }
+  .modal-overlay { padding: 1.2rem .8rem; }
+  .modal-box { height: auto; max-height: 88vh; margin: 0 auto; border-radius: 4px; }
   .modal-inner { grid-template-columns: 1fr; }
   .modal-img-wrap { height: 240px; }
   .modal-img-wrap img { object-position: 50% 15%; }
