@@ -221,7 +221,7 @@
       <button class="modal-close" onclick="closeModal(null, 'modal-1')">&times;</button>
       <div class="modal-inner">
         <div class="modal-img-wrap">
-          <img src="image/靜火.png" alt="司祭">
+          <img src="image/靜火.png" alt="司祭" onclick="openLightbox(this.src)">
           <div id="sj-head-trigger"></div>
         </div>
         <div class="modal-content">
@@ -264,7 +264,7 @@
       <button class="modal-close" onclick="closeModal(null, 'modal-3')">&times;</button>
       <div class="modal-inner">
         <div class="modal-img-wrap">
-          <img src="image/咪努.png" alt="銀紗使">
+          <img src="image/咪努.png" alt="銀紗使" onclick="openLightbox(this.src)">
         </div>
         <div class="modal-content">
           <span class="modal-role">銀紗使</span>
@@ -301,7 +301,7 @@
       <button class="modal-close" onclick="closeModal(null, 'modal-2')">&times;</button>
       <div class="modal-inner">
         <div class="modal-img-wrap">
-          <img src="image/著魔.png" alt="監禮者">
+          <img src="image/著魔.png" alt="監禮者" onclick="openLightbox(this.src)">
         </div>
         <div class="modal-content">
           <span class="modal-role">監禮者</span>
@@ -353,13 +353,6 @@
       document.getElementById('img-lightbox').classList.remove('is-open');
       document.getElementById('img-lightbox-img').src = '';
     }
-    document.querySelectorAll('.modal-img-wrap img').forEach(function(img) {
-      img.addEventListener('click', function(e) {
-        e.stopPropagation();
-        openLightbox(this.src);
-      });
-    });
-
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         if (document.getElementById('img-lightbox').classList.contains('is-open')) { closeLightbox(); return; }
