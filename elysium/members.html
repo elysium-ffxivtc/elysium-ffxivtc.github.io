@@ -13,7 +13,7 @@
     .modal-section-val   { font-size: .86rem; }
 
     /* ── 司祭 speech bubble ── */
-    #modal-1 .modal-img-wrap { position: relative; }
+    .modal-img-wrap { position: relative; }
     #sj-head-trigger {
       position: absolute;
       top: 7%; left: 19%;
@@ -101,6 +101,17 @@
       pointer-events: none;
     }
     .modal-img-wrap img { cursor: zoom-in; }
+    .modal-img-btn {
+      position: absolute; bottom: .7rem; right: .7rem; z-index: 10;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.82); backdrop-filter: blur(4px);
+      border: 1px solid rgba(0,0,0,.12); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; padding: 0;
+      transition: background .2s;
+    }
+    .modal-img-btn:hover { background: #fff; }
+    .modal-img-btn svg { width: 16px; height: 16px; }
   </style>
 </head>
 <body>
@@ -223,6 +234,7 @@
         <div class="modal-img-wrap">
           <img src="image/靜火.png" alt="司祭" onclick="openLightbox(this.src)">
           <div id="sj-head-trigger"></div>
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
         </div>
         <div class="modal-content">
           <span class="modal-role">司祭</span>
@@ -265,6 +277,7 @@
       <div class="modal-inner">
         <div class="modal-img-wrap">
           <img src="image/咪努.png" alt="銀紗使" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
         </div>
         <div class="modal-content">
           <span class="modal-role">銀紗使</span>
@@ -302,6 +315,7 @@
       <div class="modal-inner">
         <div class="modal-img-wrap">
           <img src="image/著魔.png" alt="監禮者" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
         </div>
         <div class="modal-content">
           <span class="modal-role">監禮者</span>
