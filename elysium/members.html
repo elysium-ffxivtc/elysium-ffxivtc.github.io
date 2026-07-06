@@ -194,7 +194,12 @@
           </div>
         </div>
         <!-- 下排：引路人 × 3 -->
-        <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
+        <div class="member-card" onclick="openModal('modal-4')">
+          <div class="member-img-wrap">
+            <img src="image/八乙女華蓮_頭像.png" alt="引路人">
+            <div class="member-img-hover">引路人</div>
+          </div>
+        </div>
         <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
         <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
       </div>
@@ -335,6 +340,44 @@
             <div style="margin-bottom:.9rem;">
               <p class="modal-section-label">延伸資訊</p>
               <p class="modal-section-val">擅長了解使徒間的狀態，介入處理後會彙報給司祭。</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4 -->
+  <div class="modal-overlay" id="modal-4" onclick="closeModal(event, 'modal-4')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-4')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="image/八乙女華蓮.png" alt="引路人" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">引路人</span>
+          <h2 class="modal-name">八乙女華蓮</h2>
+          <p class="modal-subtitle">&nbsp;</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">曾是漂泊於大地上的維艾拉女性。居無定所的她在某個大雨的夜晚對在墓地裡掘墳的身影產生好奇。而後發生的一系列種種使她選擇留在Elysium。將聖堂視為救贖人類心靈的場所，偶而會因為使徒的力量改變樣貌。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">一般、親密、暗示</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">喜歡觀察會眾與使徒間的互動。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">延伸資訊</p>
+              <p class="modal-section-val">食慾低，比起吃飯更喜歡喝水。</p>
             </div>
             <div>
               <p class="modal-section-label">個人業務</p>
