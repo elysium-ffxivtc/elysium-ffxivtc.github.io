@@ -244,7 +244,7 @@
         const staffSnap = await db.ref('staff/' + user.uid).get();
         if (staffSnap.exists()) {
           const role = staffSnap.val().role;
-          if (role === 'staff' || role === 'pilgrim') {
+          if (role === 'staff') {
             document.getElementById('card-pos').style.display = 'none';
             document.getElementById('card-grid').classList.add('three');
           }
