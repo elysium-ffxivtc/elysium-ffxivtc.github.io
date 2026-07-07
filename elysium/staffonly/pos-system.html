@@ -647,7 +647,7 @@
       </div>
       <span id="apostle-status" style="font-size:13px;color:var(--dim)"></span>
       <div id="mode-indicator" style="display:flex;align-items:center;gap:.4rem"></div>
-      <button class="btn btn-outline btn-sm" id="demo-btn" onclick="loadDemoData()" style="font-size:11px;padding:.3rem .65rem;opacity:.6">載入測試資料</button>
+      <button class="btn btn-outline btn-sm admin-only" id="demo-btn" onclick="loadDemoData()" style="font-size:11px;padding:.3rem .65rem;opacity:.6">載入測試資料</button>
     </div>
   </header>
 
@@ -1023,6 +1023,7 @@
     }, 60000);
 
     function fbRefresh() {
+      applyUserMode();
       renderSidebar();
       if      (currentNav === 'roster')     showRosterPage();
       else if (currentNav === 'stats')      showStatsPage();
