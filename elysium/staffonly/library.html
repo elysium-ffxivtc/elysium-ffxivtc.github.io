@@ -97,6 +97,7 @@
     .lib-tab { padding: .65rem 1.4rem; font-size: .92rem; letter-spacing: .08em; background: none; border: none; border-bottom: 2px solid transparent; color: var(--dim); font-family: inherit; margin-bottom: -2px; transition: color .15s, border-color .15s; }
     .lib-tab.on { color: var(--gold); border-bottom-color: var(--gold); font-weight: 500; }
     .lib-tab:hover { color: var(--text); }
+    .lib-tab-new { display: inline-block; margin-left: .35rem; padding: .05rem .35rem; font-size: .62rem; font-weight: 700; letter-spacing: .04em; color: #fff; background: var(--red); vertical-align: 2px; }
 
     /* ── Section ── */
     .lib-section { display: none; }
@@ -393,7 +394,7 @@
       <button class="lib-tab on" onclick="setTab('meeting')">會議紀錄</button>
       <button class="lib-tab" onclick="setTab('article')">文章</button>
       <button class="lib-tab" onclick="setTab('polaroid')">拍立得</button>
-      <button class="lib-tab" onclick="setTab('faq')">問答集</button>
+      <button class="lib-tab" onclick="setTab('faq')">問答集<span class="lib-tab-new" id="faq-new-badge" style="display:none">NEW</span></button>
     </div>
 
     <div class="lib-section on" id="sec-meeting">
@@ -483,6 +484,7 @@
     const storage = firebase.storage();
 
     const DISCORD_WEBHOOK = 'https://ptb.discord.com/api/webhooks/1522876047152910367/2Q-tctW_gxCTm4g25kPgIFKsBnuBdyp43OpOghoA5ueDWvRyeVbOyKYauvXSPHypqOY8';
+    const DISCORD_WEBHOOK_UPDATES = 'https://discord.com/api/webhooks/1524204952673714268/yT9SHzQLvwPQ1_at5KqwT1OBlUllcWJFnGmmwLuyIigDDaiOiWxM6HuPK4mynKuA3Hlv';
 
     let _user = null, _role = 'staff', _displayName = '', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
     let _polaroids = [], _lbIdx = 0;
@@ -874,6 +876,7 @@
         entry.createdAt = now;
         entry.createdBy = _user?.uid||'local';
         await db.ref('library').push(entry).catch(e=>alert('儲存失敗：'+e.message));
+        if (type === 'article') notifyDiscordUpdate('文章', `上架：${title}`);
       }
       closeForm();
     }
@@ -984,9 +987,19 @@
         _faqs = snap.val() || {};
         renderFAQ();
       });
+      setInterval(updateFaqNewBadge, 60000);
+    }
+
+    function updateFaqNewBadge() {
+      const DAY = 24*60*60*1000;
+      const now = Date.now();
+      const hasNew = Object.values(_faqs).some(f => f.createdAt && (now - new Date(f.createdAt).getTime()) < DAY);
+      const el = document.getElementById('faq-new-badge');
+      if (el) el.style.display = hasNew ? '' : 'none';
     }
 
     function renderFAQ() {
+      updateFaqNewBadge();
       const savedInputs = {};
       document.querySelectorAll('[id^="faq-ri-"]').forEach(el => {
         const id = el.id.replace('faq-ri-', '');
@@ -1098,6 +1111,18 @@
       setTimeout(() => document.getElementById('f-question').focus(), 50);
     }
 
+    async function notifyDiscordUpdate(category, subtext) {
+      try {
+        await fetch(DISCORD_WEBHOOK_UPDATES, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: `## 𝗨𝗽𝗱𝗮𝘁𝗲\n\`  圖書室 ‧ ${category} \`\n-# ${subtext}`
+          })
+        });
+      } catch(e) { /* silent */ }
+    }
+
     async function notifyDiscord(question, author) {
       try {
         await fetch(DISCORD_WEBHOOK, {
@@ -1145,6 +1170,8 @@
         createdAt: new Date().toISOString(),
         createdBy: _user?.uid || 'local',
         displayName: _displayName
+      }).then(() => {
+        notifyDiscordUpdate('問答集', '問題已回覆。');
       }).catch(e => { input.value = content; alert('儲存失敗：'+e.message); });
     }
 
