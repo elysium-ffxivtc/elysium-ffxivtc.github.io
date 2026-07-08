@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安息地 · 預約管理</title>
+  <link rel="icon" type="image/png" href="../image/Elysium_LOGO_mini_dark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #8a5c1e; --gold-dim: rgba(138,92,30,.12);
+      --bg: #f5f0e8; --panel: #ece6d8; --card: #fdfaf5;
+      --border: rgba(0,0,0,.1); --text: #1a1208; --dim: #7a6a52;
+      --green: #2d7a50; --green-dim: rgba(45,122,80,.1); --red: #b03838;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
+    a, button, [role="button"], select, [onclick] { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+
+    .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
+    .main { flex: 1; padding: 1.25rem 1.5rem; max-width: 1100px; width: 100%; margin: 0 auto; display: none; }
+
+    .filter-row { display: flex; gap: .5rem; margin-bottom: .85rem; flex-wrap: wrap; align-items: center; }
+    .seg-row { display: flex; }
+    .seg-btn { padding: .33rem .85rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); font-family: inherit; transition: all .15s; margin-right: -1px; }
+    .seg-btn.on { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); z-index: 1; position: relative; }
+
+    .res-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--dim); padding: .85rem 1rem; margin-bottom: .65rem; }
+    .res-card.new { border-left-color: var(--gold); }
+    .res-card.completed { border-left-color: var(--green); opacity: .75; }
+    .res-card.cancelled { border-left-color: var(--red); opacity: .55; }
+    .res-hdr { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .4rem; margin-bottom: .5rem; }
+    .res-date { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); }
+    .res-status { font-size: 11px; padding: .12rem .5rem; border: 1px solid var(--border); color: var(--dim); }
+    .res-status.new { color: var(--gold); border-color: var(--gold); }
+    .res-status.completed { color: var(--green); border-color: var(--green); }
+    .res-status.cancelled { color: var(--red); border-color: var(--red); }
+    .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .4rem .9rem; font-size: 12.5px; margin-bottom: .5rem; }
+    .res-field-label { color: var(--dim); font-size: 10.5px; }
+    .res-note { font-size: 12.5px; color: var(--text); background: var(--bg); padding: .4rem .55rem; margin-top: .3rem; white-space: pre-wrap; }
+    .res-actions { display: flex; gap: .5rem; margin-top: .6rem; }
+
+    .btn { padding: .38rem .85rem; font-size: 12px; border: none; font-family: inherit; transition: all .15s; }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-green { background: none; border: 1px solid var(--green); color: var(--green); }
+    .btn-green:hover { background: var(--green-dim); }
+    .btn-danger { background: none; border: 1px solid var(--red); color: var(--red); }
+    .btn-danger:hover { background: rgba(208,96,96,.1); }
+    .btn-sm { padding: .3rem .7rem; font-size: 12px; }
+
+    .empty-hint { font-size: 13px; color: var(--dim); padding: 1.5rem 0; text-align: center; }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .5rem 1.2rem; font-size: 13px; z-index: 9999; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
+
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+    .auth-logo { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: .25em; margin-bottom: .4rem; }
+    .auth-tagline { font-size: 13px; color: var(--dim); margin-bottom: 2.5rem; letter-spacing: .08em; }
+    .auth-google-btn { width: 100%; justify-content: center; display: flex; align-items: center; }
+    .auth-err { color: var(--red); font-size: 13px; margin-top: .75rem; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-title">✦ 安息地 · 預約管理</div>
+  <div style="display:flex;align-items:center;gap:.85rem">
+    <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px"></div>
+  </div>
+</header>
+
+<div class="main" id="main">
+  <div class="filter-row">
+    <div class="seg-row" id="status-filter">
+      <button class="seg-btn on" data-v="all" onclick="setFilter('all')">全部</button>
+      <button class="seg-btn" data-v="new" onclick="setFilter('new')">待處理</button>
+      <button class="seg-btn" data-v="completed" onclick="setFilter('completed')">已完成</button>
+      <button class="seg-btn" data-v="cancelled" onclick="setFilter('cancelled')">已取消</button>
+    </div>
+  </div>
+  <div id="res-list"></div>
+</div>
+
+<div id="auth-overlay" class="auth-overlay">
+  <div id="auth-loading" class="auth-box">
+    <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+  </div>
+  <div id="auth-login" class="auth-box" style="display:none">
+    <div class="auth-logo">安息地</div>
+    <div class="auth-tagline">預約管理</div>
+    <button class="btn btn-outline auth-google-btn" style="background:var(--gold);color:#1c1208;font-weight:600" onclick="signInGoogle()">Google 登入</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+  <div id="auth-denied" class="auth-box" style="display:none">
+    <div class="auth-logo" style="font-size:1.5rem;margin-bottom:1rem">無權限</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限管理員與使徒帳號使用。</div>
+    <button class="btn btn-outline" style="width:100%" onclick="doSignOut()">登出</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue, get, update } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+const app = initializeApp({
+  apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+  authDomain:        "elysiumpos.firebaseapp.com",
+  databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "elysiumpos",
+  storageBucket:     "elysiumpos.firebasestorage.app",
+  messagingSenderId: "430177597593",
+  appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+});
+const db   = getDatabase(app);
+const auth = initializeAuth(app, {
+  persistence:           [indexedDBLocalPersistence, browserLocalPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
+getRedirectResult(auth).catch(() => {});
+
+function sKey(t) { return t.replace(':', ''); }
+function esc(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+const ROLE_LABEL   = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
+const STATUS_LABEL = { new: '待處理', completed: '已完成', cancelled: '已取消' };
+const SERVICE_NAME = { nomen30: '顯名儀', photo: '交名留影' };
+const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none: '無 RP' };
+
+let currentUser = null;
+let reservations = {};
+let apostles = {};
+let filter = 'all';
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { showAuth('login'); return; }
+  try {
+    const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
+    if (!staffSnap.exists()) { showAuth('denied'); return; }
+    const data = staffSnap.val();
+    if (data.role !== 'admin' && data.role !== 'apostle') { showAuth('denied'); return; }
+    currentUser = { uid: user.uid, email: user.email, ...data };
+    hideAuth();
+    startListeners();
+  } catch(e) {
+    document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+    showAuth('login');
+  }
+});
+
+function showAuth(s) {
+  document.getElementById('auth-overlay').style.display = 'flex';
+  ['login','loading','denied'].forEach(id => document.getElementById('auth-' + id).style.display = id === s ? '' : 'none');
+}
+function hideAuth() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('main').style.display = '';
+}
+function signInGoogle() {
+  document.getElementById('auth-err').textContent = '';
+  signInWithPopup(auth, new GoogleAuthProvider())
+    .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
+}
+function doSignOut() { signOut(auth).then(() => location.reload()); }
+
+function startListeners() {
+  document.getElementById('user-badge').style.display = 'flex';
+  document.getElementById('user-badge').innerHTML = `
+    <span>${esc(currentUser.displayName)}</span>
+    <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border)">${ROLE_LABEL[currentUser.role]||''}</span>
+    <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'">返回首頁</button>
+    <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
+
+  onValue(dbRef(db, 'reservations'), snap => { reservations = snap.val() || {}; render(); });
+  onValue(dbRef(db, 'apostles'), snap => { apostles = snap.val() || {}; render(); });
+}
+
+function setFilter(v) {
+  filter = v;
+  document.querySelectorAll('#status-filter .seg-btn').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  render();
+}
+
+function apostleName(uid) {
+  if (!uid || uid === 'none') return '不指定';
+  return apostles[uid]?.name || uid;
+}
+
+function render() {
+  const list = document.getElementById('res-list');
+  const entries = Object.entries(reservations)
+    .filter(([id, r]) => filter === 'all' || (r.status || 'new') === filter)
+    .sort((a, b) => (b[1].createdAt || '').localeCompare(a[1].createdAt || ''));
+
+  if (!entries.length) { list.innerHTML = '<div class="empty-hint">沒有符合條件的預約</div>'; return; }
+
+  list.innerHTML = entries.map(([id, r]) => {
+    const status = r.status || 'new';
+    const svcNames = (r.services || []).map(s => SERVICE_NAME[s] || s).join('、');
+    return `<div class="res-card ${status}">
+      <div class="res-hdr">
+        <span class="res-date">${esc(r.date)} ${esc(r.time)}</span>
+        <span class="res-status ${status}">${STATUS_LABEL[status] || status}</span>
+      </div>
+      <div class="res-grid">
+        <div><div class="res-field-label">遊戲角色</div>${esc(r.gameName)}</div>
+        <div><div class="res-field-label">所在World</div>${esc(r.server)}</div>
+        <div><div class="res-field-label">Discord ID</div>${esc(r.contact)}</div>
+        <div><div class="res-field-label">指定使徒</div>${esc(apostleName(r.apostle))}</div>
+        <div><div class="res-field-label">儀式</div>${esc(svcNames)}</div>
+        <div><div class="res-field-label">RP 程度</div>${esc(RP_LABEL[r.rp] || r.rp || '')}</div>
+        <div><div class="res-field-label">金額</div>${(r.total||0).toLocaleString()} Gil</div>
+      </div>
+      ${r.rpNote ? `<div class="res-note"><span class="res-field-label">備註</span><br>${esc(r.rpNote)}</div>` : ''}
+      ${r.notes  ? `<div class="res-note"><span class="res-field-label">其他備註</span><br>${esc(r.notes)}</div>`  : ''}
+      ${status === 'new' ? `<div class="res-actions">
+        <button class="btn btn-green btn-sm" onclick="markCompleted('${id}')">標記完成</button>
+        <button class="btn btn-danger btn-sm" onclick="cancelReservation('${id}')">取消</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function markCompleted(id) {
+  await update(dbRef(db, 'reservations/' + id), {
+    status: 'completed', updatedAt: new Date().toISOString(), updatedBy: currentUser.displayName,
+  });
+  showToast('已標記完成');
+}
+
+async function cancelReservation(id) {
+  const r = reservations[id];
+  if (!r) return;
+  if (!confirm(`確定取消 ${r.date} ${r.time} 的預約？`)) return;
+  const updates = {
+    [`reservations/${id}/status`]:    'cancelled',
+    [`reservations/${id}/updatedAt`]: new Date().toISOString(),
+    [`reservations/${id}/updatedBy`]: currentUser.displayName,
+  };
+  if (r.apostle && r.apostle !== 'none') {
+    updates[`bookedSlots/${r.date}/${sKey(r.time)}/${r.apostle}`] = null;
+  }
+  await update(dbRef(db), updates);
+  showToast('已取消，時段已釋放');
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
+}
+
+Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation });
+</script>
+</body>
+</html>

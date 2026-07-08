@@ -403,11 +403,26 @@
   </div>
 
 
-  <script>
+  <script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+  import { getDatabase, ref as dbRef, get, update } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
   // ─────────────────────────────────────────────────────────────
   //  設定區
   // ─────────────────────────────────────────────────────────────
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
+  const app = initializeApp({
+    apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+    authDomain:        "elysiumpos.firebaseapp.com",
+    databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "elysiumpos",
+    storageBucket:     "elysiumpos.firebasestorage.app",
+    messagingSenderId: "430177597593",
+    appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+  });
+  const db = getDatabase(app);
+  const TIME_SLOTS = ['22:00', '23:00', '00:00'];
+  function sKey(t) { return t.replace(':', ''); }
+
   const PREVIEW = location.search.includes('preview');
 
   // ─────────────────────────────────────────────────────────────
@@ -439,7 +454,7 @@
   // ─────────────────────────────────────────────────────────────
   //  狀態
   // ─────────────────────────────────────────────────────────────
-  let schedule = {}, reservations = [], previewBlock = false;
+  let bizStatus = {}, publicShifts = {}, bookedSlots = {}, previewBlock = false;
   let st = {
     agreed: false, date: '', time: '',
     services: [], photoSig: false, photoExtra: 0,
@@ -449,32 +464,32 @@
   };
 
   // ─────────────────────────────────────────────────────────────
-  //  API
+  //  資料載入
   // ─────────────────────────────────────────────────────────────
   const LOAD_ICONS = ['image/Elysium_LOGO.png','image/eye_final.png','image/key_final.png','image/moon_final.png','image/scale_final.png'];
 
-  async function apiGet(action) {
-    try { return await (await fetch(`${API_URL}?action=${action}`)).json(); }
-    catch(e) { console.error('apiGet:', action, e); return null; }
+  function isCurrentWeek(dateStr) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay()+6)%7));
+    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+    const d = new Date(dateStr + 'T00:00:00');
+    return d >= monday && d <= sunday;
   }
-  async function apiPost(action, data) {
-    try { return await (await fetch(API_URL, { method:'POST', body: JSON.stringify({action,data}) })).json(); }
-    catch(e) { console.error('apiPost:', action, e); return null; }
-  }
+
   async function loadData() {
     showLoading(true);
     try {
-      const [sched, res, apostles] = await Promise.all([
-        apiGet('getSchedule'), apiGet('getRegistry'), apiGet('getApostles'),
+      const [apostlesSnap, bizSnap, shiftsSnap, bookedSnap] = await Promise.all([
+        get(dbRef(db, 'apostles')), get(dbRef(db, 'bizStatus')),
+        get(dbRef(db, 'publicShifts')), get(dbRef(db, 'bookedSlots')),
       ]);
-      if (sched && typeof sched === 'object') {
-        schedule = {};
-        Object.entries(sched).forEach(([k,v]) => {
-          schedule[k.length===10 ? k : new Date(k).toISOString().slice(0,10)] = v;
-        });
-      }
-      if (Array.isArray(res))                          reservations = res;
-      if (Array.isArray(apostles) && apostles.length)  APOSTLES = apostles;
+      const apostlesVal = apostlesSnap.val() || {};
+      APOSTLES = Object.entries(apostlesVal)
+        .map(([uid, v]) => ({ uid, ...v }))
+        .filter(a => a.active !== false);
+      bizStatus    = bizSnap.val()    || {};
+      publicShifts = shiftsSnap.val() || {};
+      bookedSlots  = bookedSnap.val() || {};
     } catch(e) { console.error(e); }
     showLoading(false);
   }
@@ -512,34 +527,26 @@
   //  排班邏輯
   // ─────────────────────────────────────────────────────────────
   function getAvailTimes(dateStr) {
-    const d = schedule[dateStr];
-    if (!d || !d.open) return [];
-    return d.times || [];
+    return bizStatus[dateStr]?.isOpen ? TIME_SLOTS : [];
   }
-  function getApostleBookableTimes(dateStr, id) {
-    const day = schedule[dateStr]; if (!day) return [];
-    if (day.butlerShifts && Object.keys(day.butlerShifts).length > 0)
-      return day.butlerShifts[id] || [];
-    return day.times || [];
+  function getApostleBookableTimes(dateStr, uid) {
+    const shiftsForDate = publicShifts[dateStr]; if (!shiftsForDate) return [];
+    return TIME_SLOTS.filter(t => !!shiftsForDate[sKey(t)]?.[uid]);
   }
-  function isApostleOnDuty(dateStr, id, time) { return getApostleBookableTimes(dateStr, id).includes(time); }
+  function isApostleOnDuty(dateStr, uid, time) { return getApostleBookableTimes(dateStr, uid).includes(time); }
   function hasAvailableApostle(dateStr, time) {
     if (!APOSTLES.length) return true;
-    const onDuty = APOSTLES.filter(a => isApostleOnDuty(dateStr, a.id, time));
+    const onDuty = APOSTLES.filter(a => isApostleOnDuty(dateStr, a.uid, time));
     if (!onDuty.length) return false;
     return onDuty.some(a => {
-      const s = getApostleSlotStatus(dateStr, a.id).find(ts => ts.time === time);
+      const s = getApostleSlotStatus(dateStr, a.uid).find(ts => ts.time === time);
       return s ? !s.blocked : false;
     });
   }
-  function getApostleSlotStatus(dateStr, id) {
+  function getApostleSlotStatus(dateStr, uid) {
     const allTimes = getAvailTimes(dateStr);
     if (PREVIEW && previewBlock) return allTimes.map(t => ({ time:t, blocked:true }));
-    const booked = new Set(
-      reservations.filter(r => r.date===dateStr && r.apostle===id && (r.status||'new')!=='cancelled')
-        .map(r => r.time).filter(t => allTimes.includes(t))
-    );
-    return allTimes.map(t => ({ time:t, blocked:booked.has(t) }));
+    return allTimes.map(t => ({ time:t, blocked: !!bookedSlots[dateStr]?.[sKey(t)]?.[uid] }));
   }
   function calcTotal() {
     return st.services.reduce((t, sid) => t + (SERVICES.find(s => s.id===sid)?.price||0), 0)
@@ -610,22 +617,22 @@
         cls = ' unavail';
         badge = `<span class="bk2-card-badge off">待確認場次</span>`;
       } else {
-        const onDuty = isApostleOnDuty(st.date, a.id, st.time);
+        const onDuty = isApostleOnDuty(st.date, a.uid, st.time);
         if (!onDuty) {
           cls = ' unavail'; badge = `<span class="bk2-card-badge off">無法回應</span>`;
         } else {
-          const slot  = getApostleSlotStatus(st.date, a.id).find(ts => ts.time===st.time);
+          const slot  = getApostleSlotStatus(st.date, a.uid).find(ts => ts.time===st.time);
           const avail = slot ? !slot.blocked : false;
           if (avail) { anyAvail = true; badge = `<span class="bk2-card-badge avail">開放召引</span>`; }
           else        { cls = ' unavail'; badge = `<span class="bk2-card-badge full">已額滿</span>`; }
         }
       }
-      const isSel     = st.apostle === a.id;
+      const isSel     = st.apostle === a.uid;
       const isLocked  = hasDateTime && !hasNomen && !cls;
       const photoHtml = a.photo
         ? `<img src="${escH(a.photo)}" alt="${escH(a.name)}">`
         : `<div class="bk2-card-photo-init">${escH(a.initial||a.name.slice(0,1))}</div>`;
-      const clickEv = (cls || isLocked) ? '' : `onclick="selectApostle2('${a.id}')"`;
+      const clickEv = (cls || isLocked) ? '' : `onclick="selectApostle2('${a.uid}')"`;
       return `<div class="bk2-card${isSel?' sel':''}${cls}${isLocked?' locked':''}" ${clickEv}>
         <div class="bk2-card-photo">${photoHtml}${badge}<div class="bk2-card-sel-bar"></div></div>
         <div class="bk2-card-body">
@@ -639,7 +646,7 @@
       if (g.list.length === 0) return;
       if (g.label === '司祭・監禮者') {
         if (!hasDateTime) return;
-        const onDuty = g.list.filter(a => isApostleOnDuty(st.date, a.id, st.time));
+        const onDuty = g.list.filter(a => isApostleOnDuty(st.date, a.uid, st.time));
         if (onDuty.length === 0) return;
         html += `<div class="bk2-grid-label">${g.label}</div><div class="bk2-grid-row">${onDuty.map(cardHtml).join('')}</div>`;
         return;
@@ -674,7 +681,7 @@
   // ─────────────────────────────────────────────────────────────
   function initForm() {
     const today     = new Date().toISOString().slice(0, 10);
-    const openDates = Object.keys(schedule).filter(d => schedule[d]?.open && d >= today).sort();
+    const openDates = Object.keys(bizStatus).filter(d => bizStatus[d]?.isOpen && d >= today && isCurrentWeek(d)).sort();
 
     const dateHtml = openDates.length === 0
       ? `<p style="font-size:12px;color:var(--dim);line-height:1.9;">目前尚無開放場次<br><span style="font-size:11px;">請關注最新公告</span></p>`
@@ -682,7 +689,7 @@
            <div class="bk2-flbl">日期<span class="req">*</span></div>
            <select class="bk2-select" id="inp-date" onchange="selectDate2(this.value)">
              <option value="">請選擇</option>
-             ${openDates.map(d => `<option value="${d}" ${st.date===d?'selected':''}>${fmtDate(d)}${schedule[d].label?'　'+schedule[d].label:''}</option>`).join('')}
+             ${openDates.map(d => `<option value="${d}" ${st.date===d?'selected':''}>${fmtDate(d)}</option>`).join('')}
            </select>
          </div>
          <div id="bk2-times"></div>`;
@@ -953,38 +960,54 @@
       return;
     }
 
-    const day = schedule[st.date];
-    if (!day || !day.open) { alert('此日期已關閉預約，請重新選擇。'); return; }
+    if (!bizStatus[st.date]?.isOpen || !isCurrentWeek(st.date)) { alert('此日期已關閉預約，請重新選擇。'); return; }
     const availTimes = getAvailTimes(st.date);
     if (!availTimes.includes(st.time)) { alert(`${st.time} 場次已不在開放範圍，請重新選擇。`); return; }
-    if (st.apostle && st.apostle !== 'none') {
-      if (!isApostleOnDuty(st.date, st.apostle, st.time)) {
-        const name = APOSTLES.find(a => a.id===st.apostle)?.name || '該使徒';
-        alert(`${name} 在 ${st.time} 已無排班，請重新選擇使徒。`);
-        st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); return;
-      }
-      const slot = getApostleSlotStatus(st.date, st.apostle).find(ts => ts.time===st.time);
-      if (slot?.blocked) {
-        const name = APOSTLES.find(a => a.id===st.apostle)?.name || '該使徒';
-        alert(`${name} 在 ${st.time} 已被預約，請重新選擇。`);
-        st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); return;
-      }
-    }
 
-    const res = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      date: st.date, time: st.time, services: [...st.services],
-      photoSig: st.photoSig, photoExtra: st.photoExtra,
-      designated: st.designated, apostle: st.apostle, photographer: null,
-      rp: st.rp, rpNote: st.rpNote,
-      gameName: st.gameName, server: st.server, contact: st.contact, notes: st.notes,
-      total: calcTotal(), status: 'new', createdAt: new Date().toISOString(),
-    };
-    reservations.push(res);
     showLoading(true);
-    await apiPost('saveRegistry', reservations);
-    showLoading(false);
-    renderSuccess2(st.gameName);
+    try {
+      // 送出前重新抓最新狀態，縮小競態視窗
+      const [shiftsSnap, bookedSnap] = await Promise.all([
+        get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)),
+      ]);
+      publicShifts[st.date] = shiftsSnap.val() || {};
+      bookedSlots[st.date]  = bookedSnap.val()  || {};
+
+      if (st.apostle && st.apostle !== 'none') {
+        if (!isApostleOnDuty(st.date, st.apostle, st.time)) {
+          const name = APOSTLES.find(a => a.uid===st.apostle)?.name || '該使徒';
+          alert(`${name} 在 ${st.time} 已無排班，請重新選擇使徒。`);
+          st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); showLoading(false); return;
+        }
+        const slot = getApostleSlotStatus(st.date, st.apostle).find(ts => ts.time===st.time);
+        if (slot?.blocked) {
+          const name = APOSTLES.find(a => a.uid===st.apostle)?.name || '該使徒';
+          alert(`${name} 在 ${st.time} 已被預約，請重新選擇。`);
+          st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); showLoading(false); return;
+        }
+      }
+
+      const key = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const res = {
+        id: key, date: st.date, time: st.time, services: [...st.services],
+        photoSig: st.photoSig, photoExtra: st.photoExtra,
+        designated: st.designated, apostle: st.apostle,
+        rp: st.rp, rpNote: st.rpNote,
+        gameName: st.gameName, server: st.server, contact: st.contact, notes: st.notes,
+        total: calcTotal(), status: 'new', createdAt: new Date().toISOString(),
+      };
+      const updates = { [`reservations/${key}`]: res };
+      if (st.apostle && st.apostle !== 'none') {
+        updates[`bookedSlots/${st.date}/${sKey(st.time)}/${st.apostle}`] = true;
+      }
+      await update(dbRef(db), updates);
+      showLoading(false);
+      renderSuccess2(st.gameName);
+    } catch(e) {
+      console.error(e);
+      showLoading(false);
+      alert('送出失敗，請稍後再試一次。');
+    }
   }
 
   function renderSuccess2() {
@@ -1113,6 +1136,12 @@
     }
     requestAnimationFrame(tick);
   })();
+
+  Object.assign(window, {
+    closeLightbox, toggleModalAgree, enterFromModal,
+    selectDate2, selectTime2, toggleSvc2, togglePhotoSig2, changePhotoExtra2,
+    selectApostle2, selectRP2, submitRes2, resetForm2,
+  });
   </script>
 
 </body>

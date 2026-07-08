@@ -784,7 +784,6 @@
     // ────────────────────────────────────────────────────────────
     //  API
     // ────────────────────────────────────────────────────────────
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyrr8m8Cjie4CksVHLweduIH88xd3ABcMX8r80dX-2tVWVba7fJ3Ik8grGmmDZOHGZ2bw/exec';
     let APOSTLES = [];
     let PILGRIMS   = [];
     let posUser  = null; // { uid, displayName, role: 'admin'|'staff' }
@@ -798,9 +797,12 @@
 
     async function fetchApostles() {
       try {
-        const res = await fetch(`${API_URL}?action=getApostles`);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length) {
+        const snap = await db.ref('apostles').get();
+        const data = Object.entries(snap.val() || {})
+          .map(([uid, v]) => ({ uid, ...v }))
+          .filter(a => a.active !== false)
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
+        if (data.length) {
           APOSTLES = data;
           renderApostleStatus();
         }

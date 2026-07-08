@@ -485,6 +485,11 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   function todayStr(){ return new Date().toISOString().slice(0, 10); }
   function pad(n)    { return String(n).padStart(2, '0'); }
 
+  // ── publicShifts 鏡射（給預約頁讀的精簡版，不含 isLeave/role/displayName） ──
+  function mirrorAdd(date, time, uid)    { return set(dbRef(db, `publicShifts/${date}/${sKey(time)}/${uid}`), true); }
+  function mirrorRemove(date, time, uid) { return remove(dbRef(db, `publicShifts/${date}/${sKey(time)}/${uid}`)); }
+  function mirrorClearSlot(date, time)   { return remove(dbRef(db, `publicShifts/${date}/${sKey(time)}`)); }
+
   let _dayDate = null;
   let _addDate = null;
   let _addTime = null;
@@ -1037,6 +1042,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
           role: currentUser.role, apostleTag: currentUser.apostleTag || '',
           signedAt: new Date().toISOString()
         }));
+        writes.push(mirrorAdd(date, t, currentUser.uid));
       }
     }
     await Promise.all(writes);
@@ -1053,6 +1059,9 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       if (!key.startsWith(monthPrefix)) continue;
       if (!schedData[key][currentUser.uid]) continue;
       removes.push(remove(dbRef(db, `schedules/${key}/${currentUser.uid}`)));
+      const date = key.slice(0, 10);
+      const time = TIME_SLOTS.find(t => sKey(t) === key.slice(11));
+      if (time) removes.push(mirrorRemove(date, time, currentUser.uid));
     }
     await Promise.all(removes);
     showToast('已清除本月所有排班');
@@ -1062,9 +1071,13 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     if (!isAdmin()) return;
     if (!confirm(`確定清除 ${viewMonth + 1} 月所有人的排班？此操作無法復原。`)) return;
     const monthPrefix = `${viewYear}-${pad(viewMonth + 1)}`;
-    const removes = Object.keys(schedData)
-      .filter(key => key.startsWith(monthPrefix))
-      .map(key => remove(dbRef(db, `schedules/${key}`)));
+    const keys = Object.keys(schedData).filter(key => key.startsWith(monthPrefix));
+    const removes = keys.map(key => remove(dbRef(db, `schedules/${key}`)));
+    for (const key of keys) {
+      const date = key.slice(0, 10);
+      const time = TIME_SLOTS.find(t => sKey(t) === key.slice(11));
+      if (time) removes.push(mirrorClearSlot(date, time));
+    }
     await Promise.all(removes);
     showToast('已清除本月全部排班');
   }
@@ -1105,6 +1118,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     if (existing) {
       if (existing.isLeave) { showToast('已請假，可從個人面板恢復排班'); return; }
       await remove(r);
+      await mirrorRemove(date, time, currentUser.uid);
       sendDiscord(`❌ **${currentUser.displayName}** 取消了 ${fmtDateDisc(date)} ${time} 的班`, date);
     } else {
       await set(r, {
@@ -1112,6 +1126,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         role: currentUser.role, apostleTag: currentUser.apostleTag || '',
         signedAt: new Date().toISOString()
       });
+      await mirrorAdd(date, time, currentUser.uid);
     }
   }
 
@@ -1182,6 +1197,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     const entry  = schedData[`${date}_${sKey(time)}`] || {};
     const person = entry[uid];
     await remove(dbRef(db, `schedules/${date}_${sKey(time)}/${uid}`));
+    await mirrorRemove(date, time, uid);
     if (person) sendDiscord(`🔧 管理員 **${currentUser.displayName}** 移除了 **${person.displayName}** 在 ${fmtDateDisc(date)} ${time} 的班`, date);
   }
 
@@ -1241,6 +1257,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       role: member.role, apostleTag: member.apostleTag || '',
       signedAt: new Date().toISOString()
     });
+    await mirrorAdd(_addDate, _addTime, uid);
     closeAddModal();
   }
 
@@ -1402,6 +1419,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     const snap = await get(r);
     if (!snap.exists()) { showToast('尚未排班'); return; }
     await update(r, { isLeave: true, leaveAt: new Date().toISOString() });
+    await mirrorRemove(date, time, currentUser.uid);
     sendDiscord(`🏖️ **${currentUser.displayName}** 在 ${fmtDateDisc(date)} ${time} 申請請假`, date);
     showToast('已申請請假');
   }
@@ -1410,6 +1428,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     if (!currentUser) return;
     const r = dbRef(db, `schedules/${date}_${sKey(time)}/${currentUser.uid}`);
     await update(r, { isLeave: null, leaveAt: null });
+    await mirrorAdd(date, time, currentUser.uid);
     sendDiscord(`✅ **${currentUser.displayName}** 取消了在 ${fmtDateDisc(date)} ${time} 的請假`, date);
     showToast('已恢復排班');
   }

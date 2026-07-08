@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安息地 · 使徒資料</title>
+  <link rel="icon" type="image/png" href="../image/Elysium_LOGO_mini_dark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #8a5c1e; --gold-dim: rgba(138,92,30,.12);
+      --bg: #f5f0e8; --panel: #ece6d8; --card: #fdfaf5;
+      --border: rgba(0,0,0,.1); --text: #1a1208; --dim: #7a6a52;
+      --green: #2d7a50; --red: #b03838;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
+    a, button, [role="button"], select, [onclick] { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    input, textarea { cursor: url('../image/arr-cursors/arr-small-text.cur'), text; }
+
+    .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
+
+    .main { flex: 1; padding: 1.25rem 1.5rem; max-width: 900px; width: 100%; margin: 0 auto; display: none; }
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.25rem; align-items: start; }
+    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } }
+
+    .card { background: var(--card); border: 1px solid var(--border); padding: .9rem 1rem; margin-bottom: .75rem; }
+    .card-title { font-size: 11px; color: var(--dim); letter-spacing: .08em; margin-bottom: .65rem; }
+    .acct-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem .3rem; border-bottom: 1px solid rgba(0,0,0,.05); font-size: 13px; }
+    .acct-row:last-child { border-bottom: none; }
+    .acct-row.on { background: var(--gold-dim); }
+    .acct-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .acct-dot.has { background: var(--green); } .acct-dot.no { background: rgba(0,0,0,.15); }
+
+    .form-label { font-size: 12px; color: var(--dim); margin-bottom: .28rem; margin-top: .65rem; }
+    .form-label:first-child { margin-top: 0; }
+    .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: .45rem .65rem; font-size: 13px; font-family: inherit; }
+    .form-input:focus { outline: none; border-color: var(--gold); }
+    textarea.form-input { resize: vertical; min-height: 60px; }
+    .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+    .form-check { display: flex; align-items: center; gap: .4rem; font-size: 13px; margin-top: .65rem; }
+
+    .btn { padding: .48rem 1rem; font-size: 13px; border: none; font-family: inherit; transition: all .15s; }
+    .btn-gold { background: var(--gold); color: #1c1208; font-weight: 600; }
+    .btn-gold:hover { background: #d4a456; }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm { padding: .3rem .7rem; font-size: 12px; }
+
+    .photo-preview { width: 100px; height: 150px; object-fit: cover; object-position: top; background: #e8e6e3; border: 1px solid var(--border); margin-top: .4rem; display: block; }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .5rem 1.2rem; font-size: 13px; z-index: 9999; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
+    .empty-hint { font-size: 12px; color: var(--dim); padding: .5rem 0; }
+
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+    .auth-logo { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: .25em; margin-bottom: .4rem; }
+    .auth-tagline { font-size: 13px; color: var(--dim); margin-bottom: 2.5rem; letter-spacing: .08em; }
+    .auth-google-btn { width: 100%; justify-content: center; display: flex; align-items: center; }
+    .auth-err { color: var(--red); font-size: 13px; margin-top: .75rem; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-title">✦ 安息地 · 使徒資料</div>
+  <div style="display:flex;align-items:center;gap:.85rem">
+    <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px" ></div>
+  </div>
+</header>
+
+<div class="main" id="main">
+  <div class="layout">
+    <div id="staff-list-col"></div>
+    <div id="edit-col"></div>
+  </div>
+</div>
+
+<div id="auth-overlay" class="auth-overlay">
+  <div id="auth-loading" class="auth-box">
+    <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+  </div>
+  <div id="auth-login" class="auth-box" style="display:none">
+    <div class="auth-logo">安息地</div>
+    <div class="auth-tagline">使徒資料</div>
+    <button class="btn btn-gold auth-google-btn" onclick="signInGoogle()">Google 登入</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+  <div id="auth-denied" class="auth-box" style="display:none">
+    <div class="auth-logo" style="font-size:1.5rem;margin-bottom:1rem">無權限</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限管理員與使徒帳號使用。</div>
+    <button class="btn btn-outline" style="width:100%" onclick="doSignOut()">登出</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue, get, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+const app = initializeApp({
+  apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+  authDomain:        "elysiumpos.firebaseapp.com",
+  databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "elysiumpos",
+  storageBucket:     "elysiumpos.firebasestorage.app",
+  messagingSenderId: "430177597593",
+  appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+});
+const db   = getDatabase(app);
+const auth = initializeAuth(app, {
+  persistence:           [indexedDBLocalPersistence, browserLocalPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
+getRedirectResult(auth).catch(() => {});
+
+const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
+// image/ 資料夾內現有的使徒照片檔名（新增照片檔案時要手動更新這份清單）
+const KNOWN_APOSTLE_IMAGES = [
+  'image/八乙女華蓮.png', 'image/八乙女華蓮_水印.png', 'image/八乙女華蓮_頭像.png',
+  'image/咪努.png', 'image/咪努_水印.png', 'image/咪努_頭像.png',
+  'image/安怛.png', 'image/安怛_水印.png', 'image/安怛_頭像.png',
+  'image/尼克席恩.png', 'image/尼克席恩_水印.png', 'image/尼克席恩_頭像.png',
+  'image/掠影.png', 'image/掠影_水印.png', 'image/掠影_頭像.png',
+  'image/流水無情.png', 'image/流水無情_水印.png', 'image/流水無情_頭像.png',
+  'image/落花有意.png', 'image/落花有意_水印.png', 'image/落花有意_頭像.png',
+  'image/著魔.png', 'image/著魔_水印.png', 'image/著魔_頭像.png',
+  'image/靜火.png', 'image/靜火_頭像.png',
+];
+
+let currentUser = null;
+let staffList   = [];
+let apostles    = {};
+let editingUid  = null;
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function isAdmin() { return currentUser && currentUser.role === 'admin'; }
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { showAuth('login'); return; }
+  try {
+    const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
+    if (!staffSnap.exists()) { showAuth('denied'); return; }
+    const data = staffSnap.val();
+    if (data.role !== 'admin' && data.role !== 'apostle') { showAuth('denied'); return; }
+    currentUser = { uid: user.uid, email: user.email, ...data };
+    hideAuth();
+    startListeners();
+  } catch(e) {
+    document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+    showAuth('login');
+  }
+});
+
+function showAuth(s) {
+  document.getElementById('auth-overlay').style.display = 'flex';
+  ['login','loading','denied'].forEach(id => document.getElementById('auth-' + id).style.display = id === s ? '' : 'none');
+}
+function hideAuth() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('main').style.display = '';
+}
+function signInGoogle() {
+  document.getElementById('auth-err').textContent = '';
+  signInWithPopup(auth, new GoogleAuthProvider())
+    .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
+}
+function doSignOut() { signOut(auth).then(() => location.reload()); }
+
+function startListeners() {
+  document.getElementById('user-badge').style.display = 'flex';
+  document.getElementById('user-badge').innerHTML = `
+    <span>${esc(currentUser.displayName)}</span>
+    <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border)">${ROLE_LABEL[currentUser.role]||''}</span>
+    <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'">返回首頁</button>
+    <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
+
+  onValue(dbRef(db, 'staff'), snap => {
+    staffList = snap.val() ? Object.values(snap.val()) : [];
+    renderList();
+  });
+  onValue(dbRef(db, 'apostles'), snap => {
+    apostles = snap.val() || {};
+    renderList();
+    if (editingUid) renderEdit(editingUid);
+  });
+
+  if (!isAdmin()) { editingUid = currentUser.uid; renderEdit(editingUid); }
+}
+
+function renderList() {
+  const col = document.getElementById('staff-list-col');
+  if (!isAdmin()) { col.innerHTML = ''; return; }
+  const rows = staffList.filter(s => s.role === 'apostle').map(s => {
+    const has = !!apostles[s.uid];
+    const sel = editingUid === s.uid ? ' on' : '';
+    return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
+      <span><span class="acct-dot ${has?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
+    </div>`;
+  }).join('') || '<div class="empty-hint">尚無使徒角色的員工帳號</div>';
+  col.innerHTML = `<div class="card"><div class="card-title">使徒列表</div>${rows}</div>`;
+}
+
+function openEdit(uid) { editingUid = uid; renderEdit(uid); renderList(); }
+
+function renderEdit(uid) {
+  const a = apostles[uid] || {};
+  const member = staffList.find(s => s.uid === uid) || (uid === currentUser.uid ? currentUser : null);
+  const name = member ? esc(member.displayName) : uid;
+  document.getElementById('edit-col').innerHTML = `
+    <div class="card">
+      <div class="card-title">編輯資料 · ${name}</div>
+      <div class="form-label">照片</div>
+      <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
+      <datalist id="photo-list">${KNOWN_APOSTLE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
+      <img class="photo-preview" id="f-photo-preview" src="${esc(a.photo||'')}" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+
+      <div class="form-row2">
+        <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
+        <div><div class="form-label">稱號 tag</div><input class="form-input" id="f-tag" value="${esc(a.tag||'')}"></div>
+      </div>
+      <div class="form-label">副標題 subtitle</div>
+      <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">
+      <div class="form-label">簡介 bio</div>
+      <textarea class="form-input" id="f-bio">${esc(a.bio||'')}</textarea>
+      <div class="form-label">聊天話題 chat</div>
+      <textarea class="form-input" id="f-chat">${esc(a.chat||'')}</textarea>
+      <div class="form-label">禁忌 taboo</div>
+      <textarea class="form-input" id="f-taboo">${esc(a.taboo||'')}</textarea>
+      <div class="form-label">額外資訊 extra</div>
+      <textarea class="form-input" id="f-extra">${esc(a.extra||'')}</textarea>
+      <div class="form-label">業務說明 business</div>
+      <textarea class="form-input" id="f-business">${esc(a.business||'')}</textarea>
+      <div class="form-row2">
+        <div><div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}"></div>
+        <div><div class="form-label">&nbsp;</div>
+          <label class="form-check"><input type="checkbox" id="f-active" ${a.active!==false?'checked':''}> 啟用（顯示在預約頁）</label>
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;justify-content:flex-end">
+        <button class="btn btn-gold btn-sm" onclick="saveApostle('${uid}')">儲存</button>
+      </div>
+    </div>`;
+}
+
+function updatePhotoPreview() {
+  document.getElementById('f-photo-preview').src = document.getElementById('f-photo').value.trim();
+}
+
+async function saveApostle(uid) {
+  const val = {
+    name:     document.getElementById('f-name').value.trim(),
+    tag:      document.getElementById('f-tag').value.trim(),
+    photo:    document.getElementById('f-photo').value.trim(),
+    subtitle: document.getElementById('f-subtitle').value.trim(),
+    bio:      document.getElementById('f-bio').value.trim(),
+    chat:     document.getElementById('f-chat').value.trim(),
+    taboo:    document.getElementById('f-taboo').value.trim(),
+    extra:    document.getElementById('f-extra').value.trim(),
+    business: document.getElementById('f-business').value.trim(),
+    order:    parseInt(document.getElementById('f-order').value, 10) || 0,
+    active:   document.getElementById('f-active').checked,
+    updatedBy: currentUser.displayName,
+    updatedAt: new Date().toISOString(),
+  };
+  await set(dbRef(db, 'apostles/' + uid), val);
+  showToast('已儲存');
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
+}
+
+Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveApostle });
+</script>
+</body>
+</html>
