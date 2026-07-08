@@ -144,9 +144,9 @@ onAuthStateChanged(auth, async user => {
   if (!user) { showAuth('login'); return; }
   try {
     const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
-    if (!staffSnap.exists()) { showAuth('denied'); return; }
+    if (!staffSnap.exists()) { window.location.replace('index.html'); return; }
     const data = staffSnap.val();
-    if (data.role !== 'admin' && data.role !== 'apostle') { showAuth('denied'); return; }
+    if (data.role !== 'admin') { window.location.replace('index.html'); return; }
     currentUser = { uid: user.uid, email: user.email, ...data };
     hideAuth();
     startListeners();
