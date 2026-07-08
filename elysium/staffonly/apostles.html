@@ -233,6 +233,7 @@ function renderEdit(uid) {
         <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
         <div><div class="form-label">職位</div>
           <select class="form-input" id="f-tag">
+            <option value="" ${a.tag?'':'selected'}>選擇職位</option>
             <option value="食罪" ${a.tag==='食罪'?'selected':''}>食罪</option>
             <option value="妖異" ${a.tag==='妖異'?'selected':''}>妖異</option>
             <option value="司祭・監禮者" ${a.tag==='司祭・監禮者'?'selected':''}>司祭・監禮者</option>
