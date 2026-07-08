@@ -486,7 +486,8 @@
       const apostlesVal = apostlesSnap.val() || {};
       APOSTLES = Object.entries(apostlesVal)
         .map(([uid, v]) => ({ uid, ...v }))
-        .filter(a => a.active !== false);
+        .filter(a => a.active !== false)
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
       bizStatus    = bizSnap.val()    || {};
       publicShifts = shiftsSnap.val() || {};
       bookedSlots  = bookedSnap.val() || {};
