@@ -1111,13 +1111,14 @@
       setTimeout(() => document.getElementById('f-question').focus(), 50);
     }
 
-    async function notifyDiscordUpdate(category, subtext) {
+    async function notifyDiscordUpdate(category, subtext, detail) {
       try {
+        const detailLine = detail ? `### ${detail}\n` : '';
         await fetch(DISCORD_WEBHOOK_UPDATES, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            content: `## 𝗨𝗽𝗱𝗮𝘁𝗲\n\`  圖書室 ‧ ${category} \`\n-# ${subtext}`
+            content: `## 𝗨𝗽𝗱𝗮𝘁𝗲\n\` 圖書室 ‧ ${category} \`\n${detailLine}-# ${subtext}`
           })
         });
       } catch(e) { /* silent */ }
@@ -1171,7 +1172,7 @@
         createdBy: _user?.uid || 'local',
         displayName: _displayName
       }).then(() => {
-        notifyDiscordUpdate('問答集', '問題已回覆。');
+        notifyDiscordUpdate('問答集', '問題已回覆。', _faqs[faqId]?.question || '');
       }).catch(e => { input.value = content; alert('儲存失敗：'+e.message); });
     }
 
