@@ -116,6 +116,8 @@ const auth = initializeAuth(app, {
 getRedirectResult(auth).catch(() => {});
 
 const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
+// 使徒列表顯示順序（依角色名稱或標記比對，不限定 role 欄位）
+const APOSTLE_ORDER = ['落花有意', '掠影', '安怛', '安石', '尼克席恩', '流水無情', '司祭', '監禮者'];
 // image/ 資料夾內現有的使徒照片檔名（新增照片檔案時要手動更新這份清單）
 const KNOWN_APOSTLE_IMAGES = [
   'image/八乙女華蓮.png', 'image/八乙女華蓮_水印.png', 'image/八乙女華蓮_頭像.png',
@@ -189,16 +191,26 @@ function startListeners() {
   if (!isAdmin()) { editingUid = currentUser.uid; renderEdit(editingUid); }
 }
 
+function apostleOrderKey(s) {
+  const i = APOSTLE_ORDER.indexOf(s.displayName);
+  if (i !== -1) return i;
+  const j = APOSTLE_ORDER.indexOf(s.apostleTag);
+  return j !== -1 ? j : APOSTLE_ORDER.length;
+}
+
 function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
-  const rows = staffList.filter(s => s.role === 'apostle').map(s => {
-    const has = !!apostles[s.uid];
-    const sel = editingUid === s.uid ? ' on' : '';
-    return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
-      <span><span class="acct-dot ${has?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
-    </div>`;
-  }).join('') || '<div class="empty-hint">尚無使徒角色的員工帳號</div>';
+  const rows = staffList
+    .filter(s => s.role === 'apostle' || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
+    .sort((a, b) => apostleOrderKey(a) - apostleOrderKey(b))
+    .map(s => {
+      const has = !!apostles[s.uid];
+      const sel = editingUid === s.uid ? ' on' : '';
+      return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
+        <span><span class="acct-dot ${has?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
+      </div>`;
+    }).join('') || '<div class="empty-hint">尚無使徒角色的員工帳號</div>';
   col.innerHTML = `<div class="card"><div class="card-title">使徒列表</div>${rows}</div>`;
 }
 
