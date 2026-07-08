@@ -202,7 +202,7 @@ function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const rows = staffList
-    .filter(s => s.role === 'apostle' || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
+    .filter(s => s.role === 'apostle' || s.role === 'admin' || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
     .sort((a, b) => apostleOrderKey(a) - apostleOrderKey(b))
     .map(s => {
       const has = !!apostles[s.uid];
