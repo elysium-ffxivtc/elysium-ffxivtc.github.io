@@ -170,7 +170,7 @@ function startListeners() {
   document.getElementById('user-badge').innerHTML = `
     <span>${esc(currentUser.displayName)}</span>
     <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border)">${ROLE_LABEL[currentUser.role]||''}</span>
-    <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'">返回首頁</button>
+    <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'" title="返回首頁" style="font-size:11px;padding:.2rem .45rem;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>
     <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
 
   onValue(dbRef(db, 'reservations'), snap => { reservations = snap.val() || {}; render(); });
