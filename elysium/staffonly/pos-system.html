@@ -2616,16 +2616,7 @@
           <button class="btn btn-outline" onclick="backToCustomers()">← 返回客戶</button>
         </div>
 
-        <div class="pos-card">
-          <div class="pos-card-title">使徒名單（自動載入）</div>
-          <div style="font-size:13px;color:var(--dim);margin-bottom:.6rem">由 Google 表單同步，此處僅供查閱。</div>
-          ${APOSTLES.length
-            ? `<div style="display:flex;flex-wrap:wrap;gap:.4rem">
-                ${APOSTLES.map(a => `<span style="background:rgba(180,150,80,.12);border:1px solid rgba(180,150,80,.25);border-radius:4px;padding:.2rem .55rem;font-size:13px">${esc(a.name)}${a.tag?'<span style="color:var(--dim);margin-left:.3rem;font-size:11px">'+esc(a.tag)+'</span>':''}</span>`).join('')}
-               </div>`
-            : `<div style="font-size:13px;color:var(--dim)">尚未載入使徒資料。</div>`}
-          <button class="btn btn-outline btn-sm" style="margin-top:.75rem;font-size:12px" onclick="fetchApostles()">重新載入</button>
-        </div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:1rem">使徒資料的檢視/編輯請至 <a href="apostles.html" style="color:var(--gold)">使徒資料</a> 頁面。</div>
 
         <div class="pos-card">
           <div class="pos-card-title">引路人（手動管理）</div>
