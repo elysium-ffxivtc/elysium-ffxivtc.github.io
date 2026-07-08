@@ -227,7 +227,7 @@ function renderEdit(uid) {
       <div class="form-label">照片</div>
       <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
       <datalist id="photo-list">${KNOWN_APOSTLE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
-      <img class="photo-preview" id="f-photo-preview" src="${esc(a.photo||'')}" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+      <img class="photo-preview" id="f-photo-preview" src="${esc(a.photo||'')}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
 
       <div class="form-row2">
         <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
