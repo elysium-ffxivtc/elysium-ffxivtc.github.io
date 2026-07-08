@@ -600,7 +600,7 @@
           const span = td.querySelector('span');
           if (!span) return;
           const overflow = span.scrollWidth - td.clientWidth;
-          if (overflow > 0) td.style.setProperty('--marquee-dur', (overflow / 60).toFixed(2) + 's');
+          if (overflow > 0) td.style.setProperty('--marquee-dur', (overflow / 25).toFixed(2) + 's');
         });
       });
     }
