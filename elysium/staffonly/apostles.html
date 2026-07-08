@@ -231,19 +231,19 @@ function renderEdit(uid) {
 
       <div class="form-row2">
         <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
-        <div><div class="form-label">稱號 tag</div><input class="form-input" id="f-tag" value="${esc(a.tag||'')}"></div>
+        <div><div class="form-label">職位</div><input class="form-input" id="f-tag" value="${esc(a.tag||'')}"></div>
       </div>
-      <div class="form-label">副標題 subtitle</div>
+      <div class="form-label">真名</div>
       <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">
-      <div class="form-label">簡介 bio</div>
+      <div class="form-label">個體紀錄</div>
       <textarea class="form-input" id="f-bio">${esc(a.bio||'')}</textarea>
-      <div class="form-label">聊天話題 chat</div>
+      <div class="form-label">聊天尺度</div>
       <textarea class="form-input" id="f-chat">${esc(a.chat||'')}</textarea>
-      <div class="form-label">禁忌 taboo</div>
+      <div class="form-label">禁忌與偏好</div>
       <textarea class="form-input" id="f-taboo">${esc(a.taboo||'')}</textarea>
-      <div class="form-label">額外資訊 extra</div>
+      <div class="form-label">延伸資訊</div>
       <textarea class="form-input" id="f-extra">${esc(a.extra||'')}</textarea>
-      <div class="form-label">業務說明 business</div>
+      <div class="form-label">個人業務</div>
       <textarea class="form-input" id="f-business">${esc(a.business||'')}</textarea>
       <div class="form-row2">
         <div><div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}"></div>
