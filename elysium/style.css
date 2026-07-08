@@ -821,12 +821,24 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   width: calc((100% - 7.5rem) / 4);
 }
 
-.menu-item-icon { margin-bottom: .8rem; }
+.menu-item-icon { margin-bottom: .8rem; position: relative; }
 
 .menu-item-icon img {
   width: 100px; height: 100px; object-fit: cover;
   border: none; border-radius: 8px;
 }
+
+.menu-item-icon[data-name]::after {
+  content: attr(data-name);
+  position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+  background: rgba(0, 0, 0, .85); color: #fff;
+  font-size: .78rem; letter-spacing: .04em; white-space: nowrap;
+  padding: .35rem .7rem; border-radius: 4px;
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+  z-index: 5;
+}
+
+.menu-item-icon[data-name]:hover::after { opacity: 1; }
 
 
 .menu-name {
