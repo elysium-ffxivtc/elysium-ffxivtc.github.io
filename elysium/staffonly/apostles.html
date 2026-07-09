@@ -258,6 +258,7 @@ function renderEdit(uid) {
           <label class="form-check"><input type="checkbox" id="f-active" ${a.active!==false?'checked':''}> 啟用（顯示在預約頁）</label>
         </div>
       </div>
+      <label class="form-check"><input type="checkbox" id="f-bookable" ${a.bookable!==false?'checked':''}> 接受預約（關閉後，即使有排班也不開放召引）</label>
       <div style="margin-top:1rem;display:flex;justify-content:flex-end">
         <button class="btn btn-gold btn-sm" onclick="saveApostle('${uid}')">儲存</button>
       </div>
@@ -284,6 +285,7 @@ async function saveApostle(uid) {
     business: document.getElementById('f-business').value.trim(),
     order:    parseInt(document.getElementById('f-order').value, 10) || 0,
     active:   document.getElementById('f-active').checked,
+    bookable: document.getElementById('f-bookable').checked,
     updatedBy: currentUser.displayName,
     updatedAt: new Date().toISOString(),
   };

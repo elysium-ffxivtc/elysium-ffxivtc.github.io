@@ -531,6 +531,7 @@
     return bizStatus[dateStr]?.isOpen ? TIME_SLOTS : [];
   }
   function getApostleBookableTimes(dateStr, uid) {
+    if (APOSTLES.find(a => a.uid === uid)?.bookable === false) return [];
     const shiftsForDate = publicShifts[dateStr]; if (!shiftsForDate) return [];
     return TIME_SLOTS.filter(t => !!shiftsForDate[sKey(t)]?.[uid]);
   }
