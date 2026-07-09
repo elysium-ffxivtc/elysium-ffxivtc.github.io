@@ -156,7 +156,12 @@
         </div>
         <div class="apostle-group">
           <!-- 妖異 × 5 -->
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
+          <div class="member-card" onclick="openModal('modal-5')">
+            <div class="member-img-wrap">
+              <img src="image/安怛_頭像.png" alt="妖異">
+              <div class="member-img-hover">妖異</div>
+            </div>
+          </div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
@@ -378,6 +383,44 @@
             <div style="margin-bottom:.9rem;">
               <p class="modal-section-label">延伸資訊</p>
               <p class="modal-section-val">食慾低，比起吃飯更喜歡喝水。</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5 -->
+  <div class="modal-overlay" id="modal-5" onclick="closeModal(event, 'modal-5')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-5')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="image/安怛.png" alt="妖異" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">妖異</span>
+          <h2 class="modal-name">安怛</h2>
+          <p class="modal-subtitle">尚未揭示</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">外表是暮暉之民男性。白金相間的頭髮、紫色的皮膚，也許最引人注目的是那雙熱切的眼睛。這副皮囊似曾相識。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">親密～多暗示及擦邊。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">喜歡溫暖潮濕的地方、金閃閃的寶物、寶石；對氣味和聲音很敏感，會跟著金子落地的聲音起舞。<br>厭惡受到羞辱，有可能激怒乙太體。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">延伸資訊</p>
+              <p class="modal-section-val">一切看心情行事。由於受到絕望浸染，很容易放棄；偶爾會出現原因不明的遲鈍。</p>
             </div>
             <div>
               <p class="modal-section-label">個人業務</p>
