@@ -162,7 +162,12 @@
               <div class="member-img-hover">妖異</div>
             </div>
           </div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
+          <div class="member-card" onclick="openModal('modal-6')">
+            <div class="member-img-wrap">
+              <img src="image/安石_頭像.png" alt="妖異">
+              <div class="member-img-hover">妖異</div>
+            </div>
+          </div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
@@ -421,6 +426,44 @@
             <div style="margin-bottom:.9rem;">
               <p class="modal-section-label">延伸資訊</p>
               <p class="modal-section-val">一切看心情行事。由於受到絕望浸染，很容易放棄；偶爾會出現原因不明的遲鈍。</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6 -->
+  <div class="modal-overlay" id="modal-6" onclick="closeModal(event, 'modal-6')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-6')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="image/安石.png" alt="妖異" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">妖異</span>
+          <h2 class="modal-name">安石</h2>
+          <p class="modal-subtitle">尚未揭示</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">大多時間外型為敖龍族暮輝之民女性，雙目失明，依靠觀測乙太的方式模糊的辨別周遭環境，熱衷觀測各種生物的乙太。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">一般～親密。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">喜歡閱讀、聆聽故事，不喜歡吵鬧的環境。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">延伸資訊</p>
+              <p class="modal-section-val">雖然能夠靠乙太辨識大致方位但還是時常在室內迷路。</p>
             </div>
             <div>
               <p class="modal-section-label">個人業務</p>
