@@ -168,7 +168,12 @@
               <div class="member-img-hover">妖異</div>
             </div>
           </div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
+          <div class="member-card" onclick="openModal('modal-7')">
+            <div class="member-img-wrap">
+              <img src="image/尼克席恩_頭像.png" alt="妖異">
+              <div class="member-img-hover">妖異</div>
+            </div>
+          </div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
         </div>
@@ -464,6 +469,44 @@
             <div style="margin-bottom:.9rem;">
               <p class="modal-section-label">延伸資訊</p>
               <p class="modal-section-val">雖然能夠靠乙太辨識大致方位但還是時常在室內迷路。</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7 -->
+  <div class="modal-overlay" id="modal-7" onclick="closeModal(event, 'modal-7')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-7')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="image/尼克席恩.png" alt="妖異" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">妖異</span>
+          <h2 class="modal-name">尼克席恩</h2>
+          <p class="modal-subtitle">尚未揭示</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">生前為精靈族男性，死後化作妖異也維持著一樣的外貌。<br>容易被人類豐沛的情感所吸引，不分善惡都會讓他好奇。<br><br>注意：對於喜愛之人可能會產生佔有的慾望偏執，接觸者需注意自身安全。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">一般～暗示。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">格外喜歡會分享喜怒哀樂的人類。<br>討厭不守規矩、不懂尊重的人類。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">延伸資訊</p>
+              <p class="modal-section-val">喜歡美酒與美食，來者不拒。</p>
             </div>
             <div>
               <p class="modal-section-label">個人業務</p>
