@@ -174,7 +174,12 @@
               <div class="member-img-hover">妖異</div>
             </div>
           </div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
+          <div class="member-card" onclick="openModal('modal-8')">
+            <div class="member-img-wrap">
+              <img src="image/流水無情_頭像.png" alt="妖異">
+              <div class="member-img-hover">妖異</div>
+            </div>
+          </div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
         </div>
       </div>
@@ -507,6 +512,44 @@
             <div style="margin-bottom:.9rem;">
               <p class="modal-section-label">延伸資訊</p>
               <p class="modal-section-val">喜歡美酒與美食，來者不拒。</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8 -->
+  <div class="modal-overlay" id="modal-8" onclick="closeModal(event, 'modal-8')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-8')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="image/流水無情.png" alt="妖異" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">妖異</span>
+          <h2 class="modal-name">流水無情</h2>
+          <p class="modal-subtitle">尚未揭示</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">多數時間為貓魅族的少女外型，愛笑。<br>會主動尋索他人的慾望，時而表現出稚嫩的笨拙。<br><br>而在表像下，她的執念如同本能，是渴望永無止境的妖異。<br>她總按捺不住想要滿足每份執著的心，一但被她盯上就是永恆的墜落。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">一般～暗示。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">喜歡跟大家一起，討厭被無視，被無視會發怒。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">延伸資訊</p>
+              <p class="modal-section-val">除了用口說的工作外，什麼都不會做，但被需要會努力一下下。</p>
             </div>
             <div>
               <p class="modal-section-label">個人業務</p>
