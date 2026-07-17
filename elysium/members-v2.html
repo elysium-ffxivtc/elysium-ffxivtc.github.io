@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members ✦ Elysium — V2 Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 16px; }
+  body { font-family: 'Noto Serif TC', 'Georgia', serif; background: #EFEFEF; color: #2a2826; -webkit-font-smoothing: antialiased; min-width: 900px; overflow-x: auto; }
+
+  :root {
+    --nav-h:   90px;
+    --bg:      #EFEFEF;
+    --surface: #ffffff;
+    --border:  rgba(0,0,0,.1);
+    --text:    #2a2826;
+    --dim:     #888480;
+    --gold:    #b89060;
+    --gold-l:  rgba(184,144,96,.35);
+    --accent:  #7a7470;
+    --vfade:   rgba(239,239,239,1);
+  }
+
+/* ════════════════════════════════
+     使徒 SECTION
+  ════════════════════════════════ */
+  .apostle-section {
+    height: calc(100dvh - var(--nav-h));
+    margin-top: var(--nav-h);
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  .apostle-head {
+    position: absolute; top: 0; left: 0; right: 0;
+    text-align: center; z-index: 10;
+    padding-top: .6rem;
+  }
+  .apostle-h2 { font-size: 1.25rem; font-weight: 700; letter-spacing: .35em; color: var(--text); margin-bottom: .35rem; }
+  .head-rule  { width: 44px; height: 1px; background: var(--gold-l); margin: 0 auto; display: block; }
+
+  /* Fan stage */
+  .fan-stage {
+    position: absolute; inset: 0;
+    perspective: 1400px; perspective-origin: 50% 45%;
+  }
+
+  /* 4-side vignette */
+  .fan-stage::after {
+    content: '';
+    position: absolute; inset: 0; z-index: 8;
+    pointer-events: none;
+    background:
+      linear-gradient(to top,    var(--vfade) 0%,  transparent 30%),
+      linear-gradient(to right,  var(--vfade) 0%,  transparent 18%),
+      linear-gradient(to left,   var(--vfade) 0%,  transparent 18%);
+  }
+
+  /* Cards */
+  .c-card {
+    position: absolute; top: 44%; left: 50%;
+    height: 76%; aspect-ratio: 9/16; overflow: hidden;
+    border: 1px solid rgba(255,255,255,.75); cursor: pointer;
+    transition: transform .46s cubic-bezier(.4,0,.2,1), opacity .46s, filter .46s, border-color .25s;
+    will-change: transform;
+  }
+  .c-card[data-pos="0"]  { transform:translate(-50%,-50%) translateX(0)     rotateY(0deg)   scale(1);   z-index:5; opacity:1;   filter:brightness(1);   border-color:var(--gold-l); cursor:default; }
+  .c-card[data-pos="1"]  { transform:translate(-50%,-50%) translateX(240px)  rotateY(-28deg) scale(.76); z-index:4; filter:brightness(.64); }
+  .c-card[data-pos="-1"] { transform:translate(-50%,-50%) translateX(-240px) rotateY(28deg)  scale(.76); z-index:4; filter:brightness(.64); }
+  .c-card[data-pos="2"]  { transform:translate(-50%,-50%) translateX(430px)  rotateY(-50deg) scale(.50); z-index:3; filter:brightness(.32); }
+  .c-card[data-pos="-2"] { transform:translate(-50%,-50%) translateX(-430px) rotateY(50deg)  scale(.50); z-index:3; filter:brightness(.32); }
+  .c-card[data-pos="3"],.c-card[data-pos="-3"],
+  .c-card[data-pos="4"],.c-card[data-pos="-4"],
+  .c-card[data-pos="5"],.c-card[data-pos="-5"] { transform:translate(-50%,-50%) scale(.3); opacity:0; z-index:1; pointer-events:none; }
+  .apostle-section[data-hidden] { display: none; }
+  /* 未公開卡片：完全隱藏 */
+  .c-card:not([data-show]) { opacity: 0 !important; pointer-events: none; }
+  .card-info {
+    position: absolute; inset: 0; z-index: 6; pointer-events: none;
+    display: flex; flex-direction: column; justify-content: flex-start;
+    padding: 1.8rem 1.4rem;
+    background: linear-gradient(to bottom, rgba(0,0,0,.82) 0%, rgba(0,0,0,.3) 55%, transparent 78%);
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .c-card[data-pos="0"]:hover .card-info { opacity: 1; }
+  .card-info p {
+    color: #fff; font-size: .8rem;
+    line-height: 1.8; letter-spacing: .04em; margin: 0;
+    text-shadow: 0 1px 8px rgba(0,0,0,.9);
+  }
+  .card-info p + p { margin-top: .75rem; }
+  .card-info p span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(var(--yo, -10px));
+    transition: opacity .18s ease, transform .18s ease;
+    transition-delay: 0s !important;
+  }
+  .c-card[data-pos="0"]:hover .card-info p span {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity .5s ease, transform .55s cubic-bezier(.15,.8,.3,1);
+    transition-delay: var(--td, 0s) !important;
+  }
+
+  .card-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; transform-origin: top center; }
+  .fog-fill { position: absolute; inset: 0; z-index: 2; background: rgba(226,218,206,.64); backdrop-filter: blur(2px); }
+
+  /* Arrows */
+  /* ── 磨砂效果 — 側邊卡片（無透明度、無白色覆蓋）── */
+  .card-photo { transition: filter .46s cubic-bezier(.4,0,.2,1); }
+  .c-card[data-pos="1"]  .card-photo,
+  .c-card[data-pos="-1"] .card-photo { filter: blur(5px) saturate(.72); }
+  .c-card[data-pos="2"]  .card-photo,
+  .c-card[data-pos="-2"] .card-photo { filter: blur(11px) saturate(.45); }
+
+  .fan-stage { cursor: grab; }
+  .fan-stage:active { cursor: grabbing; }
+  .fan-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 20;
+    width: 38px; height: 38px;
+    border: 1px solid var(--border); background: rgba(255,255,255,.68); backdrop-filter: blur(6px);
+    color: var(--text); font-size: 1.3rem; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: border-color .2s, background .2s;
+  }
+  .fan-arrow:hover { border-color: var(--gold-l); background: #fff; }
+  .fan-arrow.prev { left: 1.2rem; }
+  .fan-arrow.next { right: 1.2rem; }
+
+  /* ── Bio strip ── */
+  .char-bio {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 17rem;
+    z-index: 9;
+    overflow: hidden;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 28%,
+      rgba(239,239,239,.96) 40%,
+      rgba(239,239,239,1)   55%,
+      rgba(239,239,239,1)   100%
+    );
+  }
+  .bio-panel {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: start;
+    padding: 6.5rem 3.5rem 1.2rem;
+    overflow-y: auto; overflow-x: hidden;
+    opacity: 0; pointer-events: none;
+    transition: opacity .28s;
+  }
+  .bio-panel.on { opacity: 1; pointer-events: auto; }
+  @keyframes bioIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  .bio-panel.on { animation: bioIn .32s ease both; }
+
+  .bio-identity { display: flex; flex-direction: column; gap: .22rem; padding-right: 1rem; }
+  .bio-badge    { font-family: 'Noto Serif TC', 'Georgia', serif; font-size: 1rem; letter-spacing: .12em; color: var(--accent); }
+  .bio-unlock-group { display: flex; align-items: center; gap: .3rem; margin-top: .3rem; }
+  .bio-unlock-icon {
+    width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+    border: 1px solid var(--gold-l); background: rgba(255,255,255,.4);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bio-unlock-icon img { width: 60%; height: 60%; object-fit: contain; opacity: .4; }
+  .bio-name     { font-family: 'Noto Serif TC', 'Georgia', serif; font-size: 2rem; font-weight: 700; letter-spacing: .12em; color: var(--text); line-height: 1.2; white-space: nowrap; }
+  .bio-fog .bio-name { color: var(--dim); font-size: 1.5rem; }
+  .bio-subtitle { font-family: 'Noto Serif TC', 'Georgia', serif; font-size: .72rem; letter-spacing: .18em; color: var(--gold); margin-top: .15rem; }
+  .bio-vline { width: 1px; height: 3.2rem; background: var(--gold-l); margin: 0 1.8rem; }
+  .bio-col   { display: flex; flex-direction: column; gap: .35rem; overflow: hidden; }
+  .bio-col-label { font-family: 'Noto Serif TC', 'Georgia', serif; font-size: 1rem; font-weight: 700; letter-spacing: .12em; color: var(--text); flex-shrink: 0; }
+  .bio-col-val   { font-size: .88rem; color: #5a5550; line-height: 1.65; letter-spacing: .04em; overflow: hidden; }
+  .bio-col-val.empty { color: rgba(0,0,0,.22); }
+
+  /* ════════════════════════════════
+     侍者 SECTION
+  ════════════════════════════════ */
+  .attendant-section { background: var(--surface); padding: 5rem 4rem; }
+  .attendant-inner   { max-width: 860px; margin: 0 auto; }
+  .section-head      { margin-bottom: 3rem; }
+  .section-eyebrow   { font-family: system-ui, sans-serif; font-size: .58rem; letter-spacing: .55em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: .45rem; }
+  .section-h2        { font-size: 1.9rem; font-weight: 700; letter-spacing: .18em; color: var(--text); margin-bottom: .65rem; }
+  .section-rule      { display: block; width: 60px; height: 1px; border: none; background: linear-gradient(to right, transparent, var(--gold-l), transparent); }
+
+  .member-editorial  { display: grid; grid-template-columns: 240px 1fr; border: 1px solid var(--border); cursor: pointer;
+    transition: border-color .25s, box-shadow .25s; margin-bottom: 1.2rem; overflow: hidden; background: var(--surface); }
+  .member-editorial:hover { border-color: var(--gold-l); box-shadow: 0 4px 24px rgba(0,0,0,.07); }
+  .editorial-img     { height: 320px; overflow: hidden; }
+  .editorial-img .portrait { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block;
+    filter: brightness(.9); transition: filter .5s, transform .6s; }
+  .member-editorial:hover .editorial-img .portrait { filter: brightness(1); transform: scale(1.03); }
+  .editorial-info    { padding: 2rem 2.2rem; display: flex; flex-direction: column; border-left: 1px solid var(--border); }
+  .editorial-role    { font-family: system-ui, sans-serif; font-size: .6rem; letter-spacing: .45em; text-transform: uppercase; color: var(--gold); margin-bottom: .3rem; display: block; }
+  .editorial-name    { font-size: 1.8rem; font-weight: 700; letter-spacing: .12em; color: var(--text); line-height: 1.15; margin-bottom: .3rem; }
+  .editorial-subtitle{ font-family: system-ui, sans-serif; font-size: .72rem; letter-spacing: .15em; color: var(--dim); margin-bottom: 1.2rem; }
+  .editorial-divider { width: 32px; height: 1px; background: var(--border); margin-bottom: 1.2rem; }
+  .editorial-bio     { font-size: .85rem; color: #545454; line-height: 1.85; letter-spacing: .04em; flex: 1;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .editorial-fields  { margin-top: 1.4rem; display: flex; flex-direction: column; gap: .55rem; }
+  .ef-row   { display: flex; flex-direction: column; gap: .15rem; }
+  .ef-label { font-family: 'Noto Serif TC', 'Georgia', serif; font-size: .78rem; font-weight: 700; letter-spacing: .12em; color: var(--text); }
+  .ef-val   { font-size: .8rem; color: #5a5550; letter-spacing: .04em; line-height: 1.6; }
+  .editorial-cta     { margin-top: auto; padding-top: 1.2rem; font-family: system-ui, sans-serif; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--dim); display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+  .member-editorial:hover .editorial-cta { color: var(--text); }
+  .editorial-cta::after { content: '→'; transition: transform .2s; }
+  .member-editorial:hover .editorial-cta::after { transform: translateX(3px); }
+
+  .fog-slots-label { font-family: system-ui, sans-serif; font-size: .58rem; letter-spacing: .4em; text-transform: uppercase; color: var(--dim); margin: 2rem 0 1rem; display: block; }
+  .fog-slots { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+  .fog-slot  { width: 120px; aspect-ratio: 1; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,.8); }
+  .fog-slot::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,.55); backdrop-filter: blur(1.5px); }
+  .fog-slot img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+
+  /* ── Modal 字體覆寫（與原版 members.html 一致）── */
+  .modal-subtitle      { font-size: .82rem; }
+  .modal-bio           { font-size: .9rem; }
+  .modal-section-label { font-size: 1.1rem; }
+  .modal-section-val   { font-size: .86rem; }
+
+  /* ── 司祭 speech bubble ── */
+  #modal-1 .modal-img-wrap { position: relative; }
+  #sj-head-trigger {
+    position: absolute; top: 7%; left: 19%;
+    width: 48%; height: 28%; z-index: 5;
+    cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
+  }
+  .sj-bubble {
+    position: absolute; top: 5.5%; left: 32%;
+    background: #fff; border-radius: 20px; padding: 11px 17px;
+    display: flex; align-items: flex-end; gap: 4px;
+    filter: drop-shadow(0 3px 10px rgba(0,0,0,.14));
+    opacity: 0; transform: scale(.82) translateY(-5px);
+    transform-origin: bottom left;
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none; z-index: 50;
+  }
+  .sj-bubble::before {
+    content: ''; position: absolute; bottom: -8px; left: 14px;
+    width: 0; height: 0;
+    border-left: 7px solid transparent; border-right: 7px solid transparent;
+    border-top: 8px solid #fff;
+  }
+  .sj-bubble.active { opacity: 1; transform: scale(1) translateY(0); }
+  .sj-dot { width: 5px; height: 5px; background: #1a1a1a; border-radius: 50%; opacity: 0; }
+  .sj-bubble.active .sj-dot:nth-child(1) { animation: sj-dot-1 5s ease-in-out infinite; }
+  .sj-bubble.active .sj-dot:nth-child(2) { animation: sj-dot-2 5s ease-in-out infinite; }
+  .sj-bubble.active .sj-dot:nth-child(3) { animation: sj-dot-3 5s ease-in-out infinite; }
+  @keyframes sj-dot-1 { 0%{opacity:0} 10%{opacity:1} 72%{opacity:1} 84%{opacity:0} 100%{opacity:0} }
+  @keyframes sj-dot-2 { 0%,16%{opacity:0} 26%{opacity:1} 72%{opacity:1} 84%{opacity:0} 100%{opacity:0} }
+  @keyframes sj-dot-3 { 0%,32%{opacity:0} 42%{opacity:1} 72%{opacity:1} 84%{opacity:0} 100%{opacity:0} }
+  @media (max-width: 768px) { #sj-head-trigger, .sj-bubble { display: none; } }
+
+  /* ── 署名 Overlay ── */
+  #sign-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(10,8,6,.45);
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .4s ease;
+  }
+  #sign-overlay.is-open  { opacity: 1; }
+  #sign-overlay.fading   { opacity: 0; transition: opacity 1.4s ease; pointer-events: none; }
+  #sign-overlay.hidden   { display: none; }
+  #sign-box {
+    opacity: 0;
+    transform: perspective(900px) rotateX(-14deg) translateY(36px) scale(.97);
+    filter: blur(5px);
+    transition: opacity .62s ease, transform .62s cubic-bezier(.22,.68,0,1.1), filter .5s ease;
+    will-change: transform, opacity;
+    background: var(--bg);
+    border-top: 2px solid var(--gold);
+    padding: 2.4rem 2.6rem 2rem;
+    width: min(460px, 92vw);
+    text-align: center;
+  }
+  .sign-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem; letter-spacing: .5em; text-indent: .5em;
+    color: var(--gold); margin-bottom: 1.2rem;
+  }
+  .sign-divider {
+    width: 32px; height: 1px; background: var(--border);
+    margin: 0 auto 1.2rem;
+  }
+  .sign-body {
+    font-size: .78rem; line-height: 2.1; letter-spacing: .07em;
+    color: var(--dim); margin-bottom: 1.6rem;
+  }
+  #sign-canvas-wrap {
+    position: relative;
+    background: #f8f6f3;
+    border: 1px solid var(--border);
+    margin-bottom: .8rem;
+  }
+  #sign-canvas {
+    display: block; width: 100%; height: 110px;
+    cursor: crosshair; touch-action: none;
+  }
+  .sign-hint {
+    position: absolute; bottom: 10px; left: 0; right: 0;
+    font-size: .65rem; letter-spacing: .15em; color: rgba(184,144,96,.5);
+    pointer-events: none; user-select: none;
+  }
+  .sign-base-line {
+    position: absolute; bottom: 28px; left: 1.2rem; right: 1.2rem;
+    height: 1px; background: rgba(184,144,96,.25); pointer-events: none;
+  }
+  .sign-actions {
+    display: flex; gap: .8rem; justify-content: flex-end; margin-top: .6rem;
+  }
+  #sign-clear {
+    font-family: 'Noto Serif TC', serif;
+    font-size: .7rem; letter-spacing: .18em;
+    color: var(--dim); background: none;
+    border: 1px solid var(--border);
+    padding: .6rem 1.1rem; cursor: pointer;
+    transition: color .2s, border-color .2s;
+  }
+  #sign-clear:hover { color: var(--text); border-color: rgba(0,0,0,.3); }
+  #sign-confirm {
+    font-family: 'Noto Serif TC', serif;
+    font-size: .7rem; letter-spacing: .18em;
+    color: #fff; background: var(--text); border: none;
+    padding: .6rem 1.3rem; cursor: pointer;
+    transition: opacity .2s;
+  }
+  #sign-confirm:disabled { opacity: .28; cursor: default; }
+  #sign-confirm:not(:disabled):hover { opacity: .72; }
+  #sign-box.is-visible {
+    opacity: 1;
+    transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
+    filter: blur(0);
+  }
+  </style>
+</head>
+<body>
+
+
+<nav>
+  <a href="index.html" class="nav-logo"><img src="image/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+  <button class="nav-burger" id="nav-burger" aria-label="選單">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="members.html" class="active">Members</a></li>
+    <li class="dropdown">
+      <span>Services</span>
+      <div class="dropdown-menu">
+        <a href="nomen.html">Nomen</a>
+        <a href="menu.html">Menu</a>
+      </div>
+    </li>
+    <li><span class="hidden-link">Registry</span></li>
+    <li><a href="rules.html">Rules</a></li>
+    <li><span class="hidden-link">S⏹︎⏹︎RI⏹︎S</span></li>
+  </ul>
+</nav>
+
+<!-- ═══ 使徒 ═══ -->
+<section class="apostle-section">
+  <div class="fan-stage">
+    <!-- 食罪 ×5 -->
+    <div class="c-card" data-idx="0" data-show>
+      <img class="card-photo" src="image/落花有意.png" alt="落花有意">
+      <div class="card-info">
+        <p>他始終「無暇」。直到你剖析那眼底裡的全白。</p>
+        <p>記錄中，他更常以暗精靈的外貌現身，但偶爾也會變成維艾拉族男性的模樣。主因未明，目前推測為對身邊的人進行模仿。</p>
+        <p>「啊。在寫我、的事？」</p>
+      </div>
+    </div>
+    <div class="c-card" data-idx="1" data-show>
+      <img class="card-photo" src="image/掠影.png" alt="掠影">
+      <div class="card-info">
+        <p>不時在精靈男性、維艾拉男性與敖龍族女性之間切換型態。總是在一段距離外觀察人群或小憩，似乎更傾向靠近獨自前來的會眾。乙太波形穩定時偶爾會低聲吟唱。</p>
+        <p>說話時投射過來的目光時而冷漠疏離、時而迷茫複雜；似乎看著你，又像是——透過你的眼瞳看著什麼人。</p>
+      </div>
+    </div>
+    <div class="c-card" data-idx="2" data-show>
+      <img class="card-photo" src="image/安怛.png" alt="安怛">
+      <div class="card-info">
+        <p>外表是暮暉之民男性。白金相間的頭髮、紫色的皮膚，也許最引人注目的是那雙熱切的眼睛。這副皮囊似曾相識。</p>
+      </div>
+    </div>
+    <div class="c-card" data-idx="3" data-show>
+      <img class="card-photo" src="image/安石.png" alt="安石">
+      <div class="card-info">
+        <p>大多時間外型為敖龍族暮輝之民女性，雙目失明，依靠觀測乙太的方式模糊的辨別周遭環境，熱衷觀測各種生物的乙太。</p>
+      </div>
+    </div>
+    <div class="c-card" data-idx="4" data-show>
+      <img class="card-photo" src="image/尼克席恩.png" alt="尼克席恩">
+      <div class="card-info">
+        <p>生前為精靈族男性，死後化作妖異也維持著一樣的外貌。容易被人類豐沛的情感所吸引，不分善惡都會讓他好奇。</p>
+        <p>注意：對於喜愛之人可能會產生佔有的慾望偏執，接觸者需注意自身安全。</p>
+      </div>
+    </div>
+    <!-- 妖異 ×5 -->
+    <div class="c-card" data-idx="5" data-show>
+      <img class="card-photo" src="image/流水無情.png" alt="流水無情">
+      <div class="card-info">
+        <p>多數時間為貓魅族的少女外型，愛笑。愛主動尋索他人的慾望，時而表現出稚嫩的笨拙。</p>
+        <p>而在表像下，她的執念如同本能，是渴望永無止境的妖異。她總按捺不住想要滿足每份執著的心，一但被她盯上就是永恆的墜落。</p>
+      </div>
+    </div>
+
+    <button class="fan-arrow prev" onclick="cGo(-1)">&#8249;</button>
+    <button class="fan-arrow next" onclick="cGo(1)">&#8250;</button>
+  </div>
+
+  <div class="char-bio">
+    <!-- 食罪 ×5 -->
+    <div class="bio-panel on" id="bio-0">
+      <div class="bio-identity"><span class="bio-badge">食罪</span><div class="bio-name">落花有意</div><div class="bio-subtitle">尚未揭示</div><span class="bio-unlock-group"><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span></span></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">聊天尺度</span><p class="bio-col-val">一般～暗示，禁止「甩巴掌」。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">禁忌與偏好</span><p class="bio-col-val">「這是，需要存在的東西麼？」</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">延伸資訊</span><p class="bio-col-val">無論虛實，他喜歡聽故事……又或是說，他依戀著「聲音」帶來的溫度。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">個人業務</span><p class="bio-col-val empty">暫不提供</p></div>
+    </div>
+    <div class="bio-panel" id="bio-1">
+      <div class="bio-identity"><span class="bio-badge">食罪</span><div class="bio-name">掠影</div><div class="bio-subtitle">尚未揭示</div><span class="bio-unlock-group"><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span></span></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">聊天尺度</span><p class="bio-col-val">一般，禁止擦邊與親密接觸。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">禁忌與偏好</span><p class="bio-col-val">喜歡毛絨絨的小動物，習慣用微糖甜食穩定乙太，討厭未經允許的肢體碰觸。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">延伸資訊</span><p class="bio-col-val">對情緒很敏感，過於激動的情緒反應可能導致乙太動盪。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">個人業務</span><p class="bio-col-val empty">暫不提供</p></div>
+    </div>
+    <div class="bio-panel" id="bio-2">
+      <div class="bio-identity"><span class="bio-badge">妖異</span><div class="bio-name">安怛</div><div class="bio-subtitle">尚未揭示</div><span class="bio-unlock-group"><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span></span></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">聊天尺度</span><p class="bio-col-val">親密～暗示及擦邊。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">禁忌與偏好</span><p class="bio-col-val">喜歡潮濕的地方、金閃閃的寶物、寶石；對氣味和聲音很敏感，會跟著金子落地的聲音起舞。厭惡受到羞辱，有可能激怒乙太體。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">延伸資訊</span><p class="bio-col-val">一切看心情行事。由於受到絕望浸染，很容易放棄；偶爾會出現原因不明的遲鈍。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">個人業務</span><p class="bio-col-val empty">暫不提供</p></div>
+    </div>
+    <div class="bio-panel" id="bio-3">
+      <div class="bio-identity"><span class="bio-badge">妖異</span><div class="bio-name">安石</div><div class="bio-subtitle">尚未揭示</div><span class="bio-unlock-group"><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span></span></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">聊天尺度</span><p class="bio-col-val">一般～親密。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">禁忌與偏好</span><p class="bio-col-val">喜歡閱讀、聆聽故事，不喜歡吵鬧的環境。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">延伸資訊</span><p class="bio-col-val">雖然能夠靠乙太辨識大致方位但還是時常在室內迷路。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">個人業務</span><p class="bio-col-val empty">暫不提供</p></div>
+    </div>
+    <div class="bio-panel" id="bio-4">
+      <div class="bio-identity"><span class="bio-badge">妖異</span><div class="bio-name">尼克席恩</div><div class="bio-subtitle">尚未揭示</div><span class="bio-unlock-group"><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span></span></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">聊天尺度</span><p class="bio-col-val">一般～暗示。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">禁忌與偏好</span><p class="bio-col-val">格外喜歡會分享喜怒哀樂的人類。討厭不守規矩、不懂尊重的人類。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">延伸資訊</span><p class="bio-col-val">喜歡美酒與美食，來者不拒。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">個人業務</span><p class="bio-col-val empty">暫不提供</p></div>
+    </div>
+    <!-- 妖異 ×5 -->
+    <div class="bio-panel" id="bio-5">
+      <div class="bio-identity"><span class="bio-badge">妖異</span><div class="bio-name">流水無情</div><div class="bio-subtitle">尚未揭示</div><span class="bio-unlock-group"><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span><span class="bio-unlock-icon"><img src="image/LOCK.png" alt=""></span></span></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">聊天尺度</span><p class="bio-col-val">一般～暗示。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">禁忌與偏好</span><p class="bio-col-val">喜歡故事和跟大家一起，討厭被無視，被無視會發怒。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">延伸資訊</span><p class="bio-col-val">除了用口的工作外，什麼都不會做，但被需要會努力一下下。</p></div>
+      <div class="bio-vline"></div>
+      <div class="bio-col"><span class="bio-col-label">個人業務</span><p class="bio-col-val">提取記憶／進入故事／一起發呆</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 侍者 ═══ -->
+<section class="members-section ms-attendants">
+  <div class="members-section-inner">
+    <div class="members-section-head">
+      <h2>侍者</h2>
+      <hr class="members-rule">
+    </div>
+    <div class="member-grid-3">
+      <div class="member-card" onclick="openModal('modal-1')">
+        <div class="member-img-wrap">
+          <img src="image/靜火_頭像.png" alt="司祭">
+          <div class="member-img-hover">司祭</div>
+        </div>
+      </div>
+      <div class="member-card" onclick="openModal('modal-2')">
+        <div class="member-img-wrap">
+          <img src="image/著魔_頭像.png" alt="監禮者">
+          <div class="member-img-hover">監禮者</div>
+        </div>
+      </div>
+      <div class="member-card fog">
+        <div class="member-img-wrap"><img src="image/銀紗使.jpg" alt="銀紗使"></div>
+      </div>
+      <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
+      <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
+      <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 特別銘謝 -->
+<section class="members-section bg-muted ms-thanks">
+  <div class="members-section-inner">
+    <div class="wide-divider"></div>
+    <div class="thanks-section">
+      <span class="section-tag">Special Thanks &nbsp;/&nbsp; 特別銘謝</span>
+      <ul class="thanks-list">
+        <li>更年期冬貝利@伊弗利特</li>
+        <li>路易丁滿@伊弗利特</li>
+        <li>夜遊魂@伊弗利特</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-social">
+    <span class="footer-social-link"><img src="image/discord_.png" alt="Discord" class="footer-icon"></span>
+    <a href="https://www.threads.com/@elysium.ffxivtc" target="_blank" rel="noopener" class="footer-social-link" aria-label="Threads">
+      <img src="image/threads_.png" alt="Threads" class="footer-icon">
+    </a>
+  </div>
+  <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
+</footer>
+
+<!-- Modal 1 — 靜火 -->
+<div class="modal-overlay" id="modal-1" onclick="closeModal(event, 'modal-1')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal(null, 'modal-1')">&times;</button>
+    <div class="modal-inner">
+      <div class="modal-img-wrap">
+        <img src="image/靜火.png" alt="司祭">
+        <div id="sj-head-trigger"></div>
+      </div>
+      <div class="modal-content">
+        <span class="modal-role">司祭</span>
+        <h2 class="modal-name">靜火</h2>
+        <p class="modal-subtitle">Elysium的經營者</p>
+        <div class="modal-divider"></div>
+        <p class="modal-bio">沒有人知道司祭究竟是人類、使徒，<br>亦或長久停留於幻境中的某種存在。</p>
+        <div class="modal-section">
+          <div style="margin-bottom:.9rem;">
+            <p class="modal-section-label">聊天尺度</p>
+            <p class="modal-section-val">一般～暗示，禁止親吻互動</p>
+          </div>
+          <div style="margin-bottom:.9rem;">
+            <p class="modal-section-label">禁忌與偏好</p>
+            <p class="modal-section-val">喜歡研究，討厭麻煩，研究以外的事情都是麻煩。</p>
+          </div>
+          <div style="margin-bottom:.9rem;">
+            <p class="modal-section-label">延伸資訊</p>
+            <p class="modal-section-val">意外地喜歡吃甜食，原因可能是更易於補充血糖及熱量。</p>
+          </div>
+          <div>
+            <p class="modal-section-label">個人業務</p>
+            <p class="modal-section-val">暫不提供</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sj-bubble" class="sj-bubble">
+      <span class="sj-dot"></span><span class="sj-dot"></span><span class="sj-dot"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2 — 著魔 -->
+<div class="modal-overlay" id="modal-2" onclick="closeModal(event, 'modal-2')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal(null, 'modal-2')">&times;</button>
+    <div class="modal-inner">
+      <div class="modal-img-wrap">
+        <img src="image/著魔.png" alt="監禮者">
+      </div>
+      <div class="modal-content">
+        <span class="modal-role">監禮者</span>
+        <h2 class="modal-name">著魔</h2>
+        <p class="modal-subtitle">Elysium的第一位⏹︎⏹︎</p>
+        <div class="modal-divider"></div>
+        <p class="modal-bio">回應司祭的召喚第一位降臨於現世的⏹︎⏹︎。<br>本體目前未知形體，但具有自我意識可以溝通。<br>利用司祭找來的敖龍族男性屍體進行儀式並寄宿在其身上。<br>正在感興趣的接觸人類文明史，並監管著聖所內所有動靜。<br>容器偶爾會因為⏹︎⏹︎司祭的⏹︎⏹︎而過度利用損毀。需要進行維護並替換備用體。</p>
+        <div class="modal-section">
+          <div style="margin-bottom:.9rem;">
+            <p class="modal-section-label">聊天尺度</p>
+            <p class="modal-section-val">暫不提供</p>
+          </div>
+          <div style="margin-bottom:.9rem;">
+            <p class="modal-section-label">禁忌與偏好</p>
+            <p class="modal-section-val">暫不提供</p>
+          </div>
+          <div style="margin-bottom:.9rem;">
+            <p class="modal-section-label">延伸資訊</p>
+            <p class="modal-section-val">暫不提供</p>
+          </div>
+          <div>
+            <p class="modal-section-label">個人業務</p>
+            <p class="modal-section-val">暫不提供</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── 走馬燈 ── */
+const N = 6;
+const cards = [...document.querySelectorAll('.c-card')];
+const shown = cards.map((c, i) => c.hasAttribute('data-show') ? i : -1).filter(i => i >= 0);
+let active = shown.length > 0 ? shown[0] : 0;
+
+function posOf(idx) {
+  let d = idx - active;
+  if (d >  N/2) d -= N;
+  if (d < -N/2) d += N;
+  return Math.max(-5, Math.min(5, Math.round(d)));
+}
+function render() {
+  cards.forEach((c, i) => { c.dataset.pos = posOf(i); });
+  document.querySelectorAll('.bio-panel').forEach(p => p.classList.remove('on'));
+  const activeCard = cards[active];
+  if (activeCard && activeCard.dataset.show !== undefined) {
+    const bio = document.getElementById('bio-' + active);
+    if (bio) { void bio.offsetWidth; bio.classList.add('on'); }
+  }
+}
+function cGo(dir) {
+  if (shown.length <= 1) return;
+  const cur = shown.indexOf(active);
+  active = shown[(cur + dir + shown.length) % shown.length];
+  render();
+}
+function cClick(idx) { if (idx !== active) { active = idx; render(); } }
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  cGo(-1);
+  if (e.key === 'ArrowRight') cGo(1);
+});
+
+/* ── 逐字撒落動畫 ── */
+(function() {
+  function rand(min, max) { return (Math.random() * (max - min) + min).toFixed(1); }
+  var PUNCT = /^[，。、；：！？——…）〕］｝]/;
+  document.querySelectorAll('.card-info').forEach(function(info) {
+    var delay = 0;
+    info.querySelectorAll('p').forEach(function(p) {
+      var parts = p.innerHTML.split(/(<br\s*\/?>)/i);
+      p.innerHTML = parts.map(function(part) {
+        if (/^<br/i.test(part)) return part;
+        var chars = Array.from(part);
+        var groups = [];
+        for (var i = 0; i < chars.length; i++) {
+          /* 把字和緊接的行首禁則標點合成一組，標點不會落在行首 */
+          var g = chars[i];
+          while (i + 1 < chars.length && PUNCT.test(chars[i + 1])) { g += chars[++i]; }
+          groups.push(g);
+        }
+        return groups.map(function(g) {
+          var d = delay; delay += 8;
+          var yo = rand(-14, -5);
+          return '<span style="--td:' + d + 'ms;--yo:' + yo + 'px">' + g + '</span>';
+        }).join('');
+      }).join('');
+    });
+  });
+})();
+
+/* ── 拖曳滾動（單步）── */
+(function() {
+  var stage = document.querySelector('.fan-stage');
+  var startX = null;
+  stage.addEventListener('mousedown',    function(e) { startX = e.clientX; });
+  document.addEventListener('mouseup',   function(e) {
+    if (startX === null) return;
+    var dx = e.clientX - startX; startX = null;
+    if (Math.abs(dx) >= 50) cGo(dx < 0 ? 1 : -1);
+  });
+  stage.addEventListener('dragstart',    function(e) { e.preventDefault(); });
+  stage.addEventListener('touchstart',   function(e) { startX = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend',     function(e) {
+    if (startX === null) return;
+    var dx = e.changedTouches[0].clientX - startX; startX = null;
+    if (Math.abs(dx) >= 50) cGo(dx < 0 ? 1 : -1);
+  });
+})();
+
+render();
+
+
+/* ── Modal ── */
+var sjBubble = document.getElementById('sj-bubble');
+var sjTrigger = document.getElementById('sj-head-trigger');
+function openModal(id) {
+  document.getElementById(id).classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(e, id) {
+  if (e && e.target !== document.getElementById(id)) return;
+  document.getElementById(id).classList.remove('is-open');
+  document.body.style.overflow = '';
+  if (id === 'modal-1' && sjBubble) sjBubble.classList.remove('active');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.is-open').forEach(function(m) {
+      m.classList.remove('is-open');
+      document.body.style.overflow = '';
+    });
+    if (sjBubble) sjBubble.classList.remove('active');
+  }
+});
+if (sjTrigger && sjBubble) {
+  sjTrigger.addEventListener('mouseenter', function() { sjBubble.classList.add('active'); });
+  sjTrigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
+}
+</script>
+<div id="sign-overlay">
+  <div id="sign-box">
+    <p class="sign-title">使 徒 名 冊</p>
+    <div class="sign-divider"></div>
+    <p class="sign-body">此冊記載著Elysium諸位使徒的資料。<br>請留下您的署名，方可翻閱。</p>
+    <div id="sign-canvas-wrap">
+      <canvas id="sign-canvas"></canvas>
+      <div class="sign-base-line"></div>
+      <span class="sign-hint">署名於此</span>
+    </div>
+    <div class="sign-actions">
+      <button id="sign-clear">清除</button>
+      <button id="sign-confirm" disabled>確認署名</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── 署名板 ── */
+(function() {
+  var overlay = document.getElementById('sign-overlay');
+  var box     = document.getElementById('sign-box');
+  if (sessionStorage.getItem('elysium-signed')) { overlay.classList.add('hidden'); return; }
+
+  /* staged entrance: backdrop first, then paper */
+  requestAnimationFrame(function() {
+    overlay.classList.add('is-open');
+    setTimeout(function() { box.classList.add('is-visible'); }, 380);
+  });
+
+  var canvas     = document.getElementById('sign-canvas');
+  var ctx        = canvas.getContext('2d');
+  var confirmBtn = document.getElementById('sign-confirm');
+  var clearBtn   = document.getElementById('sign-clear');
+  var drawing = false, hasDrawn = false;
+  var dpr = window.devicePixelRatio || 1;
+
+  var r = canvas.getBoundingClientRect();
+  canvas.width  = Math.round(r.width  * dpr);
+  canvas.height = Math.round(r.height * dpr);
+  ctx.scale(dpr, dpr);
+  ctx.strokeStyle = '#2a2826';
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  function pos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var src = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  }
+
+  canvas.addEventListener('mousedown', function(e) {
+    drawing = true; var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  });
+  canvas.addEventListener('mousemove', function(e) {
+    if (!drawing) return;
+    var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+    if (!hasDrawn) { hasDrawn = true; confirmBtn.disabled = false; }
+  });
+  document.addEventListener('mouseup', function() { drawing = false; });
+
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault(); drawing = true;
+    var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  }, { passive: false });
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault(); if (!drawing) return;
+    var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+    if (!hasDrawn) { hasDrawn = true; confirmBtn.disabled = false; }
+  }, { passive: false });
+  canvas.addEventListener('touchend', function() { drawing = false; });
+
+  clearBtn.addEventListener('click', function() {
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    hasDrawn = false; confirmBtn.disabled = true;
+  });
+  confirmBtn.addEventListener('click', function() {
+    sessionStorage.setItem('elysium-signed', '1');
+    overlay.classList.add('fading');
+    overlay.addEventListener('transitionend', function() {
+      overlay.classList.add('hidden');
+    }, { once: true });
+  });
+})();
+</script>
+
+<script src="nav.js"></script>
+</body>
+</html>

@@ -128,6 +128,8 @@ const ROLE_LABEL   = { admin: '管理員', pilgrim: '引路人', apostle: '使�
 const STATUS_LABEL = { new: '待處理', completed: '已完成', cancelled: '已取消' };
 const SERVICE_NAME = { nomen30: '顯名儀', photo: '交名留影' };
 const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none: '無 RP' };
+const VISIT_LABEL  = { ritual: '儀式預約', seat: '席位預約' };
+const SEAT_LABEL   = { sin: '棲願之間｜食罪席', grudge: '執念迴廊｜妖異席' };
 
 let currentUser = null;
 let reservations = {};
@@ -198,18 +200,24 @@ function render() {
 
   list.innerHTML = entries.map(([id, r]) => {
     const status = r.status || 'new';
+    const visitType = r.visitType || 'ritual';
     const svcNames = (r.services || []).map(s => SERVICE_NAME[s] || s).join('、');
+    const typeFields = visitType === 'seat'
+      ? `<div><div class="res-field-label">座席</div>${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div>
+         <div><div class="res-field-label">人數</div>${r.seatCount || 0} 人</div>`
+      : `<div><div class="res-field-label">指定使徒</div>${esc(apostleName(r.apostle))}</div>
+         <div><div class="res-field-label">儀式</div>${esc(svcNames)}</div>`;
     return `<div class="res-card ${status}">
       <div class="res-hdr">
         <span class="res-date">${esc(r.date)} ${esc(r.time)}</span>
         <span class="res-status ${status}">${STATUS_LABEL[status] || status}</span>
       </div>
       <div class="res-grid">
+        <div><div class="res-field-label">來訪形式</div>${esc(VISIT_LABEL[visitType] || visitType)}</div>
         <div><div class="res-field-label">遊戲角色</div>${esc(r.gameName)}</div>
         <div><div class="res-field-label">所在World</div>${esc(r.server)}</div>
         <div><div class="res-field-label">Discord ID</div>${esc(r.contact)}</div>
-        <div><div class="res-field-label">指定使徒</div>${esc(apostleName(r.apostle))}</div>
-        <div><div class="res-field-label">儀式</div>${esc(svcNames)}</div>
+        ${typeFields}
         <div><div class="res-field-label">RP 程度</div>${esc(RP_LABEL[r.rp] || r.rp || '')}</div>
         <div><div class="res-field-label">金額</div>${(r.total||0).toLocaleString()} Gil</div>
       </div>

@@ -167,11 +167,13 @@
     @media (max-width: 900px) { .bk2-panel-copy { display: block; } .footer-copy { display: none !important; } }
 
     /* Form section */
-    .bk2-fsec { padding: 1.6rem 1.5rem; margin-bottom: 0; border-bottom: 1px solid rgba(184,144,96,.3); }
+    .bk2-fsec { padding: 1.8rem 1.5rem; margin-bottom: 0; border-bottom: 2px solid rgba(184,144,96,.4); }
     .bk2-fsec-title {
-      font-size: 13px; letter-spacing: .25em; color: var(--gold);
+      font-size: 13px; font-weight: 700; letter-spacing: .25em; color: var(--gold);
       text-transform: uppercase; margin-bottom: 1.1rem;
-      padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+      padding-bottom: .5rem; padding-left: .7rem;
+      border-bottom: 1px solid rgba(184,144,96,.3);
+      border-left: 2px solid var(--gold);
     }
 
     /* Field label */
@@ -194,6 +196,13 @@
 
     /* Time buttons */
     .bk2-tgrd { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 5px; margin-top: .45rem; }
+
+    /* Seat type buttons */
+    .bk2-seat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    .bk2-seat-btn {
+      height: auto; padding: 1rem .6rem; line-height: 1.6; white-space: normal;
+      font-family: 'Noto Serif TC', serif;
+    }
     .bk2-tbtn {
       padding: .55rem .3rem; border: 1px solid var(--border); background: #fff;
       color: var(--dim); border-radius: 2px; font-size: 13px;
@@ -219,7 +228,7 @@
 
     /* Compact RP options */
     .bk2-rp-row {
-      display: flex; align-items: flex-start; gap: .7rem;
+      display: flex; align-items: center; gap: .7rem;
       padding: .65rem 0; border-bottom: 1px solid var(--border);
       cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; transition: all .18s; position: relative; padding-left: .75rem;
     }
@@ -451,14 +460,26 @@
   ];
   const SERVERS = ['伊弗利特', '迦樓羅', '利維坦', '鳳凰', '奧汀', '巴哈姆特', '泰坦'];
 
+  const VISIT_TYPES = [
+    { id: 'ritual', label: '儀式預約', desc: '進行召引等儀式服務。' },
+    { id: 'seat',   label: '席位預約', desc: '僅預留席位入場，感受禮堂氛圍。' },
+  ];
+
+  const SEAT_TYPES = [
+    { id: 'sin',    name: '棲願之間', sub: '食罪席' },
+    { id: 'grudge', name: '執念迴廊', sub: '妖異席' },
+  ];
+
   // ─────────────────────────────────────────────────────────────
   //  狀態
   // ─────────────────────────────────────────────────────────────
   let bizStatus = {}, publicShifts = {}, bookedSlots = {}, previewBlock = false;
   let st = {
     agreed: false, date: '', time: '',
+    visitType: '',
     services: [], photoSig: false, photoExtra: 0,
     apostle: null, designated: false,
+    seatType: '', seatCount: 1,
     rp: '', rpNote: '',
     gameName: '', server: '', contact: '', notes: '',
   };
@@ -551,6 +572,7 @@
     return allTimes.map(t => ({ time:t, blocked: !!bookedSlots[dateStr]?.[sKey(t)]?.[uid] }));
   }
   function calcTotal() {
+    if (st.visitType === 'seat') return st.seatCount * 20000;
     return st.services.reduce((t, sid) => t + (SERVICES.find(s => s.id===sid)?.price||0), 0)
       + (st.photoSig && st.services.includes('photo') ? 20000 : 0)
       + (st.services.includes('photo') ? st.photoExtra * 20000 : 0);
@@ -594,6 +616,7 @@
 
   function renderGrid() {
     const hasDateTime = st.date && st.time;
+    const seatMode    = st.visitType === 'seat';
     let anyAvail      = false;
 
     const gridEl = document.getElementById('bk2-grid');
@@ -630,7 +653,7 @@
         }
       }
       const isSel     = st.apostle === a.uid;
-      const isLocked  = hasDateTime && !hasNomen && !cls;
+      const isLocked  = seatMode || (hasDateTime && !hasNomen && !cls);
       const photoHtml = a.photo
         ? `<img src="${escH(a.photo)}" alt="${escH(a.name)}">`
         : `<div class="bk2-card-photo-init">${escH(a.initial||a.name.slice(0,1))}</div>`;
@@ -656,7 +679,7 @@
       html += `<div class="bk2-grid-label">${g.label}</div><div class="bk2-grid-row">${g.list.map(cardHtml).join('')}</div>`;
     });
 
-    if (hasDateTime && anyAvail && st.services.includes('nomen30')) {
+    if (!seatMode && hasDateTime && anyAvail && st.services.includes('nomen30')) {
       const noSel = st.apostle === 'none';
       html += `<div class="bk2-grid-row"><div class="bk2-card-nodesig${noSel?' sel':''}" onclick="selectApostle2('none')">
         <div class="bk2-card-nodesig-icon">—</div>
@@ -667,7 +690,9 @@
 
     gridEl.innerHTML = html;
 
-    if (!hasDateTime) {
+    if (seatMode) {
+      hintEl.innerHTML = `<div class="bk2-grid-hint">席位預約無法指定使徒，請於右側填寫座席與人數資訊。</div>`;
+    } else if (!hasDateTime) {
       hintEl.innerHTML = `<div class="bk2-grid-hint">選擇日期與場次後，各位使徒的召引狀態將顯示於此。</div>`;
     } else if (!st.services.includes('nomen30')) {
       hintEl.innerHTML = `<div class="bk2-grid-hint">選擇顯名儀後，即可召引使徒。</div>`;
@@ -704,10 +729,38 @@
       </div>
 
       <div class="bk2-fsec">
-        <div class="bk2-fsec-title">儀式選擇</div>
-        <div style="font-size:12px;color:var(--dim);line-height:1.8;margin-bottom:.75rem;">以下費用不含入堂花環費（20,000 Gil，現場收取）</div>
-        <div id="bk2-svc-cards"></div>
-        <div id="bk2-cost"></div>
+        <div class="bk2-fsec-title">來訪形式</div>
+        <div id="bk2-visit-opts"></div>
+      </div>
+
+      <div id="bk2-ritual-sec" style="display:none;">
+        <div class="bk2-fsec">
+          <div class="bk2-fsec-title">儀式選擇</div>
+          <div style="font-size:12px;color:var(--dim);line-height:1.8;margin-bottom:.75rem;">以下費用不含入堂花環費（20,000 Gil，現場收取）</div>
+          <div id="bk2-svc-cards"></div>
+          <div id="bk2-cost"></div>
+        </div>
+      </div>
+
+      <!-- ponytail: 座席保留目前只能二選一，之後如需即時空位／更多席別再串接 Firebase -->
+      <div id="bk2-seat-sec" style="display:none;">
+        <div class="bk2-fsec">
+          <div class="bk2-fsec-title">座席保留</div>
+          <div class="bk2-flbl" style="margin-bottom:.6rem;">座席<span class="req">*</span></div>
+          <div id="bk2-seat-opts" class="bk2-seat-grid"></div>
+          <div style="margin-top:1.2rem;">
+            <div class="bk2-flbl">人數<span class="req">*</span></div>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <button onclick="changeSeatCount2(-1)"
+                style="width:28px;height:28px;border:1px solid var(--border);background:none;border-radius:4px;cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;font-size:15px;line-height:1;color:var(--dim);padding:0;">－</button>
+              <span id="bk2-seatcount-val" style="font-size:14px;width:1.5rem;text-align:center;color:var(--text);">${st.seatCount}</span>
+              <button onclick="changeSeatCount2(1)"
+                style="width:28px;height:28px;border:1px solid var(--border);background:none;border-radius:4px;cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;font-size:15px;line-height:1;color:var(--dim);padding:0;">＋</button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--dim);line-height:1.8;margin-top:.9rem;">入堂花環費 20,000 Gil／人</div>
+          <div id="bk2-seat-cost"></div>
+        </div>
       </div>
 
       <div class="bk2-fsec">
@@ -723,7 +776,7 @@
         </div>
       </div>
 
-      <div class="bk2-fsec">
+      <div class="bk2-fsec" style="border-bottom:none;">
         <div class="bk2-fsec-title">基本資料</div>
         <div style="margin-bottom:.9rem;">
           <div class="bk2-flbl">遊戲角色名稱<span class="req">*</span></div>
@@ -757,14 +810,52 @@
     `;
 
     updateTimes();
+    updateVisitOpts();
+    updateVisitSections();
+    updateSeatOpts();
     updateSvcCards();
     updateCost();
+    updateSeatCost();
     updateRPOpts();
   }
 
   // ─────────────────────────────────────────────────────────────
   //  Targeted updates
   // ─────────────────────────────────────────────────────────────
+  function updateVisitOpts() {
+    const el = document.getElementById('bk2-visit-opts');
+    if (!el) return;
+    const locked = !(st.date && st.time);
+    el.innerHTML = locked
+      ? `<p style="font-size:12px;color:var(--dim);line-height:1.9;">請先選擇日期與場次</p>`
+      : VISIT_TYPES.map(o => {
+          const sel = st.visitType === o.id;
+          return `<div class="bk2-rp-row${sel?' sel':''}" onclick="selectVisitType2('${o.id}')">
+            <div class="bk2-rp-label">${o.label}</div>
+            <div class="bk2-rp-desc">${o.desc}</div>
+          </div>`;
+        }).join('');
+  }
+
+  function updateVisitSections() {
+    const ritualEl = document.getElementById('bk2-ritual-sec');
+    const seatEl   = document.getElementById('bk2-seat-sec');
+    if (ritualEl) ritualEl.style.display = st.visitType === 'ritual' ? '' : 'none';
+    if (seatEl)   seatEl.style.display   = st.visitType === 'seat'   ? '' : 'none';
+  }
+
+  function updateSeatOpts() {
+    const el = document.getElementById('bk2-seat-opts');
+    if (!el) return;
+    el.innerHTML = SEAT_TYPES.map(o => {
+      const sel = st.seatType === o.id;
+      return `<button type="button" class="bk2-tbtn bk2-seat-btn${sel?' sel':''}" onclick="selectSeatType2('${o.id}')">
+        <div style="font-weight:700;">${o.name}</div>
+        <div style="font-size:10px;letter-spacing:.05em;color:${sel?'var(--gold)':'var(--dim)'};margin-top:2px;">${o.sub}</div>
+      </button>`;
+    }).join('');
+  }
+
   function updateTimes() {
     const el = document.getElementById('bk2-times');
     if (!el) return;
@@ -824,11 +915,9 @@
     }).join('');
   }
 
-  function updateCost() {
-    const el = document.getElementById('bk2-cost');
-    if (!el) return;
+  function costRowHtml() {
     const total = calcTotal();
-    el.innerHTML = `
+    return `
       <div class="bk2-cost-row">
         <span class="bk2-cost-lbl">費用合計</span>
         <div>
@@ -837,6 +926,16 @@
         </div>
       </div>
       <div style="font-size:11px;color:var(--dim);margin-top:.25rem;text-align:right;">※實際金額請依現場消費為主</div>`;
+  }
+
+  function updateCost() {
+    const el = document.getElementById('bk2-cost');
+    if (el) el.innerHTML = costRowHtml();
+  }
+
+  function updateSeatCost() {
+    const el = document.getElementById('bk2-seat-cost');
+    if (el) el.innerHTML = costRowHtml();
   }
 
   function updateRPOpts() {
@@ -854,9 +953,15 @@
   function updateSubmitBtn() {
     const btn = document.getElementById('bk2-submit-btn');
     if (!btn) return;
-    const canDesig  = st.services.some(sid => SERVICES.find(s => s.id===sid)?.canDesig);
-    const apostleOk = canDesig ? !!st.apostle : true;
-    btn.disabled = !(st.date && st.time && st.services.length > 0 && apostleOk && st.rp);
+    let ok = !!(st.date && st.time && st.visitType && st.rp);
+    if (st.visitType === 'ritual') {
+      const canDesig  = st.services.some(sid => SERVICES.find(s => s.id===sid)?.canDesig);
+      const apostleOk = canDesig ? !!st.apostle : true;
+      ok = ok && st.services.length > 0 && apostleOk;
+    } else if (st.visitType === 'seat') {
+      ok = ok && st.seatCount > 0 && !!st.seatType;
+    }
+    btn.disabled = !ok;
   }
 
   function toggleModalAgree() {
@@ -883,9 +988,15 @@
 
   function selectDate2(v) {
     st.date = v; st.time = '';
+    st.visitType = ''; st.services = []; st.photoSig = false; st.photoExtra = 0;
+    st.apostle = null; st.designated = false; st.seatType = '';
     updateTimes();
+    updateVisitOpts();
+    updateVisitSections();
+    updateSeatOpts();
     updateSvcCards();
     updateCost();
+    updateSeatCost();
     renderGrid();
     updateSubmitBtn();
   }
@@ -895,6 +1006,7 @@
     document.querySelectorAll('#bk2-times .bk2-tbtn').forEach(btn => {
       btn.classList.toggle('sel', btn.textContent.trim() === t);
     });
+    updateVisitOpts();
     updateSvcCards();
     updateCost();
     renderGrid();
@@ -947,6 +1059,35 @@
     updateSubmitBtn();
   }
 
+  function selectVisitType2(id) {
+    st.visitType = (st.visitType === id ? '' : id);
+    if (st.visitType !== 'ritual') {
+      st.services = []; st.photoSig = false; st.photoExtra = 0;
+      st.apostle = null; st.designated = false;
+    }
+    if (st.visitType !== 'seat') { st.seatType = ''; }
+    updateVisitOpts();
+    updateVisitSections();
+    updateSeatOpts();
+    updateSeatCost();
+    renderGrid();
+    updateSubmitBtn();
+  }
+
+  function selectSeatType2(id) {
+    st.seatType = (st.seatType === id ? '' : id);
+    updateSeatOpts();
+    updateSubmitBtn();
+  }
+
+  function changeSeatCount2(d) {
+    st.seatCount = Math.max(1, Math.min(10, st.seatCount + d));
+    const val = document.getElementById('bk2-seatcount-val');
+    if (val) val.textContent = st.seatCount;
+    updateSeatCost();
+    updateSubmitBtn();
+  }
+
   // ─────────────────────────────────────────────────────────────
   //  Submit
   // ─────────────────────────────────────────────────────────────
@@ -969,11 +1110,12 @@
     showLoading(true);
     try {
       // 送出前重新抓最新狀態，縮小競態視窗
-      const [shiftsSnap, bookedSnap] = await Promise.all([
-        get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)),
+      const [shiftsSnap, bookedSnap, customersSnap] = await Promise.all([
+        get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)), get(dbRef(db, 'customers')),
       ]);
       publicShifts[st.date] = shiftsSnap.val() || {};
       bookedSlots[st.date]  = bookedSnap.val()  || {};
+      const customersVal = customersSnap.val() || {};
 
       if (st.apostle && st.apostle !== 'none') {
         if (!isApostleOnDuty(st.date, st.apostle, st.time)) {
@@ -991,9 +1133,12 @@
 
       const key = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       const res = {
-        id: key, date: st.date, time: st.time, services: [...st.services],
+        id: key, date: st.date, time: st.time, visitType: st.visitType,
+        services: [...st.services],
         photoSig: st.photoSig, photoExtra: st.photoExtra,
         designated: st.designated, apostle: st.apostle,
+        seatType: st.visitType === 'seat' ? st.seatType : null,
+        seatCount: st.visitType === 'seat' ? st.seatCount : null,
         rp: st.rp, rpNote: st.rpNote,
         gameName: st.gameName, server: st.server, contact: st.contact, notes: st.notes,
         total: calcTotal(), status: 'new', createdAt: new Date().toISOString(),
@@ -1001,6 +1146,16 @@
       const updates = { [`reservations/${key}`]: res };
       if (st.apostle && st.apostle !== 'none') {
         updates[`bookedSlots/${st.date}/${sKey(st.time)}/${st.apostle}`] = true;
+      }
+      // ponytail: 用角色名稱＋伺服器比對是否已是 POS 客戶，不比對 Discord／備註，避免覆蓋店員已編輯的資料
+      const isExistingCustomer = Object.values(customersVal).some(c => c.name === st.gameName && c.server === st.server);
+      if (!isExistingCustomer) {
+        const custId = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        updates[`customers/${custId}`] = {
+          id: custId, name: st.gameName, discord: st.contact, server: st.server,
+          contact: '', notes: '', pointsTotal: 0, hasRedeemedUltimate: false,
+          createdAt: new Date().toISOString(),
+        };
       }
       await update(dbRef(db), updates);
       showLoading(false);
@@ -1042,7 +1197,7 @@
       gridContent.style.gridColumn = '';
       gridContent.innerHTML = '<div class="bk2-grid" id="bk2-grid"></div><div id="bk2-grid-hint"></div>';
     }
-    st = { agreed:false, date:'', time:'', services:[], photoSig:false, photoExtra:0, apostle:null, designated:false, rp:'', rpNote:'', gameName:'', server:'', contact:'', notes:'' };
+    st = { agreed:false, date:'', time:'', visitType:'', services:[], photoSig:false, photoExtra:0, apostle:null, designated:false, seatType:'', seatCount:1, rp:'', rpNote:'', gameName:'', server:'', contact:'', notes:'' };
     const modal = document.getElementById('agree-modal');
     const chk   = document.getElementById('modal-agree-chk');
     const btn   = document.getElementById('modal-enter-btn');
@@ -1057,8 +1212,8 @@
   //  Preview mode
   // ─────────────────────────────────────────────────────────────
   if (PREVIEW) {
-    var _PD = { agreed:true, date:'2026-07-01', time:'22:00', services:['nomen30'],
-                designated:false, apostle:'none', rp:'light', rpNote:'',
+    var _PD = { agreed:true, date:'2026-07-01', time:'22:00', visitType:'ritual', services:['nomen30'],
+                designated:false, apostle:'none', seatCount:1, rp:'light', rpNote:'',
                 gameName:'徬徨的靈魂', server:'鳳凰', contact:'preview_user', notes:'' };
     window.addEventListener('message', function(e) {
       if (!e.data) return;
@@ -1141,7 +1296,8 @@
 
   Object.assign(window, {
     closeLightbox, toggleModalAgree, enterFromModal,
-    selectDate2, selectTime2, toggleSvc2, togglePhotoSig2, changePhotoExtra2,
+    selectDate2, selectTime2, selectVisitType2, selectSeatType2, changeSeatCount2,
+    toggleSvc2, togglePhotoSig2, changePhotoExtra2,
     selectApostle2, selectRP2, submitRes2, resetForm2,
   });
   </script>
