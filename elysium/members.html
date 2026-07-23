@@ -154,7 +154,12 @@
               <div class="member-img-hover">食罪</div>
             </div>
           </div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
+          <div class="member-card" onclick="openModal('modal-10')">
+            <div class="member-img-wrap">
+              <img src="image/掠影_頭像.png" alt="食罪">
+              <div class="member-img-hover">食罪</div>
+            </div>
+          </div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
           <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
@@ -593,6 +598,44 @@
             <div style="margin-bottom:.9rem;">
               <p class="modal-section-label">延伸資訊</p>
               <p class="modal-section-val">無論虛實，他喜歡聽故事……又或是說，他依戀著「聲音」帶來的溫度。</p>
+            </div>
+            <div>
+              <p class="modal-section-label">個人業務</p>
+              <p class="modal-section-val">暫不提供</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 10 -->
+  <div class="modal-overlay" id="modal-10" onclick="closeModal(event, 'modal-10')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal(null, 'modal-10')">&times;</button>
+      <div class="modal-inner">
+        <div class="modal-img-wrap">
+          <img src="image/掠影.png" alt="食罪" onclick="openLightbox(this.src)">
+          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
+        </div>
+        <div class="modal-content">
+          <span class="modal-role">食罪</span>
+          <h2 class="modal-name">掠影</h2>
+          <p class="modal-subtitle">尚未揭示</p>
+          <div class="modal-divider"></div>
+          <p class="modal-bio">不時在精靈族男性、維艾拉男性與敖龍族女性之間切換型態。<br>乙太波形容易受外界影響，故對於周遭環境十分敏感，很容易受到驚嚇就躲起來。<br>習慣在一段距離外觀察人群或小憩，似乎更傾向靠近獨自前來的會眾。<br>波形穩定時偶爾會低聲吟唱。<br>說話時投射過來的目光時而冷漠疏離、時而迷茫複雜；似乎看著你，又像是——透過你的眼瞳看著什麼人。</p>
+          <div class="modal-section">
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">聊天尺度</p>
+              <p class="modal-section-val">一般，禁止擦邊與親密接觸。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">禁忌與偏好</p>
+              <p class="modal-section-val">喜歡毛絨絨的小動物，習慣用微糖甜食穩定乙太，討厭未經允許的肢體碰觸。</p>
+            </div>
+            <div style="margin-bottom:.9rem;">
+              <p class="modal-section-label">延伸資訊</p>
+              <p class="modal-section-val">對情緒很敏感，過於激動的情緒反應可能導致乙太動盪。</p>
             </div>
             <div>
               <p class="modal-section-label">個人業務</p>
