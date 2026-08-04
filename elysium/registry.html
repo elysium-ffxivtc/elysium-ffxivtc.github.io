@@ -430,6 +430,7 @@
   });
   const db = getDatabase(app);
   const TIME_SLOTS = ['22:00', '23:00', '00:00'];
+  const DAILY_CAPACITY = 40; // 線上預約單日總人數上限，保留現場席次
   function sKey(t) { return t.replace(':', ''); }
 
   const PREVIEW = location.search.includes('preview');
@@ -1110,12 +1111,24 @@
     showLoading(true);
     try {
       // 送出前重新抓最新狀態，縮小競態視窗
-      const [shiftsSnap, bookedSnap, customersSnap] = await Promise.all([
-        get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)), get(dbRef(db, 'customers')),
+      const [shiftsSnap, bookedSnap, customersSnap, reservationsSnap] = await Promise.all([
+        get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)), get(dbRef(db, 'customers')), get(dbRef(db, 'reservations')),
       ]);
       publicShifts[st.date] = shiftsSnap.val() || {};
       bookedSlots[st.date]  = bookedSnap.val()  || {};
       const customersVal = customersSnap.val() || {};
+      const reservationsVal = reservationsSnap.val() || {};
+
+      const headcountOf = r => r.visitType === 'seat' ? (r.seatCount || 0) : 1;
+      const bookedHeadcount = Object.values(reservationsVal)
+        .filter(r => r.date === st.date && r.status !== 'cancelled')
+        .reduce((sum, r) => sum + headcountOf(r), 0);
+      const newHeadcount = st.visitType === 'seat' ? st.seatCount : 1;
+      if (bookedHeadcount + newHeadcount > DAILY_CAPACITY) {
+        alert(`${fmtDate(st.date)} 線上預約人數已達上限（${DAILY_CAPACITY} 人），請選擇其他日期。`);
+        showLoading(false);
+        return;
+      }
 
       if (st.apostle && st.apostle !== 'none') {
         if (!isApostleOnDuty(st.date, st.apostle, st.time)) {
