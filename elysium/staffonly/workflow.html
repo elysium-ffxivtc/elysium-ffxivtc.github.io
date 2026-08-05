@@ -43,7 +43,8 @@
       padding: .1rem 0; outline: none;
     }
     .col-title-input:focus { border-bottom-color: var(--gold); }
-    .col-del { background: none; border: none; color: var(--dim); font-size: 15px; line-height: 1; padding: .15rem; flex-shrink: 0; }
+    .col-del { background: none; border: none; color: var(--dim); font-size: 15px; line-height: 1; padding: .15rem; flex-shrink: 0; opacity: 0; pointer-events: none; transition: opacity .15s; }
+    .col-hdr:hover .col-del { opacity: 1; pointer-events: auto; }
     .col-del:hover { color: var(--red); }
     .col-body { display: flex; flex-direction: column; gap: .5rem; padding: .75rem; flex: 1; min-height: 40px; }
 
@@ -67,7 +68,8 @@
       cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default;
     }
     .block-title-input:focus { border-bottom-color: var(--gold); }
-    .block-del { background: none; border: none; color: var(--dim); font-size: 14px; line-height: 1; flex-shrink: 0; padding: 0 .1rem; }
+    .block-del { background: none; border: none; color: var(--dim); font-size: 14px; line-height: 1; flex-shrink: 0; padding: 0 .1rem; opacity: 0; pointer-events: none; transition: opacity .15s; }
+    .block:hover .block-del { opacity: 1; pointer-events: auto; }
     .block-del:hover { color: var(--red); }
     .block-content-input {
       display: block; width: 100%; border: none; background: none; outline: none; resize: none; overflow: hidden;
@@ -75,7 +77,8 @@
       cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default;
     }
 
-    .col-add { background: none; border: 1px dashed var(--border); color: var(--dim); font-size: 12px; padding: .5rem; font-family: inherit; }
+    .col-add { background: none; border: 1px dashed var(--border); color: var(--dim); font-size: 12px; padding: .5rem; font-family: inherit; opacity: 0; pointer-events: none; transition: opacity .15s; }
+    .col:hover .col-add { opacity: 1; pointer-events: auto; }
     .col-add:hover { border-color: var(--gold); color: var(--gold); }
 
     .empty-hint { font-size: 13px; color: var(--dim); padding: 1.5rem 0; text-align: center; }
