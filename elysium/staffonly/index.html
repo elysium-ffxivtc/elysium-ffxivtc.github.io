@@ -216,6 +216,15 @@
         <div class="card-name">預約管理</div>
       </a>
 
+      <a href="workflow.html" class="card" id="card-workflow">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="3" y="5" width="9" height="18" rx="1.2" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+          <rect x="16" y="5" width="9" height="10" rx="1.2" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+          <rect x="16" y="18" width="9" height="5" rx="1.2" stroke="#c8a87a" stroke-width="1.3" fill="none"/>
+        </svg>
+        <div class="card-name">工作流程</div>
+      </a>
+
     </div>
 
     <div class="signout-wrap">
@@ -264,6 +273,7 @@
           if (role !== 'admin') {
             document.getElementById('card-apostles').style.display = 'none';
             document.getElementById('card-reservations').style.display = 'none';
+            document.getElementById('card-workflow').style.display = 'none';
           }
           if (role === 'staff') {
             document.getElementById('card-pos').style.display = 'none';
@@ -282,6 +292,7 @@
           document.getElementById('card-pos').style.display = 'none';
           document.getElementById('card-apostles').style.display = 'none';
           document.getElementById('card-reservations').style.display = 'none';
+          document.getElementById('card-workflow').style.display = 'none';
           document.getElementById('card-grid').classList.add('three');
           document.getElementById('auth-overlay').classList.remove('show');
           document.getElementById('portal').classList.add('show');
