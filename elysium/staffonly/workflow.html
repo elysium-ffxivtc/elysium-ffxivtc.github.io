@@ -301,10 +301,10 @@ function render() {
           ondragleave="onBlockDragLeave(event,this)"
           ondrop="onBlockDrop(event,this,'${topicId}')">
           <div class="block-hdr">
-            <button class="block-icon-btn" onclick="openIconPicker(event,'${topicId}','${blockId}')" title="選擇圖示">${b.icon || '＋'}</button>
             <input class="block-title-input" data-block-id="${blockId}" value="${esc(b.title)}" placeholder="標題"
               onblur="saveBlockField('${topicId}','${blockId}','title', this.value.trim())"
               onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
+            <button class="block-icon-btn" onclick="openIconPicker(event,'${topicId}','${blockId}')" title="選擇圖示">${b.icon || '＋'}</button>
             <button class="block-del" onclick="deleteBlock('${topicId}','${blockId}')" title="刪除">&times;</button>
           </div>
           <textarea class="block-content-input" placeholder="內文" rows="1"
