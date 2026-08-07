@@ -35,12 +35,16 @@
     @media (max-width: 900px) { .board { grid-template-columns: repeat(2, minmax(0,280px)); } }
     @media (max-width: 620px) { .board { grid-template-columns: minmax(0,280px); } }
 
-    .col { background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; }
-    .col-hdr { display: flex; align-items: center; gap: .3rem; padding: .75rem .85rem; border-bottom: 1px solid var(--border); }
+    .col { background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; transition: box-shadow .12s; }
+    .col.drag-over-left  { box-shadow: inset 3px 0 0 var(--gold); }
+    .col.drag-over-right { box-shadow: inset -3px 0 0 var(--gold); }
+    .col-hdr { display: flex; align-items: center; gap: .3rem; padding: .75rem .85rem; border-bottom: 1px solid var(--border); cursor: grab; }
+    .col-hdr:active { cursor: grabbing; }
     .col-title-input {
       flex: 1; min-width: 0; border: none; border-bottom: 1px solid transparent; background: none;
       font-family: 'Noto Serif TC', serif; font-size: .92rem; color: var(--gold); letter-spacing: .06em;
       padding: .1rem 0; outline: none;
+      cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default;
     }
     .col-title-input:focus { border-bottom-color: var(--gold); }
     .col-del { background: none; border: none; color: var(--dim); font-size: 15px; line-height: 1; padding: .15rem; flex-shrink: 0; opacity: 0; pointer-events: none; transition: opacity .15s; }
@@ -181,6 +185,7 @@ let workflows = {};
 let renderPending = false;
 let pendingFocusBlockId = null;
 let dragState = null;   // { topicId, blockId }
+let topicDragState = null; // topicId
 
 onAuthStateChanged(auth, async user => {
   if (!user) { showAuth('login'); return; }
@@ -231,6 +236,11 @@ function getSortedBlockIds(topicId) {
     .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0) || (a[1].createdAt||'').localeCompare(b[1].createdAt||''))
     .map(([id]) => id);
 }
+function getSortedTopicIds() {
+  return Object.entries(workflows)
+    .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0) || (a[1].createdAt||'').localeCompare(b[1].createdAt||''))
+    .map(([id]) => id);
+}
 
 function isEditingFocused() {
   const el = document.activeElement;
@@ -242,11 +252,12 @@ function render() {
   renderPending = false;
 
   const board = document.getElementById('board');
-  const topics = Object.entries(workflows).sort((a, b) => (a[1].createdAt||'').localeCompare(b[1].createdAt||''));
+  const topicIds = getSortedTopicIds();
 
-  if (!topics.length) { board.innerHTML = '<div class="empty-hint" style="grid-column:1/-1">尚無主題，點右上角「＋ 新增主題」開始建立看板。</div>'; return; }
+  if (!topicIds.length) { board.innerHTML = '<div class="empty-hint" style="grid-column:1/-1">尚無主題，點右上角「＋ 新增主題」開始建立看板。</div>'; return; }
 
-  board.innerHTML = topics.map(([topicId, topic]) => {
+  board.innerHTML = topicIds.map(topicId => {
+    const topic = workflows[topicId];
     const blockIds = getSortedBlockIds(topicId);
     const blocksHtml = blockIds.map(blockId => {
       const b = topic.blocks[blockId];
@@ -285,10 +296,14 @@ function render() {
     }).join('');
 
     return `
-      <div class="col">
-        <div class="col-hdr">
+      <div class="col" data-topic-id="${topicId}"
+        ondragover="onTopicDragOver(event,this)"
+        ondragleave="onTopicDragLeave(event,this)"
+        ondrop="onTopicDrop(event,this)">
+        <div class="col-hdr" draggable="true" ondragstart="onTopicDragStart(event,'${topicId}')">
           <input class="col-title-input" value="${esc(topic.title)}" placeholder="主題名稱"
-            onblur="saveTopicTitle('${topicId}', this.value.trim())"
+            onfocus="this.closest('.col-hdr').draggable=false"
+            onblur="this.closest('.col-hdr').draggable=true;saveTopicTitle('${topicId}', this.value.trim())"
             onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
           <button class="col-del" onclick="deleteTopic('${topicId}')" title="刪除主題">&times;</button>
         </div>
@@ -319,8 +334,9 @@ window.saveTopic = async function() {
   const title = document.getElementById('topic-input').value.trim();
   if (!title) return;
   const topicId = newId();
+  const order = getSortedTopicIds().length;
   await set(dbRef(db, `workflows/${topicId}`), {
-    title, createdAt: new Date().toISOString(), createdBy: currentUser.displayName,
+    title, order, createdAt: new Date().toISOString(), createdBy: currentUser.displayName,
   });
   closeTopicModal();
 };
@@ -361,6 +377,7 @@ window.onBlockDragStart = function(e, topicId, blockId) {
   e.dataTransfer.setData('text/plain', blockId);
 };
 window.onBlockDragOver = function(e, el) {
+  if (!dragState) return;
   e.preventDefault(); e.stopPropagation();
   const rect = el.getBoundingClientRect();
   const isTop = (e.clientY - rect.top) < rect.height / 2;
@@ -371,6 +388,7 @@ window.onBlockDragLeave = function(e, el) {
   el.classList.remove('drag-over-top', 'drag-over-bottom');
 };
 window.onBlockDrop = async function(e, el, toTopicId) {
+  if (!dragState) return;
   e.preventDefault(); e.stopPropagation();
   const isTop = el.classList.contains('drag-over-top');
   el.classList.remove('drag-over-top', 'drag-over-bottom');
@@ -395,6 +413,43 @@ window.onColumnDrop = async function(e, toTopicId, beforeBlockId) {
   if (blockId === beforeBlockId) return;
   await moveBlock(fromTopicId, blockId, toTopicId, beforeBlockId);
 };
+
+// ── 主題：拖曳排序 ──
+window.onTopicDragStart = function(e, topicId) {
+  topicDragState = topicId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', topicId);
+};
+window.onTopicDragOver = function(e, el) {
+  if (!topicDragState) return;
+  e.preventDefault(); e.stopPropagation();
+  const rect = el.getBoundingClientRect();
+  const isLeft = (e.clientX - rect.left) < rect.width / 2;
+  el.classList.toggle('drag-over-left', isLeft);
+  el.classList.toggle('drag-over-right', !isLeft);
+};
+window.onTopicDragLeave = function(e, el) {
+  el.classList.remove('drag-over-left', 'drag-over-right');
+};
+window.onTopicDrop = async function(e, el) {
+  if (!topicDragState) return;
+  e.preventDefault(); e.stopPropagation();
+  const isLeft = el.classList.contains('drag-over-left');
+  el.classList.remove('drag-over-left', 'drag-over-right');
+  const draggedId = topicDragState;
+  topicDragState = null;
+  const targetId = el.dataset.topicId;
+  if (draggedId === targetId) return;
+  const list = getSortedTopicIds().filter(id => id !== draggedId);
+  let insertAt = list.indexOf(targetId);
+  if (insertAt === -1) insertAt = list.length;
+  if (!isLeft) insertAt += 1;
+  list.splice(insertAt, 0, draggedId);
+  const updates = {};
+  list.forEach((id, idx) => { updates[`workflows/${id}/order`] = idx; });
+  await update(dbRef(db), updates);
+};
+
 async function moveBlock(fromTopicId, blockId, toTopicId, beforeBlockId) {
   const blockData = workflows[fromTopicId]?.blocks?.[blockId];
   if (!blockData) return;
