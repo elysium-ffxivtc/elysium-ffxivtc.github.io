@@ -258,7 +258,8 @@ function render() {
           ondrop="onBlockDrop(event,this,'${topicId}')">
           <div class="block-hdr">
             <input class="block-title-input" data-block-id="${blockId}" value="${esc(b.title)}" placeholder="標題"
-              onblur="saveBlockField('${topicId}','${blockId}','title', this.value.trim())"
+              onfocus="this.closest('.block').draggable=false"
+              onblur="this.closest('.block').draggable=true;saveBlockField('${topicId}','${blockId}','title', this.value.trim())"
               onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
             <button class="block-del" onclick="deleteBlock('${topicId}','${blockId}')" title="刪除">&times;</button>
           </div>
@@ -277,7 +278,8 @@ function render() {
               </span>
             </div>
             <div class="block-content-input" contenteditable="true" data-placeholder="內文"
-              onblur="saveBlockField('${topicId}','${blockId}','content', this.innerHTML)">${b.content || ''}</div>
+              onfocus="this.closest('.block').draggable=false"
+              onblur="this.closest('.block').draggable=true;saveBlockField('${topicId}','${blockId}','content', this.innerHTML)">${b.content || ''}</div>
           </div>
         </div>`;
     }).join('');
