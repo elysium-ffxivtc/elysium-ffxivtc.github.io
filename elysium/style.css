@@ -829,12 +829,8 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 
 .menu-row-body { flex: 1; min-width: 0; }
 
-.menu-row-top {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 1rem; margin-bottom: .4rem;
-}
-
 .menu-row-name {
+  display: block; margin-bottom: .4rem;
   font-family: 'Noto Serif TC', serif;
   font-size: 1.25rem; font-weight: 700; letter-spacing: .06em; color: #000;
 }
@@ -846,6 +842,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 }
 
 .menu-row-price {
+  flex-shrink: 0; min-width: 5.2em; text-align: right;
   font-family: 'Noto Serif TC', serif;
   font-size: .85rem; letter-spacing: .08em; color: var(--gold);
   white-space: nowrap;
@@ -1109,9 +1106,9 @@ footer {
   .content.no-cover { padding-top: calc(60px + 3rem); }
   .menu-row { gap: .9rem; padding: 1.1rem 0; }
   .menu-row-icon img { width: 54px; height: 54px; }
-  .menu-row-top { flex-direction: column; align-items: flex-start; gap: .2rem; }
   .menu-row-name { font-size: 1.1rem; }
   .menu-row-tag { display: block; margin-left: 0; margin-top: .1rem; }
+  .menu-row-price { min-width: 0; font-size: .78rem; }
   .menu-note { padding: 1.4rem; }
 
   /* Rules */
