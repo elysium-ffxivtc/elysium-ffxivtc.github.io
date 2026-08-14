@@ -33,12 +33,12 @@
 
     .board {
       display: flex; align-items: flex-start; gap: 1rem; flex: 1; min-height: 0; overflow: auto; padding: 0 1.5rem 1.5rem;
-      scrollbar-width: thin; scrollbar-color: var(--gold) transparent;
+      scrollbar-width: thin; scrollbar-color: rgba(138,92,30,.3) transparent;
     }
     .board::-webkit-scrollbar { width: 9px; height: 9px; }
     .board::-webkit-scrollbar-track { background: transparent; }
-    .board::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
-    .board::-webkit-scrollbar-thumb:hover { background: #6f4a17; background-clip: padding-box; }
+    .board::-webkit-scrollbar-thumb { background: rgba(138,92,30,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    .board::-webkit-scrollbar-thumb:hover { background: rgba(138,92,30,.55); background-clip: padding-box; }
 
     .col { flex: 0 0 280px; background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; transition: box-shadow .12s; }
     .col.drag-over-left  { box-shadow: inset 3px 0 0 var(--gold); }
