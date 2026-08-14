@@ -20,9 +20,9 @@
 
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
     .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
-    .main { flex: 1; min-height: 0; padding: 1.25rem 1.5rem; width: 100%; margin: 0 auto; display: none; flex-direction: column; }
+    .main { flex: 1; min-height: 0; width: 100%; margin: 0 auto; display: none; flex-direction: column; }
 
-    .toolbar { display: flex; justify-content: flex-end; margin-bottom: 1rem; flex-shrink: 0; }
+    .toolbar { display: flex; justify-content: flex-end; padding: 1.25rem 1.5rem 0; margin-bottom: 1rem; flex-shrink: 0; }
 
     .btn { padding: .38rem .85rem; font-size: 12px; border: none; font-family: inherit; transition: all .15s; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
@@ -32,7 +32,7 @@
     .btn-sm { padding: .3rem .7rem; font-size: 12px; }
 
     .board {
-      display: flex; align-items: flex-start; gap: 1rem; flex: 1; min-height: 0; overflow: auto; padding-bottom: .5rem;
+      display: flex; align-items: flex-start; gap: 1rem; flex: 1; min-height: 0; overflow: auto; padding: 0 1.5rem 1.5rem;
       scrollbar-width: thin; scrollbar-color: var(--gold) transparent;
     }
     .board::-webkit-scrollbar { width: 9px; height: 9px; }
