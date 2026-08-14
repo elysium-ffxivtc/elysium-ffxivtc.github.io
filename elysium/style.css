@@ -777,7 +777,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 
 .menu-bg { background: #D7D7D7; }
 
-.menu-page { max-width: 1200px; }
+.menu-page { max-width: 760px; }
 
 .menu-header {
   text-align: center;
@@ -801,64 +801,58 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   text-align: center;
 }
 
-.menu-items {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2.5rem; margin-top: 2rem;
-}
+.menu-items { margin-top: 2rem; }
 
-.menu-item {
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center;
-  padding: 2.4rem .8rem 2rem;
-  background:
-    linear-gradient(to bottom, transparent 0%, rgba(214, 214, 214, 0.35) 100%),
-    linear-gradient(to right, #FAFAFA 0%, #F4F4F4 100%);
-}
+.menu-cat { margin-bottom: 2.4rem; }
+.menu-cat:last-child { margin-bottom: 0; }
 
-.menu-item:last-child {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: calc((100% - 7.5rem) / 4);
-}
-
-.menu-item-icon { margin-bottom: .8rem; position: relative; }
-
-.menu-item-icon img {
-  width: 100px; height: 100px; object-fit: cover;
-  border: none; border-radius: 8px;
-}
-
-.menu-item-icon[data-name]::after {
-  content: attr(data-name);
-  position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
-  background: rgba(0, 0, 0, .85); color: #fff;
-  font-size: .78rem; letter-spacing: .04em; white-space: nowrap;
-  padding: .35rem .7rem; border-radius: 4px;
-  opacity: 0; pointer-events: none; transition: opacity .15s;
-  z-index: 5;
-}
-
-.menu-item-icon[data-name]:hover::after { opacity: 1; }
-
-
-.menu-name {
+.menu-cat-head { display: flex; align-items: center; gap: .9rem; margin-bottom: 1.2rem; }
+.menu-cat-head span {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1.5rem; font-weight: 700; letter-spacing: .06em;
-  color: #000; display: block; margin-bottom: .5rem;
+  font-size: 1.3rem; letter-spacing: .16em; color: var(--gold);
+}
+.menu-cat-head::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,.12); }
+
+.menu-list { display: flex; flex-direction: column; }
+
+.menu-row {
+  display: flex; align-items: center; gap: 1.3rem;
+  padding: 1.3rem 0; border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.menu-cat .menu-list .menu-row:first-child { border-top: none; }
+.menu-row:last-child { border-bottom: none; }
+
+.menu-row-icon img {
+  width: 72px; height: 72px; object-fit: cover;
+  border: none; border-radius: 8px; display: block;
 }
 
+.menu-row-body { flex: 1; min-width: 0; }
 
-.menu-desc {
-  font-size: .9rem; color: var(--dim); line-height: 1.7;
-  margin-bottom: .6rem; flex: 1;
-  text-align: center; white-space: nowrap;
+.menu-row-top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; margin-bottom: .4rem;
 }
 
-.menu-price {
+.menu-row-name {
   font-family: 'Noto Serif TC', serif;
-  font-size: .92rem; letter-spacing: .1em; color: var(--gold);
+  font-size: 1.25rem; font-weight: 700; letter-spacing: .06em; color: #000;
+}
+
+.menu-row-tag {
+  font-family: 'Noto Serif TC', serif;
+  font-size: .74rem; font-weight: 400; letter-spacing: .04em;
+  color: rgba(184,144,96,.75); margin-left: .7rem;
+}
+
+.menu-row-price {
+  font-family: 'Noto Serif TC', serif;
+  font-size: .85rem; letter-spacing: .08em; color: var(--gold);
   white-space: nowrap;
+}
+
+.menu-row-desc {
+  font-size: .88rem; color: var(--dim); line-height: 1.7;
 }
 
 .menu-note {
@@ -1113,9 +1107,11 @@ footer {
 
   /* Menu */
   .content.no-cover { padding-top: calc(60px + 3rem); }
-  .menu-items { grid-template-columns: 1fr; gap: 2rem; }
-  .menu-item:last-child { grid-column: unset; justify-self: unset; width: 100%; }
-  .menu-name { font-size: 1.15rem; }
+  .menu-row { gap: .9rem; padding: 1.1rem 0; }
+  .menu-row-icon img { width: 54px; height: 54px; }
+  .menu-row-top { flex-direction: column; align-items: flex-start; gap: .2rem; }
+  .menu-row-name { font-size: 1.1rem; }
+  .menu-row-tag { display: block; margin-left: 0; margin-top: .1rem; }
   .menu-note { padding: 1.4rem; }
 
   /* Rules */
