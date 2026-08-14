@@ -15,6 +15,11 @@
       --green: #2d7a50; --green-dim: rgba(45,122,80,.1); --red: #b03838;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    * { scrollbar-width: thin; scrollbar-color: var(--gold) transparent; }
+    *::-webkit-scrollbar { width: 9px; height: 9px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    *::-webkit-scrollbar-thumb:hover { background: #6f4a17; background-clip: padding-box; }
     body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
     a, button, [role="button"], select, [onclick] { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
 

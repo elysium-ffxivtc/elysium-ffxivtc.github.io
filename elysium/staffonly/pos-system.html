@@ -28,6 +28,11 @@
       --yi:       #795061;   /* 妖異 */
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    * { scrollbar-width: thin; scrollbar-color: var(--gold) transparent; }
+    *::-webkit-scrollbar { width: 9px; height: 9px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    *::-webkit-scrollbar-thumb:hover { background: #6f4a17; background-clip: padding-box; }
     body { cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
     select { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
     input, textarea { cursor: url('../image/arr-cursors/arr-small-text.cur'), text; }
