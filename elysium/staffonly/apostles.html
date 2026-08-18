@@ -255,6 +255,8 @@ function renderEdit(uid) {
       <textarea class="form-input" id="f-extra">${esc(a.extra||'')}</textarea>
       <div class="form-label">個人業務</div>
       <textarea class="form-input" id="f-business">${esc(a.business||'')}</textarea>
+      <div class="form-label">心像殘響專屬餐點名稱</div>
+      <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="心像殘響">
       <div class="form-row2">
         <div><div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}"></div>
         <div><div class="form-label">&nbsp;</div>
@@ -286,6 +288,9 @@ async function saveApostle(uid) {
     taboo:    document.getElementById('f-taboo').value.trim(),
     extra:    document.getElementById('f-extra').value.trim(),
     business: document.getElementById('f-business').value.trim(),
+    specialDish: {
+      name: document.getElementById('f-special-name').value.trim(),
+    },
     order:    parseInt(document.getElementById('f-order').value, 10) || 0,
     active:   document.getElementById('f-active').checked,
     bookable: document.getElementById('f-bookable').checked,
