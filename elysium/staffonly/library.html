@@ -444,19 +444,6 @@
       <div class="lib-section-hdr">
         <button class="lib-add-btn" id="btn-add-faq" onclick="openFaqModal()" style="display:none">＋ 新增問題</button>
       </div>
-      <div class="lib-table-wrap" id="faq-webhook-settings" style="display:none;padding:.85rem 1rem;margin-bottom:1rem">
-        <div style="font-size:13px;font-weight:600;margin-bottom:.6rem">Discord 通知設定</div>
-        <div style="font-size:12px;color:var(--dim);margin-bottom:.3rem">問答集 · 新提問通知</div>
-        <div style="display:flex;gap:.5rem;margin-bottom:.7rem">
-          <input id="webhook-qa-input" class="form-input" placeholder="https://discord.com/api/webhooks/…" value="">
-          <button class="lib-add-btn" onclick="saveWebhookQA()" style="white-space:nowrap;padding:.48rem 1rem">儲存</button>
-        </div>
-        <div style="font-size:12px;color:var(--dim);margin-bottom:.3rem">圖書室 · 更新通知</div>
-        <div style="display:flex;gap:.5rem">
-          <input id="webhook-libupdates-input" class="form-input" placeholder="https://discord.com/api/webhooks/…" value="">
-          <button class="lib-add-btn" onclick="saveWebhookLibUpdates()" style="white-space:nowrap;padding:.48rem 1rem">儲存</button>
-        </div>
-      </div>
       <div id="faq-list"></div>
       <div class="lib-empty" id="empty-faq" style="display:none">尚無問題</div>
     </div>
@@ -500,26 +487,9 @@
     const db      = firebase.database();
     const storage = firebase.storage();
 
-    // Webhook 網址不寫死在原始碼裡（會被公開掃描濫用），改存在 Firebase，由管理員在頁面上填寫
-    let discordWebhookQA = '', discordWebhookLibUpdates = '';
-    db.ref('settings/discordWebhookQA').on('value', snap => {
-      discordWebhookQA = snap.val() || '';
-      const el = document.getElementById('webhook-qa-input');
-      if (el && document.activeElement !== el) el.value = discordWebhookQA;
-    });
-    db.ref('settings/discordWebhookLibraryUpdates').on('value', snap => {
-      discordWebhookLibUpdates = snap.val() || '';
-      const el = document.getElementById('webhook-libupdates-input');
-      if (el && document.activeElement !== el) el.value = discordWebhookLibUpdates;
-    });
-    async function saveWebhookQA() {
-      const url = document.getElementById('webhook-qa-input').value.trim();
-      await db.ref('settings/discordWebhookQA').set(url || null);
-    }
-    async function saveWebhookLibUpdates() {
-      const url = document.getElementById('webhook-libupdates-input').value.trim();
-      await db.ref('settings/discordWebhookLibraryUpdates').set(url || null);
-    }
+    // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
+    // 不會出現在這裡的原始碼或 Firebase 中。
+    const DISCORD_RELAY = 'https://elysium-discord-relay.hanai420.workers.dev';
 
     let _user = null, _role = 'staff', _displayName = '', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
     let _polaroids = [], _lbIdx = 0;
@@ -565,9 +535,6 @@
         document.getElementById('btn-add-meeting').style.display     = '';
         document.getElementById('btn-add-announce').style.display    = '';
         document.getElementById('btn-upload-polaroid').style.display = '';
-        document.getElementById('faq-webhook-settings').style.display = '';
-        document.getElementById('webhook-qa-input').value = discordWebhookQA;
-        document.getElementById('webhook-libupdates-input').value = discordWebhookLibUpdates;
       }
       renderBadge();
       loadEntries();
@@ -1149,10 +1116,9 @@
     }
 
     async function notifyDiscordUpdate(category, subtext, detail) {
-      if (!discordWebhookLibUpdates) return;
       try {
         const detailLine = detail ? `### ${detail}\n` : '';
-        await fetch(discordWebhookLibUpdates, {
+        await fetch(DISCORD_RELAY + '/updates', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1163,9 +1129,8 @@
     }
 
     async function notifyDiscord(question, author) {
-      if (!discordWebhookQA) return;
       try {
-        await fetch(discordWebhookQA, {
+        await fetch(DISCORD_RELAY + '/qa', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -472,7 +472,8 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let bizStatus    = {};
   let announcement = null; // { text, updatedBy, updatedAt }
   let myMemo       = '';
-  let discordWebhook = '';
+  // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡。
+  const DISCORD_RELAY = 'https://elysium-discord-relay.hanai420.workers.dev';
   let adminTab       = 'schedule';
   let scheduleSubTab = 'personal'; // 'personal' | 'full'
 
@@ -615,9 +616,6 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       myMemo = snap.val()?.text || '';
       const el = document.getElementById('memo-input');
       if (el && document.activeElement !== el) el.value = myMemo;
-    });
-    onValue(dbRef(db, 'settings/discordWebhook'), snap => {
-      discordWebhook = snap.val() || '';
     });
   }
 
@@ -1338,13 +1336,8 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         </div>
         <div class="card">
           <div class="card-title">Discord 通知設定</div>
-          <div class="form-label">Webhook URL</div>
-          <div style="display:flex;gap:.5rem">
-            <input id="webhook-url-input" class="form-input" placeholder="https://discord.com/api/webhooks/…" value="${esc(discordWebhook)}">
-            <button class="btn btn-gold btn-sm" onclick="saveWebhook()" style="white-space:nowrap">儲存</button>
-            <button class="btn btn-outline btn-sm" onclick="testWebhook()" style="white-space:nowrap">測試</button>
-          </div>
-          <div style="font-size:11px;color:var(--dim);margin-top:.38rem">排班登記、取消、請假時自動傳送通知至指定 Discord 頻道</div>
+          <button class="btn btn-outline btn-sm" onclick="testWebhook()" style="white-space:nowrap">傳送測試訊息</button>
+          <div style="font-size:11px;color:var(--dim);margin-top:.38rem">排班登記、取消、請假時自動傳送通知至指定 Discord 頻道；webhook 網址已改存於 Cloudflare Worker，不在此頁設定</div>
         </div>`;
     });
   }
@@ -1381,14 +1374,13 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   async function sendDiscord(content, date = null) {
-    if (!discordWebhook) return;
     if (date) {
       const now = new Date();
       const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
       if (!date.startsWith(prefix)) return;
     }
     try {
-      await fetch(discordWebhook, {
+      await fetch(DISCORD_RELAY + '/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })
@@ -1396,21 +1388,14 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     } catch(e) {}
   }
 
-  async function saveWebhook() {
-    const url = document.getElementById('webhook-url-input').value.trim();
-    await set(dbRef(db, 'settings/discordWebhook'), url || null);
-    showToast(url ? 'Webhook 已儲存' : 'Webhook 已清除');
-  }
   async function testWebhook() {
-    const url = document.getElementById('webhook-url-input').value.trim();
-    if (!url) { showToast('請先輸入 Webhook URL'); return; }
     try {
-      const res = await fetch(url, {
+      const res = await fetch(DISCORD_RELAY + '/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: '🔔 **安息地排班系統** — Webhook 測試成功！' })
       });
-      if (res.ok || res.status === 204) showToast('測試訊息已送出');
+      if (res.ok) showToast('測試訊息已送出');
       else showToast(`送出失敗 (${res.status})`);
     } catch(e) {
       showToast('送出失敗：' + e.message);
@@ -1510,7 +1495,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     openExportModal, closeExportModal, downloadScheduleImg,
     requestLeave, cancelLeave,
     approveStaff, rejectStaff, removeStaff,
-    saveWebhook, testWebhook,
+    testWebhook,
   });
   document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
   document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
