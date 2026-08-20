@@ -34,27 +34,29 @@
   <!-- 上半：名諱介紹 -->
   <section class="nomen-hero">
     <div class="nomen-hero-text">
-      <h2 class="section-title">名諱系統</h2>
-      <p>在安息地的領域之中，「名字」不只是一種稱呼，而是一種存在的定位。</p>
-      <p>每一個參與儀式的名字都會進入名錄之中，重新定義其被看見的方式。</p>
-      <p class="nomen-quote">我們將這個過程稱為—— <em>❝ 名諱召引 ❞</em></p>
-      <p>享受短暫的名之召引，寧靜地、歡快地，讓使徒們撫平你枯竭的靈魂。</p>
-
-      <div class="line-divider"></div>
-
-      <h3 class="sub-title">名諱的三層結構</h3>
-      <p>每一位使徒都擁有三種名稱狀態：</p>
-      <ul class="nomen-bullet-list">
-        <li>✦ 俗名：在人間的稱呼。不具備任何魔法效益。</li>
-        <li>✦ ⏹︎名：使徒⏹︎⏹︎的模⏹︎。掌握⏹︎⏹︎即可透過⏹︎⏹︎換⏹︎特定的⏹︎⏹︎。</li>
-        <li>✦ ⏹︎名／⏹︎名：⏹︎⏹︎所⏹︎予的「⏹︎⏹︎⏹︎⏹︎⏹︎」。⏹︎眾⏹︎⏹︎⏹︎⏹︎參⏹︎⏹︎名⏹︎程。</li>
-      </ul>
-
-      <div class="line-divider"></div>
-
-      <h3 class="sub-title">行前準備</h3>
-      <p>欲進入禮堂者，必須以 $ 30,000 Gil 購入花環並全程配戴，作為與會之憑證。</p>
-      <p>提前預約召引之會眾，請知會引路人，核對身分後將跟您收取花環費用 $ 20,000 Gil ，再入內支付召引費用。</p>
+      <div class="nomen-reveal">
+        <h2 class="section-title">名諱系統</h2>
+        <p>在安息地的領域之中，「名字」不只是一種稱呼，而是一種存在的定位。</p>
+        <p>每一個參與儀式的名字都會進入名錄之中，重新定義其被看見的方式。</p>
+      </div>
+      <div class="nomen-reveal">
+        <p class="nomen-quote">我們將這個過程稱為—— <em>名諱召引</em></p>
+        <p>享受短暫的名之召引，寧靜地、歡快地，讓使徒們撫平你枯竭的靈魂。</p>
+      </div>
+      <div class="nomen-reveal">
+        <div class="line-divider"></div>
+        <h3 class="sub-title">名諱的三層結構</h3>
+        <p>每一位使徒都擁有三種名稱狀態：</p>
+        <ul class="nomen-bullet-list">
+          <li>✦ 俗名：在人間的稱呼。不具備任何魔法效益。</li>
+          <li>✦ ⏹︎名：使徒⏹︎⏹︎的模⏹︎。掌握⏹︎⏹︎即可透過⏹︎⏹︎換⏹︎特定的⏹︎⏹︎。</li>
+          <li>✦ ⏹︎名／⏹︎名：⏹︎⏹︎所⏹︎予的「⏹︎⏹︎⏹︎⏹︎⏹︎」。⏹︎眾⏹︎⏹︎⏹︎⏹︎參⏹︎⏹︎名⏹︎程。</li>
+        </ul>
+        <div class="line-divider"></div>
+        <h3 class="sub-title">行前準備</h3>
+        <p>欲進入禮堂者，必須以 $ 30,000 Gil 購入花環並全程配戴，作為與會之憑證。</p>
+        <p>提前預約召引之會眾，請知會引路人，核對身分後將跟您收取花環費用 $ 20,000 Gil ，再入內支付召引費用。</p>
+      </div>
     </div>
     <div class="nomen-hero-img">
       <img src="image/服務封面.png" alt="Elysium">
@@ -123,6 +125,7 @@
         </div>
 
         <div class="nomen-service-item inactive">
+          <span class="nomen-service-badge">敬請期待</span>
           <div class="nomen-service-name">榮福直觀</div>
           <div class="nomen-service-sub">香檳服務</div>
           <p class="nomen-service-desc">以堆疊的酒光構築而成的祝禱儀式。<br>此刻的歡愉、榮耀與注視，皆歸於您。</p>
@@ -135,6 +138,7 @@
         </div>
 
         <div class="nomen-service-item inactive">
+          <span class="nomen-service-badge">敬請期待</span>
           <div class="nomen-service-name">福音讚禮</div>
           <div class="nomen-service-sub">慶祝服務</div>
           <p class="nomen-service-desc">為值得銘記之日獻上慶賀。<br>燭火將為您點亮，喜悅與祝福亦將因此聚攏。</p>
@@ -163,6 +167,12 @@
   </footer>
 
   <script src="nav.js"></script>
+  <script>
+    const nomenIO = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+    }, { threshold: .15 });
+    document.querySelectorAll('.nomen-service-item').forEach(el => nomenIO.observe(el));
+  </script>
 </body>
 </html>
 

@@ -631,6 +631,18 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   padding: 2.5rem 4.5rem 2.5rem 5rem;
 }
 
+.nomen-reveal {
+  opacity: 0; transform: translateY(14px);
+  animation: nomenReveal .7s ease forwards;
+}
+.nomen-reveal:nth-child(1) { animation-delay: .05s; }
+.nomen-reveal:nth-child(2) { animation-delay: .15s; }
+.nomen-reveal:nth-child(3) { animation-delay: .25s; }
+@keyframes nomenReveal { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .nomen-reveal { animation: none; opacity: 1; transform: none; }
+}
+
 .nomen-hero-text .line-divider { margin: 1.2rem 0; }
 
 .nomen-hero-text .sub-title { margin-top: 1.4rem; margin-bottom: .5rem; font-size: 1.1rem; }
@@ -678,6 +690,12 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   width: 100%; height: 100%;
   object-fit: cover; object-position: top center;
   display: block;
+  animation: nomenAmbientZoom 22s ease-in-out infinite alternate;
+}
+
+@keyframes nomenAmbientZoom { from { transform: scale(1); } to { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) {
+  .nomen-hero-img img { animation: none; }
 }
 
 .nomen-services {
@@ -686,9 +704,17 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 }
 
 .nomen-quote {
+  position: relative;
   font-family: 'Noto Serif TC', serif;
   font-size: 1rem; letter-spacing: .08em; color: var(--text);
-  margin: 1.8rem 0;
+  margin: 1.8rem 0; padding-left: .3rem;
+}
+
+.nomen-quote::before {
+  content: '❝';
+  position: absolute; left: -1.6rem; top: -1.3rem;
+  font-family: 'Noto Serif TC', serif; font-size: 4.2rem; color: rgba(184,144,96,.28); line-height: 1;
+  pointer-events: none;
 }
 
 .nomen-quote em { font-style: italic; }
@@ -715,16 +741,39 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 }
 
 .nomen-service-item {
+  position: relative;
   padding: 1.4rem 2.4rem 2.4rem;
   margin-bottom: 1.2rem;
   background:
     linear-gradient(to bottom, transparent 0%, rgba(214, 214, 214, 0.35) 100%),
     linear-gradient(to right, #FAFAFA 0%, #F4F4F4 100%);
+  border: 1px solid transparent;
+  opacity: 0; transform: translateY(18px);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.nomen-service-item.vis { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s ease; }
+
+.nomen-service-item:not(.inactive):hover {
+  transform: translateY(-3px);
+  border-color: rgba(184,144,96,.4);
+  box-shadow: 0 14px 28px -18px rgba(0,0,0,.35);
 }
 
 .nomen-service-item:last-child { border-bottom: none; }
 
-.nomen-service-item.inactive { opacity: .35; }
+.nomen-service-item.inactive { opacity: .55; }
+.nomen-service-item.inactive.vis { opacity: .55; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nomen-service-item { opacity: 1; transform: none; }
+}
+
+.nomen-service-badge {
+  position: absolute; top: 1.1rem; right: 1.3rem;
+  font-family: 'Noto Serif TC', serif; font-size: .68rem; letter-spacing: .18em;
+  color: var(--gold); border: 1px solid rgba(184,144,96,.4); padding: .2rem .55rem;
+}
 
 .nomen-service-name {
   font-family: 'Noto Serif TC', serif;
@@ -1095,6 +1144,7 @@ footer {
   .nomen-hero-text .sub-title { font-size: 1.1rem; }
   .nomen-hero-text .nomen-bullet-list li { font-size: .8rem; line-height: 1.8; }
   .nomen-quote { font-size: .88rem; }
+  .nomen-quote::before { left: -.6rem; font-size: 2.8rem; }
   .nomen-hero-img { order: -1; height: 300px; }
   .nomen-hero-img img { object-position: top center; }
   .nomen-hero-text { padding: 2rem 1.4rem; }
