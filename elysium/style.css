@@ -707,15 +707,18 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   position: relative;
   font-family: 'Noto Serif TC', serif;
   font-size: 1rem; letter-spacing: .08em; color: var(--text);
-  margin: 1.8rem 0; padding-left: .3rem;
+  margin: 1.8rem 0; padding: 0 .3rem;
 }
 
-.nomen-quote::before {
-  content: '❝';
-  position: absolute; left: -1.6rem; top: -1.3rem;
+.nomen-quote::before,
+.nomen-quote::after {
+  position: absolute;
   font-family: 'Noto Serif TC', serif; font-size: 4.2rem; color: rgba(184,144,96,.28); line-height: 1;
   pointer-events: none;
 }
+
+.nomen-quote::before { content: '❝'; left: -1.6rem; top: -1.3rem; }
+.nomen-quote::after   { content: '❞'; right: -1.2rem; bottom: -1.9rem; }
 
 .nomen-quote em { font-style: italic; }
 
@@ -1144,7 +1147,10 @@ footer {
   .nomen-hero-text .sub-title { font-size: 1.1rem; }
   .nomen-hero-text .nomen-bullet-list li { font-size: .8rem; line-height: 1.8; }
   .nomen-quote { font-size: .88rem; }
-  .nomen-quote::before { left: -.6rem; font-size: 2.8rem; }
+  .nomen-quote::before,
+  .nomen-quote::after { font-size: 2.8rem; }
+  .nomen-quote::before { left: -.6rem; }
+  .nomen-quote::after  { right: -.4rem; bottom: -1.3rem; }
   .nomen-hero-img { order: -1; height: 300px; }
   .nomen-hero-img img { object-position: top center; }
   .nomen-hero-text { padding: 2rem 1.4rem; }
