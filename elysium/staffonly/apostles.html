@@ -209,17 +209,17 @@ function renderList() {
     .filter(s => s.role === 'apostle' || s.role === 'admin' || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
     .sort((a, b) => apostleOrderKey(a) - apostleOrderKey(b));
 
-  const row = s => {
-    const has = !!apostles[s.uid];
-    const sel = editingUid === s.uid ? ' on' : '';
-    return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
-      <span><span class="acct-dot ${has?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
-    </div>`;
-  };
-
   const isUnbookable = s => {
     const a = apostles[s.uid];
-    return !!a && (a.active === false || a.bookable === false);
+    return !a || a.active === false || a.bookable === false;
+  };
+
+  const row = s => {
+    const canBook = !isUnbookable(s);
+    const sel = editingUid === s.uid ? ' on' : '';
+    return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
+      <span><span class="acct-dot ${canBook?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
+    </div>`;
   };
   const bookable   = all.filter(s => !isUnbookable(s));
   const unbookable = all.filter(s => isUnbookable(s));
