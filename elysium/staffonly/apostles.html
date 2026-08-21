@@ -205,16 +205,31 @@ function apostleOrderKey(s) {
 function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
-  const rows = staffList
+  const all = staffList
     .filter(s => s.role === 'apostle' || s.role === 'admin' || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
-    .sort((a, b) => apostleOrderKey(a) - apostleOrderKey(b))
-    .map(s => {
-      const has = !!apostles[s.uid];
-      const sel = editingUid === s.uid ? ' on' : '';
-      return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
-        <span><span class="acct-dot ${has?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
-      </div>`;
-    }).join('') || '<div class="empty-hint">尚無使徒角色的員工帳號</div>';
+    .sort((a, b) => apostleOrderKey(a) - apostleOrderKey(b));
+
+  const row = s => {
+    const has = !!apostles[s.uid];
+    const sel = editingUid === s.uid ? ' on' : '';
+    return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
+      <span><span class="acct-dot ${has?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
+    </div>`;
+  };
+
+  const isUnbookable = s => {
+    const a = apostles[s.uid];
+    return !!a && (a.active === false || a.bookable === false);
+  };
+  const bookable   = all.filter(s => !isUnbookable(s));
+  const unbookable = all.filter(s => isUnbookable(s));
+
+  const rows = !all.length ? '<div class="empty-hint">尚無使徒角色的員工帳號</div>' : `
+    ${bookable.map(row).join('')}
+    ${unbookable.length ? `
+      <div class="empty-hint" style="margin:.6rem 0 .3rem;padding-top:.6rem;border-top:1px solid var(--border)">無法預約</div>
+      ${unbookable.map(row).join('')}
+    ` : ''}`;
   col.innerHTML = `<div class="card"><div class="card-title">使徒列表</div>${rows}</div>`;
 }
 
