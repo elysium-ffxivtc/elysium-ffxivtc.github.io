@@ -421,7 +421,7 @@
 
   <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-  import { getDatabase, ref as dbRef, get, update } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+  import { getDatabase, ref as dbRef, get, update, runTransaction } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 
   // ─────────────────────────────────────────────────────────────
   //  設定區
@@ -439,6 +439,7 @@
   const TIME_SLOTS = ['22:00', '23:00', '00:00'];
   const DAILY_CAPACITY = 40; // 線上預約單日總人數上限，保留現場席次
   function sKey(t) { return t.replace(':', ''); }
+  function sanitizeKey(s) { return String(s||'').trim().replace(/[.#$/\[\]]/g, '_'); }
 
   const PREVIEW = location.search.includes('preview');
 
@@ -1125,26 +1126,14 @@
     if (!availTimes.includes(st.time)) { alert(`${st.time} 場次已不在開放範圍，請重新選擇。`); return; }
 
     showLoading(true);
+    const newHeadcount = st.visitType === 'seat' ? st.seatCount : 1;
     try {
       // 送出前重新抓最新狀態，縮小競態視窗
-      const [shiftsSnap, bookedSnap, customersSnap, reservationsSnap] = await Promise.all([
-        get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)), get(dbRef(db, 'customers')), get(dbRef(db, 'reservations')),
+      const [shiftsSnap, bookedSnap] = await Promise.all([
+        get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)),
       ]);
       publicShifts[st.date] = shiftsSnap.val() || {};
       bookedSlots[st.date]  = bookedSnap.val()  || {};
-      const customersVal = customersSnap.val() || {};
-      const reservationsVal = reservationsSnap.val() || {};
-
-      const headcountOf = r => r.visitType === 'seat' ? (r.seatCount || 0) : 1;
-      const bookedHeadcount = Object.values(reservationsVal)
-        .filter(r => r.date === st.date && r.status !== 'cancelled')
-        .reduce((sum, r) => sum + headcountOf(r), 0);
-      const newHeadcount = st.visitType === 'seat' ? st.seatCount : 1;
-      if (bookedHeadcount + newHeadcount > DAILY_CAPACITY) {
-        alert(`${fmtDate(st.date)} 線上預約人數已達上限（${DAILY_CAPACITY} 人），請選擇其他日期。`);
-        showLoading(false);
-        return;
-      }
 
       if (st.apostle && st.apostle !== 'none') {
         if (!isApostleOnDuty(st.date, st.apostle, st.time)) {
@@ -1158,6 +1147,18 @@
           alert(`${name} 在 ${st.time} 已被預約，請重新選擇。`);
           st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); showLoading(false); return;
         }
+      }
+
+      // 用交易安全地檢查並累加當日人數上限，避免競態超收
+      const hcResult = await runTransaction(dbRef(db, `dailyHeadcount/${st.date}`), cur => {
+        const now = cur || 0;
+        if (now + newHeadcount > DAILY_CAPACITY) return; // 中止交易，資料不變
+        return now + newHeadcount;
+      });
+      if (!hcResult.committed) {
+        alert(`${fmtDate(st.date)} 線上預約人數已達上限（${DAILY_CAPACITY} 人），請選擇其他日期。`);
+        showLoading(false);
+        return;
       }
 
       const key = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -1176,21 +1177,27 @@
       if (st.apostle && st.apostle !== 'none') {
         updates[`bookedSlots/${st.date}/${sKey(st.time)}/${st.apostle}`] = true;
       }
-      // ponytail: 用角色名稱＋伺服器比對是否已是 POS 客戶，不比對 Discord／備註，避免覆蓋店員已編輯的資料
-      const isExistingCustomer = Object.values(customersVal).some(c => c.name === st.gameName && c.server === st.server);
-      if (!isExistingCustomer) {
+
+      const lookupKey = sanitizeKey(st.gameName) + '_' + sanitizeKey(st.server);
+      const lookupSnap = await get(dbRef(db, `customerLookup/${lookupKey}`));
+      if (!lookupSnap.exists()) {
         const custId = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
         updates[`customers/${custId}`] = {
           id: custId, name: st.gameName, discord: st.contact, server: st.server,
           contact: '', notes: '', pointsTotal: 0, hasRedeemedUltimate: false,
           createdAt: new Date().toISOString(),
         };
+        updates[`customerLookup/${lookupKey}`] = true;
       }
+
       await update(dbRef(db), updates);
       showLoading(false);
       renderSuccess2(st.gameName);
     } catch(e) {
       console.error(e);
+      // dailyHeadcount 的規則只允許公開「累加」，不允許公開「扣減」（避免有人惡意重設人數繞過上限），
+      // 所以這裡沒辦法在最後一步失敗時自動退回已預扣的人數——寧可少賣一個名額，也不要有機會被超收繞過。
+      // 如果之後常常發生（人數上限計算跟實際 reservations 對不上），要手動去 Firebase 把 dailyHeadcount 校正回來。
       showLoading(false);
       alert('送出失敗，請稍後再試一次。');
     }
