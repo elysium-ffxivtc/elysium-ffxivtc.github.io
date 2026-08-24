@@ -444,7 +444,7 @@
     {
       id: 'nomen30', name: '顯名儀',
       desc: '回應召喚的基礎儀式，使徒留下最初的名痕。',
-      price: 100000, dur: 30, canDesig: true,
+      price: 200000, dur: 30, canDesig: true,
     },
     {
       id: 'photo', name: '交名留影',
@@ -572,9 +572,16 @@
     if (PREVIEW && previewBlock) return allTimes.map(t => ({ time:t, blocked:true }));
     return allTimes.map(t => ({ time:t, blocked: !!bookedSlots[dateStr]?.[sKey(t)]?.[uid] }));
   }
+  function nomenPrice() {
+    const a = APOSTLES.find(x => x.uid === st.apostle);
+    return a && a.rank === 'intern' ? 150000 : 200000;
+  }
+  function svcPrice(sid) {
+    return sid === 'nomen30' ? nomenPrice() : (SERVICES.find(s => s.id===sid)?.price||0);
+  }
   function calcTotal() {
     if (st.visitType === 'seat') return st.seatCount * 20000;
-    return st.services.reduce((t, sid) => t + (SERVICES.find(s => s.id===sid)?.price||0), 0)
+    return st.services.reduce((t, sid) => t + svcPrice(sid), 0)
       + (st.photoSig && st.services.includes('photo') ? 20000 : 0)
       + (st.services.includes('photo') ? st.photoExtra * 20000 : 0);
   }
@@ -891,7 +898,7 @@
           <div class="bk2-svc-name">${s.name}</div>
           <div class="bk2-svc-desc-sm">${s.desc.split('\n')[0]}</div>
         </div>
-        <div class="bk2-svc-price">${s.price.toLocaleString()} Gil</div>
+        <div class="bk2-svc-price">${svcPrice(s.id).toLocaleString()} Gil</div>
       </div>
       ${s.id==='photo' && sel
         ? `<div class="bk2-photosig${st.photoSig?' on':''}" onclick="togglePhotoSig2()">
@@ -1051,6 +1058,8 @@
     st.apostle    = (st.apostle === id ? null : id);
     st.designated = (st.apostle !== null && st.apostle !== 'none');
     renderGrid();
+    updateSvcCards();
+    updateCost();
     updateSubmitBtn();
   }
 

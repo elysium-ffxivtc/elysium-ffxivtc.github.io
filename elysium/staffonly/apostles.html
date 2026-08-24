@@ -260,6 +260,11 @@ function renderEdit(uid) {
           </select>
         </div>
       </div>
+      <div class="form-label">員工等級</div>
+      <select class="form-input" id="f-rank">
+        <option value="formal" ${a.rank!=='intern'?'selected':''}>正式員工</option>
+        <option value="intern" ${a.rank==='intern'?'selected':''}>實習</option>
+      </select>
       <div class="form-label">真名</div>
       <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">
       <div class="form-label">個體紀錄</div>
@@ -298,6 +303,7 @@ async function saveApostle(uid) {
   const val = {
     name:     document.getElementById('f-name').value.trim(),
     tag:      document.getElementById('f-tag').value.trim(),
+    rank:     document.getElementById('f-rank').value,
     photo:    document.getElementById('f-photo').value.trim(),
     subtitle: document.getElementById('f-subtitle').value.trim(),
     bio:      document.getElementById('f-bio').value.trim(),
