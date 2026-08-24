@@ -119,12 +119,19 @@
       transition: opacity .2s;
     }
     .bk2-card-name {
+      display: flex; align-items: center; gap: .35rem;
       font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700;
       color: var(--text); letter-spacing: .02em;
       transition: color .2s;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .bk2-card-name-text { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .bk2-card.sel .bk2-card-name { color: var(--gold); }
+    .bk2-card-rank-tag {
+      flex-shrink: 0;
+      font-family: 'Noto Sans TC', sans-serif; font-size: 11px; font-weight: 400;
+      color: var(--dim); border: 1px solid var(--border); border-radius: 3px;
+      padding: .05rem .35rem; line-height: 1.4;
+    }
     .bk2-card-tag { font-size: 10px; color: var(--dim); margin-top: 2px; }
 
     /* "不指定" card */
@@ -669,7 +676,7 @@
       return `<div class="bk2-card${isSel?' sel':''}${cls}${isLocked?' locked':''}" ${clickEv}>
         <div class="bk2-card-photo">${photoHtml}${badge}<div class="bk2-card-sel-bar"></div></div>
         <div class="bk2-card-body">
-          <div class="bk2-card-name">${escH(a.name)}${a.rank==='intern' ? `<span style="font-size:11px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:.05rem .35rem;margin-left:.4rem;vertical-align:middle;">見習</span>` : ''}</div>
+          <div class="bk2-card-name"><span class="bk2-card-name-text">${escH(a.name)}</span>${a.rank==='intern' ? `<span class="bk2-card-rank-tag">見習</span>` : ''}</div>
         </div>
       </div>`;
     }
