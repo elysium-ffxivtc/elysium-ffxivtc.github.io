@@ -1491,12 +1491,12 @@
             </div>
             <div class="field-full" id="apostle-field">
               <label class="pos-lbl" id="apostle-field-label">指定使徒</label>
-              ${APOSTLES.length
+              ${(() => { const summonable = APOSTLES.filter(a => a.tag === '食罪' || a.tag === '妖異'); return summonable.length
                 ? `<select class="pos-select" id="v-apostle" onchange="updateSpecialMenu()">
                     <option value="">選擇使徒</option>
-                    ${[...APOSTLES].sort((a,b)=>((a.tag==='司祭'||a.tag==='監禮者')?1:0)-((b.tag==='司祭'||b.tag==='監禮者')?1:0)).map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
+                    ${summonable.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
                   </select>`
-                : `<input class="pos-input" id="v-apostle" type="text" placeholder="填入使徒名稱" oninput="updateSpecialMenu()">`}
+                : `<input class="pos-input" id="v-apostle" type="text" placeholder="填入使徒名稱" oninput="updateSpecialMenu()">`; })()}
             </div>
           </div>
         </div>
