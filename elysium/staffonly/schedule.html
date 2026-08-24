@@ -470,6 +470,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let staff        = [];
   let schedData    = {}; // { 'YYYY-MM-DD_HHMM': { uid: {...} } }
   let bizStatus    = {};
+  let apostlesData = {}; // { uid: { name, tag, ... } }，營業日規則用來判斷排班人員職位
   let announcement = null; // { text, updatedBy, updatedAt }
   let myMemo       = '';
   // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡。
@@ -592,12 +593,19 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   // ── Firebase listeners ────────────────────────────────────────
+  let _schedLoaded = false, _apostlesLoaded = false;
   function startListeners() {
     onValue(dbRef(db, 'schedules'), snap => {
       schedData = snap.val() || {};
+      _schedLoaded = true;
       render();
       if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
-      syncBizStatus();
+      if (_apostlesLoaded) syncBizStatus();
+    });
+    onValue(dbRef(db, 'apostles'), snap => {
+      apostlesData = snap.val() || {};
+      _apostlesLoaded = true;
+      if (_schedLoaded) syncBizStatus();
     });
     onValue(dbRef(db, 'staff'), snap => {
       staff = snap.val() ? Object.values(snap.val()) : [];
@@ -738,18 +746,20 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   // ── Biz day logic ─────────────────────────────────────────────
+  // 時段人力規則：靜火在班、至少一位引路人在班、至少三位使徒（食罪／妖異）在班，這個時段才算達標。
+  // 職位判斷用 apostles collection 的 tag／name，不用 staff.apostleTag（那個欄位沒有介面可以維護，不可靠）。
+  function isSlotStaffed(date, time) {
+    const entry = schedData[`${date}_${sKey(time)}`] || {};
+    const activeUids = Object.entries(entry).filter(([, p]) => !p.isLeave).map(([uid]) => uid);
+    const hasJinghuo   = activeUids.some(uid => apostlesData[uid]?.name === '靜火');
+    const pilgrimCount = activeUids.filter(uid => apostlesData[uid]?.tag === '引路人').length;
+    const apostleCount = activeUids.filter(uid => apostlesData[uid]?.tag === '食罪' || apostlesData[uid]?.tag === '妖異').length;
+    return hasJinghuo && pilgrimCount >= 1 && apostleCount >= 3;
+  }
+  // 營業日規則：三個時段只要「任一時段」達標，當天就算營業（實際各時段能不能訂，
+  // 由 registry.html 各自用 isSlotStaffed 的邏輯再判斷一次，不會因為某時段缺人拖累其他時段）。
   function isBizDay(date) {
-    const uids = new Set();
-    let hasAdmin = false;
-    for (const t of TIME_SLOTS) {
-      const entry = schedData[`${date}_${sKey(t)}`] || {};
-      for (const [uid, person] of Object.entries(entry)) {
-        if (person.isLeave) continue;
-        uids.add(uid);
-        if (person.role === 'admin') hasAdmin = true;
-      }
-    }
-    return hasAdmin && uids.size >= 4;
+    return TIME_SLOTS.some(t => isSlotStaffed(date, t));
   }
 
   // ── Calendar grid ─────────────────────────────────────────────

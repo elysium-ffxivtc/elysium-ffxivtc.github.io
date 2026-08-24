@@ -483,6 +483,7 @@
   //  狀態
   // ─────────────────────────────────────────────────────────────
   let bizStatus = {}, publicShifts = {}, bookedSlots = {}, previewBlock = false;
+  let ALL_APOSTLES = {}; // uid -> 完整 apostles 記錄（含銀紗使／引路人），供每時段人力規則判斷用
   let st = {
     agreed: false, date: '', time: '',
     visitType: '',
@@ -514,6 +515,7 @@
         get(dbRef(db, 'publicShifts')), get(dbRef(db, 'bookedSlots')),
       ]);
       const apostlesVal = apostlesSnap.val() || {};
+      ALL_APOSTLES = apostlesVal;
       APOSTLES = Object.entries(apostlesVal)
         .map(([uid, v]) => ({ uid, ...v }))
         .filter(a => a.active !== false && a.tag !== '銀紗使' && a.tag !== '引路人')
@@ -557,8 +559,18 @@
   // ─────────────────────────────────────────────────────────────
   //  排班邏輯
   // ─────────────────────────────────────────────────────────────
+  // 每個時段各自要有靜火在班、至少一位引路人、至少三位使徒（食罪／妖異）才算這個時段有開放，
+  // 跟 bizStatus（當天整體是否營業）分開判斷，避免單一時段缺人拖累其他時段。
+  function isSlotStaffed(dateStr, time) {
+    const uids = Object.keys(publicShifts[dateStr]?.[sKey(time)] || {});
+    const hasJinghuo   = uids.some(uid => ALL_APOSTLES[uid]?.name === '靜火');
+    const pilgrimCount = uids.filter(uid => ALL_APOSTLES[uid]?.tag === '引路人').length;
+    const apostleCount = uids.filter(uid => ALL_APOSTLES[uid]?.tag === '食罪' || ALL_APOSTLES[uid]?.tag === '妖異').length;
+    return hasJinghuo && pilgrimCount >= 1 && apostleCount >= 3;
+  }
   function getAvailTimes(dateStr) {
-    return bizStatus[dateStr]?.isOpen ? TIME_SLOTS : [];
+    if (!bizStatus[dateStr]?.isOpen) return [];
+    return TIME_SLOTS.filter(t => isSlotStaffed(dateStr, t));
   }
   function getApostleBookableTimes(dateStr, uid) {
     if (APOSTLES.find(a => a.uid === uid)?.bookable === false) return [];
