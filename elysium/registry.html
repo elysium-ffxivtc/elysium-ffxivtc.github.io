@@ -508,7 +508,7 @@
       const apostlesVal = apostlesSnap.val() || {};
       APOSTLES = Object.entries(apostlesVal)
         .map(([uid, v]) => ({ uid, ...v }))
-        .filter(a => a.active !== false && (a.tag === '食罪' || a.tag === '妖異'))
+        .filter(a => a.active !== false && a.tag !== '銀紗使' && a.tag !== '引路人')
         .sort((a, b) => (a.order || 0) - (b.order || 0));
       bizStatus    = bizSnap.val()    || {};
       publicShifts = shiftsSnap.val() || {};

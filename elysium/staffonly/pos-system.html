@@ -1491,7 +1491,7 @@
             </div>
             <div class="field-full" id="apostle-field">
               <label class="pos-lbl" id="apostle-field-label">指定使徒</label>
-              ${(() => { const summonable = APOSTLES.filter(a => a.tag === '食罪' || a.tag === '妖異'); return summonable.length
+              ${(() => { const summonable = APOSTLES.filter(a => a.tag !== '銀紗使' && a.tag !== '引路人'); return summonable.length
                 ? `<select class="pos-select" id="v-apostle" onchange="updateSpecialMenu()">
                     <option value="">選擇使徒</option>
                     ${summonable.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
