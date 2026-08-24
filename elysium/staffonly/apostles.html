@@ -263,7 +263,7 @@ function renderEdit(uid) {
       <div class="form-label">員工等級</div>
       <select class="form-input" id="f-rank">
         <option value="formal" ${a.rank!=='intern'?'selected':''}>正式員工</option>
-        <option value="intern" ${a.rank==='intern'?'selected':''}>實習</option>
+        <option value="intern" ${a.rank==='intern'?'selected':''}>實習員工</option>
       </select>
       <div class="form-label">真名</div>
       <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">

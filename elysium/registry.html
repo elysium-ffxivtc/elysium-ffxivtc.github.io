@@ -669,7 +669,7 @@
       return `<div class="bk2-card${isSel?' sel':''}${cls}${isLocked?' locked':''}" ${clickEv}>
         <div class="bk2-card-photo">${photoHtml}${badge}<div class="bk2-card-sel-bar"></div></div>
         <div class="bk2-card-body">
-          <div class="bk2-card-name">${escH(a.name)}</div>
+          <div class="bk2-card-name">${escH(a.name)}${a.rank==='intern' ? `<span style="font-size:11px;color:var(--dim);border:1px solid var(--border);border-radius:3px;padding:.05rem .35rem;margin-left:.4rem;vertical-align:middle;">見習</span>` : ''}</div>
         </div>
       </div>`;
     }
