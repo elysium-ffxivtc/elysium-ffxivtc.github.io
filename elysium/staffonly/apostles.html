@@ -206,7 +206,7 @@ function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const all = staffList
-    .filter(s => s.role === 'apostle' || s.role === 'admin' || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
+    .filter(s => s.role === 'apostle' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid] || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
     .sort((a, b) => apostleOrderKey(a) - apostleOrderKey(b));
 
   const isUnbookable = s => {
@@ -255,6 +255,8 @@ function renderEdit(uid) {
             <option value="食罪" ${a.tag==='食罪'?'selected':''}>食罪</option>
             <option value="妖異" ${a.tag==='妖異'?'selected':''}>妖異</option>
             <option value="司祭・監禮者" ${a.tag==='司祭・監禮者'?'selected':''}>司祭・監禮者</option>
+            <option value="銀紗使" ${a.tag==='銀紗使'?'selected':''}>銀紗使</option>
+            <option value="引路人" ${a.tag==='引路人'?'selected':''}>引路人</option>
           </select>
         </div>
       </div>

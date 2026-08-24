@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
@@ -6,6 +6,8 @@
   <title>Members ✦ Elysium</title>
   <link rel="icon" type="image/png" href="image/Elysium_LOGO_mini.png">
   <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <style>
     .modal-subtitle      { font-size: .82rem; }
     .modal-bio           { font-size: .9rem; }
@@ -145,47 +147,7 @@
         <h2>使徒</h2>
         <hr class="members-rule">
       </div>
-      <div class="member-grid-5">
-        <div class="apostle-group">
-          <!-- 食罪 × 5 -->
-          <!-- 掠影暫時隱藏，未刪除，需恢復時取消下方註解並移除一張 fog 卡
-          <div class="member-card" onclick="openModal('modal-10')">
-            <div class="member-img-wrap">
-              <img src="image/掠影_頭像.png" alt="食罪">
-              <div class="member-img-hover">食罪</div>
-            </div>
-          </div>
-          -->
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/食罪.jpg" alt="食罪"></div></div>
-        </div>
-        <div class="apostle-group">
-          <!-- 妖異 × 5 -->
-          <div class="member-card" onclick="openModal('modal-5')">
-            <div class="member-img-wrap">
-              <img src="image/安怛_頭像.png" alt="妖異">
-              <div class="member-img-hover">妖異</div>
-            </div>
-          </div>
-          <div class="member-card" onclick="openModal('modal-6')">
-            <div class="member-img-wrap">
-              <img src="image/安石_頭像.png" alt="妖異">
-              <div class="member-img-hover">妖異</div>
-            </div>
-          </div>
-          <div class="member-card" onclick="openModal('modal-7')">
-            <div class="member-img-wrap">
-              <img src="image/尼克席恩_頭像.png" alt="妖異">
-              <div class="member-img-hover">妖異</div>
-            </div>
-          </div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
-          <div class="member-card fog"><div class="member-img-wrap"><img src="image/妖異.jpg" alt="妖異"></div></div>
-        </div>
-      </div>
+      <div class="member-grid-5" id="apostle-grid"></div>
     </div>
   </section>
 
@@ -196,36 +158,7 @@
         <h2>侍者</h2>
         <hr class="members-rule">
       </div>
-      <div class="member-grid-3">
-        <!-- 上排 -->
-        <div class="member-card" onclick="openModal('modal-1')">
-          <div class="member-img-wrap">
-            <img src="image/靜火_頭像.png" alt="司祭">
-            <div class="member-img-hover">司祭</div>
-          </div>
-        </div>
-        <div class="member-card" onclick="openModal('modal-2')">
-          <div class="member-img-wrap">
-            <img src="image/著魔_頭像.png" alt="監禮者">
-            <div class="member-img-hover">監禮者</div>
-          </div>
-        </div>
-        <div class="member-card" onclick="openModal('modal-3')">
-          <div class="member-img-wrap">
-            <img src="image/咪努_頭像.png" alt="銀紗使">
-            <div class="member-img-hover">銀紗使</div>
-          </div>
-        </div>
-        <!-- 下排：引路人 × 3 -->
-        <div class="member-card" onclick="openModal('modal-4')">
-          <div class="member-img-wrap">
-            <img src="image/八乙女華蓮_頭像.png" alt="引路人">
-            <div class="member-img-hover">引路人</div>
-          </div>
-        </div>
-        <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
-        <div class="member-card fog"><div class="member-img-wrap"><img src="image/引路人.jpg" alt="引路人"></div></div>
-      </div>
+      <div class="member-grid-3" id="attendant-grid"></div>
     </div>
   </section>
 
@@ -254,321 +187,30 @@
     <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
   </footer>
 
-  <!-- Modal 1 -->
-  <div class="modal-overlay" id="modal-1" onclick="closeModal(event, 'modal-1')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-1')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/靜火.png" alt="司祭" onclick="openLightbox(this.src)">
-          <div id="sj-head-trigger"></div>
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">司祭</span>
-          <h2 class="modal-name">靜火</h2>
-          <p class="modal-subtitle">Elysium的經營者</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">沒有人知道司祭究竟是人類、使徒，<br>亦或長久停留於幻境中的某種存在。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">一般～暗示，禁止親吻互動。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">喜歡研究，討厭麻煩，研究以外的事情都是麻煩。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">意外地喜歡吃甜食，原因可能是更易於補充血糖及熱量。</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="sj-bubble" class="sj-bubble">
-        <span class="sj-dot"></span>
-        <span class="sj-dot"></span>
-        <span class="sj-dot"></span>
-      </div>
-    </div>
-  </div>
+  <div id="modals-root"></div>
 
-  <!-- Modal 3 -->
-  <div class="modal-overlay" id="modal-3" onclick="closeModal(event, 'modal-3')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-3')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/咪努.png" alt="銀紗使" onclick="openLightbox(this.src)">
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">銀紗使</span>
-          <h2 class="modal-name">咪努</h2>
-          <p class="modal-subtitle">織就使徒儀容之人。</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">曾醉心於人偶製作，試圖為作品塑造人格，卻始終無法理解生命的本質。如今作為引路人，透過會眾、妖異與食罪交織的故事尋找答案。身兼銀紗使，以服飾與美學詮釋每位使徒。談吐溫和得體，總能察覺人們的遲疑，卻偏偏不急著點破。總能一眼看穿他人的猶豫，卻偏偏喜歡看著對方自己說出口。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">一般～親密，禁止親吻互動。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">喜歡能記錄體驗、承載記憶的事物。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div id="img-lightbox" onclick="closeLightbox()">
+    <img id="img-lightbox-img" src="" alt="">
   </div>
-
-  <!-- Modal 2 -->
-  <div class="modal-overlay" id="modal-2" onclick="closeModal(event, 'modal-2')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-2')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/著魔.png" alt="監禮者" onclick="openLightbox(this.src)">
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">監禮者</span>
-          <h2 class="modal-name">著魔</h2>
-          <p class="modal-subtitle">Elysium的第一位使徒</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">回應司祭的召喚第一位降臨於現世的食罪。<br>本體目前未知形體，但具有自我意識可以溝通。<br>利用司祭找來的敖龍族男性屍體進行儀式並寄宿在其身上。<br>正在感興趣的接觸人類文明史，並監管著聖所內所有動靜。<br>容器偶爾會因為⏹︎⏹︎司祭的⏹︎⏹︎而過度利用損毀。需要進行維護並替換備用體。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">一般～暗示，禁止親吻互動。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">不時出沒於各種高處視野遠方觀察人類的生活，原因未知。喜歡下雪的日子。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">擅長了解使徒間的狀態，介入處理後會彙報給司祭。</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 4 -->
-  <div class="modal-overlay" id="modal-4" onclick="closeModal(event, 'modal-4')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-4')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/八乙女華蓮.png" alt="引路人" onclick="openLightbox(this.src)">
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">引路人</span>
-          <h2 class="modal-name">八乙女華蓮</h2>
-          <p class="modal-subtitle">&nbsp;</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">曾是漂泊於大地上的維艾拉女性。<br><br>居無定所的她在某個大雨的夜晚對在墓地裡掘墳的身影產生好奇。<br>而後發生的一系列種種使她選擇留在Elysium。<br>將聖堂視為救贖人類心靈的場所，偶而會因為使徒的力量改變樣貌。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">一般～暗示。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">喜歡觀察會眾與使徒間的互動。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">食慾低，比起吃飯更喜歡喝水。</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 5 -->
-  <div class="modal-overlay" id="modal-5" onclick="closeModal(event, 'modal-5')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-5')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/安怛.png" alt="妖異" onclick="openLightbox(this.src)">
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">妖異</span>
-          <h2 class="modal-name">安怛</h2>
-          <p class="modal-subtitle">尚未揭示</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">外表是暮暉之民男性。白金相間的頭髮、紫色的皮膚，也許最引人注目的是那雙熱切的眼睛。這副皮囊似曾相識。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">親密～多暗示及擦邊。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">喜歡溫暖潮濕的地方、金閃閃的寶物、寶石；對氣味和聲音很敏感，會跟著金子落地的聲音起舞。<br>厭惡受到羞辱，有可能激怒乙太體。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">一切看心情行事。由於受到絕望浸染，很容易放棄；偶爾會出現原因不明的遲鈍。</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 6 -->
-  <div class="modal-overlay" id="modal-6" onclick="closeModal(event, 'modal-6')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-6')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/安石.png" alt="妖異" onclick="openLightbox(this.src)">
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">妖異</span>
-          <h2 class="modal-name">安石</h2>
-          <p class="modal-subtitle">尚未揭示</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">大多時間外型為敖龍族暮輝之民女性，雙目失明，依靠觀測乙太的方式模糊的辨別周遭環境，熱衷觀測各種生物的乙太。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">一般～親密。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">喜歡閱讀、聆聽故事，不喜歡吵鬧的環境。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">雖然能夠靠乙太辨識大致方位但還是時常在室內迷路。</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 7 -->
-  <div class="modal-overlay" id="modal-7" onclick="closeModal(event, 'modal-7')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-7')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/尼克席恩.png" alt="妖異" onclick="openLightbox(this.src)">
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">妖異</span>
-          <h2 class="modal-name">尼克席恩</h2>
-          <p class="modal-subtitle">尚未揭示</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">生前為精靈族男性，死後化作妖異也維持著一樣的外貌。<br>容易被人類豐沛的情感所吸引，不分善惡都會讓他好奇。<br><br>注意：對於喜愛之人可能會產生佔有的慾望偏執，接觸者需注意自身安全。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">一般～暗示。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">格外喜歡會分享喜怒哀樂的人類。<br>討厭不守規矩、不懂尊重的人類。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">喜歡美酒與美食，來者不拒。</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal 8 -->
-  <!-- Modal 10 -->
-  <!-- 掠影暫時隱藏，未刪除
-  <div class="modal-overlay" id="modal-10" onclick="closeModal(event, 'modal-10')">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeModal(null, 'modal-10')">&times;</button>
-      <div class="modal-inner">
-        <div class="modal-img-wrap">
-          <img src="image/掠影.png" alt="食罪" onclick="openLightbox(this.src)">
-          <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-        </div>
-        <div class="modal-content">
-          <span class="modal-role">食罪</span>
-          <h2 class="modal-name">掠影</h2>
-          <p class="modal-subtitle">尚未揭示</p>
-          <div class="modal-divider"></div>
-          <p class="modal-bio">不時在精靈族男性、維艾拉男性與敖龍族女性之間切換型態。<br>乙太波形容易受外界影響，故對於周遭環境十分敏感，很容易受到驚嚇就躲起來。<br>習慣在一段距離外觀察人群或小憩，似乎更傾向靠近獨自前來的會眾。<br>波形穩定時偶爾會低聲吟唱。<br>說話時投射過來的目光時而冷漠疏離、時而迷茫複雜；似乎看著你，又像是——透過你的眼瞳看著什麼人。</p>
-          <div class="modal-section">
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">聊天尺度</p>
-              <p class="modal-section-val">一般，禁止擦邊與親密接觸。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">禁忌與偏好</p>
-              <p class="modal-section-val">喜歡毛絨絨的小動物，習慣用微糖甜食穩定乙太，討厭未經允許的肢體碰觸。</p>
-            </div>
-            <div style="margin-bottom:.9rem;">
-              <p class="modal-section-label">延伸資訊</p>
-              <p class="modal-section-val">對情緒很敏感，過於激動的情緒反應可能導致乙太動盪。</p>
-            </div>
-            <div>
-              <p class="modal-section-label">個人業務</p>
-              <p class="modal-section-val">暫不提供</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  -->
 
   <script>
+    firebase.initializeApp({
+      apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+      authDomain:        "elysiumpos.firebaseapp.com",
+      databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "elysiumpos",
+      storageBucket:     "elysiumpos.firebasestorage.app",
+      messagingSenderId: "430177597593",
+      appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+    });
+    const db = firebase.database();
+
     var sjBubble = null;
+    var sjModalId = null;
+
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function escBr(s) { return esc(s).replace(/\n/g, '<br>'); }
+    function thumbOf(photo) { return String(photo||'').replace(/(\.[a-zA-Z0-9]+)$/, '_頭像$1'); }
 
     function openModal(id) {
       document.getElementById(id).classList.add('is-open');
@@ -578,7 +220,7 @@
       if (e && e.target !== document.getElementById(id)) return;
       document.getElementById(id).classList.remove('is-open');
       document.body.style.overflow = '';
-      if (id === 'modal-1' && sjBubble) sjBubble.classList.remove('active');
+      if (id === sjModalId && sjBubble) sjBubble.classList.remove('active');
     }
     function openLightbox(src) {
       document.getElementById('img-lightbox-img').src = src;
@@ -599,19 +241,137 @@
       }
     });
 
-    sjBubble = document.getElementById('sj-bubble');
-    var sjTrigger = document.getElementById('sj-head-trigger');
-    if (sjTrigger && sjBubble) {
-      sjTrigger.addEventListener('mouseenter', function() { sjBubble.classList.add('active'); });
-      sjTrigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
+    function cardHtml(modalId, photo, tag, thumbAlt, isFog, fogImg) {
+      if (isFog) {
+        return `<div class="member-card fog"><div class="member-img-wrap"><img src="${fogImg}" alt="${esc(thumbAlt)}"></div></div>`;
+      }
+      return `
+        <div class="member-card" onclick="openModal('${modalId}')">
+          <div class="member-img-wrap">
+            <img src="${esc(thumbOf(photo))}" alt="${esc(thumbAlt)}">
+            <div class="member-img-hover">${esc(thumbAlt)}</div>
+          </div>
+        </div>`;
     }
-  </script>
 
-  <div id="img-lightbox" onclick="closeLightbox()">
-    <img id="img-lightbox-img" src="" alt="">
-  </div>
+    function modalHtml(modalId, a, roleLabel, subtitle, extraBubble) {
+      const business = a.business ? escBr(a.business) : '暫不提供';
+      return `
+        <div class="modal-overlay" id="${modalId}" onclick="closeModal(event, '${modalId}')">
+          <div class="modal-box">
+            <button class="modal-close" onclick="closeModal(null, '${modalId}')">&times;</button>
+            <div class="modal-inner">
+              <div class="modal-img-wrap">
+                <img src="${esc(a.photo||'')}" alt="${esc(roleLabel)}" onclick="openLightbox(this.src)">
+                ${extraBubble ? `<div id="sj-head-trigger"></div>` : ''}
+                <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
+              </div>
+              <div class="modal-content">
+                <span class="modal-role">${esc(roleLabel)}</span>
+                <h2 class="modal-name">${esc(a.name||'')}</h2>
+                <p class="modal-subtitle">${subtitle ? esc(subtitle) : '&nbsp;'}</p>
+                <div class="modal-divider"></div>
+                <p class="modal-bio">${escBr(a.bio)}</p>
+                <div class="modal-section">
+                  <div style="margin-bottom:.9rem;">
+                    <p class="modal-section-label">聊天尺度</p>
+                    <p class="modal-section-val">${escBr(a.chat)}</p>
+                  </div>
+                  <div style="margin-bottom:.9rem;">
+                    <p class="modal-section-label">禁忌與偏好</p>
+                    <p class="modal-section-val">${escBr(a.taboo)}</p>
+                  </div>
+                  <div style="margin-bottom:.9rem;">
+                    <p class="modal-section-label">延伸資訊</p>
+                    <p class="modal-section-val">${escBr(a.extra)}</p>
+                  </div>
+                  <div>
+                    <p class="modal-section-label">個人業務</p>
+                    <p class="modal-section-val">${business}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            ${extraBubble ? `
+            <div id="sj-bubble" class="sj-bubble">
+              <span class="sj-dot"></span>
+              <span class="sj-dot"></span>
+              <span class="sj-dot"></span>
+            </div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    db.ref('apostles').get().then(function(snap) {
+      const all = Object.entries(snap.val() || {})
+        .map(function(e) { return { uid: e[0], ...e[1] }; })
+        .filter(function(a) { return a.active !== false; })
+        .sort(function(x, y) { return (x.order||0) - (y.order||0); });
+
+      const byTag = {};
+      all.forEach(function(a) { (byTag[a.tag] = byTag[a.tag] || []).push(a); });
+
+      const modals = [];
+
+      // ── 使徒：食罪 / 妖異，各補到 5 格，subtitle 一律「尚未揭示」 ──
+      const apostleGroups = [
+        { tag: '食罪', fog: 'image/食罪.jpg' },
+        { tag: '妖異', fog: 'image/妖異.jpg' },
+      ];
+      document.getElementById('apostle-grid').innerHTML = apostleGroups.map(function(g) {
+        const list = byTag[g.tag] || [];
+        const cards = list.map(function(a) {
+          const modalId = 'modal-' + a.uid;
+          modals.push(modalHtml(modalId, a, g.tag, '尚未揭示', false));
+          return cardHtml(modalId, a.photo, g.tag, g.tag, false);
+        });
+        const pad = Math.max(0, 5 - cards.length);
+        for (let i = 0; i < pad; i++) cards.push(cardHtml(null, null, g.tag, g.tag, true, g.fog));
+        return `<div class="apostle-group">${cards.join('')}</div>`;
+      }).join('');
+
+      // ── 侍者：司祭・監禮者（依序命名）、銀紗使、引路人（補到 3 格） ──
+      const clergy = (byTag['司祭・監禮者'] || []);
+      const clergyLabels = ['司祭', '監禮者'];
+      const clergyCards = clergy.map(function(a, i) {
+        const roleLabel = clergyLabels[i] || '司祭・監禮者';
+        const modalId = 'modal-' + a.uid;
+        const isChief = a.name === '靜火';
+        if (isChief) sjModalId = modalId;
+        modals.push(modalHtml(modalId, a, roleLabel, a.subtitle, isChief));
+        return cardHtml(modalId, a.photo, roleLabel, roleLabel, false);
+      });
+
+      const silk = (byTag['銀紗使'] || []);
+      const silkCards = silk.map(function(a) {
+        const modalId = 'modal-' + a.uid;
+        modals.push(modalHtml(modalId, a, '銀紗使', a.subtitle, false));
+        return cardHtml(modalId, a.photo, '銀紗使', '銀紗使', false);
+      });
+
+      const pilgrims = (byTag['引路人'] || []);
+      const pilgrimCards = pilgrims.map(function(a) {
+        const modalId = 'modal-' + a.uid;
+        modals.push(modalHtml(modalId, a, '引路人', a.subtitle, false));
+        return cardHtml(modalId, a.photo, '引路人', '引路人', false);
+      });
+      const pilgrimPad = Math.max(0, 3 - pilgrimCards.length);
+      for (let i = 0; i < pilgrimPad; i++) pilgrimCards.push(cardHtml(null, null, '引路人', '引路人', true, 'image/引路人.jpg'));
+
+      document.getElementById('attendant-grid').innerHTML =
+        clergyCards.join('') + silkCards.join('') + pilgrimCards.join('');
+
+      document.getElementById('modals-root').innerHTML = modals.join('');
+
+      sjBubble = document.getElementById('sj-bubble');
+      const sjTrigger = document.getElementById('sj-head-trigger');
+      if (sjTrigger && sjBubble) {
+        sjTrigger.addEventListener('mouseenter', function() { sjBubble.classList.add('active'); });
+        sjTrigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
+      }
+    }).catch(function(e) { console.error('無法載入成員資料', e); });
+  </script>
 
   <script src="nav.js"></script>
 </body>
 </html>
-
