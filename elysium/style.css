@@ -236,7 +236,6 @@ nav {
   font-size: 3rem; line-height: 1.28; color: #f4ede2;
   margin: 0 0 1.4rem; text-shadow: 0 4px 30px rgba(0,0,0,.35);
 }
-.ab-hero-rule { width: 1px; height: 92px; background: linear-gradient(to bottom, transparent, var(--gold), transparent); margin-right: .4rem; }
 
 .ab-quote-wrap { position: relative; z-index: 3; padding: 0 3.6rem; margin-top: -86px; }
 .ab-quote {
@@ -1027,8 +1026,29 @@ footer {
 
 /* ──────────── GLITCH ──────────── */
 
+@keyframes glitch-shake {
+  0%   { transform: translate(-3px, 1px) rotate(-4deg); }
+  14%  { transform: translate(3px, -2px) rotate(4deg); }
+  28%  { transform: translate(-2px, 2px) rotate(-3deg); }
+  42%  { transform: translate(3px, 1px) rotate(3deg); }
+  57%  { transform: translate(-3px, -1px) rotate(-4deg); }
+  71%  { transform: translate(2px, 2px) rotate(2deg); }
+  85%  { transform: translate(-2px, -2px) rotate(-2deg); }
+  100% { transform: translate(-3px, 1px) rotate(-4deg); }
+}
+
 .glitch-char {
   display: inline-block;
+  cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
+}
+
+.glitch-char:hover {
+  animation: glitch-shake 0.45s linear infinite;
+}
+
+.ab-section-title .glitch-char:hover,
+.ab-section-body .glitch-char:hover {
+  animation: none;
 }
 
 /* ──────────── UTIL ──────────── */
