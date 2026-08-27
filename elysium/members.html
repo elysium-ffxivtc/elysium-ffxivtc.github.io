@@ -136,6 +136,15 @@
       position: relative; aspect-ratio: 1.4 / 3.4; cursor: pointer;
       clip-path: polygon(0% 15%, 100% 0%, 100% 85%, 0% 100%);
       background: #cfc7b3; perspective: 450px;
+      animation: msTileDrop .6s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .ms-tile.no-drop { animation: none; }
+    @keyframes msTileDrop {
+      0%   { opacity: 0; transform: translateY(-36px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ms-tile { animation: none; }
     }
     .ms-tile img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
     .ms-tile.fog img { filter: brightness(.88) grayscale(.1); }
@@ -183,20 +192,40 @@
       -webkit-mask-image: radial-gradient(ellipse 80% 75% at 84% 24%, rgba(0,0,0,.5) 0%, rgba(0,0,0,.25) 50%, rgba(0,0,0,.08) 80%, transparent 100%);
       mask-image: radial-gradient(ellipse 80% 75% at 84% 24%, rgba(0,0,0,.5) 0%, rgba(0,0,0,.25) 50%, rgba(0,0,0,.08) 80%, transparent 100%);
       pointer-events: none;
+      opacity: 0;
     }
-    .ms-detail-inner { position: relative; z-index: 1; max-width: 560px; }
+    .ms-detail.photo-in::before { animation: msPhotoIn .7s ease forwards; }
+    @keyframes msPhotoIn {
+      0%   { opacity: 0; transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ms-detail::before { opacity: 1; }
+      .ms-detail.photo-in::before { animation: none; }
+    }
+    .ms-detail-inner {
+      position: relative; z-index: 1; max-width: 560px;
+      animation: msDetailIn .5s ease both;
+    }
+    @keyframes msDetailIn {
+      0%   { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ms-detail-inner { animation: none; }
+    }
     .ms-detail-top { margin-bottom: .6rem; }
     .ms-view-tag {
       display: inline-flex; align-items: center; gap: .25rem;
       font-size: .58rem; letter-spacing: .04em; color: var(--gold);
       background: rgba(184,144,96,.12); border: 1px solid rgba(184,144,96,.4);
-      border-radius: 3px; padding: .12rem .4rem; margin-top: .4rem;
+      border-radius: 3px; padding: .12rem .4rem; margin-top: 1.3rem;
       cursor: pointer; transition: background .2s, border-color .2s;
     }
     .ms-view-tag:hover { background: rgba(184,144,96,.22); border-color: rgba(184,144,96,.65); }
     .ms-view-tag svg { width: 8px; height: 8px; stroke: var(--gold); }
     .ms-role { font-family: 'Noto Serif TC', serif; font-size: .78rem; letter-spacing: .3em; color: var(--gold); }
-    .ms-name { font-family: 'Noto Serif TC', serif; font-size: 1.7rem; font-weight: 700; color: var(--text); margin: .3rem 0 .3rem; }
+    .ms-name { font-family: 'Noto Serif TC', serif; font-size: 1.7rem; font-weight: 700; color: var(--text); margin: 0 0 -.3rem; }
     .ms-subtitle { font-size: .88rem; color: var(--dim); }
     .ms-divider { width: 100%; height: 1px; background: rgba(0,0,0,.1); margin: .5rem 0 1.4rem; }
     .ms-bio { font-size: .96rem; color: var(--text); line-height: 1.9; margin-bottom: 1.6rem; }
@@ -318,30 +347,38 @@
     const GROUPS = [['食罪', 5], ['妖異', 5], ['幹部', null], ['引路人', 3]];
     const FOG_SRC = { '食罪': 'image/食罪.jpg', '妖異': 'image/妖異.jpg', '引路人': 'image/引路人.jpg' };
 
-    function tileHtml(p) {
+    let rosterAnimated = false;
+
+    function tileHtml(p, idx) {
       const sel = p.key === selectedKey ? ' sel' : '';
-      return `<div class="ms-tile${sel}" onclick="selectPerson('${p.key}')">
+      const cls = rosterAnimated ? ' no-drop' : '';
+      const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
+      return `<div class="ms-tile${sel}${cls}"${style} onclick="selectPerson('${p.key}')">
         <img src="${esc(thumbOf(p.photo))}" alt="${esc(p.name)}">
         <div class="ms-tile-tag">${esc(p.roleLabel)}</div>
       </div>`;
     }
-    function fogTileHtml(group) {
-      return `<div class="ms-tile fog"><img src="${FOG_SRC[group]}" alt="${esc(group)}"></div>`;
+    function fogTileHtml(group, idx) {
+      const cls = rosterAnimated ? ' no-drop' : '';
+      const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
+      return `<div class="ms-tile fog${cls}"${style}><img src="${FOG_SRC[group]}" alt="${esc(group)}"></div>`;
     }
 
     function renderRoster() {
       const byGroup = {};
       PEOPLE.forEach(function(p) { (byGroup[p.group] = byGroup[p.group] || []).push(p); });
+      let idx = 0;
       document.getElementById('ms-roster').innerHTML = GROUPS.map(function(gr) {
         const label = gr[0], quota = gr[1];
         const list = byGroup[label] || [];
-        let tiles = list.map(tileHtml);
+        let tiles = list.map(function(p) { return tileHtml(p, idx++); });
         if (quota) {
           const pad = Math.max(0, quota - list.length);
-          for (let i = 0; i < pad; i++) tiles.push(fogTileHtml(label));
+          for (let i = 0; i < pad; i++) tiles.push(fogTileHtml(label, idx++));
         }
         return `<div class="ms-group"><div class="ms-tiles">${tiles.join('')}</div></div>`;
       }).join('');
+      rosterAnimated = true;
     }
 
     function renderDetail() {
@@ -352,6 +389,9 @@
       const photo = esc(p.photo || '');
       const detailEl = document.getElementById('ms-detail');
       detailEl.style.setProperty('--ms-photo', `url(${photo})`);
+      detailEl.classList.remove('photo-in');
+      void detailEl.offsetWidth;
+      detailEl.classList.add('photo-in');
       detailEl.innerHTML = `
         <div class="ms-detail-inner">
           <div class="ms-detail-top">
