@@ -114,6 +114,112 @@
     }
     .modal-img-btn:hover { background: rgba(184,144,96,.5); border-color: rgba(184,144,96,.85); }
     .modal-img-btn svg { width: 14px; height: 14px; stroke: rgba(184,144,96,1); }
+
+    /* ── Members 分割排版：左名冊 / 右介紹頁，整頁呈現、不裝框 ── */
+    .ms-page-section { padding-top: 90px; position: relative; background: var(--bg); }
+    @media (max-width: 768px) { .ms-page-section { padding-top: 60px; } }
+    .ms-split {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 90px);
+    }
+    @media (max-width: 768px) { .ms-split { min-height: 0; } }
+    .ms-roster, .ms-detail { position: relative; }
+    .ms-detail { scrollbar-width: none; -ms-overflow-style: none; }
+    .ms-detail::-webkit-scrollbar { display: none; }
+    .ms-roster {
+      padding: 1.8rem 1.4rem 2rem max(4rem, calc((100vw - 1156px) / 2 + 4rem));
+    }
+    .ms-group { margin-bottom: 1.8rem; }
+    .ms-group:last-child { margin-bottom: 0; }
+    .ms-tiles { display: grid; grid-template-columns: repeat(6, 78px); gap: .5rem .4rem; }
+    .ms-tile {
+      position: relative; aspect-ratio: 1.4 / 3.4; cursor: pointer;
+      clip-path: polygon(0% 15%, 100% 0%, 100% 85%, 0% 100%);
+      background: #cfc7b3; perspective: 450px;
+    }
+    .ms-tile img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .ms-tile.fog img { filter: brightness(.88) grayscale(.1); }
+    .ms-tile::before {
+      content: ''; position: absolute; inset: 0; z-index: 2;
+      clip-path: polygon(0% 15%, 100% 0%, 100% 85%, 0% 100%);
+      background: rgba(255,255,255,.55); opacity: 0; pointer-events: none;
+    }
+    .ms-tile.fog::before { opacity: 1; background: rgba(239,239,239,.82); }
+    .ms-tile.show::before { animation: msVeilIn .4s ease forwards; }
+    .ms-tile.leaving::before { animation: msVeilOut .9s ease forwards; }
+    @keyframes msVeilIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+    @keyframes msVeilOut { 0%, 50% { opacity: 1; } 100% { opacity: 0; } }
+    .ms-tile.sel::after {
+      content: ''; position: absolute; inset: 0; z-index: 2;
+      clip-path: polygon(0% 15%, 100% 0%, 100% 85%, 0% 100%);
+      border: 2px solid var(--gold); pointer-events: none;
+    }
+    .ms-tile-tag {
+      position: absolute; inset: 0; z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+      writing-mode: vertical-rl; text-orientation: upright;
+      font-family: 'Noto Serif TC', serif; font-size: 1rem; letter-spacing: .15em; color: var(--text);
+      opacity: 0; pointer-events: none;
+    }
+    .ms-tile.show .ms-tile-tag { animation: msTagIn .8s ease forwards; }
+    .ms-tile.leaving .ms-tile-tag { animation: msTagOut .45s ease forwards; }
+    @keyframes msTagIn {
+      0%   { opacity: 0; transform: rotateY(-90deg) scale(.8); clip-path: inset(0 0 0 0); }
+      100% { opacity: 1; transform: rotateY(0deg) scale(1);   clip-path: inset(0 0 0 0); }
+    }
+    @keyframes msTagOut {
+      0%   { opacity: 1; transform: rotateY(0deg) scale(1); clip-path: inset(0 0 0 0); }
+      100% { opacity: 0; transform: rotateY(0deg) scale(1); clip-path: inset(50% 0 50% 0); }
+    }
+
+    .ms-detail {
+      position: sticky; top: 90px;
+      overflow-y: auto; height: calc(100vh - 90px);
+      padding: 2.4rem max(4rem, calc((100vw - 1156px) / 2 + 4rem)) 2.4rem 1.6rem;
+    }
+    .ms-detail::before {
+      content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 60%; z-index: 0;
+      background-image: var(--ms-photo); background-size: cover; background-repeat: no-repeat; background-position: right top;
+      -webkit-mask-image: radial-gradient(ellipse 80% 75% at 84% 24%, rgba(0,0,0,.5) 0%, rgba(0,0,0,.25) 50%, rgba(0,0,0,.08) 80%, transparent 100%);
+      mask-image: radial-gradient(ellipse 80% 75% at 84% 24%, rgba(0,0,0,.5) 0%, rgba(0,0,0,.25) 50%, rgba(0,0,0,.08) 80%, transparent 100%);
+      pointer-events: none;
+    }
+    .ms-detail-inner { position: relative; z-index: 1; max-width: 560px; }
+    .ms-detail-top { margin-bottom: .6rem; }
+    .ms-view-tag {
+      display: inline-flex; align-items: center; gap: .25rem;
+      font-size: .58rem; letter-spacing: .04em; color: var(--gold);
+      background: rgba(184,144,96,.12); border: 1px solid rgba(184,144,96,.4);
+      border-radius: 3px; padding: .12rem .4rem; margin-top: .4rem;
+      cursor: pointer; transition: background .2s, border-color .2s;
+    }
+    .ms-view-tag:hover { background: rgba(184,144,96,.22); border-color: rgba(184,144,96,.65); }
+    .ms-view-tag svg { width: 8px; height: 8px; stroke: var(--gold); }
+    .ms-role { font-family: 'Noto Serif TC', serif; font-size: .78rem; letter-spacing: .3em; color: var(--gold); }
+    .ms-name { font-family: 'Noto Serif TC', serif; font-size: 1.7rem; font-weight: 700; color: var(--text); margin: .3rem 0 .3rem; }
+    .ms-subtitle { font-size: .88rem; color: var(--dim); }
+    .ms-divider { width: 100%; height: 1px; background: rgba(0,0,0,.1); margin: .5rem 0 1.4rem; }
+    .ms-bio { font-size: .96rem; color: var(--text); line-height: 1.9; margin-bottom: 1.6rem; }
+    .ms-section2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem 2rem; margin-top: 1.6rem; }
+    .ms-sec-label {
+      font-family: 'Noto Serif TC', serif; font-size: .95rem; letter-spacing: .15em; color: var(--gold);
+      margin-bottom: .5rem; padding-bottom: .35rem; border-bottom: 1px solid rgba(184,144,96,.35);
+    }
+    .ms-sec-val { font-size: .88rem; color: #666; line-height: 1.7; }
+
+    #ms-sj-head-trigger {
+      position: absolute; z-index: 5;
+      top: 6%; left: 58%; width: 26%; height: 20%;
+      cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
+    }
+
+    @media (max-width: 768px) {
+      .ms-split { grid-template-columns: 1fr; }
+      .ms-detail { position: static; height: auto; }
+      .ms-tiles { grid-template-columns: repeat(6, 1fr); }
+      .ms-roster { padding-left: 1.4rem; }
+      .ms-detail { padding-right: 1.4rem; }
+    }
   </style>
 </head>
 <body>
@@ -140,25 +246,11 @@
     </ul>
   </nav>
 
-  <!-- 使徒 -->
-  <section class="members-section bg-muted pt-nav ms-apostles">
-    <div class="members-section-inner">
-      <div class="members-section-head">
-        <h2>使徒</h2>
-        <hr class="members-rule">
-      </div>
-      <div class="member-grid-5" id="apostle-grid"></div>
-    </div>
-  </section>
-
-  <!-- 侍者 -->
-  <section class="members-section ms-attendants">
-    <div class="members-section-inner">
-      <div class="members-section-head">
-        <h2>侍者</h2>
-        <hr class="members-rule">
-      </div>
-      <div class="member-grid-3" id="attendant-grid"></div>
+  <!-- Members -->
+  <section class="ms-page-section">
+    <div class="ms-split">
+      <div class="ms-roster" id="ms-roster"></div>
+      <div class="ms-detail" id="ms-detail"></div>
     </div>
   </section>
 
@@ -187,8 +279,6 @@
     <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
   </footer>
 
-  <div id="modals-root"></div>
-
   <div id="img-lightbox" onclick="closeLightbox()">
     <img id="img-lightbox-img" src="" alt="">
   </div>
@@ -206,22 +296,13 @@
     const db = firebase.database();
 
     var sjBubble = null;
-    var sjModalId = null;
+    var PEOPLE = [];
+    var selectedKey = null;
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function escBr(s) { return esc(s).replace(/\n/g, '<br>'); }
-    function thumbOf(photo) { return String(photo||'').replace(/(\.[a-zA-Z0-9]+)$/, '_頭像$1'); }
+    function thumbOf(photo) { return String(photo||'').replace(/(\.[a-zA-Z0-9]+)$/, '_二版頭像$1'); }
 
-    function openModal(id) {
-      document.getElementById(id).classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeModal(e, id) {
-      if (e && e.target !== document.getElementById(id)) return;
-      document.getElementById(id).classList.remove('is-open');
-      document.body.style.overflow = '';
-      if (id === sjModalId && sjBubble) sjBubble.classList.remove('active');
-    }
     function openLightbox(src) {
       document.getElementById('img-lightbox-img').src = src;
       document.getElementById('img-lightbox').classList.add('is-open');
@@ -231,144 +312,140 @@
       document.getElementById('img-lightbox-img').src = '';
     }
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        if (document.getElementById('img-lightbox').classList.contains('is-open')) { closeLightbox(); return; }
-        document.querySelectorAll('.modal-overlay.is-open').forEach(function(m) {
-          m.classList.remove('is-open');
-          document.body.style.overflow = '';
-        });
-        if (sjBubble) sjBubble.classList.remove('active');
+      if (e.key === 'Escape' && document.getElementById('img-lightbox').classList.contains('is-open')) closeLightbox();
+    });
+
+    const GROUPS = [['食罪', 5], ['妖異', 5], ['幹部', null], ['引路人', 3]];
+    const FOG_SRC = { '食罪': 'image/食罪.jpg', '妖異': 'image/妖異.jpg', '引路人': 'image/引路人.jpg' };
+
+    function tileHtml(p) {
+      const sel = p.key === selectedKey ? ' sel' : '';
+      return `<div class="ms-tile${sel}" onclick="selectPerson('${p.key}')">
+        <img src="${esc(thumbOf(p.photo))}" alt="${esc(p.name)}">
+        <div class="ms-tile-tag">${esc(p.roleLabel)}</div>
+      </div>`;
+    }
+    function fogTileHtml(group) {
+      return `<div class="ms-tile fog"><img src="${FOG_SRC[group]}" alt="${esc(group)}"></div>`;
+    }
+
+    function renderRoster() {
+      const byGroup = {};
+      PEOPLE.forEach(function(p) { (byGroup[p.group] = byGroup[p.group] || []).push(p); });
+      document.getElementById('ms-roster').innerHTML = GROUPS.map(function(gr) {
+        const label = gr[0], quota = gr[1];
+        const list = byGroup[label] || [];
+        let tiles = list.map(tileHtml);
+        if (quota) {
+          const pad = Math.max(0, quota - list.length);
+          for (let i = 0; i < pad; i++) tiles.push(fogTileHtml(label));
+        }
+        return `<div class="ms-group"><div class="ms-tiles">${tiles.join('')}</div></div>`;
+      }).join('');
+    }
+
+    function renderDetail() {
+      const p = PEOPLE.find(function(x) { return x.key === selectedKey; });
+      if (!p) return;
+      const subtitle = p.fixedSubtitle ? '尚未揭示' : (p.subtitle ? esc(p.subtitle) : '&nbsp;');
+      const biz = p.business ? escBr(p.business) : '暫不提供';
+      const photo = esc(p.photo || '');
+      const detailEl = document.getElementById('ms-detail');
+      detailEl.style.setProperty('--ms-photo', `url(${photo})`);
+      detailEl.innerHTML = `
+        <div class="ms-detail-inner">
+          <div class="ms-detail-top">
+            <div class="ms-role">${esc(p.roleLabel)}</div>
+            <h2 class="ms-name">${esc(p.name||'')}</h2>
+            <div class="ms-subtitle">${subtitle}</div>
+            <div class="ms-view-tag" onclick="openLightbox('${photo}')">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg>
+              查看大圖
+            </div>
+          </div>
+          ${p.isChief ? `<div id="ms-sj-head-trigger"></div>` : ''}
+          <div class="ms-divider"></div>
+          <p class="ms-bio">${escBr(p.bio)}</p>
+          <div class="ms-section2">
+            <div><div class="ms-sec-label">禁忌與偏好</div><div class="ms-sec-val">${escBr(p.taboo)}</div></div>
+            <div><div class="ms-sec-label">延伸資訊</div><div class="ms-sec-val">${escBr(p.extra)}</div></div>
+            <div><div class="ms-sec-label">聊天尺度</div><div class="ms-sec-val">${escBr(p.chat)}</div></div>
+            <div><div class="ms-sec-label">個人業務</div><div class="ms-sec-val">${biz}</div></div>
+          </div>
+          ${p.isChief ? `<div id="sj-bubble" class="sj-bubble"><span class="sj-dot"></span><span class="sj-dot"></span><span class="sj-dot"></span></div>` : ''}
+        </div>
+      `;
+      if (p.isChief) {
+        sjBubble = document.getElementById('sj-bubble');
+        const trigger = document.getElementById('ms-sj-head-trigger');
+        if (trigger && sjBubble) {
+          trigger.addEventListener('mouseenter', function() { sjBubble.classList.add('active'); });
+          trigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
+        }
+      } else {
+        sjBubble = null;
+      }
+    }
+
+    window.selectPerson = function(key) {
+      selectedKey = key;
+      renderRoster();
+      renderDetail();
+    };
+
+    const msRosterEl = document.getElementById('ms-roster');
+    msRosterEl.addEventListener('mouseover', function(e) {
+      const tile = e.target.closest('.ms-tile');
+      if (!tile || tile.classList.contains('fog')) return;
+      if (e.relatedTarget && tile.contains(e.relatedTarget)) return;
+      tile.classList.remove('leaving');
+      tile.classList.add('show');
+    });
+    msRosterEl.addEventListener('mouseout', function(e) {
+      const tile = e.target.closest('.ms-tile');
+      if (!tile || tile.classList.contains('fog')) return;
+      if (e.relatedTarget && tile.contains(e.relatedTarget)) return;
+      if (tile.classList.contains('show')) {
+        tile.classList.remove('show');
+        tile.classList.add('leaving');
+      }
+    });
+    msRosterEl.addEventListener('animationend', function(e) {
+      if (e.animationName === 'msVeilOut') {
+        e.target.closest('.ms-tile').classList.remove('leaving');
       }
     });
 
-    function cardHtml(modalId, photo, tag, thumbAlt, isFog, fogImg) {
-      if (isFog) {
-        return `<div class="member-card fog"><div class="member-img-wrap"><img src="${fogImg}" alt="${esc(thumbAlt)}"></div></div>`;
-      }
-      return `
-        <div class="member-card" onclick="openModal('${modalId}')">
-          <div class="member-img-wrap">
-            <img src="${esc(thumbOf(photo))}" alt="${esc(thumbAlt)}">
-            <div class="member-img-hover">${esc(thumbAlt)}</div>
-          </div>
-        </div>`;
-    }
-
-    function modalHtml(modalId, a, roleLabel, subtitle, extraBubble) {
-      const business = a.business ? escBr(a.business) : '暫不提供';
-      return `
-        <div class="modal-overlay" id="${modalId}" onclick="closeModal(event, '${modalId}')">
-          <div class="modal-box">
-            <button class="modal-close" onclick="closeModal(null, '${modalId}')">&times;</button>
-            <div class="modal-inner">
-              <div class="modal-img-wrap">
-                <img src="${esc(a.photo||'')}" alt="${esc(roleLabel)}" onclick="openLightbox(this.src)">
-                ${extraBubble ? `<div id="sj-head-trigger"></div>` : ''}
-                <button class="modal-img-btn" onclick="openLightbox(this.closest('.modal-img-wrap').querySelector('img').src)" aria-label="查看大圖"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2h4v4M6 14H2v-4M14 10v4h-4M2 6V2h4"/></svg></button>
-              </div>
-              <div class="modal-content">
-                <span class="modal-role">${esc(roleLabel)}</span>
-                <h2 class="modal-name">${esc(a.name||'')}</h2>
-                <p class="modal-subtitle">${subtitle ? esc(subtitle) : '&nbsp;'}</p>
-                <div class="modal-divider"></div>
-                <p class="modal-bio">${escBr(a.bio)}</p>
-                <div class="modal-section">
-                  <div style="margin-bottom:.9rem;">
-                    <p class="modal-section-label">聊天尺度</p>
-                    <p class="modal-section-val">${escBr(a.chat)}</p>
-                  </div>
-                  <div style="margin-bottom:.9rem;">
-                    <p class="modal-section-label">禁忌與偏好</p>
-                    <p class="modal-section-val">${escBr(a.taboo)}</p>
-                  </div>
-                  <div style="margin-bottom:.9rem;">
-                    <p class="modal-section-label">延伸資訊</p>
-                    <p class="modal-section-val">${escBr(a.extra)}</p>
-                  </div>
-                  <div>
-                    <p class="modal-section-label">個人業務</p>
-                    <p class="modal-section-val">${business}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            ${extraBubble ? `
-            <div id="sj-bubble" class="sj-bubble">
-              <span class="sj-dot"></span>
-              <span class="sj-dot"></span>
-              <span class="sj-dot"></span>
-            </div>` : ''}
-          </div>
-        </div>`;
-    }
-
     db.ref('apostles').get().then(function(snap) {
       const all = Object.entries(snap.val() || {})
-        .map(function(e) { return { uid: e[0], ...e[1] }; })
+        .map(function(e) { return { uid: e[0], key: e[0], ...e[1] }; })
         .filter(function(a) { return a.active !== false; })
         .sort(function(x, y) { return (x.order||0) - (y.order||0); });
 
       const byTag = {};
       all.forEach(function(a) { (byTag[a.tag] = byTag[a.tag] || []).push(a); });
 
-      const modals = [];
-
-      // ── 使徒：食罪 / 妖異，各補到 5 格，subtitle 一律「尚未揭示」 ──
-      const apostleGroups = [
-        { tag: '食罪', fog: 'image/食罪.jpg' },
-        { tag: '妖異', fog: 'image/妖異.jpg' },
-      ];
-      document.getElementById('apostle-grid').innerHTML = apostleGroups.map(function(g) {
-        const list = byTag[g.tag] || [];
-        const cards = list.map(function(a) {
-          const modalId = 'modal-' + a.uid;
-          modals.push(modalHtml(modalId, a, g.tag, '尚未揭示', false));
-          return cardHtml(modalId, a.photo, g.tag, g.tag, false);
-        });
-        const pad = Math.max(0, 5 - cards.length);
-        for (let i = 0; i < pad; i++) cards.push(cardHtml(null, null, g.tag, g.tag, true, g.fog));
-        return `<div class="apostle-group">${cards.join('')}</div>`;
-      }).join('');
-
-      // ── 侍者：司祭・監禮者（依序命名）、銀紗使、引路人（補到 3 格） ──
-      const clergy = (byTag['司祭・監禮者'] || []);
       const clergyLabels = ['司祭', '監禮者'];
-      const clergyCards = clergy.map(function(a, i) {
-        const roleLabel = clergyLabels[i] || '司祭・監禮者';
-        const modalId = 'modal-' + a.uid;
-        const isChief = a.name === '靜火';
-        if (isChief) sjModalId = modalId;
-        modals.push(modalHtml(modalId, a, roleLabel, a.subtitle, isChief));
-        return cardHtml(modalId, a.photo, roleLabel, roleLabel, false);
+      const clergy = (byTag['司祭・監禮者'] || []).map(function(a, i) {
+        return Object.assign({}, a, { group: '幹部', roleLabel: clergyLabels[i] || '司祭・監禮者', fixedSubtitle: false, isChief: a.name === '靜火' });
+      });
+      const silk = (byTag['銀紗使'] || []).map(function(a) {
+        return Object.assign({}, a, { group: '幹部', roleLabel: '銀紗使', fixedSubtitle: false, isChief: false });
+      });
+      const pilgrims = (byTag['引路人'] || []).map(function(a) {
+        return Object.assign({}, a, { group: '引路人', roleLabel: '引路人', fixedSubtitle: false, isChief: false });
+      });
+      const sins = (byTag['食罪'] || []).map(function(a) {
+        return Object.assign({}, a, { group: '食罪', roleLabel: '食罪', fixedSubtitle: true, isChief: false });
+      });
+      const yaos = (byTag['妖異'] || []).map(function(a) {
+        return Object.assign({}, a, { group: '妖異', roleLabel: '妖異', fixedSubtitle: true, isChief: false });
       });
 
-      const silk = (byTag['銀紗使'] || []);
-      const silkCards = silk.map(function(a) {
-        const modalId = 'modal-' + a.uid;
-        modals.push(modalHtml(modalId, a, '銀紗使', a.subtitle, false));
-        return cardHtml(modalId, a.photo, '銀紗使', '銀紗使', false);
-      });
-
-      const pilgrims = (byTag['引路人'] || []);
-      const pilgrimCards = pilgrims.map(function(a) {
-        const modalId = 'modal-' + a.uid;
-        modals.push(modalHtml(modalId, a, '引路人', a.subtitle, false));
-        return cardHtml(modalId, a.photo, '引路人', '引路人', false);
-      });
-      const pilgrimPad = Math.max(0, 3 - pilgrimCards.length);
-      for (let i = 0; i < pilgrimPad; i++) pilgrimCards.push(cardHtml(null, null, '引路人', '引路人', true, 'image/引路人.jpg'));
-
-      document.getElementById('attendant-grid').innerHTML =
-        clergyCards.join('') + silkCards.join('') + pilgrimCards.join('');
-
-      document.getElementById('modals-root').innerHTML = modals.join('');
-
-      sjBubble = document.getElementById('sj-bubble');
-      const sjTrigger = document.getElementById('sj-head-trigger');
-      if (sjTrigger && sjBubble) {
-        sjTrigger.addEventListener('mouseenter', function() { sjBubble.classList.add('active'); });
-        sjTrigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
-      }
+      PEOPLE = [].concat(sins, yaos, clergy, silk, pilgrims);
+      if (PEOPLE.length) selectedKey = PEOPLE[0].key;
+      renderRoster();
+      renderDetail();
     }).catch(function(e) { console.error('無法載入成員資料', e); });
   </script>
 
