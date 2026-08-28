@@ -74,7 +74,7 @@
         <div class="ab-section-body">
           <p>Elysium 的司祭長年鑽研亞<span class="glitch-char" data-real="拉">⏹︎</span><span class="glitch-char" data-real="戈">⏹︎</span>帝國的魔<span class="glitch-char" data-real="科">⏹︎</span><span class="glitch-nobreak"><span class="glitch-char" data-real="學">⏹︎</span>，</span>在一次塵封遺跡的考古文獻中意外發現了殘<span class="glitch-char" data-real="缺">⏹︎</span>的儀<span class="glitch-char" data-real="式">⏹︎</span><span class="glitch-char" data-real="紀">⏹︎</span>錄，比起<span class="glitch-char" data-real="魔">⏹︎</span>法與科<span class="glitch-nobreak"><span class="glitch-char" data-real="學">⏹︎</span>，</span>那更像某種古老而曖昧的神<span class="glitch-char" data-real="祕">⏹︎</span>學。沒有公式、沒有<span class="glitch-char" data-real="原">⏹︎</span>理，不完整的紀<span class="glitch-char" data-real="錄">⏹︎</span>中只有<span class="glitch-char" data-real="大">⏹︎</span><span class="glitch-char" data-real="量">⏹︎</span>反<span class="glitch-char" data-real="覆">⏹︎</span>出現的詞語：「<span class="glitch-char" data-real="容">⏹︎</span><span class="glitch-nobreak"><span class="glitch-char" data-real="器">⏹︎</span>」</span>、「觀<span class="glitch-nobreak"><span class="glitch-char" data-real="看">⏹︎</span>」</span>、「名諱」、「降臨」。<br>以及一段殘缺不全的<span class="glitch-char" data-real="警">⏹︎</span>告：「勿為其<span class="glitch-char" data-real="賦">⏹︎</span>予定<span class="glitch-nobreak"><span class="glitch-char" data-real="義">⏹︎</span>，</span>否則<span class="glitch-char" data-real="毀">⏹︎</span><span class="glitch-char" data-real="滅">⏹︎</span><span class="glitch-char" data-real="將">⏹︎</span>至。」</p>
           <p>司祭並未因此停<span class="glitch-char" data-real="止">⏹︎</span><span class="glitch-char" data-real="研">⏹︎</span>究。他開始<span class="glitch-char" data-real="重">⏹︎</span><span class="glitch-char" data-real="現">⏹︎</span>那些殘破的<span class="glitch-char" data-real="儀">⏹︎</span><span class="glitch-nobreak"><span class="glitch-char" data-real="式">⏹︎</span>，</span>並以<span class="glitch-char" data-real="自">⏹︎</span><span class="glitch-char" data-real="身">⏹︎</span>作為觀<span class="glitch-char" data-real="測">⏹︎</span>的中<span class="glitch-nobreak"><span class="glitch-char" data-real="心">⏹︎</span>，</span>嘗試<span class="glitch-char" data-real="呼">⏹︎</span><span class="glitch-char" data-real="喚">⏹︎</span>那些不存在於常理中的乙太體。</p>
-          <p>最初，什麼也沒有發生，直到「<span class="glitch-char" data-real="某">⏹︎</span><span class="glitch-char" data-real="個">⏹︎</span><span class="glitch-char" data-real="存">⏹︎</span><span class="glitch-nobreak"><span class="glitch-char" data-real="在">⏹︎</span>」</span>回應了他。</p>
+          <p>最初，什麼也沒有發生，直到「<span class="glitch-char dodge" data-real="某">⏹︎</span><span class="glitch-char dodge" data-real="個">⏹︎</span><span class="glitch-char dodge" data-real="存">⏹︎</span><span class="glitch-nobreak"><span class="glitch-char dodge" data-real="在">⏹︎</span>」</span>回應了他。</p>
         </div>
       </div>
     </div>
@@ -187,6 +187,46 @@
       }
 
       setTimeout(cycle, 2000 + Math.random() * 3000);
+    })();
+
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const dodgeChars = Array.from(document.querySelectorAll('.glitch-char.dodge'));
+      if (!dodgeChars.length) return;
+
+      const RANGE = 70;
+      const MAX_PUSH = 22;
+      let mouseX = -9999, mouseY = -9999, ticking = false;
+
+      function updateDodge() {
+        ticking = false;
+        dodgeChars.forEach(function (el) {
+          if (el.classList.contains('shaking')) return;
+          const rect = el.getBoundingClientRect();
+          const style = el.style.transform;
+          const prev = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(style || '');
+          const prevDx = prev ? parseFloat(prev[1]) : 0;
+          const prevDy = prev ? parseFloat(prev[2]) : 0;
+          const centerX = rect.left - prevDx + rect.width / 2;
+          const centerY = rect.top - prevDy + rect.height / 2;
+          const dx = centerX - mouseX, dy = centerY - mouseY;
+          const dist = Math.hypot(dx, dy);
+          if (dist < RANGE) {
+            const strength = (RANGE - dist) / RANGE;
+            const angle = Math.atan2(dy, dx);
+            const nx = Math.cos(angle) * MAX_PUSH * strength;
+            const ny = Math.sin(angle) * MAX_PUSH * strength;
+            el.style.transform = 'translate(' + nx.toFixed(1) + 'px, ' + ny.toFixed(1) + 'px)';
+          } else if (style) {
+            el.style.transform = '';
+          }
+        });
+      }
+
+      document.addEventListener('mousemove', function (e) {
+        mouseX = e.clientX; mouseY = e.clientY;
+        if (!ticking) { requestAnimationFrame(updateDodge); ticking = true; }
+      });
     })();
   </script>
 </body>
