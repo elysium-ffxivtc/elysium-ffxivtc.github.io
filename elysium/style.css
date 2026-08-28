@@ -1045,6 +1045,8 @@ footer {
 
 .ab-section-title .glitch-char + .glitch-char { margin-inline-start: .18em; }
 
+.glitch-nobreak { white-space: nowrap; }
+
 .glitch-char:hover {
   animation: glitch-shake 0.45s linear infinite;
 }
