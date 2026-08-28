@@ -460,16 +460,16 @@
     <button class="lightbox-nav" onclick="lightboxNav(1)" id="lb-next">›</button>
   </div>
 
-  <div class="modal-overlay" id="modal-view" onclick="if(event.target===this)closeView()">
+  <div class="modal-overlay" id="modal-view">
     <div class="modal-box">
       <button class="modal-close" onclick="closeView()">✕</button>
       <div id="view-body"></div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal-form" onclick="if(event.target===this)closeForm()">
+  <div class="modal-overlay" id="modal-form">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeForm()">✕</button>
+      <button class="modal-close" onclick="requestCloseForm()">✕</button>
       <div id="form-body"></div>
     </div>
   </div>
@@ -737,6 +737,10 @@
       _editingId=null; _quill=null;
       if (_fpDate) { _fpDate.destroy(); _fpDate=null; }
     }
+    function requestCloseForm() {
+      if (!confirm('確定要離開嗎？尚未發佈的內容將會遺失。')) return;
+      closeForm();
+    }
 
     function buildForm(type, d) {
       const m = type==='meeting'; d=d||{};
@@ -796,7 +800,7 @@
           <div id="f-editor"></div>
         </div>
         <div class="form-actions">
-          <button class="btn-cancel" onclick="closeForm()">取消</button>
+          <button class="btn-cancel" onclick="requestCloseForm()">取消</button>
           <button class="btn-publish" onclick="saveEntry('meeting')">發佈</button>
         </div>` : `
         <div class="form-title">${_editingId?'編輯':'新增'}文章</div>
@@ -813,7 +817,7 @@
           <div id="f-editor"></div>
         </div>
         <div class="form-actions">
-          <button class="btn-cancel" onclick="closeForm()">取消</button>
+          <button class="btn-cancel" onclick="requestCloseForm()">取消</button>
           <button class="btn-publish" onclick="saveEntry('article')">發佈</button>
         </div>`;
 
@@ -1108,7 +1112,7 @@
           <input class="form-input" id="f-question" placeholder="請輸入問題…" onkeydown="if(event.key==='Enter')saveFaq()">
         </div>
         <div class="form-actions">
-          <button class="btn-cancel" onclick="closeForm()">取消</button>
+          <button class="btn-cancel" onclick="requestCloseForm()">取消</button>
           <button class="btn-publish" onclick="saveFaq()">發佈</button>
         </div>`;
       document.getElementById('modal-form').classList.add('open');
