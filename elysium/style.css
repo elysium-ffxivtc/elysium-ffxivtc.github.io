@@ -1039,9 +1039,11 @@ footer {
 
 .glitch-char {
   display: inline-block;
-  inline-size: 1em; block-size: 1em; text-align: center;
+  inline-size: 1em; block-size: 1em; line-height: 1; text-align: center;
   cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
 }
+
+.ab-section-title .glitch-char + .glitch-char { margin-inline-start: .18em; }
 
 .glitch-char:hover {
   animation: glitch-shake 0.45s linear infinite;
