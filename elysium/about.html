@@ -145,16 +145,25 @@
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const headingChars = Array.from(document.querySelectorAll('#apostle-heading .glitch-char[data-real]'));
       const bodyChars = Array.from(document.querySelectorAll('.ab-section-body .glitch-char[data-real]'));
-      const HEADING_WEIGHT = 8;
-      const pool = [];
-      headingChars.forEach(function (el) { for (let i = 0; i < HEADING_WEIGHT; i++) pool.push(el); });
-      bodyChars.forEach(function (el) { pool.push(el); });
-      if (!pool.length) return;
+      const allChars = headingChars.concat(bodyChars);
+      if (!allChars.length) return;
+
+      let queue = [];
+      function refillQueue() {
+        queue = allChars.map(function (el) {
+          const isHeading = headingChars.indexOf(el) !== -1;
+          let key = Math.random();
+          if (isHeading) key *= 0.35;
+          return { el: el, key: key };
+        }).sort(function (a, b) { return a.key - b.key; }).map(function (item) { return item.el; });
+      }
+
       let busy = false;
 
       function cycle() {
         if (!busy) {
-          const el = pool[Math.floor(Math.random() * pool.length)];
+          if (!queue.length) refillQueue();
+          const el = queue.shift();
           busy = true;
           el.classList.add('shaking');
           el.addEventListener('animationend', function onEnd() {

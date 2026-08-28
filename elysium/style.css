@@ -1039,7 +1039,7 @@ footer {
 
 .glitch-char {
   display: inline-block;
-  width: 1em; height: 1em; text-align: center;
+  inline-size: 1em; block-size: 1em; text-align: center;
   cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
 }
 
