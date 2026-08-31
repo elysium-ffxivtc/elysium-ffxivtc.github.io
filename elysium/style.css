@@ -923,6 +923,11 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   border-top: 3px solid var(--gold);
   padding: 1.6rem 2rem;
   margin-bottom: 2.2rem;
+  opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease;
+}
+.rule-block.in-view { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .rule-block { opacity: 1; transform: none; transition: none; }
 }
 
 .rule-heading {
