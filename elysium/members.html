@@ -260,10 +260,15 @@
 
     @media (max-width: 768px) {
       .ms-split { grid-template-columns: 1fr; }
-      .ms-detail { position: relative; height: auto; }
+      .ms-detail { position: relative; height: auto; scroll-margin-top: 60px; }
       .ms-tiles { grid-template-columns: repeat(6, 1fr); }
       .ms-roster { padding-left: 1.4rem; }
       .ms-detail { padding-right: 1.4rem; }
+      .ms-detail::before {
+        background-position: center top;
+        -webkit-mask-image: radial-gradient(ellipse 95% 90% at 60% 20%, rgba(0,0,0,.6) 0%, rgba(0,0,0,.3) 60%, rgba(0,0,0,.1) 85%, transparent 100%);
+        mask-image: radial-gradient(ellipse 95% 90% at 60% 20%, rgba(0,0,0,.6) 0%, rgba(0,0,0,.3) 60%, rgba(0,0,0,.1) 85%, transparent 100%);
+      }
     }
   </style>
 </head>
@@ -464,6 +469,11 @@
       selectedKey = key;
       renderRoster();
       renderDetail();
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        requestAnimationFrame(function() {
+          document.getElementById('ms-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
     };
 
     const msRosterEl = document.getElementById('ms-roster');
