@@ -390,14 +390,14 @@
       const cls = rosterAnimated ? ' no-drop' : '';
       const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
       return `<div class="ms-tile${sel}${cls}"${style} onclick="selectPerson('${p.key}')">
-        <img src="${esc(thumbOf(p.photo))}" alt="${esc(p.name)}">
+        <img src="${esc(thumbOf(p.photo))}" alt="${esc(p.name)}" decoding="async">
         <div class="ms-tile-tag">${esc(p.roleLabel)}</div>
       </div>`;
     }
     function fogTileHtml(group, idx) {
       const cls = rosterAnimated ? ' no-drop' : '';
       const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
-      return `<div class="ms-tile fog${cls}"${style}><img src="${FOG_SRC[group]}" alt="${esc(group)}"></div>`;
+      return `<div class="ms-tile fog${cls}"${style}><img src="${FOG_SRC[group]}" alt="${esc(group)}" decoding="async"></div>`;
     }
 
     function renderRoster() {
