@@ -288,6 +288,10 @@
     .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
     .ql-history-btn { font-size:14px; color:var(--dim); }
     .ql-history-btn:hover { color:var(--gold); }
+    .ql-snow .ql-picker.ql-size .ql-picker-label::before,
+    .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
+    .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
+    .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: '預設'; }
 
     /* ── FAQ ── */
     .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
