@@ -288,8 +288,6 @@
     .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
     .ql-history-btn { font-size:14px; color:var(--dim); }
     .ql-history-btn:hover { color:var(--gold); }
-    .ql-editor table, .view-content table { border-collapse:collapse; width:100%; margin:.75rem 0; }
-    .ql-editor table td, .view-content table td { border:1px solid var(--border); padding:.4rem .6rem; vertical-align:top; }
 
     /* ── FAQ ── */
     .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
@@ -501,18 +499,9 @@
     QuillSizeStyle.whitelist = QUILL_SIZES;
     Quill.register(QuillSizeStyle, true);
 
-    const QUILL_LINE_HEIGHTS = ['1','1.15','1.5','2','2.5'];
-    const QuillParchment = Quill.import('parchment');
-    const QuillLineHeightStyle = new QuillParchment.Attributor.Style('lineheight', 'line-height', {
-      scope: QuillParchment.Scope.BLOCK,
-      whitelist: QUILL_LINE_HEIGHTS
-    });
-    Quill.register(QuillLineHeightStyle, true);
-
     const TOOLTIP_MAP = [
       ['.ql-header .ql-picker-label', '標題'],
       ['.ql-size .ql-picker-label', '字體大小'],
-      ['.ql-lineheight .ql-picker-label', '行高'],
       ['.ql-bold', '粗體'],
       ['.ql-italic', '斜體'],
       ['.ql-underline', '底線'],
@@ -552,21 +541,6 @@
       group.appendChild(mkBtn('↶', '復原', () => quill.history.undo()));
       group.appendChild(mkBtn('↷', '重做', () => quill.history.redo()));
       toolbarEl.insertBefore(group, toolbarEl.firstChild);
-    }
-
-    function addInsertTableButton(toolbarEl, quill) {
-      const group = document.createElement('span');
-      group.className = 'ql-formats';
-      const btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'ql-history-btn';
-      btn.title = '插入表格'; btn.textContent = '⊞';
-      btn.onclick = () => {
-        const rows = parseInt(prompt('表格列數？', '3'), 10);
-        const cols = parseInt(prompt('表格欄數？', '3'), 10);
-        if (rows > 0 && cols > 0) quill.getModule('table').insertTable(rows, cols);
-      };
-      group.appendChild(btn);
-      toolbarEl.appendChild(group);
     }
 
     // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
@@ -925,12 +899,10 @@
         theme: 'snow',
         placeholder: '請輸入內容…',
         modules: {
-          table: true,
           toolbar: {
             container: [
               [{ header:[1,2,3,false] }],
               [{ size:[false, ...QUILL_SIZES] }],
-              [{ lineheight: QUILL_LINE_HEIGHTS }],
               ['bold','italic','underline','strike'],
               [{ script:'sub' }, { script:'super' }],
               [{ color:[] }, { background:[] }],
@@ -947,7 +919,6 @@
       });
       const toolbarEl = _quill.getModule('toolbar').container;
       addUndoRedoButtons(toolbarEl, _quill);
-      addInsertTableButton(toolbarEl, _quill);
       addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
     }
