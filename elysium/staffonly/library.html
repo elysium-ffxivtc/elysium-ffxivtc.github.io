@@ -212,6 +212,8 @@
     .view-content blockquote{border-left:3px solid var(--border);padding-left:1rem;color:var(--dim2);margin:.75rem 0;}
     .view-content pre{background:var(--panel2);padding:.75rem 1rem;font-size:.85rem;overflow-x:auto;margin:.75rem 0;}
     .view-content a{color:var(--gold);}
+    .view-content img{max-width:100%;}
+    .view-content iframe{max-width:100%;}
     .view-actions { display:flex; gap:.65rem; margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border); }
     .btn-edit { padding:.48rem 1.1rem; background:none; border:1px solid var(--border); color:var(--dim); font-size:.88rem; font-family:inherit; transition:all .15s; }
     .btn-edit:hover { border-color:var(--gold); color:var(--gold); }
@@ -271,6 +273,8 @@
     .ql-editor { min-height:220px; line-height:1.65; color:var(--text); }
     .ql-editor p { margin-bottom: .5em; }
     .ql-editor p:last-child { margin-bottom: 0; }
+    .ql-editor img { max-width: 100%; }
+    .ql-editor iframe { max-width: 100%; }
     .ql-editor.ql-blank::before { color:var(--dim2); font-style:normal; }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
@@ -843,19 +847,47 @@
       _quill = new Quill('#f-editor', {
         theme: 'snow',
         placeholder: '請輸入內容…',
-        modules: { toolbar: [
-          [{ header:[1,2,3,false] }],
-          ['bold','italic','underline','strike'],
-          [{ color:[] }, { background:[] }],
-          [{ align:[] }],
-          [{ list:'ordered' }, { list:'bullet' }],
-          [{ indent:'-1' }, { indent:'+1' }],
-          ['blockquote','code-block'],
-          ['link'],
-          ['clean'],
-        ]}
+        modules: { toolbar: {
+          container: [
+            [{ header:[1,2,3,false] }],
+            [{ size:['small', false, 'large', 'huge'] }],
+            ['bold','italic','underline','strike'],
+            [{ script:'sub' }, { script:'super' }],
+            [{ color:[] }, { background:[] }],
+            [{ align:[] }],
+            [{ list:'ordered' }, { list:'bullet' }],
+            [{ indent:'-1' }, { indent:'+1' }],
+            ['blockquote','code-block'],
+            ['link','image','video'],
+            ['clean'],
+          ],
+          handlers: { image: quillImageHandler }
+        }}
       });
       if (d.content) _quill.root.innerHTML = d.content;
+    }
+
+    function quillImageHandler() {
+      const quill = this.quill;
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+        const range = quill.getSelection(true);
+        const ext  = file.name.split('.').pop().toLowerCase();
+        const path = `library-images/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        try {
+          const ref = storage.ref(path);
+          await ref.put(file);
+          const url = await ref.getDownloadURL();
+          quill.insertEmbed(range.index, 'image', url, 'user');
+          quill.setSelection(range.index + 1);
+        } catch (e) {
+          alert('圖片上傳失敗：' + e.message);
+        }
+      };
+      input.click();
     }
 
     async function saveEntry(type) {
