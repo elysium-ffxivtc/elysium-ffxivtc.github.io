@@ -286,6 +286,10 @@
     .ql-snow .ql-picker-item:hover,.ql-snow .ql-picker-item.ql-selected { color:var(--gold); }
     .ql-editor a { color:var(--gold); }
     .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
+    .ql-history-btn { font-size:14px; color:var(--dim); }
+    .ql-history-btn:hover { color:var(--gold); }
+    .ql-editor table, .view-content table { border-collapse:collapse; width:100%; margin:.75rem 0; }
+    .ql-editor table td, .view-content table td { border:1px solid var(--border); padding:.4rem .6rem; vertical-align:top; }
 
     /* ── FAQ ── */
     .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
@@ -491,6 +495,79 @@
     });
     const db      = firebase.database();
     const storage = firebase.storage();
+
+    const QUILL_SIZES = ['8pt','10pt','12pt','14pt','16pt','18pt','24pt','36pt'];
+    const QuillSizeStyle = Quill.import('attributors/style/size');
+    QuillSizeStyle.whitelist = QUILL_SIZES;
+    Quill.register(QuillSizeStyle, true);
+
+    const QUILL_LINE_HEIGHTS = ['1','1.15','1.5','2','2.5'];
+    const QuillParchment = Quill.import('parchment');
+    const QuillLineHeightStyle = new QuillParchment.Attributor.Style('lineheight', 'line-height', {
+      scope: QuillParchment.Scope.BLOCK,
+      whitelist: QUILL_LINE_HEIGHTS
+    });
+    Quill.register(QuillLineHeightStyle, true);
+
+    const TOOLTIP_MAP = [
+      ['.ql-header .ql-picker-label', '標題'],
+      ['.ql-size .ql-picker-label', '字體大小'],
+      ['.ql-lineheight .ql-picker-label', '行高'],
+      ['.ql-bold', '粗體'],
+      ['.ql-italic', '斜體'],
+      ['.ql-underline', '底線'],
+      ['.ql-strike', '刪除線'],
+      ['.ql-script[value="sub"]', '下標'],
+      ['.ql-script[value="super"]', '上標'],
+      ['.ql-color .ql-picker-label', '文字顏色'],
+      ['.ql-background .ql-picker-label', '背景顏色'],
+      ['.ql-align .ql-picker-label', '對齊方式'],
+      ['.ql-list[value="ordered"]', '編號清單'],
+      ['.ql-list[value="bullet"]', '項目清單'],
+      ['.ql-indent[value="-1"]', '減少縮排'],
+      ['.ql-indent[value="+1"]', '增加縮排'],
+      ['.ql-blockquote', '引言'],
+      ['.ql-code-block', '程式碼區塊'],
+      ['.ql-link', '插入連結'],
+      ['.ql-image', '插入圖片'],
+      ['.ql-video', '插入影片'],
+      ['.ql-clean', '清除格式'],
+    ];
+    function addToolbarTooltips(toolbarEl) {
+      TOOLTIP_MAP.forEach(([sel, label]) => {
+        toolbarEl.querySelectorAll(sel).forEach(el => el.setAttribute('title', label));
+      });
+    }
+
+    function addUndoRedoButtons(toolbarEl, quill) {
+      const group = document.createElement('span');
+      group.className = 'ql-formats';
+      const mkBtn = (label, title, fn) => {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'ql-history-btn';
+        btn.title = title; btn.textContent = label;
+        btn.onclick = fn;
+        return btn;
+      };
+      group.appendChild(mkBtn('↶', '復原', () => quill.history.undo()));
+      group.appendChild(mkBtn('↷', '重做', () => quill.history.redo()));
+      toolbarEl.insertBefore(group, toolbarEl.firstChild);
+    }
+
+    function addInsertTableButton(toolbarEl, quill) {
+      const group = document.createElement('span');
+      group.className = 'ql-formats';
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'ql-history-btn';
+      btn.title = '插入表格'; btn.textContent = '⊞';
+      btn.onclick = () => {
+        const rows = parseInt(prompt('表格列數？', '3'), 10);
+        const cols = parseInt(prompt('表格欄數？', '3'), 10);
+        if (rows > 0 && cols > 0) quill.getModule('table').insertTable(rows, cols);
+      };
+      group.appendChild(btn);
+      toolbarEl.appendChild(group);
+    }
 
     // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
     // 不會出現在這裡的原始碼或 Firebase 中。
@@ -847,23 +924,31 @@
       _quill = new Quill('#f-editor', {
         theme: 'snow',
         placeholder: '請輸入內容…',
-        modules: { toolbar: {
-          container: [
-            [{ header:[1,2,3,false] }],
-            [{ size:['small', false, 'large', 'huge'] }],
-            ['bold','italic','underline','strike'],
-            [{ script:'sub' }, { script:'super' }],
-            [{ color:[] }, { background:[] }],
-            [{ align:[] }],
-            [{ list:'ordered' }, { list:'bullet' }],
-            [{ indent:'-1' }, { indent:'+1' }],
-            ['blockquote','code-block'],
-            ['link','image','video'],
-            ['clean'],
-          ],
-          handlers: { image: quillImageHandler }
-        }}
+        modules: {
+          table: true,
+          toolbar: {
+            container: [
+              [{ header:[1,2,3,false] }],
+              [{ size:[false, ...QUILL_SIZES] }],
+              [{ lineheight: QUILL_LINE_HEIGHTS }],
+              ['bold','italic','underline','strike'],
+              [{ script:'sub' }, { script:'super' }],
+              [{ color:[] }, { background:[] }],
+              [{ align:[] }],
+              [{ list:'ordered' }, { list:'bullet' }],
+              [{ indent:'-1' }, { indent:'+1' }],
+              ['blockquote','code-block'],
+              ['link','image','video'],
+              ['clean'],
+            ],
+            handlers: { image: quillImageHandler }
+          }
+        }
       });
+      const toolbarEl = _quill.getModule('toolbar').container;
+      addUndoRedoButtons(toolbarEl, _quill);
+      addInsertTableButton(toolbarEl, _quill);
+      addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
     }
 
