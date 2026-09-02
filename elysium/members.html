@@ -366,7 +366,7 @@
 
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function escBr(s) { return esc(s).replace(/\n/g, '<br>'); }
-    function thumbOf(photo) { return String(photo||'').replace(/(\.[a-zA-Z0-9]+)$/, '_二版頭像$1'); }
+    function thumbOf(photo) { return String(photo||'').replace(/\.[a-zA-Z0-9]+$/, '_二版頭像.webp'); }
 
     function openLightbox(src) {
       document.getElementById('img-lightbox-img').src = src;
