@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奉獻名錄 ✦ Elysium</title>
+  <link rel="icon" type="image/png" href="image/Elysium_LOGO_mini.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <style>
+    .of-eyebrow {
+      font-family: 'Libre Baskerville', serif; font-style: italic; font-size: .85rem;
+      letter-spacing: .1em; color: var(--dim); text-align: center; margin-top: .4rem;
+    }
+    .of-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; margin-top: 2.5rem; }
+    .of-col-head {
+      text-align: center; font-family: 'Noto Serif TC', serif; font-size: 1.1rem;
+      letter-spacing: .35em; color: var(--gold); margin-bottom: 1.8rem;
+      padding-bottom: .9rem; border-bottom: 1px solid rgba(184,144,96,.3);
+    }
+    .of-apostle { margin-bottom: 1.8rem; }
+    .of-apostle:last-child { margin-bottom: 0; }
+    .of-apostle-name {
+      font-family: 'Noto Serif TC', serif; font-size: 1.1rem; font-weight: 700;
+      color: var(--text); margin-bottom: .6rem;
+    }
+    .of-top-list { list-style: none; margin: 0; padding: 0; }
+    .of-top-list li {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+      font-size: .85rem; padding: .4rem 0; border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+    .of-top-list li:last-child { border-bottom: none; }
+    .of-top-rank { color: var(--gold); font-family: 'Noto Serif TC', serif; margin-right: .5rem; }
+    .of-top-id { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .of-top-amt { color: var(--dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .of-no-data, .of-empty { font-size: .82rem; color: var(--dim); padding: .3rem 0; }
+    .of-updated {
+      text-align: center; font-size: .75rem; color: var(--dim); letter-spacing: .05em;
+      margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    @media (max-width: 768px) {
+      .of-split { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo"><img src="image/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+    <button class="nav-burger" id="nav-burger" aria-label="選單">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="members.html">Members</a></li>
+      <li class="dropdown">
+        <span>Services</span>
+        <div class="dropdown-menu">
+          <a href="nomen.html">Nomen</a>
+          <a href="menu.html">Menu</a>
+        </div>
+      </li>
+      <li><span class="hidden-link">Registry</span></li>
+      <li><a href="rules.html">Rules</a></li>
+      <li><span class="hidden-link">Offerings</span></li>
+      <li><span class="hidden-link">S⏹︎⏹︎RI⏹︎S</span></li>
+    </ul>
+  </nav>
+
+  <div class="content no-cover">
+
+    <div class="menu-header">
+      <h2 class="section-title">奉獻名錄</h2>
+      <div class="of-eyebrow">Ledger of Offerings</div>
+      <div class="menu-header-ornament"></div>
+      <p class="menu-header-sub">獻給那些甘願為使徒傾盡所有的靈魂</p>
+    </div>
+
+    <div class="of-split">
+      <div>
+        <div class="of-col-head">食罪</div>
+        <div id="of-col-sin"></div>
+      </div>
+      <div>
+        <div class="of-col-head">妖異</div>
+        <div id="of-col-yao"></div>
+      </div>
+    </div>
+
+    <div class="of-updated" id="of-updated"></div>
+
+  </div>
+
+  <footer>
+    <div class="footer-social">
+      <span class="footer-social-link"><img src="image/discord_.png" alt="Discord" class="footer-icon"></span>
+      <a href="https://www.threads.com/@elysium.ffxivtc" target="_blank" rel="noopener" class="footer-social-link" aria-label="Threads">
+        <img src="image/threads_.png" alt="Threads" class="footer-icon">
+      </a>
+    </div>
+    <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
+  </footer>
+
+  <script>
+    firebase.initializeApp({
+      apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+      authDomain:        "elysiumpos.firebaseapp.com",
+      databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "elysiumpos",
+      storageBucket:     "elysiumpos.firebasestorage.app",
+      messagingSenderId: "430177597593",
+      appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+    });
+    const db = firebase.database();
+
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function renderCol(elId, apostles, tag, board) {
+      const list = apostles.filter(a => a.tag === tag);
+      const el = document.getElementById(elId);
+      if (!list.length) { el.innerHTML = `<div class="of-empty">尚無資料</div>`; return; }
+      el.innerHTML = list.map(a => {
+        const top = (board[a.uid] && board[a.uid].top) || [];
+        const rows = top.length
+          ? `<ol class="of-top-list">${top.map((t, i) => `
+              <li>
+                <span><span class="of-top-rank">${i+1}</span><span class="of-top-id">${esc(t.name)}@${esc(t.server)}</span></span>
+                <span class="of-top-amt">${(t.amount||0).toLocaleString()} Gil</span>
+              </li>`).join('')}</ol>`
+          : `<div class="of-no-data">尚無奉獻紀錄</div>`;
+        return `<div class="of-apostle">
+          <div class="of-apostle-name">${esc(a.name)}</div>
+          ${rows}
+        </div>`;
+      }).join('');
+    }
+
+    async function init() {
+      const [apostleSnap, boardSnap, metaSnap] = await Promise.all([
+        db.ref('apostles').get(),
+        db.ref('contributionBoard').get(),
+        db.ref('contributionBoardMeta/updatedAt').get(),
+      ]);
+      const apostles = Object.entries(apostleSnap.val() || {})
+        .map(([uid, v]) => ({ uid, ...v }))
+        .filter(a => a.active !== false)
+        .sort((a, b) => (a.order||0) - (b.order||0));
+      const board = boardSnap.val() || {};
+      const updatedAt = metaSnap.val();
+
+      renderCol('of-col-sin', apostles, '食罪', board);
+      renderCol('of-col-yao', apostles, '妖異', board);
+      document.getElementById('of-updated').textContent = updatedAt ? `最後更新：${fmtDate(updatedAt)}` : '';
+    }
+    init();
+  </script>
+  <script src="nav.js"></script>
+</body>
+</html>

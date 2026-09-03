@@ -2910,7 +2910,10 @@
         </div>`;
 
       document.getElementById('pos-content').innerHTML = `
-        <div style="font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;color:var(--gold);margin-bottom:1.25rem">統計報表</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <div style="font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;color:var(--gold)">統計報表</div>
+          <button class="btn btn-gold btn-sm" id="recompute-board-btn" onclick="recomputeContributionBoard()">重算公開榜單</button>
+        </div>
 
         <!-- 總覽 -->
         <div class="stats-grid" style="margin-bottom:1rem">
@@ -3022,6 +3025,36 @@
             </div>`;
               }).join('')}
         </div>`;
+    }
+
+    async function recomputeContributionBoard() {
+      const btn = document.getElementById('recompute-board-btn');
+      if (btn) { btn.disabled = true; btn.textContent = '計算中…'; }
+      try {
+        const board = {};
+        APOSTLES.filter(a => a.tag === '食罪' || a.tag === '妖異').forEach(a => {
+          const spendByCustomer = {};
+          visits.filter(v => v.apostleName === a.name).forEach(v => {
+            spendByCustomer[v.customerId] = (spendByCustomer[v.customerId] || 0) + (v.total || 0);
+          });
+          const top = Object.entries(spendByCustomer)
+            .map(([customerId, amount]) => {
+              const c = customers.find(x => x.id === customerId);
+              return { name: c?.name || '', server: c?.server || '', amount };
+            })
+            .filter(x => x.amount > 0)
+            .sort((x, y) => y.amount - x.amount)
+            .slice(0, 3);
+          board[a.uid] = { top };
+        });
+        await db.ref('contributionBoard').set(board);
+        await db.ref('contributionBoardMeta/updatedAt').set(new Date().toISOString());
+        alert('榜單已重新計算並公開');
+      } catch (e) {
+        alert('重算失敗：' + e.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '重算公開榜單'; }
+      }
     }
 
     // ────────────────────────────────────────────────────────────
