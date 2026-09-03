@@ -8,43 +8,79 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <style>
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+    :root { --sin: #a0a0a0; --yao: #795061; }
+    body {
+      background:
+        radial-gradient(ellipse 38% 80% at 8% 30%, rgba(160,160,160,.28), transparent 68%),
+        radial-gradient(ellipse 38% 80% at 92% 70%, rgba(121,80,97,.28), transparent 68%),
+        var(--bg);
+      background-attachment: fixed;
+    }
+    #of-particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .content { position: relative; z-index: 1; }
     .of-eyebrow {
       font-family: 'Libre Baskerville', serif; font-style: italic; font-size: .85rem;
       letter-spacing: .1em; color: var(--dim); text-align: center; margin-top: .4rem;
     }
-    .of-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; margin-top: 2.5rem; }
+    .of-rule { color: var(--gold); opacity: .7; letter-spacing: 1em; text-align: center; margin: 1.2rem 0; font-size: .8rem; }
+    .of-split { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; margin-top: 3.5rem; }
+    .of-col.sin { --col-accent: var(--sin); }
+    .of-col.yao { --col-accent: var(--yao); }
     .of-col-head {
-      text-align: center; font-family: 'Noto Serif TC', serif; font-size: 1.1rem;
-      letter-spacing: .35em; color: var(--gold); margin-bottom: 1.8rem;
-      padding-bottom: .9rem; border-bottom: 1px solid rgba(184,144,96,.3);
+      text-align: center; font-family: 'Noto Serif TC', serif; font-style: italic; font-weight: 700;
+      font-size: 5rem; line-height: 1; letter-spacing: .04em; margin-bottom: 1.2rem;
+      color: var(--col-accent); opacity: .045;
     }
-    .of-apostle { margin-bottom: 1.8rem; }
-    .of-apostle:last-child { margin-bottom: 0; }
+    .of-col-head span { display: inline-block; }
+    .of-col-head span:nth-child(1) { transform: translateY(-.1em); }
+    .of-col-head span:nth-child(2) { transform: translateY(.1em); }
+    .of-col-divider { width: 40px; height: 1px; background: var(--col-accent); opacity: .4; margin: 0 auto 2.2rem; }
+    .of-apostle { padding-bottom: 1.6rem; margin-bottom: 1.6rem; border-bottom: 1px solid rgba(0,0,0,.09); }
+    .of-apostle:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .of-apostle-name {
-      font-family: 'Noto Serif TC', serif; font-size: 1.1rem; font-weight: 700;
-      color: var(--text); margin-bottom: .6rem;
+      font-family: 'Noto Serif TC', serif; font-size: 1.15rem; font-weight: 700;
+      color: var(--text); margin-bottom: .7rem;
     }
     .of-top-list { list-style: none; margin: 0; padding: 0; }
     .of-top-list li {
-      display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
-      font-size: .85rem; padding: .4rem 0; border-bottom: 1px solid rgba(0,0,0,.06);
+      display: flex; align-items: baseline; gap: .7rem;
+      font-size: .87rem; padding: .3rem 0;
     }
-    .of-top-list li:last-child { border-bottom: none; }
-    .of-top-rank { color: var(--gold); font-family: 'Noto Serif TC', serif; margin-right: .5rem; }
-    .of-top-id { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .of-top-amt { color: var(--dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .of-rank-badge { flex-shrink: 0; color: var(--col-accent); font-size: .7rem; width: 1.2em; opacity: .8; }
+    .of-top-id { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .of-id-name { font-size: 1.02rem; color: var(--text); letter-spacing: .08em; }
+    .of-id-server { font-size: .74rem; color: var(--dim); margin-left: .35em; letter-spacing: .08em; }
+    .of-top-amt { color: var(--col-accent); font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 1.02rem; letter-spacing: .08em; }
+    .of-amt-unit { font-weight: 400; color: var(--dim); font-size: .65rem; margin-left: .25em; letter-spacing: .05em; }
     .of-no-data, .of-empty { font-size: .82rem; color: var(--dim); padding: .3rem 0; }
     .of-updated {
       text-align: center; font-size: .75rem; color: var(--dim); letter-spacing: .05em;
       margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
     }
     @media (max-width: 768px) {
-      .of-split { grid-template-columns: 1fr; gap: 2.5rem; }
+      body {
+        background:
+          radial-gradient(ellipse 90% 28% at 50% 10%, rgba(160,160,160,.28), transparent 68%),
+          radial-gradient(ellipse 90% 28% at 50% 90%, rgba(121,80,97,.28), transparent 68%),
+          var(--bg);
+      }
+      .of-split { grid-template-columns: 1fr; gap: 3rem; }
     }
   </style>
 </head>
 <body>
+
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-box">
+      <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+    </div>
+  </div>
+
+  <canvas id="of-particles"></canvas>
 
   <nav>
     <a href="index.html" class="nav-logo"><img src="image/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
@@ -64,7 +100,7 @@
       </li>
       <li><span class="hidden-link">Registry</span></li>
       <li><a href="rules.html">Rules</a></li>
-      <li><span class="hidden-link">Offerings</span></li>
+      <li><span class="hidden-link">O⏹︎⏹︎ERI⏹︎⏹︎S</span></li>
       <li><span class="hidden-link">S⏹︎⏹︎RI⏹︎S</span></li>
     </ul>
   </nav>
@@ -74,17 +110,19 @@
     <div class="menu-header">
       <h2 class="section-title">奉獻名錄</h2>
       <div class="of-eyebrow">Ledger of Offerings</div>
-      <div class="menu-header-ornament"></div>
-      <p class="menu-header-sub">獻給那些甘願為使徒傾盡所有的靈魂</p>
+      <div class="of-rule">✦✦✦</div>
+      <p class="menu-header-sub">獻給甘願為使徒傾盡所有的靈魂</p>
     </div>
 
     <div class="of-split">
-      <div>
-        <div class="of-col-head">食罪</div>
+      <div class="of-col sin">
+        <div class="of-col-head"><span>食</span><span>罪</span></div>
+        <div class="of-col-divider"></div>
         <div id="of-col-sin"></div>
       </div>
-      <div>
-        <div class="of-col-head">妖異</div>
+      <div class="of-col yao">
+        <div class="of-col-head"><span>妖</span><span>異</span></div>
+        <div class="of-col-divider"></div>
         <div id="of-col-yao"></div>
       </div>
     </div>
@@ -125,18 +163,17 @@
     }
 
     function renderCol(elId, apostles, tag, board) {
-      const list = apostles.filter(a => a.tag === tag);
+      const list = apostles.filter(a => a.tag === tag && board[a.uid] && board[a.uid].top && board[a.uid].top.length > 0);
       const el = document.getElementById(elId);
       if (!list.length) { el.innerHTML = `<div class="of-empty">尚無資料</div>`; return; }
       el.innerHTML = list.map(a => {
-        const top = (board[a.uid] && board[a.uid].top) || [];
-        const rows = top.length
-          ? `<ol class="of-top-list">${top.map((t, i) => `
+        const top = board[a.uid].top;
+        const rows = `<ol class="of-top-list">${top.map(t => `
               <li>
-                <span><span class="of-top-rank">${i+1}</span><span class="of-top-id">${esc(t.name)}@${esc(t.server)}</span></span>
-                <span class="of-top-amt">${(t.amount||0).toLocaleString()} Gil</span>
-              </li>`).join('')}</ol>`
-          : `<div class="of-no-data">尚無奉獻紀錄</div>`;
+                <span class="of-rank-badge">✦</span>
+                <span class="of-top-id"><span class="of-id-name">${esc(t.name)}</span><span class="of-id-server">@${esc(t.server)}</span></span>
+                <span class="of-top-amt">${(t.amount||0).toLocaleString()}<span class="of-amt-unit">Gil</span></span>
+              </li>`).join('')}</ol>`;
         return `<div class="of-apostle">
           <div class="of-apostle-name">${esc(a.name)}</div>
           ${rows}
@@ -160,8 +197,63 @@
       renderCol('of-col-sin', apostles, '食罪', board);
       renderCol('of-col-yao', apostles, '妖異', board);
       document.getElementById('of-updated').textContent = updatedAt ? `最後更新：${fmtDate(updatedAt)}` : '';
+      resizeParticles();
     }
-    init();
+
+    let resizeParticles = function () {};
+    (function () {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const canvas = document.getElementById('of-particles');
+      const ctx = canvas.getContext('2d');
+      let W, H;
+      const particles = [];
+      const N = 46;
+
+      function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = document.documentElement.scrollHeight;
+      }
+      resizeParticles = resize;
+      window.addEventListener('resize', resize);
+      resize();
+
+      function makeParticle() {
+        const leftSide = Math.random() < 0.5;
+        return {
+          x: Math.random() * W, y: Math.random() * H,
+          r: 0.6 + Math.random() * 1.6, speed: 0.12 + Math.random() * 0.28,
+          drift: (Math.random() - 0.5) * 0.25, alpha: 0.15 + Math.random() * 0.35,
+          hue: leftSide ? '160,160,160' : '121,80,97'
+        };
+      }
+      for (let i = 0; i < N; i++) particles.push(makeParticle());
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(${p.hue},${p.alpha})`;
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+      function tick() {
+        particles.forEach(p => {
+          p.y -= p.speed; p.x += p.drift;
+          if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+        });
+        draw();
+        requestAnimationFrame(tick);
+      }
+      if (!reduce) requestAnimationFrame(tick);
+      else draw();
+    })();
+
+    firebase.auth().onAuthStateChanged(user => {
+      document.getElementById('auth-overlay').style.display = 'none';
+      if (!user) { window.location.href = 'index.html'; return; }
+      init();
+    });
   </script>
   <script src="nav.js"></script>
 </body>

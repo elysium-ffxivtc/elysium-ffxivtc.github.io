@@ -303,6 +303,10 @@
       display: none; align-items: center; justify-content: center; z-index: 9999;
     }
 
+    /* Auth gate */
+    .auth-overlay { position: fixed; inset: 0; background: #efefef; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+
     /* Lightbox */
     #bk-lightbox { position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; cursor: url('image/arr-cursors/arr-zoom-out.cur'), zoom-out; }
     #bk-lightbox.open { display: flex; }
@@ -356,6 +360,12 @@
   </style>
 </head>
 <body>
+
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-box">
+      <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+    </div>
+  </div>
 
   <div id="bk-loading">
     <div style="display:flex;flex-direction:column;align-items:center;gap:.9rem;">
@@ -422,6 +432,7 @@
   <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
   import { getDatabase, ref as dbRef, get, update, runTransaction } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
   // ─────────────────────────────────────────────────────────────
   //  設定區
@@ -436,6 +447,7 @@
     appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
   });
   const db = getDatabase(app);
+  const auth = getAuth(app);
   const TIME_SLOTS = ['22:00', '23:00', '00:00'];
   const DAILY_CAPACITY = 40; // 線上預約單日總人數上限，保留現場席次
   function sKey(t) { return t.replace(':', ''); }
@@ -1290,7 +1302,11 @@
     initForm();
     updateSubmitBtn();
   }
-  init();
+  onAuthStateChanged(auth, user => {
+    document.getElementById('auth-overlay').style.display = 'none';
+    if (!user) { window.location.href = 'index.html'; return; }
+    init();
+  });
 
   // Mobile bottom sheet — expand when apostle grid scrolls out of view
   (function() {
