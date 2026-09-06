@@ -295,6 +295,7 @@
 
     /* ── FAQ ── */
     .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
+    .faq-card.unanswered { border-left: 3px solid var(--red); }
     .faq-q-row { display: flex; align-items: center; gap: .85rem; padding: .9rem 1.1rem; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; transition: background .12s; user-select: none; }
     .faq-q-row:hover { background: var(--gold-bg); }
     .faq-q-icon { font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700; color: var(--gold); flex-shrink: 0; width: 1.4rem; text-align: center; }
@@ -302,6 +303,7 @@
     .faq-q-author { display: block; font-size: .71rem; color: var(--dim2); margin-top: .1rem; letter-spacing: .02em; }
     .faq-q-meta { display: flex; align-items: center; gap: .65rem; flex-shrink: 0; }
     .faq-reply-count { font-size: .78rem; color: var(--dim2); }
+    .faq-tag-unanswered { font-size: .72rem; color: var(--red); background: rgba(168,48,48,.1); padding: .12rem .5rem; border-radius: 3px; white-space: nowrap; }
     .faq-del-btn { background: none; border: none; color: var(--dim2); font-size: .9rem; line-height: 1; padding: 0 .15rem; transition: color .15s; }
     .faq-del-btn:hover { color: var(--red); }
     .faq-arrow { color: var(--dim2); font-size: 1rem; transition: transform .2s; display: inline-block; }
@@ -1155,12 +1157,12 @@
           </div>`;
         }).join('');
 
-        return `<div class="faq-card">
+        return `<div class="faq-card${replies.length?'':' unanswered'}">
           <div class="faq-q-row" onclick="toggleFaq('${id}')">
             <span class="faq-q-icon">Q</span>
             <span class="faq-q-text">${esc(f.question)}${_role==='admin'&&f.displayName?`<span class="faq-q-author">由 ${esc(f.displayName)} 提問</span>`:''}</span>
             <div class="faq-q-meta">
-              <span class="faq-reply-count">${replies.length} 則回覆</span>
+              ${replies.length?`<span class="faq-reply-count">${replies.length} 則回覆</span>`:`<span class="faq-tag-unanswered">待回覆</span>`}
               ${_role==='admin'?`<button class="faq-del-btn" onclick="event.stopPropagation();deleteFaq('${id}')">×</button>`:''}
               <span class="faq-arrow" id="faq-arrow-${id}" style="${_faqOpen.has(id)?'transform:rotate(90deg)':''}">›</span>
             </div>
