@@ -185,6 +185,7 @@
     .badge-food { color: #a0a0a0; }
     .badge-yao  { color: #795061; }
     .badge-guide{ color: #94aec3; }
+    .badge-new  { color: #7fae6c; }
 
     .lib-empty { text-align: center; padding: 3.5rem 1rem; color: var(--dim2); font-size: .93rem; background: var(--panel); border: 1px solid var(--border); }
 
@@ -645,7 +646,7 @@
       const txt = String(html||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
       return txt.length > len ? txt.slice(0,len)+'…' : txt;
     }
-    const BADGE_CLS = {'全體成員':'badge-all','食罪':'badge-food','妖異':'badge-yao','引路人':'badge-guide'};
+    const BADGE_CLS = {'全體成員':'badge-all','新進成員':'badge-new','食罪':'badge-food','妖異':'badge-yao','引路人':'badge-guide'};
     function badge(val) { return val ? `<span class="badge ${BADGE_CLS[val]||'badge-guide'}">${esc(val)}</span>` : ''; }
 
     // ── Data ──
