@@ -74,8 +74,20 @@
     /* ── Main ── */
     .lib-main { max-width: 980px; margin: 0 auto; padding: 1.75rem; }
 
-    /* ── Update panel ── */
-    .update-panel { background: var(--panel); border: 1px solid var(--border); padding: 1.1rem 1.4rem; margin-bottom: 1.75rem; }
+    /* ── Update panel (pinned note) ── */
+    .update-panel {
+      position: relative;
+      background: #fdfaf3; border: 1px solid var(--border);
+      padding: 1.1rem 1.4rem; margin: 0 auto 2.1rem; max-width: 620px;
+      transform: rotate(-.5deg);
+      box-shadow: 0 6px 18px -10px rgba(40,30,20,.4);
+    }
+    .update-panel::before {
+      content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 13px; height: 13px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #d8b46a, #885B22 70%);
+      box-shadow: 0 2px 4px rgba(0,0,0,.35);
+    }
     .update-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: .8rem; }
     .update-title { font-size: .75rem; font-weight: 500; color: var(--dim2); letter-spacing: .15em; text-transform: uppercase; }
     .update-add-btn { background: none; border: none; color: var(--dim2); font-size: 1.05rem; line-height: 1; padding: .1rem .3rem; transition: color .15s; letter-spacing: 0; }
@@ -97,14 +109,25 @@
     .update-del-btn:hover { color: var(--red); }
     .update-empty { font-size: .9rem; color: var(--dim2); }
 
-    /* ── Tabs ── */
-    .lib-tabs { display: flex; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border); }
-    .lib-tab { padding: .65rem 1.4rem; font-size: .92rem; letter-spacing: .08em; background: none; border: none; border-bottom: 2px solid transparent; color: var(--dim); font-family: inherit; margin-bottom: -2px; transition: color .15s, border-color .15s; }
-    .lib-tab.on { color: var(--gold); border-bottom-color: var(--gold); font-weight: 500; }
+    /* ── Tabs (book-index tabs) ── */
+    .lib-shell { display: flex; align-items: flex-start; }
+    .lib-tabs { display: flex; flex-direction: column; padding-top: 1.7rem; }
+    .lib-tab {
+      position: relative;
+      writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .3em; font-size: .85rem;
+      color: var(--dim); background: var(--panel2); border: 1px solid var(--border); border-right: none;
+      padding: 1rem .55rem 1.6rem; margin: 0 0 .5rem; width: 34px; font-family: inherit; transition: all .15s;
+    }
     .lib-tab:hover { color: var(--text); }
-    .lib-tab-new { display: inline-block; margin-left: .35rem; padding: .05rem .35rem; font-size: .62rem; font-weight: 700; letter-spacing: .04em; color: #fff; background: var(--red); vertical-align: 2px; }
+    .lib-tab.on { background: var(--panel); color: var(--gold); border-color: var(--gold); width: 40px; margin-right: -1px; font-weight: 500; }
+    .lib-tab-new {
+      position: absolute; bottom: .35rem; left: 50%; transform: translateX(-50%);
+      writing-mode: horizontal-tb; padding: .08rem .22rem;
+      font-size: .58rem; font-weight: 700; letter-spacing: 0; color: #fff; background: var(--red);
+    }
 
     /* ── Section ── */
+    .lib-content { flex: 1; min-width: 0; padding-left: 1.75rem; border-left: 1px solid var(--border); }
     .lib-section { display: none; }
     .lib-section.on { display: block; }
     .lib-section-hdr { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
@@ -178,6 +201,15 @@
     .col-excerpt { color: var(--dim2); font-size: .85rem; }
     .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
     .col-dim     { color: var(--dim); font-size: .88rem; }
+
+    /* ── Article inline expand (no popup) ── */
+    .art-chev { display: inline-block; margin-right: .5rem; color: var(--dim2); transition: transform .18s; font-style: normal; }
+    .art-row.open .art-chev { transform: rotate(90deg); color: var(--gold); }
+    .art-row.open td { background: var(--gold-bg); }
+    .art-detail { display: none; }
+    .art-detail.open { display: table-row; }
+    .art-detail td { padding: 1.3rem 1.5rem 1.6rem; background: var(--panel2); white-space: normal; overflow: visible; text-overflow: clip; }
+    .art-detail-meta { font-size: .8rem; color: var(--dim2); margin-bottom: .9rem; letter-spacing: .05em; }
 
     /* badge: text-only, no bg/border */
     .badge      { font-size: .88rem; white-space: nowrap; }
@@ -355,6 +387,14 @@
       .lib-table td { padding: .75rem .75rem; }
       .col-excerpt, .col-excerpt-hdr { display: none; }
 
+      /* book-index tabs collapse to a horizontal strip */
+      .lib-shell { flex-direction: column; }
+      .lib-tabs { flex-direction: row; padding-top: 0; margin-bottom: 1rem; overflow-x: auto; }
+      .lib-tab { writing-mode: horizontal-tb; width: auto; padding: .55rem 1rem; border-right: 1px solid var(--border); border-bottom: none; white-space: nowrap; }
+      .lib-tab.on { width: auto; margin-right: 0; margin-bottom: -1px; border-bottom: 1px solid var(--panel); }
+      .lib-tab-new { position: static; transform: none; display: inline-block; margin-left: .3rem; }
+      .lib-content { border-left: none; padding-left: 0; }
+
       /* modal */
       .modal-overlay { padding: .75rem .4rem; }
       .modal-box { padding: 1.4rem 1.1rem 1.75rem; }
@@ -408,58 +448,66 @@
       <div class="update-list" id="update-list"><div class="update-empty">尚無紀錄</div></div>
     </div>
 
-    <div class="lib-tabs">
-      <button class="lib-tab on" onclick="setTab('meeting')">會議紀錄</button>
-      <button class="lib-tab" onclick="setTab('article')">文章</button>
-      <button class="lib-tab" onclick="setTab('polaroid')">拍立得</button>
-      <button class="lib-tab" onclick="setTab('faq')">問答集<span class="lib-tab-new" id="faq-new-badge" style="display:none">NEW</span></button>
-    </div>
+    <div class="lib-shell">
 
-    <div class="lib-section on" id="sec-meeting">
-      <div class="lib-section-hdr">
-        <button class="lib-add-btn" id="btn-add-meeting" onclick="openAddModal('meeting')" style="display:none">＋ 新增會議</button>
+      <div class="lib-tabs">
+        <button class="lib-tab on" onclick="setTab('meeting')">會議紀錄</button>
+        <button class="lib-tab" onclick="setTab('article')">文章</button>
+        <button class="lib-tab" onclick="setTab('polaroid')">拍立得</button>
+        <button class="lib-tab" onclick="setTab('faq')">問答集<span class="lib-tab-new" id="faq-new-badge" style="display:none">NEW</span></button>
       </div>
-      <div class="lib-table-wrap" id="wrap-meeting">
-        <table class="lib-table">
-          <thead><tr>
-            <th>會議主題</th><th style="width:200px">排定日期</th><th style="width:110px">會議時間</th><th style="width:110px">出席</th><th style="width:110px">地點</th>
-          </tr></thead>
-          <tbody id="tbody-meeting"></tbody>
-        </table>
-      </div>
-      <div class="lib-empty" id="empty-meeting" style="display:none">尚無會議紀錄</div>
-    </div>
 
-    <div class="lib-section" id="sec-article">
-      <div class="lib-section-hdr">
-        <button class="lib-add-btn" id="btn-add-article" onclick="openAddModal('article')" style="display:none">＋ 新增文章</button>
-      </div>
-      <div class="lib-table-wrap" id="wrap-article">
-        <table class="lib-table">
-          <thead><tr>
-            <th style="width:280px">標題</th><th class="col-excerpt-hdr">摘要</th><th style="width:130px">作者</th><th style="width:155px">發佈時間</th>
-          </tr></thead>
-          <tbody id="tbody-article"></tbody>
-        </table>
-      </div>
-      <div class="lib-empty" id="empty-article" style="display:none">尚無文章</div>
-    </div>
+      <div class="lib-content">
 
-    <div class="lib-section" id="sec-polaroid">
-      <div class="lib-section-hdr">
-        <input type="file" id="polaroid-input" accept="image/*" multiple style="display:none" onchange="uploadPolaroids(this.files)">
-        <button class="lib-add-btn" id="btn-upload-polaroid" style="display:none" onclick="document.getElementById('polaroid-input').click()">＋ 上傳照片</button>
-      </div>
-      <div class="polaroid-grid" id="polaroid-grid"></div>
-      <div class="lib-empty" id="empty-polaroid" style="display:none">尚無照片</div>
-    </div>
+        <div class="lib-section on" id="sec-meeting">
+          <div class="lib-section-hdr">
+            <button class="lib-add-btn" id="btn-add-meeting" onclick="openAddModal('meeting')" style="display:none">＋ 新增會議</button>
+          </div>
+          <div class="lib-table-wrap" id="wrap-meeting">
+            <table class="lib-table">
+              <thead><tr>
+                <th>會議主題</th><th style="width:200px">排定日期</th><th style="width:110px">會議時間</th><th style="width:110px">出席</th><th style="width:110px">地點</th>
+              </tr></thead>
+              <tbody id="tbody-meeting"></tbody>
+            </table>
+          </div>
+          <div class="lib-empty" id="empty-meeting" style="display:none">尚無會議紀錄</div>
+        </div>
 
-    <div class="lib-section" id="sec-faq">
-      <div class="lib-section-hdr">
-        <button class="lib-add-btn" id="btn-add-faq" onclick="openFaqModal()" style="display:none">＋ 新增問題</button>
+        <div class="lib-section" id="sec-article">
+          <div class="lib-section-hdr">
+            <button class="lib-add-btn" id="btn-add-article" onclick="openAddModal('article')" style="display:none">＋ 新增文章</button>
+          </div>
+          <div class="lib-table-wrap" id="wrap-article">
+            <table class="lib-table">
+              <thead><tr>
+                <th style="width:280px">標題</th><th class="col-excerpt-hdr">摘要</th><th style="width:130px">作者</th><th style="width:155px">發佈時間</th>
+              </tr></thead>
+              <tbody id="tbody-article"></tbody>
+            </table>
+          </div>
+          <div class="lib-empty" id="empty-article" style="display:none">尚無文章</div>
+        </div>
+
+        <div class="lib-section" id="sec-polaroid">
+          <div class="lib-section-hdr">
+            <input type="file" id="polaroid-input" accept="image/*" multiple style="display:none" onchange="uploadPolaroids(this.files)">
+            <button class="lib-add-btn" id="btn-upload-polaroid" style="display:none" onclick="document.getElementById('polaroid-input').click()">＋ 上傳照片</button>
+          </div>
+          <div class="polaroid-grid" id="polaroid-grid"></div>
+          <div class="lib-empty" id="empty-polaroid" style="display:none">尚無照片</div>
+        </div>
+
+        <div class="lib-section" id="sec-faq">
+          <div class="lib-section-hdr">
+            <button class="lib-add-btn" id="btn-add-faq" onclick="openFaqModal()" style="display:none">＋ 新增問題</button>
+          </div>
+          <div id="faq-list"></div>
+          <div class="lib-empty" id="empty-faq" style="display:none">尚無問題</div>
+        </div>
+
       </div>
-      <div id="faq-list"></div>
-      <div class="lib-empty" id="empty-faq" style="display:none">尚無問題</div>
+
     </div>
 
   </main>
@@ -695,14 +743,33 @@
       const wrap=document.getElementById('wrap-article'), empty=document.getElementById('empty-article');
       if (!rows.length) { wrap.style.display='none'; empty.style.display=''; return; }
       wrap.style.display=''; empty.style.display='none';
-      document.getElementById('tbody-article').innerHTML = rows.map(([id,e]) =>
-        `<tr onclick="openView('${id}')">
-          <td class="col-title"><span>${esc(e.title)}</span></td>
-          <td class="col-excerpt">${esc(excerpt(e.content))}</td>
-          <td class="col-dim">${esc(e.author||'')}</td>
-          <td class="col-date">${fmtDate(e.createdAt||e.updatedAt)}</td>
-        </tr>`).join('');
+      document.getElementById('tbody-article').innerHTML = rows.map(([id,e]) => {
+        const adminHtml = _role==='admin'
+          ? `<div class="view-actions">
+               <button class="btn-edit" onclick="openEditModal('${id}')">編輯</button>
+               <button class="btn-del"  onclick="confirmDelete('${id}')">刪除</button>
+             </div>` : '';
+        return `<tr class="art-row" onclick="toggleArticle('${id}')">
+            <td class="col-title"><i class="art-chev">▸</i><span>${esc(e.title)}</span></td>
+            <td class="col-excerpt">${esc(excerpt(e.content))}</td>
+            <td class="col-dim">${esc(e.author||'')}</td>
+            <td class="col-date">${fmtDate(e.createdAt||e.updatedAt)}</td>
+          </tr>
+          <tr class="art-detail" id="art-detail-${id}">
+            <td colspan="4">
+              <div class="art-detail-meta">發佈日期 ${fmtDate(e.createdAt||e.updatedAt)||'—'}${e.author?` · 作者 ${esc(e.author)}`:''}</div>
+              <div class="view-content">${e.content || '<span style="color:var(--dim2)">（尚無內容）</span>'}</div>
+              ${adminHtml}
+            </td>
+          </tr>`;
+      }).join('');
       calibrateMarquee('tbody-article');
+    }
+    function toggleArticle(id) {
+      const detail = document.getElementById('art-detail-'+id);
+      const row = detail.previousElementSibling;
+      detail.classList.toggle('open');
+      row.classList.toggle('open');
     }
 
     function renderUpdates() {
@@ -759,22 +826,15 @@
       document.getElementById('sec-faq').classList.toggle('on',tab==='faq');
     }
 
-    // ── View ──
+    // ── View (meetings only — articles expand inline, see toggleArticle) ──
     function openView(id) {
       const e = _entries[id]; if (!e) return;
-      const m = e.type==='meeting';
-      const publishDate = fmtDate(e.createdAt||e.updatedAt);
-      const meta = m
-        ? `<div class="view-meta">
+      const meta = `<div class="view-meta">
             <div class="view-meta-item"><div class="view-meta-lbl">排定日期</div><div class="view-meta-val">${fmtDate(e.date, true)||'—'}</div></div>
             ${e.duration?`<div class="view-meta-item"><div class="view-meta-lbl">會議時間</div><div class="view-meta-val">${esc(e.duration)}</div></div>`:''}
             <div class="view-meta-item"><div class="view-meta-lbl">出席</div><div class="view-meta-val">${badge(e.attendees)}</div></div>
             ${e.host?`<div class="view-meta-item"><div class="view-meta-lbl">主持人</div><div class="view-meta-val">${esc(e.host)}</div></div>`:''}
             ${e.location?`<div class="view-meta-item"><div class="view-meta-lbl">地點</div><div class="view-meta-val">${esc(e.location)}</div></div>`:''}
-           </div>`
-        : `<div class="view-meta">
-            <div class="view-meta-item"><div class="view-meta-lbl">發佈日期</div><div class="view-meta-val">${publishDate||'—'}</div></div>
-            ${e.author?`<div class="view-meta-item"><div class="view-meta-lbl">作者</div><div class="view-meta-val">${esc(e.author)}</div></div>`:''}
            </div>`;
       const adminHtml = _role==='admin'
         ? `<div class="view-actions">
@@ -784,7 +844,7 @@
       document.getElementById('view-body').innerHTML =
         `<div class="view-title">${esc(e.title)}</div>
          ${meta}
-         <div class="view-section-lbl">${m?'會議內容':'文章內容'}</div>
+         <div class="view-section-lbl">會議內容</div>
          <div class="view-content" id="view-rich"></div>
          ${adminHtml}`;
       document.getElementById('view-rich').innerHTML = e.content || '<span style="color:var(--dim2)">（尚無內容）</span>';
