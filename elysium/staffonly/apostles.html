@@ -239,6 +239,8 @@ function renderEdit(uid) {
   const a = apostles[uid] || {};
   const member = staffList.find(s => s.uid === uid) || (uid === currentUser.uid ? currentUser : null);
   const name = member ? esc(member.displayName) : uid;
+  // 沒存過紀錄的全新帳號預設「實習員工」；已存在但沒填等級的舊資料維持「正式員工」
+  const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern');
   document.getElementById('edit-col').innerHTML = `
     <div class="card">
       <div class="card-title">編輯資料 · ${name}</div>
@@ -262,8 +264,8 @@ function renderEdit(uid) {
       </div>
       <div class="form-label">員工等級</div>
       <select class="form-input" id="f-rank">
-        <option value="formal" ${a.rank!=='intern'?'selected':''}>正式員工</option>
-        <option value="intern" ${a.rank==='intern'?'selected':''}>實習員工</option>
+        <option value="formal" ${rankDefault!=='intern'?'selected':''}>正式員工</option>
+        <option value="intern" ${rankDefault==='intern'?'selected':''}>實習員工</option>
       </select>
       <div class="form-label">真名</div>
       <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">
