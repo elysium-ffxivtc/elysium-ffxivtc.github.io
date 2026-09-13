@@ -201,6 +201,8 @@
     }
     .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
     .col-dim     { color: var(--dim); font-size: .88rem; }
+    .lib-table td.col-wrap { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.7; }
+    .col-wrap .badge { display: inline-block; }
 
     /* ── Article inline expand (no popup) ── */
     .art-chev { display: inline-block; margin-right: .5rem; color: var(--dim2); transition: transform .18s; font-style: normal; }
@@ -721,20 +723,6 @@
       return list.map(v => `<span class="badge ${BADGE_CLS[v]||'badge-guide'}">${esc(v)}</span>`).join(' ');
     }
     function joinVal(val) { return Array.isArray(val) ? val.join('、') : (val || ''); }
-    // 表格列只顯示第一項＋剩餘數量，避免多選把標題欄擠掉；完整清單仍在檢視彈窗中顯示
-    function badgeCompact(val) {
-      const list = Array.isArray(val) ? val : (val ? [val] : []);
-      if (!list.length) return '';
-      const first = `<span class="badge ${BADGE_CLS[list[0]]||'badge-guide'}">${esc(list[0])}</span>`;
-      const extra = list.length - 1;
-      return extra > 0 ? `${first} <span class="col-dim">+${extra}</span>` : first;
-    }
-    function joinValCompact(val) {
-      const list = Array.isArray(val) ? val : (val ? [val] : []);
-      if (!list.length) return '';
-      const extra = list.length - 1;
-      return list[0] + (extra > 0 ? ` +${extra}` : '');
-    }
 
     // ── Data ──
     function loadEntries() {
@@ -771,8 +759,8 @@
           <td class="col-title"><span>${esc(e.title)}</span></td>
           <td class="col-date">${fmtDate(e.date, true)}</td>
           <td class="col-dim">${esc(e.duration||'')}</td>
-          <td class="col-dim">${badgeCompact(e.attendees)}</td>
-          <td class="col-dim">${esc(joinValCompact(e.location))}</td>
+          <td class="col-dim col-wrap">${badge(e.attendees)}</td>
+          <td class="col-dim col-wrap">${esc(joinVal(e.location))}</td>
         </tr>`).join('');
       calibrateMarquee('tbody-meeting');
     }
