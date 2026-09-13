@@ -209,7 +209,6 @@
     .art-detail { display: none; }
     .art-detail.open { display: table-row; }
     .art-detail td { padding: 2.2rem 2.2rem 2.6rem; background: var(--panel2); white-space: normal; overflow: visible; text-overflow: clip; }
-    .art-detail-meta { font-size: .8rem; color: var(--dim2); margin-bottom: 2.2rem; letter-spacing: .05em; }
 
     /* badge: text-only, no bg/border */
     .badge      { font-size: .88rem; white-space: nowrap; }
@@ -770,7 +769,6 @@
           </tr>
           <tr class="art-detail" id="art-detail-${id}">
             <td colspan="3">
-              <div class="art-detail-meta">發佈日期 ${fmtDate(e.createdAt||e.updatedAt)||'—'}${e.author?` · 作者 ${esc(e.author)}`:''}</div>
               <div class="view-content">${e.content || '<span style="color:var(--dim2)">（尚無內容）</span>'}</div>
               ${adminHtml}
             </td>
