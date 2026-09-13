@@ -9,10 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gold: #8a5c1e; --gold-dim: rgba(138,92,30,.12);
-      --bg: #f5f0e8; --panel: #ece6d8; --card: #fdfaf5;
-      --border: rgba(0,0,0,.1); --text: #1a1208; --dim: #7a6a52;
-      --red: #b03838;
+      --gold: #9c7a35; --gold-dim: rgba(156,122,53,.12);
+      --bg: #f3f1ee; --panel: #e9e6e1; --card: #ffffff;
+      --border: rgba(0,0,0,.1); --text: #211f1c; --dim: #6e6a63;
+      --red: #a8433a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
     body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
@@ -27,18 +27,18 @@
     .btn { padding: .38rem .85rem; font-size: 12px; border: none; font-family: inherit; transition: all .15s; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-    .btn-gold { background: var(--gold); color: #fdfaf5; }
-    .btn-gold:hover { background: #6f4a17; }
+    .btn-gold { background: var(--gold); color: #ffffff; }
+    .btn-gold:hover { background: #7d622a; }
     .btn-sm { padding: .3rem .7rem; font-size: 12px; }
 
     .board {
       display: flex; align-items: flex-start; gap: 1rem; flex: 1; min-height: 0; overflow: auto; padding: 0 1.5rem 1.5rem;
-      scrollbar-width: thin; scrollbar-color: rgba(138,92,30,.3) transparent;
+      scrollbar-width: thin; scrollbar-color: rgba(156,122,53,.3) transparent;
     }
     .board::-webkit-scrollbar { width: 9px; height: 9px; }
     .board::-webkit-scrollbar-track { background: transparent; }
-    .board::-webkit-scrollbar-thumb { background: rgba(138,92,30,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
-    .board::-webkit-scrollbar-thumb:hover { background: rgba(138,92,30,.55); background-clip: padding-box; }
+    .board::-webkit-scrollbar-thumb { background: rgba(156,122,53,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    .board::-webkit-scrollbar-thumb:hover { background: rgba(156,122,53,.55); background-clip: padding-box; }
 
     .col { flex: 0 0 280px; background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; transition: box-shadow .12s; }
     .col.drag-over-left  { box-shadow: inset 3px 0 0 var(--gold); }
@@ -139,7 +139,7 @@
   <div id="auth-login" class="auth-box" style="display:none">
     <div class="auth-logo">安息地</div>
     <div class="auth-tagline">工作流程</div>
-    <button class="btn btn-outline auth-google-btn" style="background:var(--gold);color:#1c1208;font-weight:600" onclick="signInGoogle()">Google 登入</button>
+    <button class="btn btn-outline auth-google-btn" style="background:var(--gold);color:#211f1c;font-weight:600" onclick="signInGoogle()">Google 登入</button>
     <div class="auth-err" id="auth-err"></div>
   </div>
   <div id="auth-denied" class="auth-box" style="display:none">
@@ -285,9 +285,9 @@ function render() {
               <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('italic')" title="斜體"><i>I</i></button>
               <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('underline')" title="底線"><u>U</u></button>
               <span class="block-color-swatches">
-                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#1a1208')" style="background:#1a1208" title="預設"></button>
-                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#b03838')" style="background:#b03838" title="紅"></button>
-                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#8a5c1e')" style="background:#8a5c1e" title="金"></button>
+                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#211f1c')" style="background:#211f1c" title="預設"></button>
+                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#a8433a')" style="background:#a8433a" title="紅"></button>
+                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#9c7a35')" style="background:#9c7a35" title="金"></button>
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#2d7a50')" style="background:#2d7a50" title="綠"></button>
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#2c5f9e')" style="background:#2c5f9e" title="藍"></button>
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#6b4a9e')" style="background:#6b4a9e" title="紫"></button>
