@@ -201,6 +201,8 @@
     }
     .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
     .col-dim     { color: var(--dim); font-size: .88rem; }
+    .lib-table td.col-attendees { white-space: normal; overflow: visible; text-overflow: clip; }
+    .col-attendees .badge { display: inline-block; margin: .1rem .3rem .1rem 0; }
 
     /* ── Article inline expand (no popup) ── */
     .art-chev { display: inline-block; margin-right: .5rem; color: var(--dim2); transition: transform .18s; font-style: normal; }
@@ -217,8 +219,8 @@
     .badge-yao  { color: #795061; }
     .badge-guide{ color: #94aec3; }
     .badge-new  { color: #7fae6c; }
-    .badge-formal { color: #9c7a35; }
-    .badge-intern { color: #a39d92; }
+    .badge-formal { color: #daa756; }
+    .badge-intern { color: #c9a575; }
 
     .lib-empty { text-align: center; padding: 3.5rem 1rem; color: var(--dim2); font-size: .93rem; background: var(--panel); border: 1px solid var(--border); }
 
@@ -264,8 +266,12 @@
       font-size:.93rem; font-family:inherit; transition:border-color .15s; outline:none;
     }
     .form-input:focus, .form-select:focus { border-color:var(--gold); }
-    .form-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%237a6750' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .85rem center; padding-right:2.4rem; }
+    .form-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%236e6a63' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .85rem center; padding-right:2.4rem; }
     .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:1.1rem; }
+    .chip-group { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .chip-btn { padding:.35rem .75rem; font-size:.82rem; border:1px solid var(--border); background:var(--panel); color:var(--dim); font-family:inherit; border-radius:3px; transition:all .15s; }
+    .chip-btn:hover { border-color:var(--gold); }
+    .chip-btn.on { background:var(--gold-bg); border-color:var(--gold); color:var(--gold); font-weight:500; }
     .form-col label { display:block; }
     .form-dt { display:grid; grid-template-columns:1fr 120px; gap:.6rem; }
     .form-actions { display:flex; gap:.65rem; margin-top:1.75rem; justify-content:flex-end; }
@@ -477,7 +483,7 @@
           <div class="lib-table-wrap" id="wrap-meeting">
             <table class="lib-table">
               <thead><tr>
-                <th>會議主題</th><th style="width:200px">排定日期</th><th style="width:110px">會議時間</th><th style="width:110px">出席</th><th style="width:110px">地點</th>
+                <th>會議主題</th><th style="width:200px">排定日期</th><th style="width:110px">會議時間</th><th style="width:190px">出席</th><th style="width:110px">地點</th>
               </tr></thead>
               <tbody id="tbody-meeting"></tbody>
             </table>
@@ -710,7 +716,11 @@
       return s;
     }
     const BADGE_CLS = {'全體成員':'badge-all','新進成員':'badge-new','正式員工':'badge-formal','實習員工':'badge-intern','食罪':'badge-food','妖異':'badge-yao','引路人':'badge-guide'};
-    function badge(val) { return val ? `<span class="badge ${BADGE_CLS[val]||'badge-guide'}">${esc(val)}</span>` : ''; }
+    const ATTENDEE_OPTIONS = ['全體成員','新進成員','正式員工','實習員工','食罪','妖異','引路人'];
+    function badge(val) {
+      const list = Array.isArray(val) ? val : (val ? [val] : []);
+      return list.map(v => `<span class="badge ${BADGE_CLS[v]||'badge-guide'}">${esc(v)}</span>`).join(' ');
+    }
 
     // ── Data ──
     function loadEntries() {
@@ -747,7 +757,7 @@
           <td class="col-title"><span>${esc(e.title)}</span></td>
           <td class="col-date">${fmtDate(e.date, true)}</td>
           <td class="col-dim">${esc(e.duration||'')}</td>
-          <td class="col-dim">${badge(e.attendees)}</td>
+          <td class="col-attendees">${badge(e.attendees)}</td>
           <td class="col-dim">${esc(e.location||'')}</td>
         </tr>`).join('');
       calibrateMarquee('tbody-meeting');
@@ -889,7 +899,7 @@
       const m = type==='meeting'; d=d||{};
       const dateVal = d.date ? d.date.substring(0,10) : '';
       const timeVal = d.date && d.date.includes('T') ? d.date.substring(11,16) : '';
-      const host=d.host||'', att=d.attendees||'', loc=d.location||'';
+      const host=d.host||'', att=Array.isArray(d.attendees)?d.attendees:(d.attendees?[d.attendees]:[]), loc=d.location||'';
 
       document.getElementById('form-body').innerHTML = m ? `
         <div class="form-title">${_editingId?'編輯':'新增'}會議紀錄</div>
@@ -916,17 +926,10 @@
         </div>
         <div class="form-row-2">
           <div class="form-col">
-            <label>出席 *</label>
-            <select class="form-select" id="f-attendees">
-              <option value="" disabled ${!att?'selected':''}>請選擇</option>
-              <option value="全體成員" ${att==='全體成員'?'selected':''}>全體成員</option>
-              <option value="新進成員" ${att==='新進成員'?'selected':''}>新進成員</option>
-              <option value="正式員工" ${att==='正式員工'?'selected':''}>正式員工</option>
-              <option value="實習員工" ${att==='實習員工'?'selected':''}>實習員工</option>
-              <option value="食罪" ${att==='食罪'?'selected':''}>食罪</option>
-              <option value="妖異" ${att==='妖異'?'selected':''}>妖異</option>
-              <option value="引路人" ${att==='引路人'?'selected':''}>引路人</option>
-            </select>
+            <label>出席 * <span style="font-weight:400;color:var(--dim2)">（可複選）</span></label>
+            <div class="chip-group" id="f-attendees">
+              ${ATTENDEE_OPTIONS.map(v => `<button type="button" class="chip-btn${att.includes(v)?' on':''}" data-v="${v}" onclick="this.classList.toggle('on')">${v}</button>`).join('')}
+            </div>
           </div>
           <div class="form-col">
             <label>地點 *</label>
@@ -1034,13 +1037,15 @@
       const title = document.getElementById('f-title').value.trim();
       if (!title) { alert('請填寫標題'); return; }
       let date = '';
+      let attendees = [];
       if (m) {
         const dv = document.getElementById('f-date').value;
         const tv = document.getElementById('f-time').value || '00:00';
         if (!dv) { alert('請選擇日期'); return; }
         date = `${dv}T${tv}`;
         if (!document.getElementById('f-person').value)    { alert('請選擇主持人'); return; }
-        if (!document.getElementById('f-attendees').value) { alert('請選擇出席');   return; }
+        attendees = Array.from(document.querySelectorAll('#f-attendees .chip-btn.on')).map(b => b.dataset.v);
+        if (!attendees.length) { alert('請選擇出席'); return; }
         if (!document.getElementById('f-location').value)  { alert('請選擇地點');   return; }
       }
       const now = new Date().toISOString();
@@ -1049,7 +1054,7 @@
       if (m) {
         entry.date      = date;
         entry.host      = document.getElementById('f-person').value;
-        entry.attendees = document.getElementById('f-attendees').value;
+        entry.attendees = attendees;
         entry.location  = document.getElementById('f-location').value;
         entry.duration  = document.getElementById('f-duration').value.trim();
       } else {
