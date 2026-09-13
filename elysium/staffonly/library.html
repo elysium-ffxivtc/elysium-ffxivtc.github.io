@@ -720,7 +720,7 @@
     const LOCATION_OPTIONS = ['DISCORD','店內'];
     function badge(val) {
       const list = Array.isArray(val) ? val : (val ? [val] : []);
-      return list.map(v => `<span class="badge ${BADGE_CLS[v]||'badge-guide'}">${esc(v)}</span>`).join(' ');
+      return list.map(v => `<span class="badge ${BADGE_CLS[v]||'badge-guide'}">${esc(v)}</span>`).join('、');
     }
     function joinVal(val) { return Array.isArray(val) ? val.join('、') : (val || ''); }
 
