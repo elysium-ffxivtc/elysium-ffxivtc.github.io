@@ -195,6 +195,7 @@
     .col-title   { color: var(--text); font-weight: 500; }
     .col-title span { display: inline-block; will-change: transform; }
     .col-title:hover span { animation: marquee-title var(--marquee-dur, 3s) linear infinite alternate; }
+    #tbody-article .col-title:hover span { animation: none; }
     @keyframes marquee-title {
         from { transform: translateX(0); }
         to   { transform: translateX(min(0px, calc(-100% + 244px))); }
@@ -788,7 +789,6 @@
             </td>
           </tr>`;
       }).join('');
-      calibrateMarquee('tbody-article');
     }
     function toggleArticle(id) {
       const detail = document.getElementById('art-detail-'+id);
