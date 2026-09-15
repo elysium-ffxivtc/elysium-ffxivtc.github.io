@@ -519,12 +519,28 @@
     return d >= monday && d <= sunday;
   }
 
+  function currentWeekDates() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay()+6)%7));
+    return Array.from({length: 7}, (_, i) => {
+      const d = new Date(monday); d.setDate(monday.getDate() + i);
+      return d.toISOString().slice(0, 10);
+    });
+  }
+
   async function loadData() {
     showLoading(true);
     try {
-      const [apostlesSnap, bizSnap, shiftsSnap, bookedSnap] = await Promise.all([
-        get(dbRef(db, 'apostles')), get(dbRef(db, 'bizStatus')),
-        get(dbRef(db, 'publicShifts')), get(dbRef(db, 'bookedSlots')),
+      // bizStatus/publicShifts/bookedSlots 是逐日累積的歷史資料，只有本週會被用到（見 isCurrentWeek），
+      // 只抓這 7 天，避免隨著營運時間拉長、整包歷史資料把載入拖得越來越慢。
+      const weekDates = currentWeekDates();
+      const [apostlesSnap, ...dateSnaps] = await Promise.all([
+        get(dbRef(db, 'apostles')),
+        ...weekDates.flatMap(d => [
+          get(dbRef(db, `bizStatus/${d}`)),
+          get(dbRef(db, `publicShifts/${d}`)),
+          get(dbRef(db, `bookedSlots/${d}`)),
+        ]),
       ]);
       const apostlesVal = apostlesSnap.val() || {};
       ALL_APOSTLES = apostlesVal;
@@ -532,9 +548,14 @@
         .map(([uid, v]) => ({ uid, ...v }))
         .filter(a => a.active !== false && a.tag !== '銀紗使' && a.tag !== '引路人')
         .sort((a, b) => (a.order || 0) - (b.order || 0));
-      bizStatus    = bizSnap.val()    || {};
-      publicShifts = shiftsSnap.val() || {};
-      bookedSlots  = bookedSnap.val() || {};
+
+      bizStatus = {}; publicShifts = {}; bookedSlots = {};
+      weekDates.forEach((d, i) => {
+        const [bizSnap, shiftsSnap, bookedSnap] = dateSnaps.slice(i*3, i*3+3);
+        if (bizSnap.exists()) bizStatus[d] = bizSnap.val();
+        publicShifts[d] = shiftsSnap.val() || {};
+        bookedSlots[d]  = bookedSnap.val() || {};
+      });
     } catch(e) { console.error(e); }
     showLoading(false);
   }
