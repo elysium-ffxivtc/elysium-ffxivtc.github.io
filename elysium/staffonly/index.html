@@ -277,12 +277,12 @@
           const role = staffSnap.val().role;
           if (role !== 'admin') {
             document.getElementById('card-apostles').style.display = 'none';
-            document.getElementById('card-reservations').style.display = 'none';
-            document.getElementById('card-workflow').style.display = 'none';
+            if (role !== 'pilgrim') {
+              document.getElementById('card-reservations').style.display = 'none';
+            }
           }
           if (role === 'staff') {
             document.getElementById('card-pos').style.display = 'none';
-            document.getElementById('card-grid').classList.add('three');
           }
           document.getElementById('auth-overlay').classList.remove('show');
           document.getElementById('portal').classList.add('show');
@@ -296,9 +296,6 @@
         if (inPilgrims) {
           document.getElementById('card-pos').style.display = 'none';
           document.getElementById('card-apostles').style.display = 'none';
-          document.getElementById('card-reservations').style.display = 'none';
-          document.getElementById('card-workflow').style.display = 'none';
-          document.getElementById('card-grid').classList.add('three');
           document.getElementById('auth-overlay').classList.remove('show');
           document.getElementById('portal').classList.add('show');
           return;

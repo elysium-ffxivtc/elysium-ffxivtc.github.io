@@ -145,10 +145,15 @@ onAuthStateChanged(auth, async user => {
   if (!user) { showAuth('login'); return; }
   try {
     const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
-    if (!staffSnap.exists()) { window.location.replace('index.html'); return; }
-    const data = staffSnap.val();
-    if (data.role !== 'admin') { window.location.replace('index.html'); return; }
-    currentUser = { uid: user.uid, email: user.email, ...data };
+    if (staffSnap.exists()) {
+      const data = staffSnap.val();
+      if (data.role !== 'admin' && data.role !== 'pilgrim') { window.location.replace('index.html'); return; }
+      currentUser = { uid: user.uid, email: user.email, ...data };
+    } else {
+      const pilgrimSnap = await get(dbRef(db, 'pilgrims/' + user.uid));
+      if (!pilgrimSnap.exists()) { window.location.replace('index.html'); return; }
+      currentUser = { uid: user.uid, email: user.email, role: 'pilgrim', displayName: pilgrimSnap.val().name || user.displayName || '' };
+    }
     hideAuth();
     startListeners();
   } catch(e) {
