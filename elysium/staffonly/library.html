@@ -191,14 +191,16 @@
     .lib-table tbody tr:last-child td { border-bottom: none; }
     .lib-table tbody tr { transition: background .12s; }
     .lib-table tbody tr:hover { background: var(--gold-bg); }
-    .lib-table td.col-title { text-overflow: clip; }
+    .lib-table td.col-title { text-overflow: clip; position: relative; }
     .col-title   { color: var(--text); font-weight: 500; }
-    .col-title span { display: inline-block; will-change: transform; }
-    .col-title:hover span { animation: marquee-title var(--marquee-dur, 3s) linear infinite alternate; }
-    #tbody-article .col-title:hover span { animation: none; }
-    @keyframes marquee-title {
-        from { transform: translateX(0); }
-        to   { transform: translateX(min(0px, calc(-100% + 244px))); }
+    .col-title span { display: inline-block; }
+    #tbody-meeting .col-title:hover { overflow: visible; z-index: 5; }
+    #tbody-meeting .col-title:hover span {
+      position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      background: var(--panel); border: 1px solid var(--border);
+      padding: .3rem .6rem; margin: -.3rem -.6rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+      white-space: nowrap; z-index: 10;
     }
     .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
     .col-dim     { color: var(--dim); font-size: .88rem; }
@@ -739,17 +741,6 @@
       });
     }
 
-    function calibrateMarquee(tbodyId) {
-      requestAnimationFrame(() => {
-        document.querySelectorAll('#' + tbodyId + ' .col-title').forEach(td => {
-          const span = td.querySelector('span');
-          if (!span) return;
-          const overflow = span.scrollWidth - td.clientWidth;
-          if (overflow > 0) td.style.setProperty('--marquee-dur', (overflow / 25).toFixed(2) + 's');
-        });
-      });
-    }
-
     function renderMeetings() {
       const rows = Object.entries(_entries).filter(([,e])=>e.type==='meeting').sort((a,b)=>(b[1].date||'').localeCompare(a[1].date||''));
       const wrap=document.getElementById('wrap-meeting'), empty=document.getElementById('empty-meeting');
@@ -763,7 +754,6 @@
           <td class="col-dim col-wrap">${badge(e.attendees)}</td>
           <td class="col-dim col-wrap">${esc(joinVal(e.location))}</td>
         </tr>`).join('');
-      calibrateMarquee('tbody-meeting');
     }
 
     function renderArticles() {
