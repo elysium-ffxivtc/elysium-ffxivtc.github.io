@@ -199,17 +199,24 @@ nav {
 
 .hero-meta {
   font-family: 'Noto Serif TC', serif;
-  font-size: 1.05rem; letter-spacing: .22em; color: #111;
+  font-size: .92rem; letter-spacing: .22em; color: #111;
   font-weight: 500;
   display: inline-flex; align-items: center; gap: .7em;
 }
 
 .hero-meta-tick {
+  position: relative;
   display: inline-block;
-  width: 1px; height: 1.1em;
+  width: 7px; height: 1.1em;
+}
+.hero-meta-tick::before, .hero-meta-tick::after {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 1px; height: 100%;
   background: #8a6f4a;
   transform: rotate(20deg);
 }
+.hero-meta-tick::after { left: 5px; }
 
 /* ──────────── ABOUT: HERO + QUOTE + LORE SECTIONS ──────────── */
 
