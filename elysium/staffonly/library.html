@@ -651,17 +651,24 @@
       unit.className = 'ql-firstline-unit';
       unit.textContent = 'cm';
       let applying = false;
+      let lastRange = null;
       function apply() {
         applying = true;
-        const range = quill.getSelection(true);
+        const range = lastRange || quill.getSelection(true);
         if (!range) { applying = false; return; }
         const v = parseFloat(input.value);
-        quill.format('firstline', v > 0 ? v + 'cm' : false, 'user');
+        // formatLine（而非 format）確保多段落一起選取時，每一行都會套用，不會只吃到單一段落
+        quill.formatLine(range.index, range.length || 1, 'firstline', v > 0 ? v + 'cm' : false, 'user');
         applying = false;
       }
+      input.addEventListener('mousedown', () => {
+        const r = quill.getSelection();
+        if (r) lastRange = r;
+      });
       input.addEventListener('change', apply);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); apply(); } });
       quill.on('selection-change', range => {
+        if (range) lastRange = range;
         if (applying || document.activeElement === input) return;
         if (!range) return;
         const val = quill.getFormat(range).firstline || '';
