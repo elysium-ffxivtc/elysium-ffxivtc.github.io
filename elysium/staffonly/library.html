@@ -311,9 +311,9 @@
     .flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay { color:var(--dim2); }
 
     /* ── Quill overrides ── */
-    .ql-toolbar.ql-snow { border:1px solid var(--border); border-bottom:none; background:var(--panel2); padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif; position:sticky; top:0; z-index:5; }
+    .ql-toolbar.ql-snow { border:1px solid var(--border); border-bottom:none; background:var(--panel2); padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif; }
     .ql-container.ql-snow { border:1px solid var(--border); font-family:'Noto Sans TC',sans-serif; font-size:.93rem; }
-    .ql-editor { min-height:220px; line-height:1.65; color:var(--text); }
+    .ql-editor { min-height:220px; max-height:50vh; overflow-y:auto; line-height:1.65; color:var(--text); }
     .ql-editor p { margin-bottom: .5em; }
     .ql-editor p:last-child { margin-bottom: 0; }
     .ql-editor img { max-width: 100%; }
