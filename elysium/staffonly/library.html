@@ -335,6 +335,11 @@
     .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
     .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
     .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: '預設'; }
+    .ql-snow .ql-picker.ql-firstline .ql-picker-label::before,
+    .ql-snow .ql-picker.ql-firstline .ql-picker-item::before { content: attr(data-value); }
+    .ql-snow .ql-picker.ql-firstline .ql-picker-label:not([data-value])::before,
+    .ql-snow .ql-picker.ql-firstline .ql-picker-item:not([data-value])::before { content: '無首行縮排'; }
+    .ql-snow .ql-picker.ql-firstline { width: 110px; }
 
     /* ── FAQ ── */
     .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
@@ -578,6 +583,14 @@
     QuillSizeStyle.whitelist = QUILL_SIZES;
     Quill.register(QuillSizeStyle, true);
 
+    const FIRSTLINE_INDENTS = ['0.5cm','1cm','1.5cm','2cm'];
+    const Parchment = Quill.import('parchment');
+    const FirstLineStyle = new Parchment.Attributor.Style('firstline', 'text-indent', {
+      scope: Parchment.Scope.BLOCK,
+      whitelist: FIRSTLINE_INDENTS,
+    });
+    Quill.register(FirstLineStyle, true);
+
     const TOOLTIP_MAP = [
       ['.ql-header .ql-picker-label', '標題'],
       ['.ql-size .ql-picker-label', '字體大小'],
@@ -594,6 +607,7 @@
       ['.ql-list[value="bullet"]', '項目清單'],
       ['.ql-indent[value="-1"]', '減少縮排'],
       ['.ql-indent[value="+1"]', '增加縮排'],
+      ['.ql-firstline .ql-picker-label', '首行縮排'],
       ['.ql-blockquote', '引言'],
       ['.ql-code-block', '程式碼區塊'],
       ['.ql-link', '插入連結'],
@@ -985,6 +999,7 @@
               [{ align:[] }],
               [{ list:'ordered' }, { list:'bullet' }],
               [{ indent:'-1' }, { indent:'+1' }],
+              [{ firstline:[false, ...FIRSTLINE_INDENTS] }],
               ['blockquote','code-block'],
               ['link','image','video'],
               ['clean'],
