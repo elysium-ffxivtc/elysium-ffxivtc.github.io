@@ -335,11 +335,15 @@
     .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
     .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
     .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: '預設'; }
-    .ql-snow .ql-picker.ql-firstline .ql-picker-label::before,
-    .ql-snow .ql-picker.ql-firstline .ql-picker-item::before { content: attr(data-value); }
-    .ql-snow .ql-picker.ql-firstline .ql-picker-label:not([data-value])::before,
-    .ql-snow .ql-picker.ql-firstline .ql-picker-item:not([data-value])::before { content: '無首行縮排'; }
-    .ql-snow .ql-picker.ql-firstline { width: 110px; }
+    .ql-firstline-group { display: flex; align-items: center; gap: .3rem; }
+    .ql-firstline-label { font-size: .78rem; color: var(--dim); white-space: nowrap; }
+    .ql-firstline-input {
+      width: 48px; font-size: .82rem; font-family: inherit; text-align: right;
+      border: 1px solid var(--border); border-radius: 3px; padding: .15rem .3rem;
+      background: var(--panel); color: var(--text);
+    }
+    .ql-firstline-input:focus { outline: none; border-color: var(--gold); }
+    .ql-firstline-unit { font-size: .78rem; color: var(--dim2); }
 
     /* ── FAQ ── */
     .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
@@ -583,11 +587,9 @@
     QuillSizeStyle.whitelist = QUILL_SIZES;
     Quill.register(QuillSizeStyle, true);
 
-    const FIRSTLINE_INDENTS = ['0.5cm','1cm','1.5cm','2cm'];
     const Parchment = Quill.import('parchment');
     const FirstLineStyle = new Parchment.Attributor.Style('firstline', 'text-indent', {
       scope: Parchment.Scope.BLOCK,
-      whitelist: FIRSTLINE_INDENTS,
     });
     Quill.register(FirstLineStyle, true);
 
@@ -607,7 +609,6 @@
       ['.ql-list[value="bullet"]', '項目清單'],
       ['.ql-indent[value="-1"]', '減少縮排'],
       ['.ql-indent[value="+1"]', '增加縮排'],
-      ['.ql-firstline .ql-picker-label', '首行縮排'],
       ['.ql-blockquote', '引言'],
       ['.ql-code-block', '程式碼區塊'],
       ['.ql-link', '插入連結'],
@@ -634,6 +635,38 @@
       group.appendChild(mkBtn('↶', '復原', () => quill.history.undo()));
       group.appendChild(mkBtn('↷', '重做', () => quill.history.redo()));
       toolbarEl.insertBefore(group, toolbarEl.firstChild);
+    }
+
+    function addFirstLineIndentInput(toolbarEl, quill) {
+      const group = document.createElement('span');
+      group.className = 'ql-formats ql-firstline-group';
+      const label = document.createElement('span');
+      label.className = 'ql-firstline-label';
+      label.textContent = '首行縮排';
+      const input = document.createElement('input');
+      input.type = 'number'; input.step = '0.1'; input.min = '0';
+      input.className = 'ql-firstline-input';
+      input.title = '首行縮排（公分），留空或 0 表示取消';
+      const unit = document.createElement('span');
+      unit.className = 'ql-firstline-unit';
+      unit.textContent = 'cm';
+      function apply() {
+        const range = quill.getSelection(true);
+        if (!range) return;
+        const v = parseFloat(input.value);
+        quill.format('firstline', v > 0 ? v + 'cm' : false, 'user');
+      }
+      input.addEventListener('change', apply);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); apply(); } });
+      quill.on('selection-change', range => {
+        if (!range) return;
+        const val = quill.getFormat(range).firstline || '';
+        input.value = val ? parseFloat(val) : '';
+      });
+      group.appendChild(label);
+      group.appendChild(input);
+      group.appendChild(unit);
+      toolbarEl.appendChild(group);
     }
 
     // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
@@ -999,7 +1032,6 @@
               [{ align:[] }],
               [{ list:'ordered' }, { list:'bullet' }],
               [{ indent:'-1' }, { indent:'+1' }],
-              [{ firstline:[false, ...FIRSTLINE_INDENTS] }],
               ['blockquote','code-block'],
               ['link','image','video'],
               ['clean'],
@@ -1010,6 +1042,7 @@
       });
       const toolbarEl = _quill.getModule('toolbar').container;
       addUndoRedoButtons(toolbarEl, _quill);
+      addFirstLineIndentInput(toolbarEl, _quill);
       addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
     }
