@@ -204,6 +204,7 @@
     }
     .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
     .col-dim     { color: var(--dim); font-size: .88rem; }
+    .lib-table th.col-author, .lib-table td.col-author { padding-left: .5rem; }
     .lib-table td.col-wrap { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.7; }
     .col-wrap .badge { display: inline-block; }
 
@@ -510,7 +511,7 @@
           <div class="lib-table-wrap" id="wrap-article">
             <table class="lib-table">
               <thead><tr>
-                <th>標題</th><th style="width:110px">作者</th><th style="width:185px">發佈時間</th>
+                <th>標題</th><th class="col-author" style="width:110px">作者</th><th style="width:185px">發佈時間</th>
               </tr></thead>
               <tbody id="tbody-article"></tbody>
             </table>
@@ -826,7 +827,7 @@
              </div>` : '';
         return `<tr class="art-row" onclick="toggleArticle('${id}')">
             <td class="col-title"><i class="art-chev">▸</i><span>${esc(e.title)}</span></td>
-            <td class="col-dim">${esc(e.author||'')}</td>
+            <td class="col-dim col-author">${esc(e.author||'')}</td>
             <td class="col-date">${fmtDate(e.createdAt||e.updatedAt)}</td>
           </tr>
           <tr class="art-detail" id="art-detail-${id}">
