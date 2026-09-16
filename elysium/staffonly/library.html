@@ -501,7 +501,7 @@
           <div class="lib-table-wrap" id="wrap-article">
             <table class="lib-table">
               <thead><tr>
-                <th>標題</th><th style="width:110px">作者</th><th style="width:185px">發佈時間</th>
+                <th>標題</th><th style="width:150px">作者</th><th style="width:185px">發佈時間</th>
               </tr></thead>
               <tbody id="tbody-article"></tbody>
             </table>
@@ -948,8 +948,8 @@
           <input class="form-input" id="f-title" value="${esc(d.title||'')}">
         </div>
         <div class="form-row">
-          <label>作者</label>
-          <div class="form-input" style="background:var(--panel2);color:var(--dim);cursor:default">${esc(_displayName||'—')}</div>
+          <label>作者 <span style="font-weight:400;color:var(--dim2)">（多人共同創作請用「、」分隔）</span></label>
+          <input class="form-input" id="f-author" value="${esc(_editingId ? (d.author||'') : (_displayName||''))}">
         </div>
         <div class="form-row">
           <label>文章內容</label>
@@ -1050,7 +1050,7 @@
         entry.location  = locations;
         entry.duration  = document.getElementById('f-duration').value.trim();
       } else {
-        entry.author = _editingId ? (_entries[_editingId].author || '') : (_displayName || '');
+        entry.author = document.getElementById('f-author').value.trim();
       }
       if (_editingId) {
         entry.createdAt = _entries[_editingId].createdAt || now;
