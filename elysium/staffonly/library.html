@@ -650,15 +650,19 @@
       const unit = document.createElement('span');
       unit.className = 'ql-firstline-unit';
       unit.textContent = 'cm';
+      let applying = false;
       function apply() {
+        applying = true;
         const range = quill.getSelection(true);
-        if (!range) return;
+        if (!range) { applying = false; return; }
         const v = parseFloat(input.value);
         quill.format('firstline', v > 0 ? v + 'cm' : false, 'user');
+        applying = false;
       }
       input.addEventListener('change', apply);
       input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); apply(); } });
       quill.on('selection-change', range => {
+        if (applying || document.activeElement === input) return;
         if (!range) return;
         const val = quill.getFormat(range).firstline || '';
         input.value = val ? parseFloat(val) : '';
