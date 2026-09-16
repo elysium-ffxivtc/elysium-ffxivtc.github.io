@@ -214,7 +214,6 @@
     .art-detail { display: none; }
     .art-detail.open { display: table-row; }
     .art-detail td { padding: 2.2rem 2.2rem 2.6rem; background: var(--panel2); white-space: normal; overflow: visible; text-overflow: clip; }
-    .art-detail-meta { font-size: .8rem; color: var(--dim2); margin-bottom: 1.5rem; letter-spacing: .05em; }
 
     /* badge: text-only, no bg/border */
     .badge      { font-size: .88rem; white-space: nowrap; }
@@ -502,7 +501,7 @@
           <div class="lib-table-wrap" id="wrap-article">
             <table class="lib-table">
               <thead><tr>
-                <th>標題</th><th style="width:110px">主筆</th><th style="width:185px">發佈時間</th>
+                <th>標題</th><th style="width:110px">作者</th><th style="width:185px">發佈時間</th>
               </tr></thead>
               <tbody id="tbody-article"></tbody>
             </table>
@@ -775,7 +774,6 @@
           </tr>
           <tr class="art-detail" id="art-detail-${id}">
             <td colspan="3">
-              ${e.coauthor ? `<div class="art-detail-meta">共同創作：${esc(e.coauthor)}</div>` : ''}
               <div class="view-content">${e.content || '<span style="color:var(--dim2)">（尚無內容）</span>'}</div>
               ${adminHtml}
             </td>
@@ -950,12 +948,8 @@
           <input class="form-input" id="f-title" value="${esc(d.title||'')}">
         </div>
         <div class="form-row">
-          <label>主筆</label>
+          <label>作者 <span style="font-weight:400;color:var(--dim2)">（多人請用「、」分隔）</span></label>
           <input class="form-input" id="f-author" value="${esc(_editingId ? (d.author||'') : (_displayName||''))}">
-        </div>
-        <div class="form-row">
-          <label>共同創作 <span style="font-weight:400;color:var(--dim2)">（多人請用「、」分隔）</span></label>
-          <input class="form-input" id="f-coauthor" value="${esc(d.coauthor||'')}">
         </div>
         <div class="form-row">
           <label>文章內容</label>
@@ -1057,7 +1051,6 @@
         entry.duration  = document.getElementById('f-duration').value.trim();
       } else {
         entry.author = document.getElementById('f-author').value.trim();
-        entry.coauthor = document.getElementById('f-coauthor').value.trim();
       }
       if (_editingId) {
         entry.createdAt = _entries[_editingId].createdAt || now;
@@ -1067,7 +1060,7 @@
         entry.createdAt = now;
         entry.createdBy = _user?.uid||'local';
         await db.ref('library').push(entry).catch(e=>alert('儲存失敗：'+e.message));
-        if (type === 'article') notifyDiscordUpdate('文章', `主筆｜${entry.author || ''}${entry.coauthor ? `\n-# 共同創作｜${entry.coauthor}` : ''}`, `上架：${title}`);
+        if (type === 'article') notifyDiscordUpdate('文章', `作者｜${entry.author || ''}`, `上架：${title}`);
       }
       closeForm();
     }
