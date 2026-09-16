@@ -239,8 +239,7 @@ function renderEdit(uid) {
   const a = apostles[uid] || {};
   const member = staffList.find(s => s.uid === uid) || (uid === currentUser.uid ? currentUser : null);
   const name = member ? esc(member.displayName) : uid;
-  // 沒存過紀錄的全新帳號預設「實習員工」；已存在但沒填等級的舊資料維持「正式員工」
-  const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern');
+  const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern'); // 新帳號預設實習，舊資料預設正式
   document.getElementById('edit-col').innerHTML = `
     <div class="card">
       <div class="card-title">編輯資料 · ${name}</div>

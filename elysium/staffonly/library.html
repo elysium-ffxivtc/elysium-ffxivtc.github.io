@@ -657,7 +657,6 @@
         const range = lastRange || quill.getSelection(true);
         if (!range) { applying = false; return; }
         const v = parseFloat(input.value);
-        // formatLine（而非 format）確保多段落一起選取時，每一行都會套用，不會只吃到單一段落
         quill.formatLine(range.index, range.length || 1, 'firstline', v > 0 ? v + 'cm' : false, 'user');
         applying = false;
       }
@@ -899,7 +898,7 @@
       document.getElementById('sec-faq').classList.toggle('on',tab==='faq');
     }
 
-    // ── View (meetings only — articles expand inline, see toggleArticle) ──
+    // ── View ──
     function openView(id) {
       const e = _entries[id]; if (!e) return;
       const meta = `<div class="view-meta">

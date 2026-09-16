@@ -531,9 +531,7 @@
   async function loadData() {
     showLoading(true);
     try {
-      // bizStatus/publicShifts/bookedSlots 是逐日累積的歷史資料，只有本週會被用到（見 isCurrentWeek），
-      // 只抓這 7 天，避免隨著營運時間拉長、整包歷史資料把載入拖得越來越慢。
-      const weekDates = currentWeekDates();
+      const weekDates = currentWeekDates(); // 只抓本週會用到的日期，避免歷史資料越堆越大拖慢載入
       const [apostlesSnap, ...dateSnaps] = await Promise.all([
         get(dbRef(db, 'apostles')),
         ...weekDates.flatMap(d => [
