@@ -1067,7 +1067,7 @@
         entry.createdAt = now;
         entry.createdBy = _user?.uid||'local';
         await db.ref('library').push(entry).catch(e=>alert('儲存失敗：'+e.message));
-        if (type === 'article') notifyDiscordUpdate('文章', `執筆｜${entry.author || ''}${entry.coauthor ? `・共同創作｜${entry.coauthor}` : ''}`, `上架：${title}`);
+        if (type === 'article') notifyDiscordUpdate('文章', `作者｜${entry.author || ''}${entry.coauthor ? `・共同創作｜${entry.coauthor}` : ''}`, `上架：${title}`);
       }
       closeForm();
     }
