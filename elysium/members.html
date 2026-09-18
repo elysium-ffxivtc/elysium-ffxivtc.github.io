@@ -367,6 +367,7 @@
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function escBr(s) { return esc(s).replace(/\n/g, '<br>'); }
     function thumbOf(photo) { return String(photo||'').replace(/\.[a-zA-Z0-9]+$/, '_二版頭像.webp'); }
+    function fullPhotoOf(photo) { return String(photo||'').replace(/\.[a-zA-Z0-9]+$/, '.webp'); }
 
     function openLightbox(src) {
       document.getElementById('img-lightbox-img').src = src;
@@ -439,7 +440,7 @@
       if (!p) { renderEmptyDetail(); return; }
       const subtitle = p.fixedSubtitle ? '尚未揭示' : (p.subtitle ? esc(p.subtitle) : '&nbsp;');
       const biz = p.business ? escBr(p.business) : '暫不提供';
-      const photo = esc(p.photo || '');
+      const photo = esc(fullPhotoOf(p.photo));
       const detailEl = document.getElementById('ms-detail');
       detailEl.style.setProperty('--ms-photo', `url(${photo})`);
       detailEl.classList.remove('photo-in');
