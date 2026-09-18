@@ -224,8 +224,8 @@ nav {
   content: '';
   position: absolute; inset: 0;
   background:
-    linear-gradient(to top, rgba(20,16,12,.92) 0%, rgba(20,16,12,.35) 42%, rgba(20,16,12,.08) 68%, rgba(20,16,12,.32) 100%),
-    linear-gradient(to right, rgba(20,16,12,.28) 0%, transparent 45%);
+    linear-gradient(to top, rgba(20,16,12,.68) 0%, rgba(20,16,12,.22) 42%, rgba(20,16,12,.05) 68%, rgba(20,16,12,.2) 100%),
+    linear-gradient(to right, rgba(20,16,12,.18) 0%, transparent 45%);
 }
 .ab-hero-inner {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
