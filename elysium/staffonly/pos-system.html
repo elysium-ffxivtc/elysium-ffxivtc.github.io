@@ -974,8 +974,9 @@
         schedules = snap.val() ? Object.values(snap.val()) : [];
         if (_uiInited && currentNav === 'settlement') { showSettlementPage(); initSettlementPilgrims(); }
       });
-      db.ref('bizStatus').on('value', snap => {
-        bizStatus = snap.val() || {};
+      const bizToday = getBusinessDate();
+      db.ref('bizStatus/' + bizToday).on('value', snap => {
+        bizStatus = { [bizToday]: snap.val() || {} };
         updateBizBtn();
       });
     }
