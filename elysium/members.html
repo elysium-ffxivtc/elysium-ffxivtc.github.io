@@ -361,6 +361,11 @@
     function thumbOf(photo) { return String(photo||'').replace(/\.[a-zA-Z0-9]+$/, '_二版頭像.webp'); }
     function fullPhotoOf(photo) { return String(photo||'').replace(/\.[a-zA-Z0-9]+$/, '.webp'); }
 
+    function prefetchAllPhotos() {
+      const run = function() { PEOPLE.forEach(function(p) { new Image().src = fullPhotoOf(p.photo); }); };
+      if (window.requestIdleCallback) requestIdleCallback(run); else setTimeout(run, 300);
+    }
+
     function openLightbox(src) {
       document.getElementById('img-lightbox-img').src = src;
       document.getElementById('img-lightbox').classList.add('is-open');
@@ -536,6 +541,7 @@
       PEOPLE = [].concat(sins, yaos, clergy, silk, pilgrims);
       renderRoster();
       renderDetail();
+      prefetchAllPhotos();
     }).catch(function(e) { console.error('無法載入成員資料', e); });
   </script>
 
