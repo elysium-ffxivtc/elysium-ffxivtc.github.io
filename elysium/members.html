@@ -6,8 +6,6 @@
   <title>Members ✦ Elysium</title>
   <link rel="icon" type="image/png" href="image/Elysium_LOGO_mini.png">
   <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <style>
     .modal-subtitle      { font-size: .82rem; }
     .modal-bio           { font-size: .9rem; }
@@ -287,7 +285,7 @@
 <body>
 
   <nav>
-    <a href="index.html" class="nav-logo"><img src="image/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+    <a href="index.html" class="nav-logo"><img src="image/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img" width="301" height="300"></a>
     <button class="nav-burger" id="nav-burger" aria-label="選單">
       <span></span><span></span><span></span>
     </button>
@@ -349,16 +347,7 @@
   </div>
 
   <script>
-    firebase.initializeApp({
-      apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
-      authDomain:        "elysiumpos.firebaseapp.com",
-      databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId:         "elysiumpos",
-      storageBucket:     "elysiumpos.firebasestorage.app",
-      messagingSenderId: "430177597593",
-      appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
-    });
-    const db = firebase.database();
+    const APOSTLES_URL = "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app/apostles.json";
 
     var sjBubble = null;
     var PEOPLE = [];
@@ -515,8 +504,8 @@
       }
     });
 
-    db.ref('apostles').get().then(function(snap) {
-      const all = Object.entries(snap.val() || {})
+    fetch(APOSTLES_URL).then(function(r) { return r.json(); }).then(function(data) {
+      const all = Object.entries(data || {})
         .map(function(e) { return { uid: e[0], key: e[0], ...e[1] }; })
         .filter(function(a) { return a.active !== false; })
         .sort(function(x, y) { return (x.order||0) - (y.order||0); });
