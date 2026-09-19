@@ -370,6 +370,11 @@
     }
     var _prefetched = new Set();
 
+    function prefetchAllPhotos() {
+      const run = function() { PEOPLE.forEach(function(p) { prefetchPhoto(p.photo); }); };
+      if (window.requestIdleCallback) requestIdleCallback(run); else setTimeout(run, 300);
+    }
+
     function openLightbox(src) {
       document.getElementById('img-lightbox-img').src = src;
       document.getElementById('img-lightbox').classList.add('is-open');
@@ -545,6 +550,7 @@
       PEOPLE = [].concat(sins, yaos, clergy, silk, pilgrims);
       renderRoster();
       renderDetail();
+      prefetchAllPhotos();
     }).catch(function(e) { console.error('無法載入成員資料', e); });
   </script>
 
