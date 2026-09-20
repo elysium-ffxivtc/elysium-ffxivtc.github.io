@@ -221,6 +221,7 @@ nav {
 .ab-hero { position: relative; height: 88vh; min-height: 560px; overflow: hidden; }
 .ab-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
 .ab-hero::after {
+  display: none;
   content: '';
   position: absolute; inset: 0;
   background:
