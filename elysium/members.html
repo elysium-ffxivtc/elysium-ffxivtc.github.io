@@ -15,79 +15,7 @@
     .modal-section-label { font-size: 1.1rem; }
     .modal-section-val   { font-size: .86rem; }
 
-    /* ── 司祭 speech bubble ── */
     .modal-img-wrap { position: relative; }
-    #sj-head-trigger {
-      position: absolute;
-      top: 7%; left: 19%;
-      width: 48%; height: 28%;
-      z-index: 5;
-      cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
-    }
-    .sj-bubble {
-      position: absolute;
-      top: 5.5%; left: 32%;
-      background: #fff;
-      border-radius: 20px;
-      padding: 11px 17px;
-      display: flex; align-items: flex-end; gap: 4px;
-      filter: drop-shadow(0 3px 10px rgba(0,0,0,.14));
-      opacity: 0;
-      transform: scale(.82) translateY(-5px);
-      transform-origin: bottom left;
-      transition: opacity .3s ease, transform .3s ease;
-      pointer-events: none;
-      z-index: 50;
-    }
-    .sj-bubble::before {
-      content: '';
-      position: absolute;
-      bottom: -8px; left: 14px;
-      width: 0; height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-top: 8px solid #fff;
-    }
-    .sj-bubble.active {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-    .sj-dot {
-      width: 5px; height: 5px;
-      background: #1a1a1a;
-      border-radius: 50%;
-      opacity: 0;
-    }
-    .sj-bubble.active .sj-dot:nth-child(1) { animation: sj-dot-1 5s ease-in-out infinite; }
-    .sj-bubble.active .sj-dot:nth-child(2) { animation: sj-dot-2 5s ease-in-out infinite; }
-    .sj-bubble.active .sj-dot:nth-child(3) { animation: sj-dot-3 5s ease-in-out infinite; }
-    /* dot 1: appears first */
-    @keyframes sj-dot-1 {
-      0%        { opacity: 0; }
-      10%       { opacity: 1; }
-      72%       { opacity: 1; }
-      84%       { opacity: 0; }
-      100%      { opacity: 0; }
-    }
-    /* dot 2: appears 0.8s later */
-    @keyframes sj-dot-2 {
-      0%, 16%   { opacity: 0; }
-      26%       { opacity: 1; }
-      72%       { opacity: 1; }
-      84%       { opacity: 0; }
-      100%      { opacity: 0; }
-    }
-    /* dot 3: appears 1.6s later */
-    @keyframes sj-dot-3 {
-      0%, 32%   { opacity: 0; }
-      42%       { opacity: 1; }
-      72%       { opacity: 1; }
-      84%       { opacity: 0; }
-      100%      { opacity: 0; }
-    }
-    @media (max-width: 768px) {
-      #sj-head-trigger, .sj-bubble { display: none; }
-    }
 
     /* ── 圖片 lightbox ── */
     #img-lightbox {
@@ -253,12 +181,6 @@
     }
     .ms-sec-val { font-size: .88rem; color: #666; line-height: 1.7; }
 
-    #ms-sj-head-trigger {
-      position: absolute; z-index: 5;
-      top: 6%; left: 58%; width: 26%; height: 20%;
-      cursor: url('image/arr-cursors/arr-small-pointer.cur'), default;
-    }
-
     .ms-back-top {
       display: none; position: fixed; right: 1.2rem; bottom: 1.4rem; z-index: 50;
       width: 40px; height: 40px; border-radius: 50%;
@@ -352,7 +274,6 @@
   <script>
     const APOSTLES_URL = "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app/apostles.json";
 
-    var sjBubble = null;
     var PEOPLE = [];
     var selectedKey = null;
 
@@ -463,7 +384,6 @@
               查看大圖
             </div>
           </div>
-          ${p.isChief ? `<div id="ms-sj-head-trigger"></div>` : ''}
           <div class="ms-divider"></div>
           <p class="ms-bio">${escBr(p.bio)}</p>
           <div class="ms-section2">
@@ -472,19 +392,8 @@
             <div><div class="ms-sec-label">聊天尺度</div><div class="ms-sec-val">${escBr(p.chat)}</div></div>
             <div><div class="ms-sec-label">個人業務</div><div class="ms-sec-val">${biz}</div></div>
           </div>
-          ${p.isChief ? `<div id="sj-bubble" class="sj-bubble"><span class="sj-dot"></span><span class="sj-dot"></span><span class="sj-dot"></span></div>` : ''}
         </div>
       `;
-      if (p.isChief) {
-        sjBubble = document.getElementById('sj-bubble');
-        const trigger = document.getElementById('ms-sj-head-trigger');
-        if (trigger && sjBubble) {
-          trigger.addEventListener('mouseenter', function() { sjBubble.classList.add('active'); });
-          trigger.addEventListener('mouseleave', function() { sjBubble.classList.remove('active'); });
-        }
-      } else {
-        sjBubble = null;
-      }
     }
 
     window.selectPerson = function(key) {
@@ -532,19 +441,19 @@
 
       const clergyLabels = ['司祭', '監禮者'];
       const clergy = (byTag['司祭・監禮者'] || []).map(function(a, i) {
-        return Object.assign({}, a, { group: '幹部', roleLabel: clergyLabels[i] || '司祭・監禮者', fixedSubtitle: false, isChief: a.name === '靜火' });
+        return Object.assign({}, a, { group: '幹部', roleLabel: clergyLabels[i] || '司祭・監禮者', fixedSubtitle: false });
       });
       const silk = (byTag['銀紗使'] || []).map(function(a) {
-        return Object.assign({}, a, { group: '幹部', roleLabel: '銀紗使', fixedSubtitle: false, isChief: false });
+        return Object.assign({}, a, { group: '幹部', roleLabel: '銀紗使', fixedSubtitle: false });
       });
       const pilgrims = (byTag['引路人'] || []).map(function(a) {
-        return Object.assign({}, a, { group: '引路人', roleLabel: '引路人', fixedSubtitle: false, isChief: false });
+        return Object.assign({}, a, { group: '引路人', roleLabel: '引路人', fixedSubtitle: false });
       });
       const sins = (byTag['食罪'] || []).map(function(a) {
-        return Object.assign({}, a, { group: '食罪', roleLabel: '食罪', fixedSubtitle: true, isChief: false });
+        return Object.assign({}, a, { group: '食罪', roleLabel: '食罪', fixedSubtitle: true });
       });
       const yaos = (byTag['妖異'] || []).map(function(a) {
-        return Object.assign({}, a, { group: '妖異', roleLabel: '妖異', fixedSubtitle: true, isChief: false });
+        return Object.assign({}, a, { group: '妖異', roleLabel: '妖異', fixedSubtitle: true });
       });
 
       PEOPLE = [].concat(sins, yaos, clergy, silk, pilgrims);
