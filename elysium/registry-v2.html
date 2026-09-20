@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>預約召引 ✦ Elysium</title>
-  <link rel="icon" type="image/png" href="image/Elysium_LOGO_mini.png">
+  <link rel="icon" type="image/png" href="image/icon/Elysium_LOGO_mini.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Libre+Baskerville:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;1,400&display=swap">
@@ -178,7 +178,7 @@
 <body>
 
   <nav>
-    <a href="index.html" class="nav-logo"><img src="image/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
+    <a href="index.html" class="nav-logo"><img src="image/icon/Elysium_LOGO.png" alt="Elysium" class="nav-logo-img"></a>
     <button class="nav-burger" id="nav-burger" aria-label="選單">
       <span></span><span></span><span></span>
     </button>
@@ -219,9 +219,9 @@
 
   <footer>
     <div class="footer-social">
-      <span class="footer-social-link"><img src="image/discord_.png" alt="Discord" class="footer-icon"></span>
+      <span class="footer-social-link"><img src="image/icon/discord_.png" alt="Discord" class="footer-icon"></span>
       <a href="https://www.threads.com/@elysium.ffxivtc" target="_blank" rel="noopener" class="footer-social-link" aria-label="Threads">
-        <img src="image/threads_.png" alt="Threads" class="footer-icon">
+        <img src="image/icon/threads_.png" alt="Threads" class="footer-icon">
       </a>
     </div>
     <p class="footer-copy">&copy; 2026 Elysium. All rights reserved.</p>
@@ -309,7 +309,7 @@
     } catch(e) { console.error(e); }
     showLoading(false);
   }
-  const LOAD_ICONS = ['image/Elysium_LOGO.png','image/eye_final.png','image/key_final.png','image/moon_final.png','image/scale_final.png'];
+  const LOAD_ICONS = ['image/icon/Elysium_LOGO.png','image/icon/eye_final.png','image/icon/key_final.png','image/icon/moon_final.png','image/icon/scale_final.png'];
 
   function showLoading(on) {
     let el = document.getElementById('bk-loading');
@@ -319,7 +319,7 @@
         el.innerHTML = `
           <div style="display:flex;flex-direction:column;align-items:center;gap:.9rem;">
             <div style="width:50px;height:50px;perspective:120px;">
-              <img id="bk-load-img" src="image/eye_final.png" alt=""
+              <img id="bk-load-img" src="image/icon/eye_final.png" alt=""
                 style="width:50px;height:50px;object-fit:contain;display:block;transition:transform .18s ease;">
             </div>
           </div>`;

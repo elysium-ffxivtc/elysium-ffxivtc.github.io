@@ -720,15 +720,15 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 
 .nomen-quote::before {
   content: '❝';
-  position: absolute; left: -1.6rem; top: -1.3rem;
-  font-family: 'Noto Serif TC', serif; font-size: 4.2rem; color: rgba(184,144,96,.28); line-height: 1;
+  position: absolute; left: -1.1rem; top: -.75rem;
+  font-family: 'Noto Serif TC', serif; font-size: 2.5rem; color: rgba(184,144,96,.28); line-height: 1;
   pointer-events: none;
 }
 
 .nomen-quote::after {
   content: '❞';
-  font-family: 'Noto Serif TC', serif; font-size: 1.7rem; color: rgba(184,144,96,.55);
-  vertical-align: -.35em; margin-left: .15rem;
+  font-family: 'Noto Serif TC', serif; font-size: 2.5rem; color: rgba(184,144,96,.28);
+  vertical-align: baseline; margin-left: .15rem;
 }
 
 .nomen-quote em { font-style: italic; }
@@ -1175,8 +1175,8 @@ footer {
   .nomen-hero-text .sub-title { font-size: 1.1rem; }
   .nomen-hero-text .nomen-bullet-list li { font-size: .8rem; line-height: 1.8; }
   .nomen-quote { font-size: .88rem; }
-  .nomen-quote::before { font-size: 2.8rem; left: -.6rem; }
-  .nomen-quote::after  { font-size: 1.4rem; }
+  .nomen-quote::before { font-size: 1.9rem; left: -.6rem; top: -.5rem; }
+  .nomen-quote::after  { font-size: 1.9rem; }
   .nomen-hero-img { order: -1; height: 300px; }
   .nomen-hero-img img { object-position: top center; }
   .nomen-hero-text { padding: 2rem 1.4rem; }
