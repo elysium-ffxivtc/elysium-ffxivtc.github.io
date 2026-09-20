@@ -628,14 +628,14 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 
 .nomen-hero {
   display: grid;
-  grid-template-columns: 62fr 38fr;
+  grid-template-columns: 68fr 32fr;
   padding-top: 90px;
-  max-width: 1600px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
 .nomen-hero-text {
-  background: #D7D7D7;
+  background: #E9E9E9;
   padding: 2.5rem 4.5rem 2.5rem 5rem;
 }
 
@@ -727,8 +727,8 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 
 .nomen-quote::after {
   content: '❞';
-  font-family: 'Noto Serif TC', serif; font-size: 2.5rem; color: rgba(184,144,96,.28);
-  vertical-align: baseline; margin-left: .15rem;
+  font-family: 'Noto Serif TC', serif; font-size: 2.5rem; color: rgba(184,144,96,.28); line-height: 1;
+  display: inline-block; vertical-align: top; margin-left: .15rem;
 }
 
 .nomen-quote em { font-style: italic; }
