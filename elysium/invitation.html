@@ -338,7 +338,7 @@
       document.getElementById('inv-panel-name').hidden = true;
 
       inNameTransition = true;
-      sndWriteName.play().catch(function() {});
+      setTimeout(function() { sndWriteName.play().catch(function() {}); }, 400);
 
       var slot = document.getElementById('inv-name-slot');
       slot.classList.add('fading-out');
