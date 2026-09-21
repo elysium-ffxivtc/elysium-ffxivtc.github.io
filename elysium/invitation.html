@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>邀請函 ✦ Elysium</title>
+  <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/image/icon/Elysium_LOGO_mini_dark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&display=swap">
+  <style>
+    :root { --gold: #b89060; --ink: #0c0b0a; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      background: radial-gradient(ellipse at 50% 30%, #17140f 0%, var(--ink) 70%);
+      color: #e8e0d2;
+      font-family: 'Noto Serif TC', serif;
+      overflow: hidden;
+    }
+    .inv-stage {
+      position: fixed; inset: 0; z-index: 1;
+      text-align: center;
+    }
+
+    .inv-card-wrap {
+      position: fixed; left: 50%; bottom: 28vh;
+      width: min(76vh, 96vw);
+      opacity: 0; transform: translateX(-50%) translateY(60px);
+      animation: invCardRise 1.4s cubic-bezier(.19,1,.22,1) .3s forwards;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,.6));
+    }
+    @keyframes invCardRise {
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .inv-card-img { display: block; width: 100%; height: auto; user-select: none; pointer-events: none; }
+    .inv-content {
+      position: fixed; left: 50%; bottom: 34vh;
+      width: 54vh; height: 54.5vh;
+      transform: translateX(-50%);
+      overflow: hidden; white-space: pre-line; text-align: left;
+      font-family: 'Cormorant Garamond', serif; font-weight: 500;
+      font-size: clamp(.7rem, 1.8vh, 1.05rem); line-height: 1.85;
+      color: var(--gold);
+      opacity: 0;
+      text-shadow: 0 0 18px rgba(184,144,96,.35);
+    }
+    .inv-content.show { opacity: 1; transition: opacity .6s ease; }
+    .inv-content .cursor {
+      display: inline-block; margin-left: 2px;
+      animation: invCursorBlink 1s step-start infinite;
+    }
+    @keyframes invCursorBlink { 50% { opacity: 0; } }
+    .name-slot {
+      display: inline-block;
+      transition: opacity .9s ease;
+    }
+    .name-slot.fading-out { opacity: 0; }
+    .name-slot.filled {
+      animation: invNameFill 2.2s ease both;
+    }
+    @keyframes invNameFill {
+      0%   { opacity: 0; letter-spacing: .5em; }
+      100% { opacity: 1; letter-spacing: normal; }
+    }
+
+    #inv-final-line {
+      display: inline;
+      transition: opacity 1s ease;
+    }
+    #inv-final-line.fading-out { opacity: 0; }
+    #inv-final-line.filled { animation: invFinalLineIn 1.6s ease both; }
+    @keyframes invFinalLineIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .inv-input {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; text-align: center;
+      background: none; border: none; border-bottom: 1px solid rgba(184,144,96,.5);
+      color: #f0e6d4; padding: .5rem 1rem; width: 260px; letter-spacing: .1em;
+      outline: none;
+    }
+    .inv-input:focus { border-color: var(--gold); }
+    .inv-input::placeholder { color: rgba(232,224,210,.35); font-style: italic; }
+    #inv-panel-name .inv-line { font-style: italic; }
+
+    .inv-panel {
+      position: fixed; left: 50%; bottom: 10vh;
+      display: flex; flex-direction: column; align-items: center; gap: 1.4rem;
+      opacity: 0; transform: translateX(-50%) translateY(10px);
+      animation: invPanelIn .8s ease forwards;
+      width: 90vw; max-width: 480px;
+    }
+    .inv-panel[hidden] { display: none; }
+    .inv-stage[hidden], .inv-envelope-stage[hidden] { display: none; }
+    @keyframes invPanelIn { to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    .inv-line {
+      margin: 0; font-size: 1rem; letter-spacing: .06em; line-height: 1.8; color: #ddd2bd;
+    }
+
+    .inv-actions { display: flex; gap: 1.2rem; }
+    .inv-btn {
+      font-family: 'Noto Serif TC', serif; font-size: .92rem; letter-spacing: .3em;
+      background: none; border: 1px solid rgba(184,144,96,.55); color: var(--gold);
+      padding: .75rem 1.8rem; cursor: pointer; transition: all .3s ease;
+    }
+    .inv-btn:hover { background: rgba(184,144,96,.14); border-color: var(--gold); }
+    .inv-btn-decline { color: #8a8378; border-color: rgba(138,131,120,.4); }
+    .inv-btn-decline:hover { background: rgba(138,131,120,.1); border-color: #8a8378; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .inv-card-wrap, .inv-panel, .inv-envelope-img { animation: none; opacity: 1; transform: none; }
+      .inv-content .cursor { animation: none; }
+    }
+
+    .inv-envelope-stage {
+      position: fixed; inset: 0; z-index: 2;
+    }
+    .inv-envelope-img {
+      position: fixed; left: 50%; transform: translateX(-50%);
+      width: min(46vh, 78vw);
+      filter: drop-shadow(0 16px 34px rgba(0,0,0,.6));
+      user-select: none;
+      cursor: pointer;
+    }
+    .inv-envelope-img.peeking {
+      bottom: -16vh;
+      animation: invEnvelopePeek 5.5s ease-in-out infinite;
+    }
+    @keyframes invEnvelopePeek {
+      0%, 100% { bottom: -16vh; }
+      50%      { bottom: -12vh; }
+    }
+    .inv-envelope-img.revealed {
+      animation: none;
+      bottom: 36vh;
+      transition: bottom 1.1s cubic-bezier(.19,1,.22,1);
+      cursor: default;
+    }
+    .inv-envelope-hint, #inv-envelope-actions {
+      position: fixed; left: 50%;
+      opacity: 0; transform: translateX(-50%) translateY(10px); pointer-events: none;
+      text-align: center; width: 90vw;
+    }
+    .inv-envelope-hint { bottom: 26vh; }
+    #inv-envelope-actions { bottom: 18vh; display: flex; justify-content: center; gap: 1.2rem; }
+    .inv-envelope-hint.show, #inv-envelope-actions.show { pointer-events: auto; }
+    .inv-envelope-hint {
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem;
+      letter-spacing: .2em; color: rgba(184,144,96,.75);
+    }
+    .inv-envelope-hint.show { animation: invEnvelopePanelIn .8s ease forwards, invHintPulse 2.6s ease-in-out .8s infinite; }
+    @keyframes invHintPulse { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
+    #inv-envelope-actions.show { animation: invEnvelopePanelIn .8s ease .15s forwards; }
+    @keyframes invEnvelopePanelIn { to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    .inv-envelope-stage.leaving .inv-envelope-img { animation: invEnvelopeOut .6s ease forwards; }
+    .inv-envelope-stage.leaving .inv-envelope-hint,
+    .inv-envelope-stage.leaving #inv-envelope-actions { opacity: 0; transition: opacity .3s ease; }
+    @keyframes invEnvelopeOut { to { opacity: 0; transform: translateX(-50%) translateY(-30px) scale(.92); } }
+
+    .inv-veil {
+      position: fixed; inset: 0; z-index: 10;
+      background: var(--ink);
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .inv-veil.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="inv-envelope-stage" id="inv-envelope-stage">
+    <img class="inv-envelope-img peeking" id="inv-envelope-img" src="image/invitation/envelope.webp" alt="信封" onclick="revealEnvelope()">
+    <p class="inv-envelope-hint" id="inv-envelope-hint">你收到了一封未署名的信，要接受嗎？</p>
+    <div class="inv-actions" id="inv-envelope-actions">
+      <button class="inv-btn inv-btn-accept" onclick="acceptEnvelope()">接受</button>
+      <button class="inv-btn inv-btn-decline" onclick="declineEnvelope()">不接受</button>
+    </div>
+  </div>
+
+  <div class="inv-stage" id="inv-stage" hidden onclick="skipTypewriter()">
+    <div class="inv-card-wrap">
+      <img class="inv-card-img" src="image/invitation/letter.webp" alt="邀請函">
+    </div>
+    <div class="inv-content" id="inv-content"></div>
+
+    <div class="inv-panel" id="inv-panel-name" hidden>
+      <p class="inv-line">留下你的真名——</p>
+      <input class="inv-input" id="inv-name-input" maxlength="20" placeholder="在此輸入" autocomplete="off">
+      <button class="inv-btn" onclick="submitName()">確認</button>
+    </div>
+
+    <div class="inv-panel" id="inv-panel-next" hidden>
+      <p class="inv-line">謎題，將由此展開……</p>
+    </div>
+  </div>
+
+  <div class="inv-veil" id="inv-veil"></div>
+
+  <script>
+    var sndReceived = new Audio('image/invitation/收到信.wav');
+    var sndOpen = new Audio('image/invitation/打開信紙.wav');
+
+    function revealEnvelope() {
+      var img = document.getElementById('inv-envelope-img');
+      img.onclick = null;
+      img.classList.remove('peeking');
+      void img.offsetWidth;
+      img.classList.add('revealed');
+      sndReceived.play().catch(function() {});
+      setTimeout(function() {
+        document.getElementById('inv-envelope-hint').classList.add('show');
+        document.getElementById('inv-envelope-actions').classList.add('show');
+      }, 100);
+    }
+
+    function showPanel(id) {
+      document.querySelectorAll('.inv-panel').forEach(function(el) { el.hidden = true; });
+      var el = document.getElementById(id);
+      el.hidden = false;
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    }
+
+    var INVITATION_PARTS = [
+      '致　',
+      { slot: 'name' },
+      '\n\n若汝已讀此信，便說明它已抵達應至之處。\n無須追問它為何尋得汝。\n\n有未知之物，嗅得汝之孤獨與寂寥，亦嗅得汝藏於心底的祈願，與不敢言明的妄念。\n\n潔白之軀，將寬恕汝之罪孽；異形之影，將引領汝步向歡愉。\n\n',
+      { openSpan: 'inv-final-line' },
+      '唯有留下汝之真名，聖堂的門扉方為汝開啟。',
+      { closeSpan: true }
+    ];
+
+    var FINAL_LINE_REPLACEMENT = '真名為鑰。\n汝之名已被聖堂收下，門扉亦已鬆動。\n然門在何處，何時開啟，須由汝自行尋得。\n\n聖堂　靜候';
+
+    var typewriterTimer = null;
+    var inNameTransition = false;
+    var typewriterSkip = null;
+
+    function makeNameSlot() {
+      var slotSpan = document.createElement('span');
+      slotSpan.className = 'name-slot';
+      slotSpan.id = 'inv-name-slot';
+      slotSpan.textContent = '未明之人';
+      return slotSpan;
+    }
+
+    function typeContent(parts, speed, onDone) {
+      var el = document.getElementById('inv-content');
+      el.classList.add('show');
+      el.innerHTML = '<span class="typed"></span><span class="cursor">|</span>';
+      var typed = el.querySelector('.typed');
+      var cursor = el.querySelector('.cursor');
+      var partIdx = 0, charIdx = 0;
+      var finished = false;
+
+      function finish() {
+        if (finished) return;
+        finished = true;
+        clearTimeout(typewriterTimer);
+        typewriterSkip = null;
+        cursor.remove();
+        if (onDone) onDone();
+      }
+
+      typewriterSkip = function() {
+        typed.innerHTML = '';
+        var target = typed;
+        parts.forEach(function(part) {
+          if (typeof part === 'string') target.appendChild(document.createTextNode(part));
+          else if (part.slot === 'name') target.appendChild(makeNameSlot());
+          else if (part.openSpan) {
+            var span = document.createElement('span');
+            span.id = part.openSpan;
+            target.appendChild(span);
+            target = span;
+          } else if (part.closeSpan) {
+            target = typed;
+          }
+        });
+        finish();
+      };
+
+      var target = typed;
+      (function step() {
+        if (partIdx >= parts.length) { finish(); return; }
+        var part = parts[partIdx];
+        if (typeof part === 'string') {
+          if (charIdx < part.length) {
+            target.appendChild(document.createTextNode(part.charAt(charIdx)));
+            charIdx++;
+            typewriterTimer = setTimeout(step, speed);
+          } else {
+            partIdx++; charIdx = 0; step();
+          }
+        } else if (part.slot === 'name') {
+          target.appendChild(makeNameSlot());
+          partIdx++; charIdx = 0;
+          typewriterTimer = setTimeout(step, speed * 3);
+        } else if (part.openSpan) {
+          var span = document.createElement('span');
+          span.id = part.openSpan;
+          target.appendChild(span);
+          target = span;
+          partIdx++; charIdx = 0;
+          step();
+        } else if (part.closeSpan) {
+          target = typed;
+          partIdx++; charIdx = 0;
+          step();
+        }
+      })();
+    }
+
+    function skipTypewriter() {
+      if (inNameTransition) return;
+      if (typewriterSkip) typewriterSkip();
+    }
+
+    function submitName() {
+      var input = document.getElementById('inv-name-input');
+      var name = input.value.trim();
+      if (!name) { input.focus(); return; }
+      document.getElementById('inv-panel-name').hidden = true;
+
+      inNameTransition = true;
+
+      var slot = document.getElementById('inv-name-slot');
+      slot.classList.add('fading-out');
+      setTimeout(function() {
+        slot.textContent = name;
+        slot.classList.remove('fading-out');
+        slot.classList.add('filled');
+      }, 950);
+
+      var finalLine = document.getElementById('inv-final-line');
+      finalLine.classList.add('fading-out');
+      setTimeout(function() {
+        finalLine.textContent = FINAL_LINE_REPLACEMENT;
+        finalLine.classList.remove('fading-out');
+        finalLine.classList.add('filled');
+      }, 1900);
+
+      setTimeout(function() {
+        inNameTransition = false;
+        showPanel('inv-panel-next');
+      }, 7000);
+    }
+
+    document.getElementById('inv-name-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') submitName();
+    });
+
+    function acceptEnvelope() {
+      sndOpen.play().catch(function() {});
+      var veil = document.getElementById('inv-veil');
+      veil.classList.add('show');
+      setTimeout(function() {
+        document.getElementById('inv-envelope-stage').hidden = true;
+        document.getElementById('inv-stage').hidden = false;
+        veil.classList.remove('show');
+        setTimeout(function() {
+          typeContent(INVITATION_PARTS, 55, function() {
+            setTimeout(function() {
+              showPanel('inv-panel-name');
+              document.getElementById('inv-name-input').focus();
+            }, 900);
+          });
+        }, 1900);
+      }, 400);
+    }
+
+    function declineEnvelope() {
+      document.getElementById('inv-envelope-actions').style.display = 'none';
+      document.getElementById('inv-envelope-hint').textContent = '也許，時機尚未到來。';
+      setTimeout(function() {
+        document.getElementById('inv-envelope-stage').classList.add('leaving');
+        setTimeout(function() {
+          window.close();
+          location.href = 'https://elysium-ffxivtc.github.io/elysium/';
+        }, 700);
+      }, 1800);
+    }
+
+  </script>
+
+</body>
+</html>
