@@ -9,7 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&display=swap">
   <style>
-    :root { --gold: #b89060; --ink: #0c0b0a; --card-w: min(76vh, 96vw); }
+    :root {
+      --gold: #b89060; --ink: #0c0b0a;
+      --card-w: min(66vh, 88vw);
+      --card-w: min(66dvh, 88vw);
+    }
     * { box-sizing: border-box; }
     html, body {
       margin: 0; height: 100%;
@@ -27,7 +31,7 @@
     }
 
     .inv-card-wrap {
-      position: fixed; left: 50%; bottom: 28vh;
+      position: fixed; left: 50%; bottom: 26vh; bottom: 26dvh;
       width: var(--card-w);
       opacity: 0; transform: translateX(-50%) translateY(60px);
       animation: invCardRise 1.4s cubic-bezier(.19,1,.22,1) .3s forwards;
@@ -41,7 +45,7 @@
       position: absolute; left: 14.5%; right: 14.5%; top: 6%; bottom: 6%;
       overflow: visible; white-space: pre-line; text-align: left;
       font-family: 'Cormorant Garamond', serif; font-weight: 500;
-      font-size: clamp(.62rem, calc(var(--card-w) * .0237), 1.05rem); line-height: 1.85;
+      font-size: clamp(.74rem, calc(var(--card-w) * .0265), 1.05rem); line-height: 1.75;
       color: var(--gold);
       opacity: 0;
       text-shadow: 0 0 18px rgba(184,144,96,.35);
@@ -84,7 +88,7 @@
     #inv-panel-name .inv-line { font-style: italic; }
 
     .inv-panel {
-      position: fixed; left: 50%; bottom: 10vh;
+      position: fixed; left: 50%; bottom: 9vh; bottom: 9dvh;
       display: flex; flex-direction: column; align-items: center; gap: 1.4rem;
       opacity: 0; transform: translateX(-50%) translateY(10px);
       animation: invPanelIn .8s ease forwards;
