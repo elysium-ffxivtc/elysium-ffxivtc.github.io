@@ -212,6 +212,7 @@
 
     var sndReceived = new Audio('image/invitation/收到信.wav');
     var sndOpen = new Audio('image/invitation/打開信紙.wav');
+    var sndWriteName = new Audio('image/invitation/寫下名字.wav');
 
     function revealEnvelope() {
       var img = document.getElementById('inv-envelope-img');
@@ -337,6 +338,7 @@
       document.getElementById('inv-panel-name').hidden = true;
 
       inNameTransition = true;
+      sndWriteName.play().catch(function() {});
 
       var slot = document.getElementById('inv-name-slot');
       slot.classList.add('fading-out');
