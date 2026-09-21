@@ -35,9 +35,7 @@
     }
     .inv-card-img { display: block; width: 100%; height: auto; user-select: none; pointer-events: none; }
     .inv-content {
-      position: fixed; left: 50%; bottom: 34vh;
-      width: 54vh; height: 54.5vh;
-      transform: translateX(-50%);
+      position: absolute; left: 14.5%; right: 14.5%; top: 9%; bottom: 9%;
       overflow: hidden; white-space: pre-line; text-align: left;
       font-family: 'Cormorant Garamond', serif; font-weight: 500;
       font-size: clamp(.7rem, 1.8vh, 1.05rem); line-height: 1.85;
@@ -180,8 +178,8 @@
   <div class="inv-stage" id="inv-stage" hidden onclick="skipTypewriter()">
     <div class="inv-card-wrap">
       <img class="inv-card-img" src="image/invitation/letter.webp" alt="邀請函">
+      <div class="inv-content" id="inv-content"></div>
     </div>
-    <div class="inv-content" id="inv-content"></div>
 
     <div class="inv-panel" id="inv-panel-name" hidden>
       <p class="inv-line">留下你的真名——</p>
