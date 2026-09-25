@@ -62,11 +62,12 @@
     .ms-group:last-child { margin-bottom: 0; }
     .ms-tiles { display: grid; grid-template-columns: repeat(6, 78px); gap: .5rem .4rem; }
     .ms-tile {
-      position: relative; aspect-ratio: 1.4 / 3.4; cursor: pointer;
+      position: relative; aspect-ratio: 1.4 / 3.4; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
       clip-path: polygon(0% 15%, 100% 0%, 100% 85%, 0% 100%);
       background: #cfc7b3; perspective: 450px;
       animation: msTileDrop .6s cubic-bezier(.16,1,.3,1) both;
     }
+    .ms-tile.fog { cursor: url('image/arr-cursors/arr-small-pointer.cur'), default; }
     .ms-tile.no-drop { animation: none; }
     @keyframes msTileDrop {
       0%   { opacity: 0; transform: translateY(-36px); }
@@ -85,6 +86,7 @@
     .ms-tile.fog::before { opacity: 1; background: rgba(239,239,239,.82); }
     .ms-tile.show::before { animation: msVeilIn .4s ease forwards; }
     .ms-tile.leaving::before { animation: msVeilOut .9s ease forwards; }
+    .ms-tile.fog.show::before, .ms-tile.fog.leaving::before { animation: none; opacity: 1; }
     @keyframes msVeilIn { 0% { opacity: 0; } 100% { opacity: 1; } }
     @keyframes msVeilOut { 0%, 50% { opacity: 1; } 100% { opacity: 0; } }
     .ms-tile.sel::after {
@@ -326,7 +328,7 @@
     function fogTileHtml(group, idx) {
       const cls = rosterAnimated ? ' no-drop' : '';
       const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
-      return `<div class="ms-tile fog${cls}"${style}><img src="${FOG_SRC[group]}" alt="${esc(group)}" decoding="async"></div>`;
+      return `<div class="ms-tile fog${cls}"${style}><img src="${FOG_SRC[group]}" alt="${esc(group)}" decoding="async"><div class="ms-tile-tag">敬請期待</div></div>`;
     }
 
     function renderRoster() {
@@ -411,14 +413,14 @@
     const msRosterEl = document.getElementById('ms-roster');
     msRosterEl.addEventListener('mouseover', function(e) {
       const tile = e.target.closest('.ms-tile');
-      if (!tile || tile.classList.contains('fog')) return;
+      if (!tile) return;
       if (e.relatedTarget && tile.contains(e.relatedTarget)) return;
       tile.classList.remove('leaving');
       tile.classList.add('show');
     });
     msRosterEl.addEventListener('mouseout', function(e) {
       const tile = e.target.closest('.ms-tile');
-      if (!tile || tile.classList.contains('fog')) return;
+      if (!tile) return;
       if (e.relatedTarget && tile.contains(e.relatedTarget)) return;
       if (tile.classList.contains('show')) {
         tile.classList.remove('show');
