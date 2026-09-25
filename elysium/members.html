@@ -311,7 +311,8 @@
       if (e.key === 'Escape' && document.getElementById('img-lightbox').classList.contains('is-open')) closeLightbox();
     });
 
-    const GROUPS = [['食罪', 5], ['妖異', 1], ['幹部', null], ['引路人', 1]];
+    const GROUPS = [['食罪', 5], ['妖異', 5], ['幹部', null], ['引路人', 3]];
+    const TEASE_COUNT = { '食罪': 5, '妖異': 1, '引路人': 1 };
     const FOG_SRC = { '食罪': 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/image/食罪.jpg', '妖異': 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/image/妖異.jpg', '引路人': 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/image/引路人.jpg' };
 
     let rosterAnimated = false;
@@ -325,10 +326,11 @@
         <div class="ms-tile-tag">${esc(p.roleLabel)}</div>
       </div>`;
     }
-    function fogTileHtml(group, idx) {
+    function fogTileHtml(group, idx, tease) {
       const cls = rosterAnimated ? ' no-drop' : '';
       const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
-      return `<div class="ms-tile fog${cls}"${style}><img src="${FOG_SRC[group]}" alt="${esc(group)}" decoding="async"><div class="ms-tile-tag">敬請期待</div></div>`;
+      const tag = tease ? '<div class="ms-tile-tag">敬請期待</div>' : '';
+      return `<div class="ms-tile fog${cls}"${style}><img src="${FOG_SRC[group]}" alt="${esc(group)}" decoding="async">${tag}</div>`;
     }
 
     function renderRoster() {
@@ -340,7 +342,9 @@
         const list = byGroup[label] || [];
         let tiles = list.map(function(p) { return tileHtml(p, idx++); });
         if (quota) {
-          for (let i = 0; i < quota; i++) tiles.push(fogTileHtml(label, idx++));
+          const pad = Math.max(0, quota - list.length);
+          const tease = TEASE_COUNT[label] || 0;
+          for (let i = 0; i < pad; i++) tiles.push(fogTileHtml(label, idx++, i < tease));
         }
         return `<div class="ms-group"><div class="ms-tiles">${tiles.join('')}</div></div>`;
       }).join('');
