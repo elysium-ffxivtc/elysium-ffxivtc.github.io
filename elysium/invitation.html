@@ -101,6 +101,19 @@
     .inv-line {
       margin: 0; font-size: 1rem; letter-spacing: .06em; line-height: 1.8; color: #ddd2bd;
     }
+    .inv-morse {
+      cursor: pointer; user-select: text; -webkit-user-select: text;
+      letter-spacing: .12em; transition: color .2s ease;
+      white-space: pre-wrap;
+    }
+    .inv-morse:hover { color: var(--gold); }
+    .inv-morse-group { display: flex; flex-direction: column; gap: .35rem; }
+    .inv-copy-toast {
+      display: block; margin-top: .8rem;
+      font-size: .78rem; letter-spacing: .2em; color: var(--gold);
+      opacity: 0; transition: opacity .3s ease;
+    }
+    .inv-copy-toast.show { opacity: 1; }
 
     .inv-actions { display: flex; gap: 1.2rem; }
     .inv-btn {
@@ -195,7 +208,14 @@
     </div>
 
     <div class="inv-panel" id="inv-panel-next" hidden>
-      <p class="inv-line">謎題，將由此展開……</p>
+      <div class="inv-morse-group">
+        <p class="inv-line inv-morse" id="inv-morse-0" onclick="copyMorse(event, 0)"></p>
+        <p class="inv-line inv-morse" id="inv-morse-1" onclick="copyMorse(event, 1)"></p>
+        <p class="inv-line inv-morse" id="inv-morse-2" onclick="copyMorse(event, 2)"></p>
+        <p class="inv-line inv-morse" id="inv-morse-3" onclick="copyMorse(event, 3)"></p>
+        <p class="inv-line inv-morse" id="inv-morse-4" onclick="copyMorse(event, 4)"></p>
+      </div>
+      <span class="inv-copy-toast" id="inv-copy-toast">已複製</span>
     </div>
   </div>
 
@@ -249,6 +269,7 @@
 
     var typewriterTimer = null;
     var inNameTransition = false;
+    var copyToastTimer = null;
     var typewriterSkip = null;
 
     function makeNameSlot() {
@@ -331,6 +352,52 @@
       if (typewriterSkip) typewriterSkip();
     }
 
+    var MORSE_LINES = [
+      '..--- ..--- ----- -----',
+      '- ---',
+      '----- .---- ----- -----',
+      '.. -.',
+      '.--. ..-.'
+    ];
+
+    function typeInto(el, text, onDone) {
+      el.textContent = '';
+      var i = 0;
+      (function step() {
+        if (i >= text.length) { if (onDone) onDone(); return; }
+        var ch = text.charAt(i);
+        el.textContent += ch;
+        i++;
+        var delay = ch === '-' ? 260 : 100;
+        setTimeout(step, delay);
+      })();
+    }
+
+    function revealMorse() {
+      MORSE_LINES.forEach(function(_, idx) {
+        document.getElementById('inv-morse-' + idx).textContent = '';
+      });
+      var idx = 0;
+      (function next() {
+        if (idx >= MORSE_LINES.length) return;
+        var el = document.getElementById('inv-morse-' + idx);
+        typeInto(el, MORSE_LINES[idx], function() {
+          idx++;
+          setTimeout(next, 200);
+        });
+      })();
+    }
+
+    function copyMorse(e, idx) {
+      e.stopPropagation();
+      navigator.clipboard.writeText(MORSE_LINES[idx]).then(function() {
+        var toast = document.getElementById('inv-copy-toast');
+        toast.classList.add('show');
+        clearTimeout(copyToastTimer);
+        copyToastTimer = setTimeout(function() { toast.classList.remove('show'); }, 1200);
+      }).catch(function() {});
+    }
+
     function submitName() {
       var input = document.getElementById('inv-name-input');
       var name = input.value.trim();
@@ -359,7 +426,8 @@
       setTimeout(function() {
         inNameTransition = false;
         showPanel('inv-panel-next');
-      }, 7000);
+        revealMorse();
+      }, 4300);
     }
 
     document.getElementById('inv-name-input').addEventListener('keydown', function(e) {
