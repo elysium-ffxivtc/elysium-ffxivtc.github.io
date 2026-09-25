@@ -777,7 +777,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 
 .nomen-service-item:last-child { border-bottom: none; }
 
-.nomen-service-item.inactive > *:not(.nomen-service-badge) { opacity: .55; }
+.nomen-service-item.inactive > *:not(.nomen-service-badge) { opacity: .3; }
 
 @media (prefers-reduced-motion: reduce) {
   .nomen-service-item { opacity: 1; transform: none; }
