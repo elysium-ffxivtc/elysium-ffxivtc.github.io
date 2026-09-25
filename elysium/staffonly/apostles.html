@@ -263,6 +263,8 @@ function renderEdit(uid) {
           </select>
         </div>
       </div>
+      <div class="form-label">本名 / 原名</div>
+      <input class="form-input" id="f-original-name" value="${esc(a.originalName||'')}">
       <div class="form-label">員工等級</div>
       <select class="form-input" id="f-rank">
         <option value="formal" ${rankDefault!=='intern'?'selected':''}>正式員工</option>
@@ -305,6 +307,7 @@ function updatePhotoPreview() {
 async function saveApostle(uid) {
   const val = {
     name:     document.getElementById('f-name').value.trim(),
+    originalName: document.getElementById('f-original-name').value.trim(),
     tag:      document.getElementById('f-tag').value.trim(),
     rank:     document.getElementById('f-rank').value,
     photo:    document.getElementById('f-photo').value.trim(),
