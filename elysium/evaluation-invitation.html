@@ -159,7 +159,7 @@
     <div class="ev-narrative" id="ev-narrative">
       <p id="ev-p1"></p>
       <p id="ev-p2"></p>
-      <p><span id="ev-p3a"></span><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off"><span id="ev-p3b"></span></p>
+      <p><span id="ev-p3a"></span><form id="ev-id-form" style="display:inline"><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off" enterkeyhint="done"></form><span id="ev-p3b"></span></p>
     </div>
   </div>
 
@@ -209,7 +209,7 @@
       document.getElementById('ev-click-hint').classList.add('hide');
       typeInto(p1, '夜闌人靜之時。', 55, function() {
         setTimeout(function() {
-          typeInto(p2, '萬籟俱寂的房間裡，唯有機械鍵盤的敲擊聲盈滿耳際。', 55, function() {
+          typeInto(p2, '萬籟俱寂的研究室裡，唯有機械鍵盤的敲擊聲盈滿耳際。', 55, function() {
             setTimeout(function() {
               typeInto(p3a, '灰藍膚色的精靈族男子正襟危坐於桌前，指尖在鍵盤上起落，字斟句酌地寫著一封致 ', 55, function() {
                 input.classList.add('show');
@@ -246,10 +246,13 @@
     });
 
     var evIdInput = document.getElementById('ev-id-input');
-    evIdInput.addEventListener('keydown', function(e) {
-      if (e.key !== 'Enter') return;
+    var evIdSubmitted = false;
+    document.getElementById('ev-id-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (evIdSubmitted) return;
       var id = evIdInput.value.trim();
       if (!id) return;
+      evIdSubmitted = true;
       window.evId = id;
       evIdInput.blur();
       document.getElementById('ev-veil').classList.add('show');
