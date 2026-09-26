@@ -85,6 +85,17 @@
     .ev-id-input:focus { border-color: var(--gold); }
     .ev-id-input::placeholder { color: rgba(184,144,96,.4); }
 
+    .ev-id-confirm {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 1.7em; height: 1.7em; margin-left: .35em;
+      font-family: 'Cormorant Garamond', serif; font-size: .8rem;
+      background: none; border: 1px solid rgba(184,144,96,.55); border-radius: 50%;
+      color: var(--gold); cursor: pointer; padding: 0; vertical-align: middle;
+      opacity: 0; transition: opacity .5s ease, background .2s ease;
+    }
+    .ev-id-confirm.show { opacity: 1; }
+    .ev-id-confirm:hover { background: rgba(184,144,96,.15); }
+
     @keyframes evLineIn {
       to { opacity: 1; transform: translateY(0); }
     }
@@ -159,7 +170,7 @@
     <div class="ev-narrative" id="ev-narrative">
       <p id="ev-p1"></p>
       <p id="ev-p2"></p>
-      <form id="ev-id-form"><span id="ev-p3a"></span><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off" enterkeyhint="go"><span id="ev-p3b"></span></form>
+      <form id="ev-id-form"><span id="ev-p3a"></span><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off" enterkeyhint="go"><button type="submit" class="ev-id-confirm" id="ev-id-confirm" aria-label="確認">✓</button><span id="ev-p3b"></span></form>
     </div>
   </div>
 
@@ -213,6 +224,7 @@
             setTimeout(function() {
               typeInto(p3a, '灰藍膚色的精靈族男子正襟危坐於桌前，指尖在鍵盤上起落，字斟句酌地寫著一封致 ', 55, function() {
                 input.classList.add('show');
+                document.getElementById('ev-id-confirm').classList.add('show');
                 typeInto(p3b, ' 的邀請函。', 55);
               });
             }, 350);
