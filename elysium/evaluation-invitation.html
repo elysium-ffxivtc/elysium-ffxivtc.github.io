@@ -31,7 +31,6 @@
     .ev-narrative {
       position: absolute; left: 50%; top: 50%;
       transform: translate(-50%, 2.4rem);
-      padding: 0 1.5rem; box-sizing: border-box;
     }
 
     .ev-title, .ev-subtitle {
@@ -124,14 +123,14 @@
     @media (max-width: 640px) {
       .ev-stage-2 { align-items: flex-end; padding-bottom: 3vh; }
       .ev-typewriter-wrap { width: 140vw; }
-      .ev-paper-text { font-size: clamp(.8rem, 4vw, 1.05rem); line-height: 1.5; }
+      .ev-paper-text { font-size: clamp(1rem, 4.6vw, 1.25rem); line-height: 1.5; }
     }
     .ev-paper-text {
       position: absolute; left: 17%; right: 17%; top: 3.5%; height: 32%;
       overflow-y: auto; overflow-x: hidden;
       scrollbar-width: none; -ms-overflow-style: none;
       font-family: 'Special Elite', 'Courier New', monospace;
-      font-size: clamp(.6rem, calc(min(80vh, 94vw) * .019), .88rem);
+      font-size: clamp(.7rem, calc(min(80vh, 94vw) * .0225), 1.02rem);
       line-height: 1.6; color: #2b2822; text-align: left;
       white-space: pre-wrap;
     }
