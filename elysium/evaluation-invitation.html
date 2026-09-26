@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客座評鑑邀請 ✦ Elysium</title>
+  <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/image/icon/Elysium_LOGO_mini_dark.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Special+Elite&display=swap">
+  <style>
+    :root { --gold: #b89060; --ink: #0c0b0a; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      background: radial-gradient(ellipse at 50% 30%, #17140f 0%, var(--ink) 70%);
+      color: #e8e0d2;
+      font-family: 'Noto Serif TC', serif;
+      overflow: hidden;
+      user-select: none; -webkit-user-select: none;
+    }
+
+    .ev-stage {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2.4rem;
+      padding: 0 1.5rem;
+    }
+
+    .ev-title-block, .ev-narrative { text-align: left; width: min(560px, 100%); }
+
+    .ev-title, .ev-subtitle {
+      opacity: 0; transform: translateY(14px);
+      animation: evLineIn 1.1s cubic-bezier(.19,1,.22,1) forwards;
+    }
+
+    .ev-title {
+      font-family: 'Noto Serif TC', serif; font-weight: 700;
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
+      letter-spacing: .3em; margin: 0;
+      color: #f0e6d4;
+      text-shadow: 0 0 26px rgba(184,144,96,.3);
+      animation-delay: .4s;
+    }
+
+    .ev-subtitle {
+      font-family: 'Cormorant Garamond', serif; font-weight: 500;
+      font-size: clamp(.72rem, 1.8vw, .95rem);
+      letter-spacing: .38em;
+      text-transform: uppercase;
+      color: rgba(184,144,96,.75);
+      margin: .5rem 0 0;
+      animation-delay: 1.5s;
+    }
+
+    .ev-narrative {
+      display: flex; flex-direction: column; gap: .9rem;
+    }
+
+    .ev-narrative p {
+      font-family: 'Noto Serif TC', serif; font-weight: 400;
+      font-size: clamp(.92rem, 2vw, 1.05rem);
+      letter-spacing: .06em; line-height: 1.95;
+      color: #cabfae;
+      margin: 0;
+    }
+
+    .ev-click-hint {
+      display: inline-block;
+      color: rgba(184,144,96,.7);
+      margin-left: .15em;
+      opacity: 0;
+      animation: evLineIn .6s ease 2.2s forwards, evCursorBlink 1s step-start 2.8s infinite;
+    }
+    .ev-click-hint.hide { animation: none; opacity: 0; transition: opacity .5s ease; }
+
+    .ev-id-input {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; text-align: center;
+      background: none; border: none; border-bottom: 1px solid rgba(184,144,96,.5);
+      color: var(--gold); padding: 0 .5rem; width: 150px; letter-spacing: .08em;
+      outline: none; vertical-align: baseline;
+      opacity: 0; transition: opacity .5s ease;
+    }
+    .ev-id-input.show { opacity: 1; }
+    .ev-id-input:focus { border-color: var(--gold); }
+    .ev-id-input::placeholder { color: rgba(184,144,96,.4); }
+
+    @keyframes evLineIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ev-veil {
+      position: fixed; inset: 0; z-index: 10;
+      background: var(--ink);
+      opacity: 0; pointer-events: none;
+      transition: opacity .7s ease;
+    }
+    .ev-veil.show { opacity: 1; }
+
+    .ev-stage-2 {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ev-stage-2[hidden] { display: none; }
+    .ev-typewriter-wrap {
+      position: relative;
+      width: min(80vh, 94vw);
+      opacity: 0;
+      animation: evImgIn 1s ease forwards;
+    }
+    @keyframes evImgIn { to { opacity: 1; } }
+    .ev-typewriter-img {
+      display: block; width: 100%; height: auto;
+      user-select: none; pointer-events: none; -webkit-user-drag: none;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,.6));
+    }
+    .ev-paper-text {
+      position: absolute; left: 17%; right: 17%; top: 3.5%; height: 32%;
+      overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: none; -ms-overflow-style: none;
+      font-family: 'Special Elite', 'Courier New', monospace;
+      font-size: clamp(.6rem, calc(min(80vh, 94vw) * .019), .88rem);
+      line-height: 1.6; color: #2b2822; text-align: left;
+      white-space: pre-wrap;
+    }
+    .ev-paper-text::-webkit-scrollbar { display: none; }
+    .ev-cursor {
+      display: inline-block;
+      animation: evCursorBlink 1s step-start infinite;
+    }
+    @keyframes evCursorBlink { 50% { opacity: 0; } }
+
+    .ev-next-btn {
+      position: absolute; left: 70%; top: 38.5%;
+      font-family: 'Special Elite', 'Courier New', monospace;
+      font-size: clamp(.62rem, calc(min(80vh, 94vw) * .02), .92rem);
+      letter-spacing: .15em;
+      background: none; border: 1px solid rgba(43,40,34,.55); color: #2b2822;
+      padding: .4em 1.1em; cursor: pointer;
+      opacity: 0; transition: opacity .3s ease;
+    }
+    .ev-next-btn[hidden] { display: none; }
+    .ev-next-btn.show { opacity: 1; animation: evNextIn .8s ease; }
+    @keyframes evNextIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .ev-next-btn:hover { background: rgba(43,40,34,.08); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap { animation: none; opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ev-stage" id="ev-stage">
+    <div class="ev-title-block">
+      <h1 class="ev-title">客座評鑑邀請</h1>
+      <p class="ev-subtitle">INVITATION TO GUEST EVALUATION<span class="ev-click-hint" id="ev-click-hint">▏</span></p>
+    </div>
+    <div class="ev-narrative" id="ev-narrative">
+      <p id="ev-p1"></p>
+      <p id="ev-p2"></p>
+      <p><span id="ev-p3a"></span><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off"><span id="ev-p3b"></span></p>
+    </div>
+  </div>
+
+  <div class="ev-stage-2" id="ev-stage-2" hidden>
+    <div class="ev-typewriter-wrap">
+      <img class="ev-typewriter-img" src="image/evaluation-invitation/打字機.webp" alt="打字機">
+      <div class="ev-paper-text" id="ev-paper-text"></div>
+      <button class="ev-next-btn" id="ev-next-btn" hidden>Next</button>
+    </div>
+  </div>
+
+  <div class="ev-veil" id="ev-veil"></div>
+
+  <script>
+    function escText(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function typeOnPaper(text, speed, onDone) {
+      var el = document.getElementById('ev-paper-text');
+      var i = 0;
+      (function step() {
+        el.innerHTML = escText(text.slice(0, i)) + '<span class="ev-cursor">|</span>';
+        el.scrollTop = el.scrollHeight;
+        if (i >= text.length) { if (onDone) onDone(); return; }
+        var ch = text[i];
+        i++;
+        setTimeout(step, ch === '\n' ? speed * 5 : speed);
+      })();
+    }
+
+    function typeInto(el, text, speed, onDone) {
+      var i = 0;
+      (function step() {
+        el.innerHTML = escText(text.slice(0, i)) + '<span class="ev-cursor">|</span>';
+        if (i >= text.length) { el.innerHTML = escText(text); if (onDone) onDone(); return; }
+        i++;
+        setTimeout(step, speed);
+      })();
+    }
+
+    function runNarrativeTyping() {
+      var p1 = document.getElementById('ev-p1');
+      var p2 = document.getElementById('ev-p2');
+      var p3a = document.getElementById('ev-p3a');
+      var p3b = document.getElementById('ev-p3b');
+      var input = document.getElementById('ev-id-input');
+      document.getElementById('ev-click-hint').classList.add('hide');
+      typeInto(p1, '夜闌人靜之時。', 55, function() {
+        setTimeout(function() {
+          typeInto(p2, '萬籟俱寂的房間裡，唯有機械鍵盤的敲擊聲盈滿耳際。', 55, function() {
+            setTimeout(function() {
+              typeInto(p3a, '灰藍膚色的精靈族男子正襟危坐於桌前，指尖在鍵盤上起落，字斟句酌地寫著一封致 ', 55, function() {
+                input.classList.add('show');
+                typeInto(p3b, ' 的邀請函。', 55);
+              });
+            }, 350);
+          });
+        }, 350);
+      });
+    }
+
+    var sndTypewriter = new Audio('image/evaluation-invitation/Typewriter.mp3');
+    sndTypewriter.loop = true;
+    var sndDing = new Audio('image/evaluation-invitation/ding.mp3');
+
+    function startTypewriterSound() {
+      sndTypewriter.play().catch(function() {});
+    }
+    function stopTypewriterSound() {
+      sndTypewriter.pause();
+      sndTypewriter.currentTime = 0;
+    }
+
+    var evBegun = false;
+    document.getElementById('ev-stage').addEventListener('click', function() {
+      if (evBegun) return;
+      evBegun = true;
+      startTypewriterSound();
+      setTimeout(runNarrativeTyping, 8000);
+    });
+
+    document.getElementById('ev-next-btn').addEventListener('click', function() {
+      sndDing.play().catch(function() {});
+    });
+
+    var evIdInput = document.getElementById('ev-id-input');
+    evIdInput.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      var id = evIdInput.value.trim();
+      if (!id) return;
+      window.evId = id;
+      evIdInput.blur();
+      document.getElementById('ev-veil').classList.add('show');
+      setTimeout(function() {
+        document.getElementById('ev-stage').style.display = 'none';
+        document.getElementById('ev-stage-2').hidden = false;
+        document.getElementById('ev-veil').classList.remove('show');
+        setTimeout(function() {
+          typeOnPaper('致' + id + '：\n\n這是一份來自 Elysium 的特別邀請。\n\n為了讓聖堂的召引能夠更加完善，我正在邀請少數熟悉角色扮演、並願意提供真實感受的人們擔任本次的客座評鑑員。\n\n在此次評鑑中，你只需要以一般會眾的身份進入 Elysium，實際體驗使徒的接待、互動與服務，並在結束後，依照自己的感受留下評分與回饋。\n\n無論是令人印象深刻的地方、互動中感到不自然之處，或是你認為仍有改善空間的部分，都歡迎如實告訴我們。\n\n你的觀察與建議，將成為後續培訓的重要參考，也是使徒們在正式召引前非常重要的一次練習。同時，也讓我們能從不同的角度重新檢視聖堂的服務。\n\n若你願意成為本次客座評鑑員，請選擇一張可參與日期的入場門票。\n\n我們將依據各張門票所承載的日期進行安排，並於確認後另行告知最終的評鑑場次與參與名單。\n\n期待在那一夜，於安息地與你相見。\n\n也期待透過你的眼睛，看見我們尚未察覺的 Elysium。', 32, function() {
+            stopTypewriterSound();
+            var btn = document.getElementById('ev-next-btn');
+            btn.hidden = false;
+            void btn.offsetWidth;
+            btn.classList.add('show');
+          });
+        }, 900);
+      }, 700);
+    });
+  </script>
+</body>
+</html>
