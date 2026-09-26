@@ -57,7 +57,7 @@
       display: flex; flex-direction: column; gap: .9rem;
     }
 
-    .ev-narrative p {
+    .ev-narrative p, .ev-narrative form {
       font-family: 'Noto Serif TC', serif; font-weight: 400;
       font-size: clamp(.92rem, 2vw, 1.05rem);
       letter-spacing: .06em; line-height: 1.95;
@@ -159,7 +159,7 @@
     <div class="ev-narrative" id="ev-narrative">
       <p id="ev-p1"></p>
       <p id="ev-p2"></p>
-      <p><span id="ev-p3a"></span><form id="ev-id-form" style="display:inline"><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off" enterkeyhint="done"></form><span id="ev-p3b"></span></p>
+      <form id="ev-id-form"><span id="ev-p3a"></span><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off" enterkeyhint="done"><span id="ev-p3b"></span></form>
     </div>
   </div>
 
