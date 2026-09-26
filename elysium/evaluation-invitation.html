@@ -159,7 +159,7 @@
     <div class="ev-narrative" id="ev-narrative">
       <p id="ev-p1"></p>
       <p id="ev-p2"></p>
-      <form id="ev-id-form"><span id="ev-p3a"></span><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off" enterkeyhint="done"><span id="ev-p3b"></span></form>
+      <form id="ev-id-form"><span id="ev-p3a"></span><input class="ev-id-input" id="ev-id-input" maxlength="20" placeholder="ID" autocomplete="off" enterkeyhint="go"><span id="ev-p3b"></span></form>
     </div>
   </div>
 
@@ -238,7 +238,7 @@
       if (evBegun) return;
       evBegun = true;
       startTypewriterSound();
-      setTimeout(runNarrativeTyping, 8000);
+      setTimeout(runNarrativeTyping, 8500);
     });
 
     document.getElementById('ev-next-btn').addEventListener('click', function() {
@@ -247,8 +247,7 @@
 
     var evIdInput = document.getElementById('ev-id-input');
     var evIdSubmitted = false;
-    document.getElementById('ev-id-form').addEventListener('submit', function(e) {
-      e.preventDefault();
+    function submitEvId() {
       if (evIdSubmitted) return;
       var id = evIdInput.value.trim();
       if (!id) return;
@@ -270,6 +269,14 @@
           });
         }, 900);
       }, 700);
+    }
+
+    document.getElementById('ev-id-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitEvId();
+    });
+    evIdInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') submitEvId();
     });
   </script>
 </body>
