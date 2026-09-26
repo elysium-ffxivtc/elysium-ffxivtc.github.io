@@ -28,9 +28,11 @@
 
     .ev-title-block, .ev-narrative { text-align: left; width: min(560px, 100%); }
 
+    .ev-title-block { transform: translateY(-5.2rem); }
+
     .ev-narrative {
       position: absolute; left: 50%; top: 50%;
-      transform: translate(-50%, 2.4rem);
+      transform: translate(-50%, .8rem);
     }
 
     .ev-title, .ev-subtitle {
@@ -104,6 +106,7 @@
     .ev-stage-2 {
       position: fixed; inset: 0;
       display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
     }
     .ev-stage-2[hidden] { display: none; }
     .ev-typewriter-wrap {
@@ -123,7 +126,7 @@
     @media (max-width: 640px) {
       .ev-stage-2 { align-items: flex-end; padding-bottom: 3vh; }
       .ev-typewriter-wrap { width: 140vw; }
-      .ev-paper-text { font-size: clamp(1rem, 4.6vw, 1.25rem); line-height: 1.5; }
+      .ev-paper-text { font-size: clamp(1.15rem, 5.5vw, 1.5rem); line-height: 1.5; }
     }
     .ev-paper-text {
       position: absolute; left: 17%; right: 17%; top: 3.5%; height: 32%;
