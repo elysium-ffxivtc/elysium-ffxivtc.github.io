@@ -271,6 +271,7 @@
         return;
       }
       try {
+        document.getElementById('auth-overlay').classList.add('show');
         const staffSnap = await db.ref('staff/' + user.uid).get();
         if (staffSnap.exists()) {
           const role = staffSnap.val().role;
