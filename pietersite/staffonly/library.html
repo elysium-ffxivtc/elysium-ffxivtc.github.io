@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>圖書室 · PIETERSITE</title>
+  <title>文書庫 · PIETERSITE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
@@ -453,7 +453,7 @@
   </div>
 
   <header class="lib-header">
-    <div class="lib-title">✦ PIETERSITE · 圖書室</div>
+    <div class="lib-title">✦ PIETERSITE · 文書庫</div>
     <div style="display:flex;align-items:center;gap:.85rem">
       <div id="hdr-clock" class="hdr-clock"></div>
       <div id="user-badge" class="user-badge" style="display:none"></div>
@@ -1356,7 +1356,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            content: `## 𝗨𝗽𝗱𝗮𝘁𝗲\n\` 圖書室 ‧ ${category} \`\n${detailLine}-# ${subtext}`
+            content: `## 𝗨𝗽𝗱𝗮𝘁𝗲\n\` 文書庫 ‧ ${category} \`\n${detailLine}-# ${subtext}`
           })
         });
       } catch(e) { /* silent */ }
