@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gold: #b8913a; --gold-dim: rgba(184,145,58,.12);
+      --gold: #3a5f8a; --gold-dim: rgba(58,95,138,.12);
       --bg: #f3f1ee; --panel: #e9e6e1; --card: #ffffff;
       --border: rgba(0,0,0,.1); --text: #211f1c; --dim: #6e6a63;
       --red: #a8433a;
@@ -27,17 +27,17 @@
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
     .btn-gold { background: var(--gold); color: #ffffff; }
-    .btn-gold:hover { background: #8f6f2a; }
+    .btn-gold:hover { background: #2c4a6e; }
     .btn-sm { padding: .3rem .7rem; font-size: 12px; }
 
     .board {
       display: flex; align-items: flex-start; gap: 1rem; flex: 1; min-height: 0; overflow: auto; padding: 0 1.5rem 1.5rem;
-      scrollbar-width: thin; scrollbar-color: rgba(184,145,58,.3) transparent;
+      scrollbar-width: thin; scrollbar-color: rgba(58,95,138,.3) transparent;
     }
     .board::-webkit-scrollbar { width: 9px; height: 9px; }
     .board::-webkit-scrollbar-track { background: transparent; }
-    .board::-webkit-scrollbar-thumb { background: rgba(184,145,58,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
-    .board::-webkit-scrollbar-thumb:hover { background: rgba(184,145,58,.55); background-clip: padding-box; }
+    .board::-webkit-scrollbar-thumb { background: rgba(58,95,138,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    .board::-webkit-scrollbar-thumb:hover { background: rgba(58,95,138,.55); background-clip: padding-box; }
 
     .col { flex: 0 0 280px; background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; transition: box-shadow .12s; }
     .col.drag-over-left  { box-shadow: inset 3px 0 0 var(--gold); }
@@ -289,7 +289,7 @@ function render() {
               <span class="block-color-swatches">
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#211f1c')" style="background:#211f1c" title="預設"></button>
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#a8433a')" style="background:#a8433a" title="紅"></button>
-                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#b8913a')" style="background:#b8913a" title="金"></button>
+                <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#3a5f8a')" style="background:#3a5f8a" title="金"></button>
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#2d7a50')" style="background:#2d7a50" title="綠"></button>
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#2c5f9e')" style="background:#2c5f9e" title="藍"></button>
                 <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('foreColor',false,'#6b4a9e')" style="background:#6b4a9e" title="紫"></button>

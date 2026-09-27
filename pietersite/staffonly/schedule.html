@@ -10,8 +10,8 @@
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
     :root {
-      --gold:     #b8913a;
-      --gold-dim: rgba(184,145,58,.12);
+      --gold:     #3a5f8a;
+      --gold-dim: rgba(58,95,138,.12);
       --bg:       #f3f1ee;
       --panel:    #e9e6e1;
       --card:     #ffffff;
@@ -23,11 +23,11 @@
       --red:      #a8433a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
-    * { scrollbar-width: thin; scrollbar-color: rgba(184,145,58,.3) transparent; }
+    * { scrollbar-width: thin; scrollbar-color: rgba(58,95,138,.3) transparent; }
     *::-webkit-scrollbar { width: 9px; height: 9px; }
     *::-webkit-scrollbar-track { background: transparent; }
-    *::-webkit-scrollbar-thumb { background: rgba(184,145,58,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
-    *::-webkit-scrollbar-thumb:hover { background: rgba(184,145,58,.55); background-clip: padding-box; }
+    *::-webkit-scrollbar-thumb { background: rgba(58,95,138,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    *::-webkit-scrollbar-thumb:hover { background: rgba(58,95,138,.55); background-clip: padding-box; }
     body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: default; }
     a, button, [role="button"], select, [onclick] { cursor: pointer; }
     input, textarea { cursor: text; }
@@ -65,14 +65,14 @@
     .anno-empty:hover { color: var(--gold); }
 
     /* ── Biz summary ── */
-    .biz-sum-card { background: rgba(212,170,82,.1); border: 1px solid rgba(212,170,82,.25); border-left: 4px solid var(--gold); padding: .9rem 1.15rem; margin-bottom: .75rem; }
+    .biz-sum-card { background: rgba(90,141,196,.1); border: 1px solid rgba(90,141,196,.25); border-left: 4px solid var(--gold); padding: .9rem 1.15rem; margin-bottom: .75rem; }
     .biz-sum-title { font-size: 12px; color: var(--dim); }
     /* desktop */
     .biz-sum-hdr { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .7rem; }
     .biz-sum-count { font-family: 'Noto Serif TC', serif; font-size: 1.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
     .biz-sum-unit { font-size: 13px; color: var(--dim); }
     .biz-sum-grid { display: flex; flex-wrap: wrap; gap: .45rem; }
-    .biz-date-card { background: var(--bg); border: 1px solid rgba(212,170,82,.22); padding: .5rem 1rem; text-align: center; min-width: 62px; }
+    .biz-date-card { background: var(--bg); border: 1px solid rgba(90,141,196,.22); padding: .5rem 1rem; text-align: center; min-width: 62px; }
     .biz-date-mo { font-size: 10px; color: var(--dim); margin-bottom: 2px; }
     .biz-date-day { font-size: 1.35rem; font-weight: 700; color: var(--gold); line-height: 1.1; font-family: 'Noto Serif TC', serif; }
     .biz-sum-mobile { display: none; }
@@ -122,13 +122,13 @@
 
       /* ── Announcement / Biz summary ── */
       .anno-text { font-size: 12px; }
-      .biz-sum-card { padding: 0; overflow: hidden; border-left: 1px solid rgba(212,170,82,.25); }
+      .biz-sum-card { padding: 0; overflow: hidden; border-left: 1px solid rgba(90,141,196,.25); }
       .biz-sum-desktop { display: none; }
       .biz-sum-mobile { display: flex; align-items: stretch; }
-      .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: #1a1000; background: #d4aa52; line-height: 1; display: flex; align-items: center; justify-content: center; padding: .6rem .9rem; flex-shrink: 0; }
+      .biz-sum-num { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: #1a1000; background: #5a8dc4; line-height: 1; display: flex; align-items: center; justify-content: center; padding: .6rem .9rem; flex-shrink: 0; }
       .biz-sum-right { padding: .6rem .85rem; display: flex; flex-direction: column; justify-content: center; }
       .biz-sum-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
-      .biz-date-tag { font-size: 11px; background: rgba(212,170,82,.18); color: var(--gold); padding: .15rem .45rem; }
+      .biz-date-tag { font-size: 11px; background: rgba(90,141,196,.18); color: var(--gold); padding: .15rem .45rem; }
     }
 
     /* ── Month nav ── */
@@ -154,15 +154,15 @@
     .cal-weekday.weekend { color: #5a78a0; opacity: .85; }
     .cal-day.weekend { background: rgba(80,110,160,.04); }
     .cal-day.weekend .cal-day-num { color: rgba(80,110,160,.65); background: rgba(80,110,160,.06); border-bottom-color: rgba(80,110,160,.15); }
-    .cal-day.today.weekend .cal-day-num { color: var(--gold); background: rgba(212,170,82,.08); }
+    .cal-day.today.weekend .cal-day-num { color: var(--gold); background: rgba(90,141,196,.08); }
     .cal-day { background: var(--card); border: 1px solid var(--border); padding: 5px 5px 4px; }
-    .cal-day.today      { border-color: rgba(212,170,82,.5); }
+    .cal-day.today      { border-color: rgba(90,141,196,.5); }
     .cal-day.other-month { opacity: .2; pointer-events: none; }
     .cal-day.past        { opacity: .38; }
     .cal-day.biz-day    { border: 1px solid rgba(90,170,122,.45); border-top: 3px solid rgba(90,170,122,.65); }
-    .cal-day.today.biz-day { border-color: rgba(212,170,82,.6); border-top-color: rgba(212,170,82,.8); }
+    .cal-day.today.biz-day { border-color: rgba(90,141,196,.6); border-top-color: rgba(90,141,196,.8); }
     .cal-day-num { font-size: 11px; color: var(--dim); padding: 2px 4px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,.04); display: flex; align-items: center; gap: 2px; line-height: 1.3; margin-bottom: 2px; }
-    .cal-day.today .cal-day-num { color: var(--gold); font-weight: 700; background: rgba(212,170,82,.08); }
+    .cal-day.today .cal-day-num { color: var(--gold); font-weight: 700; background: rgba(90,141,196,.08); }
     .cal-day-num.clickable { cursor: pointer; }
     .cal-day-num.clickable:hover { background: rgba(0,0,0,.05); color: var(--gold); }
 
@@ -175,13 +175,13 @@
     .slot-row:last-child { border-bottom: none; }
     .slot-row:hover { background: rgba(0,0,0,.05); }
     .slot-row.mine { background: var(--gold-dim); }
-    .slot-row.mine:hover { background: rgba(212,170,82,.22); }
+    .slot-row.mine:hover { background: rgba(90,141,196,.22); }
     .slot-hr { font-size: 11px; color: rgba(0,0,0,.3); }
     @media (min-width: 641px) { .slot-hr::before { content: attr(data-time); } }
     .slot-row.mine .slot-hr { color: var(--gold); }
     .slot-row.has-staff .slot-hr { color: rgba(0,0,0,.55); }
     .slot-cnt { font-size: 11px; color: rgba(0,0,0,.15); background: rgba(0,0,0,.07); padding: 0 3px; min-width: 14px; text-align: center; }
-    .slot-row.mine .slot-cnt { color: var(--gold); background: rgba(212,170,82,.2); }
+    .slot-row.mine .slot-cnt { color: var(--gold); background: rgba(90,141,196,.2); }
     .slot-row.has-staff .slot-cnt { color: var(--dim); }
     .slot-row.locked { opacity: .35; cursor: not-allowed; }
     .slot-row.locked .slot-hr { color: rgba(0,0,0,.18); }
@@ -229,7 +229,7 @@
     /* ── Buttons ── */
     .btn { padding: .48rem 1rem; font-size: 13px; cursor: pointer; border: none; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; }
     .btn-gold { background: var(--gold); color: #211f1c; font-weight: 600; }
-    .btn-gold:hover { background: #8f6f2a; }
+    .btn-gold:hover { background: #2c4a6e; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
     .btn-danger { background: none; border: 1px solid var(--red); color: var(--red); }
@@ -272,8 +272,8 @@
     .biz-toggle-row { display: flex; align-items: center; justify-content: space-between; padding-bottom: .85rem; margin-bottom: .85rem; border-bottom: 1px solid var(--border); }
 
     /* Scrollbar */
-    ::selection { background: rgba(184,145,58,.25); color: inherit; }
-    ::-moz-selection { background: rgba(184,145,58,.25); color: inherit; }
+    ::selection { background: rgba(58,95,138,.25); color: inherit; }
+    ::-moz-selection { background: rgba(58,95,138,.25); color: inherit; }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
