@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pietersite · 排班系統</title>
+  <title>PIETERSITE · 排班系統</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 
@@ -282,7 +282,7 @@
 <body>
 
 <header class="hdr">
-  <div class="hdr-title">✦ Pietersite · 排班系統</div>
+  <div class="hdr-title">✦ PIETERSITE · 排班系統</div>
   <div style="display:flex;align-items:center;gap:.85rem">
     <div id="hdr-clock" class="hdr-clock"></div>
     <div id="user-badge" class="user-badge" style="display:none"></div>
@@ -297,7 +297,7 @@
     <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
   </div>
   <div id="auth-login" class="auth-box" style="display:none">
-    <div class="auth-logo">Pietersite</div>
+    <div class="auth-logo">PIETERSITE</div>
     <div class="auth-tagline">排班系統</div>
     <button class="btn btn-gold auth-google-btn" onclick="signInGoogle()">Google 登入</button>
     <div class="auth-err" id="auth-err"></div>
@@ -319,7 +319,7 @@
   </div>
   <div id="auth-register" class="auth-box" style="display:none">
     <div class="auth-logo" style="font-size:1.5rem;margin-bottom:.5rem">加入申請</div>
-    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">請輸入你在Pietersite的遊戲角色名，<br>管理員審核後即可使用排班系統。</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">請輸入你在PIETERSITE的遊戲角色名，<br>管理員審核後即可使用排班系統。</div>
     <div class="form-label" style="text-align:left">遊戲ID（角色名）</div>
     <input id="reg-gameid" class="form-input" style="margin-bottom:.4rem" onkeydown="if(event.key==='Enter')doRegister()">
     <div style="font-size:12px;color:var(--dim);margin-bottom:.4rem" id="reg-email"></div>
@@ -1401,7 +1401,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       const res = await fetch(DISCORD_RELAY + '/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: '🔔 **Pietersite排班系統** — Webhook 測試成功！' })
+        body: JSON.stringify({ content: '🔔 **PIETERSITE排班系統** — Webhook 測試成功！' })
       });
       if (res.ok) showToast('測試訊息已送出');
       else showToast(`送出失敗 (${res.status})`);
@@ -1479,7 +1479,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     try {
       const canvas = await window.html2canvas(el, { backgroundColor: '#f3f1ee', scale: 2, useCORS: true });
       const a = document.createElement('a');
-      a.download = `Pietersite排班_${viewYear}${pad(viewMonth + 1)}.png`;
+      a.download = `PIETERSITE排班_${viewYear}${pad(viewMonth + 1)}.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
     } catch(e) {
