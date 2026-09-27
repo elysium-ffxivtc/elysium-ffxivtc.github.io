@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>圖書室 · Pietersite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <style>
+    :root {
+      --bg:      #f3f1ee;
+      --panel:   #ffffff;
+      --panel2:  #e9e6e1;
+      --border:  #dcd8d1;
+      --gold:    #b8913a;
+      --gold-bg: rgba(184,145,58,.08);
+      --text:    #211f1c;
+      --dim:     #6e6a63;
+      --dim2:    #a39d92;
+      --red:     #a8433a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    * { scrollbar-width: thin; scrollbar-color: rgba(184,145,58,.3) transparent; }
+    *::-webkit-scrollbar { width: 9px; height: 9px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: rgba(184,145,58,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    *::-webkit-scrollbar-thumb:hover { background: rgba(184,145,58,.55); background-clip: padding-box; }
+    ::selection { background: rgba(184,145,58,.18); color: inherit; }
+    ::-moz-selection { background: rgba(184,145,58,.18); color: inherit; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; font-size: 15px;
+      cursor: default;
+    }
+    a, button, [onclick], select { cursor: pointer; }
+    input, textarea { cursor: text; }
+    select { cursor: pointer; }
+    input.flatpickr-input, input[type="date"], input[type="time"] {
+      cursor: pointer;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      opacity: .5; filter: sepia(.8) saturate(1.2);
+      cursor: pointer;
+    }
+
+    /* ── Header ── */
+    .lib-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .72rem 1.5rem; background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .lib-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; letter-spacing: .2em; color: var(--gold); }
+    .hdr-clock { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: .5rem; }
+    .hdr-clock-time { font-family: 'Noto Serif TC', serif; font-size: .95rem; color: var(--gold); letter-spacing: .05em; }
+    .hdr-clock-date { font-size: 12px; color: var(--dim); }
+    .user-badge { display: flex; align-items: center; gap: .5rem; font-size: 12px; min-width: 0; }
+    .user-badge-name { color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+    .user-badge-role { font-size: 11px; color: var(--dim); padding: .1rem .4rem; border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; }
+    .user-badge-signout { background: none; border: 1px solid var(--border); color: var(--dim); font-size: 11px; font-family: inherit; padding: .2rem .55rem; white-space: nowrap; flex-shrink: 0; transition: all .15s; }
+    .user-badge-signout:hover { border-color: var(--dim); color: var(--text); }
+
+    /* ── Main ── */
+    .lib-main { max-width: 980px; margin: 0 auto; padding: 1.75rem; }
+
+    /* ── Update panel (pinned note) ── */
+    .update-panel {
+      position: relative;
+      background: #fdfaf3; border: 1px solid var(--border);
+      padding: 1.1rem 1.4rem; margin: 0 auto 2.1rem; max-width: 620px;
+      transform: rotate(-.5deg);
+      box-shadow: 0 6px 18px -10px rgba(40,30,20,.4);
+    }
+    .update-panel::before {
+      content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 13px; height: 13px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #dcc084, #b8913a 70%);
+      box-shadow: 0 2px 4px rgba(0,0,0,.35);
+    }
+    .update-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: .8rem; }
+    .update-title { font-size: .75rem; font-weight: 500; color: var(--dim2); letter-spacing: .15em; text-transform: uppercase; }
+    .update-add-btn { background: none; border: none; color: var(--dim2); font-size: 1.05rem; line-height: 1; padding: .1rem .3rem; transition: color .15s; letter-spacing: 0; }
+    .update-add-btn:hover { color: var(--gold); }
+    .announce-row { display: flex; gap: .5rem; margin-bottom: .75rem; }
+    .announce-input { flex: 1; padding: .5rem .8rem; background: var(--panel); border: 1px solid var(--border); color: var(--text); font-size: .88rem; font-family: inherit; outline: none; transition: border-color .15s; }
+    .announce-input:focus { border-color: var(--gold); }
+    .announce-submit { padding: .45rem .9rem; background: var(--gold); border: none; color: #fff; font-size: .82rem; font-family: inherit; transition: background .18s; }
+    .announce-submit:hover { background: #85682d; }
+    .announce-cancel { padding: .45rem .75rem; background: none; border: 1px solid var(--border); color: var(--dim); font-size: .82rem; font-family: inherit; transition: all .15s; }
+    .announce-cancel:hover { border-color: var(--dim); color: var(--text); }
+    .update-list { display: flex; flex-direction: column; gap: .5rem; }
+    .update-item { display: flex; align-items: center; gap: .85rem; font-size: .92rem; }
+    .update-type { font-size: .72rem; padding: .1rem .5rem; border: 1px solid var(--border); color: var(--dim); letter-spacing: .05em; white-space: nowrap; flex-shrink: 0; }
+    .update-type-announce { background: var(--gold-bg); color: var(--gold); border-color: rgba(184,145,58,.2); }
+    .update-item-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+    .update-item-date { font-size: .8rem; color: var(--dim2); white-space: nowrap; flex-shrink: 0; letter-spacing: .06em; padding-left: .6rem; }
+    .update-del-btn { background: none; border: none; color: var(--dim2); font-size: .85rem; line-height: 1; padding: 0 .15rem; transition: color .15s; flex-shrink: 0; }
+    .update-del-btn:hover { color: var(--red); }
+    .update-empty { font-size: .9rem; color: var(--dim2); }
+
+    /* ── Tabs (book-index tabs) ── */
+    .lib-shell { display: flex; align-items: flex-start; }
+    .lib-tabs { display: flex; flex-direction: column; padding-top: 1.7rem; }
+    .lib-tab {
+      position: relative;
+      writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .3em; font-size: .85rem;
+      color: var(--dim); background: var(--panel2); border: 1px solid var(--border); border-right: none;
+      padding: 1rem .55rem 1.6rem; margin: 0 0 .5rem; width: 34px; font-family: inherit; transition: all .15s;
+    }
+    .lib-tab:hover { color: var(--text); }
+    .lib-tab.on { background: var(--panel); color: var(--gold); border-color: var(--gold); width: 40px; margin-right: -1px; font-weight: 500; }
+    .lib-tab-new {
+      position: absolute; bottom: .35rem; left: 50%; transform: translateX(-50%);
+      writing-mode: horizontal-tb; padding: .08rem .22rem;
+      font-size: .58rem; font-weight: 700; letter-spacing: 0; color: #fff; background: var(--red);
+    }
+
+    /* ── Section ── */
+    .lib-content { flex: 1; min-width: 0; padding-left: 1.75rem; border-left: 1px solid var(--border); }
+    .lib-section { display: none; }
+    .lib-section.on { display: block; }
+    .lib-section-hdr { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+    .lib-add-btn { padding: .48rem 1.1rem; background: var(--gold); color: #fff; border: none; font-size: .88rem; font-family: inherit; letter-spacing: .06em; transition: background .18s; }
+    .lib-add-btn:hover { background: #85682d; }
+
+    /* ── Polaroid Grid ── */
+    .polaroid-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+    .polaroid-item {
+      position: relative; aspect-ratio: 1 / 1; overflow: hidden;
+      background: var(--panel2);
+      cursor: pointer;
+    }
+    .polaroid-item img { width:100%; height:100%; object-fit:cover; display:block; transition: transform .3s; }
+    .polaroid-item:hover img { transform: scale(1.04); }
+    .polaroid-date {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: .3rem .55rem;
+      background: linear-gradient(transparent, rgba(0,0,0,.6));
+      color: #fff; font-size: .68rem; letter-spacing: .08em;
+    }
+    .polaroid-del {
+      position: absolute; top: .4rem; right: .4rem;
+      background: rgba(0,0,0,.5); color: #fff; border: none;
+      font-size: 11px; width: 22px; height: 22px;
+      display: none; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .polaroid-item:hover .polaroid-del { display: flex; }
+    .polaroid-del:hover { background: rgba(168,48,48,.85); }
+
+    /* ── Lightbox ── */
+    .lightbox {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.93); z-index: 1000;
+      align-items: center; justify-content: center; gap: 1.25rem;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: rgba(255,255,255,.7);
+      font-size: 1.4rem; line-height: 1; padding: .3rem .5rem;
+      transition: color .15s;
+    }
+    .lightbox-close:hover { color: #fff; }
+    .lightbox-center { display: flex; flex-direction: column; align-items: center; max-width: 90vw; }
+    .lightbox-center img { max-width: 90vw; max-height: 80vh; object-fit: contain; display: block; }
+    .lightbox-date { margin-top: .65rem; color: rgba(255,255,255,.45); font-size: .75rem; letter-spacing: .12em; }
+    .lightbox-nav {
+      background: rgba(255,255,255,.1); border: none; color: #fff;
+      font-size: 1.6rem; width: 44px; height: 44px; flex-shrink: 0;
+      transition: background .15s;
+    }
+    .lightbox-nav:hover { background: rgba(255,255,255,.22); }
+
+    /* ── Table ── */
+    .lib-table-wrap { background: var(--panel); border: 1px solid var(--border); overflow: hidden; overflow-x: auto; }
+    .lib-table { width: 100%; border-collapse: collapse; font-size: .93rem; table-layout: fixed; }
+    .lib-table th { text-align: left; padding: .65rem 1.1rem; font-size: .8rem; font-weight: 500; color: var(--dim); letter-spacing: .1em; background: var(--panel2); border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
+    .lib-table td { padding: .9rem 1.1rem; border-bottom: 1px solid rgba(0,0,0,.05); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lib-table tbody tr:last-child td { border-bottom: none; }
+    .lib-table tbody tr { transition: background .12s; }
+    .lib-table tbody tr:hover { background: var(--gold-bg); }
+    .lib-table td.col-title { text-overflow: clip; position: relative; }
+    .col-title   { color: var(--text); font-weight: 500; }
+    .col-title span { display: inline-block; }
+    #tbody-meeting .col-title:hover { overflow: visible; z-index: 5; }
+    #tbody-meeting .col-title:hover span {
+      position: absolute; left: .5rem; top: 50%; transform: translateY(-50%);
+      background: var(--panel); border: 1px solid var(--border);
+      padding: .3rem .6rem; margin: -.3rem -.6rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+      white-space: nowrap; z-index: 10;
+    }
+    .col-date    { color: var(--dim); font-size: .88rem; letter-spacing: .05em; }
+    .col-dim     { color: var(--dim); font-size: .88rem; }
+    .lib-table th.col-author, .lib-table td.col-author { padding-left: 0; }
+    .lib-table td.col-wrap { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.7; }
+    .col-wrap .badge { display: inline-block; }
+
+    /* ── Article inline expand (no popup) ── */
+    .art-chev { display: inline-block; margin-right: .5rem; color: var(--dim2); transition: transform .18s; font-style: normal; }
+    .art-row.open .art-chev { transform: rotate(90deg); color: var(--gold); }
+    .art-row.open td { background: var(--gold-bg); }
+    .art-detail { display: none; }
+    .art-detail.open { display: table-row; }
+    .art-detail td { padding: 2.2rem 2.2rem 2.6rem; background: var(--panel2); white-space: normal; overflow: visible; text-overflow: clip; }
+
+    /* badge: text-only, no bg/border */
+    .badge      { font-size: .88rem; white-space: nowrap; }
+    .badge-all  { color: #8a2020; }
+    .badge-food { color: #a0a0a0; }
+    .badge-yao  { color: #795061; }
+    .badge-guide{ color: #94aec3; }
+    .badge-new  { color: #7fae6c; }
+    .badge-formal { color: #daa756; }
+    .badge-intern { color: #c9a575; }
+
+    .lib-empty { text-align: center; padding: 3.5rem 1rem; color: var(--dim2); font-size: .93rem; background: var(--panel); border: 1px solid var(--border); }
+
+    /* ── Modals ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 3rem 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--panel); border: 1px solid var(--border); box-shadow: 0 8px 36px rgba(0,0,0,.12); width: 100%; max-width: 720px; padding: 2rem 2.5rem 2.5rem; position: relative; }
+    .modal-close { position: fixed; top: 1.3rem; right: 1.5rem; z-index: 20; background: var(--panel); border: 1px solid var(--border); color: var(--dim2); font-size: 1rem; line-height: 1; width: 30px; height: 30px; transition: color .15s, border-color .15s; }
+    .modal-close:hover { color: var(--text); border-color: var(--dim); }
+
+    /* View */
+    .view-title { font-family: 'Noto Serif TC', serif; font-size: 1.75rem; font-weight: 700; color: var(--text); line-height: 1.3; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: .5rem; }
+    .view-meta { display: flex; flex-wrap: wrap; gap: 1.75rem; margin-bottom: 2rem; }
+    .view-meta-item { display: flex; flex-direction: column; gap: .25rem; }
+    .view-meta-lbl { font-size: .72rem; color: var(--dim2); letter-spacing: .1em; text-transform: uppercase; }
+    .view-meta-val { font-size: .93rem; color: var(--text); }
+    .view-section-lbl { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); }
+    .view-content { font-size: .93rem; line-height: 1.65; color: var(--text); }
+    .view-content h1,.view-content h2,.view-content h3 { font-family:'Noto Serif TC',serif; color:var(--text); margin:1.2rem 0 .5rem; }
+    .view-content h1{font-size:1.3rem;} .view-content h2{font-size:1.1rem;}
+    .view-content p{margin-bottom:.5em;} .view-content p:last-child{margin-bottom:0;}
+    .view-content strong{color:var(--text);}
+    .view-content ul,.view-content ol{margin:.4rem 0 .85rem 1.5rem;}
+    .view-content li{margin-bottom:.25rem;}
+    .view-content blockquote{border-left:3px solid var(--border);padding-left:1rem;color:var(--dim2);margin:.75rem 0;}
+    .view-content pre{background:var(--panel2);padding:.75rem 1rem;font-size:.85rem;overflow-x:auto;margin:.75rem 0;}
+    .view-content a{color:var(--gold);}
+    .view-content img{max-width:100%;}
+    .view-content iframe{max-width:100%;}
+    .view-actions { display:flex; gap:.65rem; margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border); }
+    .btn-edit { padding:.48rem 1.1rem; background:none; border:1px solid var(--border); color:var(--dim); font-size:.88rem; font-family:inherit; transition:all .15s; }
+    .btn-edit:hover { border-color:var(--gold); color:var(--gold); }
+    .btn-del { padding:.48rem 1.1rem; background:none; border:1px solid rgba(168,48,48,.3); color:rgba(168,48,48,.75); font-size:.88rem; font-family:inherit; transition:all .15s; }
+    .btn-del:hover { background:rgba(168,48,48,.06); border-color:var(--red); color:var(--red); }
+
+    /* ── Form ── */
+    .form-title { font-size:1.05rem; font-weight:500; letter-spacing:.1em; color:var(--gold); margin-bottom:1.5rem; }
+    .form-row { margin-bottom:1.1rem; }
+    .form-row label, .form-col label { display:block; font-size:.8rem; font-weight:500; color:var(--dim); letter-spacing:.07em; margin-bottom:.4rem; }
+    .form-input, .form-select {
+      width:100%; padding:.62rem .9rem;
+      background:var(--panel); border:1px solid var(--border); color:var(--text);
+      font-size:.93rem; font-family:inherit; transition:border-color .15s; outline:none;
+    }
+    .form-input:focus, .form-select:focus { border-color:var(--gold); }
+    .form-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%236e6a63' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .85rem center; padding-right:2.4rem; }
+    .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:1.1rem; }
+    .chip-group { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .chip-btn { padding:.35rem .75rem; font-size:.82rem; border:1px solid var(--border); background:var(--panel); color:var(--dim); font-family:inherit; border-radius:3px; transition:all .15s; }
+    .chip-btn:hover { border-color:var(--gold); }
+    .chip-btn.on { background:var(--gold-bg); border-color:var(--gold); color:var(--gold); font-weight:500; }
+    .form-col label { display:block; }
+    .form-dt { display:grid; grid-template-columns:1fr 120px; gap:.6rem; }
+    .form-actions { display:flex; gap:.65rem; margin-top:1.75rem; justify-content:flex-end; }
+    .btn-cancel { padding:.55rem 1.25rem; background:none; border:1px solid var(--border); color:var(--dim); font-size:.9rem; font-family:inherit; transition:all .15s; }
+    .btn-cancel:hover { border-color:var(--dim); color:var(--text); }
+    .btn-publish { padding:.55rem 1.4rem; background:var(--gold); border:none; color:#fff; font-size:.9rem; font-family:inherit; letter-spacing:.06em; transition:background .18s; }
+    .btn-publish:hover { background:#85682d; }
+
+    /* ── Flatpickr theme ── */
+    .flatpickr-calendar { background:var(--panel); border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,.1); border-radius:0; font-family:'Noto Sans TC',sans-serif; font-size:.9rem; }
+    .flatpickr-months { padding:.5rem 0 .25rem; }
+    .flatpickr-month { background:var(--panel); color:var(--text); }
+    .flatpickr-current-month { display:flex; align-items:center; justify-content:center; font-size:.95rem; font-weight:500; color:var(--text); padding-top:0; }
+    .flatpickr-current-month .numInputWrapper { order:-1; }
+    .flatpickr-current-month .numInputWrapper input.cur-year { color:var(--text); font-weight:500; font-family:'Noto Sans TC',sans-serif; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months { background:var(--panel); color:var(--text); font-weight:500; font-family:'Noto Sans TC',sans-serif; border:none; padding:0; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months:hover,.flatpickr-current-month .flatpickr-monthDropdown-months:focus { background:var(--panel); outline:none; }
+    .numInputWrapper span.arrowUp:after { border-bottom-color:var(--dim); }
+    .numInputWrapper span.arrowDown:after { border-top-color:var(--dim); }
+    .numInputWrapper:hover { background:transparent; }
+    .flatpickr-months .flatpickr-prev-month,.flatpickr-months .flatpickr-next-month { color:var(--dim); fill:var(--dim); padding:.65rem .8rem; }
+    .flatpickr-months .flatpickr-prev-month:hover svg,.flatpickr-months .flatpickr-next-month:hover svg { fill:var(--gold); }
+    .flatpickr-weekdays { background:var(--panel); margin-top:.3rem; }
+    span.flatpickr-weekday { background:var(--panel); color:var(--dim2); font-size:.78rem; letter-spacing:.04em; }
+    .flatpickr-days { border:none; }
+    .dayContainer { padding:.15rem .3rem .35rem; }
+    .flatpickr-day { border-radius:0; border:none; color:var(--text); max-width:36px; height:34px; line-height:34px; font-size:.88rem; margin:1px; }
+    .flatpickr-day:hover,.flatpickr-day:focus { background:var(--gold-bg); border:none; color:var(--gold); }
+    .flatpickr-day.selected,.flatpickr-day.selected:hover { background:var(--gold); border-color:var(--gold); color:#fff; }
+    .flatpickr-day.today { font-weight:600; color:var(--gold); border-bottom:2px solid var(--gold) !important; }
+    .flatpickr-day.today:hover { background:var(--gold-bg); }
+    .flatpickr-day.today.selected { color:#fff; border-bottom-color:transparent !important; }
+    .flatpickr-day.flatpickr-disabled,.flatpickr-day.flatpickr-disabled:hover { color:var(--dim2); }
+    .flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay { color:var(--dim2); }
+
+    /* ── Quill overrides ── */
+    .ql-toolbar.ql-snow { border:1px solid var(--border); border-bottom:none; background:var(--panel2); padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif; }
+    .ql-container.ql-snow { border:1px solid var(--border); font-family:'Noto Sans TC',sans-serif; font-size:.93rem; }
+    .ql-editor { min-height:220px; max-height:50vh; overflow-y:auto; line-height:1.65; color:var(--text); }
+    .ql-editor p { margin-bottom: .5em; }
+    .ql-editor p:last-child { margin-bottom: 0; }
+    .ql-editor img { max-width: 100%; }
+    .ql-editor iframe { max-width: 100%; }
+    .ql-editor.ql-blank::before { color:var(--dim2); font-style:normal; }
+    .ql-snow .ql-stroke { stroke:var(--dim); }
+    .ql-snow .ql-fill { fill:var(--dim); }
+    .ql-snow .ql-picker { color:var(--dim); }
+    .ql-snow.ql-toolbar button:hover .ql-stroke,.ql-snow.ql-toolbar .ql-active .ql-stroke { stroke:var(--gold); }
+    .ql-snow.ql-toolbar button:hover .ql-fill,.ql-snow.ql-toolbar .ql-active .ql-fill { fill:var(--gold); }
+    .ql-snow.ql-toolbar button:hover,.ql-snow.ql-toolbar .ql-active { color:var(--gold); }
+    .ql-snow .ql-picker-options { background:var(--panel); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .ql-snow .ql-picker-item:hover,.ql-snow .ql-picker-item.ql-selected { color:var(--gold); }
+    .ql-editor a { color:var(--gold); }
+    .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
+    .ql-history-btn { font-size:14px; color:var(--dim); }
+    .ql-history-btn:hover { color:var(--gold); }
+    .ql-snow .ql-picker.ql-size .ql-picker-label::before,
+    .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
+    .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
+    .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: '預設'; }
+    .ql-firstline-group { display: flex; align-items: center; gap: .3rem; }
+    .ql-firstline-label { font-size: .78rem; color: var(--dim); white-space: nowrap; }
+    .ql-firstline-input {
+      width: 48px; font-size: .82rem; font-family: inherit; text-align: right;
+      border: 1px solid var(--border); border-radius: 3px; padding: .15rem .3rem;
+      background: var(--panel); color: var(--text);
+    }
+    .ql-firstline-input:focus { outline: none; border-color: var(--gold); }
+    .ql-firstline-unit { font-size: .78rem; color: var(--dim2); }
+
+    /* ── FAQ ── */
+    .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
+    .faq-card.unanswered { border-left: 3px solid var(--red); }
+    .faq-q-row { display: flex; align-items: center; gap: .85rem; padding: .9rem 1.1rem; cursor: pointer; transition: background .12s; user-select: none; }
+    .faq-q-row:hover { background: var(--gold-bg); }
+    .faq-q-icon { font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700; color: var(--gold); flex-shrink: 0; width: 1.4rem; text-align: center; }
+    .faq-q-text { flex: 1; font-size: .93rem; color: var(--text); line-height: 1.4; min-width: 0; }
+    .faq-q-author { display: block; font-size: .71rem; color: var(--dim2); margin-top: .1rem; letter-spacing: .02em; }
+    .faq-q-meta { display: flex; align-items: center; gap: .65rem; flex-shrink: 0; }
+    .faq-reply-count { font-size: .78rem; color: var(--dim2); }
+    .faq-tag-unanswered { font-size: .72rem; color: var(--red); background: rgba(168,48,48,.1); padding: .12rem .5rem; border-radius: 3px; white-space: nowrap; }
+    .faq-del-btn { background: none; border: none; color: var(--dim2); font-size: .9rem; line-height: 1; padding: 0 .15rem; transition: color .15s; }
+    .faq-del-btn:hover { color: var(--red); }
+    .faq-arrow { color: var(--dim2); font-size: 1rem; transition: transform .2s; display: inline-block; }
+    .faq-body { border-top: 1px solid var(--border); padding: .85rem 1.1rem; }
+    .faq-replies { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
+    .faq-no-reply { font-size: .88rem; color: var(--dim2); padding: .1rem 0 .5rem; }
+    .faq-reply { background: var(--panel2); padding: .6rem .85rem; }
+    .faq-reply-meta { display: flex; align-items: center; gap: .5rem; margin-bottom: .25rem; }
+    .faq-reply-name { font-size: .78rem; font-weight: 500; color: var(--dim); }
+    .faq-reply-date { font-size: .74rem; color: var(--dim2); }
+    .faq-reply-edit { background: none; border: none; color: var(--dim2); font-size: .78rem; line-height: 1; padding: 0; margin-left: auto; transition: color .15s; }
+    .faq-reply-edit:hover { color: var(--gold); }
+    .faq-reply-del { background: none; border: none; color: var(--dim2); font-size: .78rem; line-height: 1; padding: 0; transition: color .15s; }
+    .faq-reply-del:hover { color: var(--red); }
+    .faq-reply-edited { font-size: .71rem; color: var(--dim2); margin-left: .35rem; }
+    .faq-edit-input { width: 100%; padding: .45rem .7rem; background: var(--panel); border: 1px solid var(--gold); color: var(--text); font-size: .88rem; font-family: inherit; outline: none; resize: vertical; min-height: 56px; line-height: 1.5; margin-top: .25rem; }
+    .faq-edit-actions { display: flex; gap: .5rem; margin-top: .4rem; justify-content: flex-end; }
+    .faq-edit-save { padding: .3rem .75rem; background: var(--gold); border: none; color: #fff; font-size: .8rem; font-family: inherit; transition: background .18s; }
+    .faq-edit-save:hover { background: #85682d; }
+    .faq-edit-cancel { padding: .3rem .65rem; background: none; border: 1px solid var(--border); color: var(--dim); font-size: .8rem; font-family: inherit; transition: all .15s; }
+    .faq-edit-cancel:hover { border-color: var(--dim); color: var(--text); }
+    .faq-reply-content { font-size: .88rem; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+    .faq-reply-input-row { display: flex; gap: .5rem; }
+    .faq-reply-input { flex: 1; padding: .5rem .8rem; background: var(--panel); border: 1px solid var(--border); color: var(--text); font-size: .88rem; font-family: inherit; outline: none; transition: border-color .15s; }
+    .faq-reply-input:focus { border-color: var(--gold); }
+    .faq-reply-submit { padding: .45rem .9rem; background: var(--gold); border: none; color: #fff; font-size: .82rem; font-family: inherit; transition: background .18s; white-space: nowrap; }
+    .faq-reply-submit:hover { background: #85682d; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .lib-header { padding: .55rem .85rem; }
+      .hdr-clock-date { display: none; }
+      .hdr-clock-time { font-size: .82rem; }
+      .user-badge-name { max-width: 60px; }
+
+      .lib-main { padding: 1rem .75rem; }
+
+      /* update panel: date wraps below title */
+      .update-panel { padding: .85rem 1rem; }
+      .update-item { flex-wrap: wrap; gap: .3rem .6rem; }
+      .update-item-title { order: 1; }
+      .update-item-date { order: 2; padding-left: 0; }
+
+      /* tables: horizontal scroll, smaller font, hide article excerpt */
+      .lib-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .lib-table { table-layout: auto; min-width: 400px; font-size: .82rem; }
+      .lib-table th { padding: .55rem .75rem; font-size: .72rem; }
+      .lib-table td { padding: .75rem .75rem; }
+
+      /* book-index tabs collapse to a horizontal strip */
+      .lib-shell { flex-direction: column; }
+      .lib-tabs { flex-direction: row; padding-top: 0; margin-bottom: 1rem; overflow-x: auto; }
+      .lib-tab { writing-mode: horizontal-tb; width: auto; padding: .55rem 1rem; border-right: 1px solid var(--border); border-bottom: none; white-space: nowrap; }
+      .lib-tab.on { width: auto; margin-right: 0; margin-bottom: -1px; border-bottom: 1px solid var(--panel); }
+      .lib-tab-new { position: static; transform: none; display: inline-block; margin-left: .3rem; }
+      .lib-content { border-left: none; padding-left: 0; }
+
+      /* modal */
+      .modal-overlay { padding: .75rem .4rem; }
+      .modal-box { padding: 1.4rem 1.1rem 1.75rem; }
+      .modal-close { top: .8rem; right: .8rem; }
+      .view-content { overflow-x: auto; }
+      .view-meta { gap: 1rem 1.5rem; }
+      .view-title { font-size: 1.35rem; }
+
+      /* polaroid */
+      .polaroid-date { font-size: .6rem; padding: .22rem .4rem; }
+      .lightbox-nav { width: 36px; height: 36px; font-size: 1.3rem; }
+
+      /* form */
+      .form-row-2 { grid-template-columns: 1fr; }
+      .form-dt { grid-template-columns: 1fr 110px; }
+      .form-actions { flex-direction: column-reverse; }
+      .btn-cancel, .btn-publish { width: 100%; text-align: center; padding: .65rem; }
+    }
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+
+    .back-top {
+      display: none; position: fixed; right: 1.4rem; bottom: 1.4rem; z-index: 50;
+      width: 42px; height: 42px; border-radius: 50%;
+      align-items: center; justify-content: center;
+      background: var(--panel); border: 1px solid var(--border);
+      color: var(--dim); box-shadow: 0 2px 12px rgba(0,0,0,.15);
+      transition: color .15s, border-color .15s;
+    }
+    .back-top.show { display: flex; }
+    .back-top:hover { color: var(--gold); border-color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <div id="auth-overlay" class="auth-overlay">
+    <div id="auth-loading" class="auth-box">
+      <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+    </div>
+  </div>
+
+  <header class="lib-header">
+    <div class="lib-title">✦ Pietersite · 圖書室</div>
+    <div style="display:flex;align-items:center;gap:.85rem">
+      <div id="hdr-clock" class="hdr-clock"></div>
+      <div id="user-badge" class="user-badge" style="display:none"></div>
+    </div>
+  </header>
+
+  <main class="lib-main">
+
+    <div class="update-panel">
+      <div class="update-hdr">
+        <div class="update-title">最近更新</div>
+        <button class="update-add-btn" id="btn-add-announce" onclick="showAnnounceInput()" style="display:none" title="新增公告">＋</button>
+      </div>
+      <div class="announce-row" id="announce-input-wrap" style="display:none">
+        <input class="announce-input" id="announce-text" placeholder="輸入公告內容…">
+        <button class="announce-submit" onclick="submitAnnounce()">發佈</button>
+        <button class="announce-cancel" onclick="hideAnnounceInput()">取消</button>
+      </div>
+      <div class="update-list" id="update-list"><div class="update-empty">尚無紀錄</div></div>
+    </div>
+
+    <div class="lib-shell">
+
+      <div class="lib-tabs">
+        <button class="lib-tab on" onclick="setTab('meeting')">會議紀錄</button>
+        <button class="lib-tab" onclick="setTab('article')">文章</button>
+        <button class="lib-tab" onclick="setTab('polaroid')">拍立得</button>
+        <button class="lib-tab" onclick="setTab('faq')">問答集<span class="lib-tab-new" id="faq-new-badge" style="display:none">NEW</span></button>
+      </div>
+
+      <div class="lib-content">
+
+        <div class="lib-section on" id="sec-meeting">
+          <div class="lib-section-hdr">
+            <button class="lib-add-btn" id="btn-add-meeting" onclick="openAddModal('meeting')" style="display:none">＋ 新增會議</button>
+          </div>
+          <div class="lib-table-wrap" id="wrap-meeting">
+            <table class="lib-table">
+              <thead><tr>
+                <th>會議主題</th><th style="width:200px">排定日期</th><th style="width:110px">會議時間</th><th style="width:120px">出席</th><th style="width:100px">地點</th>
+              </tr></thead>
+              <tbody id="tbody-meeting"></tbody>
+            </table>
+          </div>
+          <div class="lib-empty" id="empty-meeting" style="display:none">尚無會議紀錄</div>
+        </div>
+
+        <div class="lib-section" id="sec-article">
+          <div class="lib-section-hdr">
+            <button class="lib-add-btn" id="btn-add-article" onclick="openAddModal('article')" style="display:none">＋ 新增文章</button>
+          </div>
+          <div class="lib-table-wrap" id="wrap-article">
+            <table class="lib-table">
+              <thead><tr>
+                <th>標題</th><th class="col-author" style="width:110px">作者</th><th style="width:185px">發佈時間</th>
+              </tr></thead>
+              <tbody id="tbody-article"></tbody>
+            </table>
+          </div>
+          <div class="lib-empty" id="empty-article" style="display:none">尚無文章</div>
+        </div>
+
+        <div class="lib-section" id="sec-polaroid">
+          <div class="lib-section-hdr">
+            <input type="file" id="polaroid-input" accept="image/*" multiple style="display:none" onchange="uploadPolaroids(this.files)">
+            <button class="lib-add-btn" id="btn-upload-polaroid" style="display:none" onclick="document.getElementById('polaroid-input').click()">＋ 上傳照片</button>
+          </div>
+          <div class="polaroid-grid" id="polaroid-grid"></div>
+          <div class="lib-empty" id="empty-polaroid" style="display:none">尚無照片</div>
+        </div>
+
+        <div class="lib-section" id="sec-faq">
+          <div class="lib-section-hdr">
+            <button class="lib-add-btn" id="btn-add-faq" onclick="openFaqModal()" style="display:none">＋ 新增問題</button>
+          </div>
+          <div id="faq-list"></div>
+          <div class="lib-empty" id="empty-faq" style="display:none">尚無問題</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <button class="back-top" id="back-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂端" title="回到頂端">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3l5 5.5H9.5V13h-3V8.5H3L8 3Z" fill="currentColor"/></svg>
+  </button>
+
+  <div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <button class="lightbox-nav" onclick="lightboxNav(-1)" id="lb-prev">‹</button>
+    <div class="lightbox-center">
+      <img id="lightbox-img" src="" alt="">
+      <div class="lightbox-date" id="lightbox-date"></div>
+    </div>
+    <button class="lightbox-nav" onclick="lightboxNav(1)" id="lb-next">›</button>
+  </div>
+
+  <div class="modal-overlay" id="modal-view">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeView()">✕</button>
+      <div id="view-body"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-form">
+    <div class="modal-box">
+      <button class="modal-close" onclick="requestCloseForm()">✕</button>
+      <div id="form-body"></div>
+    </div>
+  </div>
+
+  <script>
+    firebase.initializeApp({
+      apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+      authDomain:        "pietersitepos.firebaseapp.com",
+      databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "pietersitepos",
+      storageBucket:     "pietersitepos.firebasestorage.app",
+      messagingSenderId: "336617870672",
+      appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+    });
+    const db      = firebase.database();
+    const storage = firebase.storage();
+
+    const QUILL_SIZES = ['8pt','10pt','12pt','14pt','16pt','18pt','24pt','36pt'];
+    const QuillSizeStyle = Quill.import('attributors/style/size');
+    QuillSizeStyle.whitelist = QUILL_SIZES;
+    Quill.register(QuillSizeStyle, true);
+
+    const Parchment = Quill.import('parchment');
+    const FirstLineStyle = new Parchment.Attributor.Style('firstline', 'text-indent', {
+      scope: Parchment.Scope.BLOCK,
+    });
+    Quill.register(FirstLineStyle, true);
+
+    const TOOLTIP_MAP = [
+      ['.ql-header .ql-picker-label', '標題'],
+      ['.ql-size .ql-picker-label', '字體大小'],
+      ['.ql-bold', '粗體'],
+      ['.ql-italic', '斜體'],
+      ['.ql-underline', '底線'],
+      ['.ql-strike', '刪除線'],
+      ['.ql-script[value="sub"]', '下標'],
+      ['.ql-script[value="super"]', '上標'],
+      ['.ql-color .ql-picker-label', '文字顏色'],
+      ['.ql-background .ql-picker-label', '背景顏色'],
+      ['.ql-align .ql-picker-label', '對齊方式'],
+      ['.ql-list[value="ordered"]', '編號清單'],
+      ['.ql-list[value="bullet"]', '項目清單'],
+      ['.ql-indent[value="-1"]', '減少縮排'],
+      ['.ql-indent[value="+1"]', '增加縮排'],
+      ['.ql-blockquote', '引言'],
+      ['.ql-code-block', '程式碼區塊'],
+      ['.ql-link', '插入連結'],
+      ['.ql-image', '插入圖片'],
+      ['.ql-video', '插入影片'],
+      ['.ql-clean', '清除格式'],
+    ];
+    function addToolbarTooltips(toolbarEl) {
+      TOOLTIP_MAP.forEach(([sel, label]) => {
+        toolbarEl.querySelectorAll(sel).forEach(el => el.setAttribute('title', label));
+      });
+    }
+
+    function addUndoRedoButtons(toolbarEl, quill) {
+      const group = document.createElement('span');
+      group.className = 'ql-formats';
+      const mkBtn = (label, title, fn) => {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'ql-history-btn';
+        btn.title = title; btn.textContent = label;
+        btn.onclick = fn;
+        return btn;
+      };
+      group.appendChild(mkBtn('↶', '復原', () => quill.history.undo()));
+      group.appendChild(mkBtn('↷', '重做', () => quill.history.redo()));
+      toolbarEl.insertBefore(group, toolbarEl.firstChild);
+    }
+
+    function addFirstLineIndentInput(toolbarEl, quill) {
+      const group = document.createElement('span');
+      group.className = 'ql-formats ql-firstline-group';
+      const label = document.createElement('span');
+      label.className = 'ql-firstline-label';
+      label.textContent = '首行縮排';
+      const input = document.createElement('input');
+      input.type = 'number'; input.step = '0.1'; input.min = '0';
+      input.className = 'ql-firstline-input';
+      input.title = '首行縮排（公分），留空或 0 表示取消';
+      const unit = document.createElement('span');
+      unit.className = 'ql-firstline-unit';
+      unit.textContent = 'cm';
+      let applying = false;
+      let lastRange = null;
+      function apply() {
+        applying = true;
+        const range = lastRange || quill.getSelection(true);
+        if (!range) { applying = false; return; }
+        const v = parseFloat(input.value);
+        quill.formatLine(range.index, range.length || 1, 'firstline', v > 0 ? v + 'cm' : false, 'user');
+        applying = false;
+      }
+      input.addEventListener('mousedown', () => {
+        const r = quill.getSelection();
+        if (r) lastRange = r;
+      });
+      input.addEventListener('change', apply);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); apply(); } });
+      quill.on('selection-change', range => {
+        if (range) lastRange = range;
+        if (applying || document.activeElement === input) return;
+        if (!range) return;
+        const val = quill.getFormat(range).firstline || '';
+        input.value = val ? parseFloat(val) : '';
+      });
+      group.appendChild(label);
+      group.appendChild(input);
+      group.appendChild(unit);
+      toolbarEl.appendChild(group);
+    }
+
+    // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
+    // 不會出現在這裡的原始碼或 Firebase 中。
+    /* ponytail: Pietersite 尚未部署自己的 Discord relay worker，先留空，通知會靜默失敗；之後有 worker 網址再填進來 */
+    const DISCORD_RELAY = '';
+
+    let _user = null, _role = 'staff', _displayName = '', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
+    let _polaroids = [], _lbIdx = 0;
+    let _faqs = {}, _faqOpen = new Set(), _faqEditing = null;
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    const zhTW = {
+      firstDayOfWeek: 0, yearSuffix: '年',
+      weekdays: { shorthand:['日','一','二','三','四','五','六'], longhand:['星期日','星期一','星期二','星期三','星期四','星期五','星期六'] },
+      months: { shorthand:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'], longhand:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'] },
+      rangeSeparator:' 至 ', time_24hr:true,
+    };
+
+    firebase.auth().onAuthStateChanged(async user => {
+      document.getElementById('auth-overlay').style.display = 'none';
+      if (!user) { window.location.href = 'index.html'; return; }
+      _user = user;
+      try {
+        const staffSnap = await db.ref('staff/'+user.uid).get();
+        if (staffSnap.exists()) {
+          _role = staffSnap.val().role || 'staff';
+          _displayName = staffSnap.val().displayName || user.displayName || user.email || '';
+        } else {
+          let inPilgrims = false;
+          try {
+            const pilgrimSnap = await db.ref('pilgrims/'+user.uid).get();
+            if (pilgrimSnap.exists()) {
+              inPilgrims = true;
+              _role = 'pilgrim';
+              _displayName = pilgrimSnap.val().name || user.displayName || user.email || '';
+            }
+          } catch(e) { /* rules may restrict */ }
+          if (!inPilgrims) {
+            await firebase.auth().signOut();
+            window.location.href = 'index.html';
+            return;
+          }
+        }
+      } catch(e) { _role = 'staff'; }
+      document.getElementById('btn-add-article').style.display = '';
+      document.getElementById('btn-add-faq').style.display = '';
+      if (_role === 'admin') {
+        document.getElementById('btn-add-meeting').style.display     = '';
+        document.getElementById('btn-add-announce').style.display    = '';
+        document.getElementById('btn-upload-polaroid').style.display = '';
+      }
+      renderBadge();
+      loadEntries();
+      loadAnnouncements();
+      loadPolaroids();
+      loadFAQ();
+    });
+
+    const ROLE_LABEL = { admin: '管理員', staff: '工作人員', pilgrim: '館員' };
+    function renderBadge() {
+      const el = document.getElementById('user-badge');
+      el.style.display = 'flex';
+      el.innerHTML =
+        `<span class="user-badge-name">${esc(_displayName)}</span>` +
+        `<span class="user-badge-role">${ROLE_LABEL[_role]||''}</span>` +
+        `<button class="user-badge-signout" onclick="window.location.href='index.html'" title="返回首頁" style="display:inline-flex;align-items:center;padding:.2rem .45rem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>` +
+        `<button class="user-badge-signout" onclick="doSignOut()">登出</button>`;
+    }
+    function doSignOut() { firebase.auth().signOut().then(() => { window.location.href = 'index.html'; }); }
+
+    window.addEventListener('scroll', () => {
+      document.getElementById('back-top-btn').classList.toggle('show', window.scrollY > 400);
+    }, { passive: true });
+
+    (function tickClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2,'0');
+      const m = String(now.getMinutes()).padStart(2,'0');
+      const s = String(now.getSeconds()).padStart(2,'0');
+      const el = document.getElementById('hdr-clock');
+      if (el) el.innerHTML =
+        `<span class="hdr-clock-time">${h}:${m}:${s}</span>` +
+        `<span class="hdr-clock-date">${now.getMonth()+1}月${now.getDate()}日（${'日一二三四五六'[now.getDay()]}）</span>`;
+      setTimeout(tickClock, 1000 - now.getMilliseconds());
+    })();
+
+    // ── Helpers ──
+    function fmtDate(s, withDay=false) {
+      if (!s) return '';
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        const MM = String(d.getMonth()+1).padStart(2,'0');
+        const DD = String(d.getDate()).padStart(2,'0');
+        const day = withDay ? `（${'日一二三四五六'[d.getDay()]}）` : ' ';
+        return `${d.getFullYear()}/${MM}/${DD}${day}${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }
+      return s;
+    }
+    const BADGE_CLS = {'全體成員':'badge-all','新進成員':'badge-new','正式員工':'badge-formal','實習員工':'badge-intern','館員':'badge-guide'};
+    const ATTENDEE_OPTIONS = ['全體成員','新進成員','正式員工','實習員工','館員'];
+    const LOCATION_OPTIONS = ['DISCORD','店內'];
+    function badge(val) {
+      const list = Array.isArray(val) ? val : (val ? [val] : []);
+      return list.map(v => `<span class="badge ${BADGE_CLS[v]||'badge-guide'}">${esc(v)}</span>`).join('、');
+    }
+    function joinVal(val) { return Array.isArray(val) ? val.join('、') : (val || ''); }
+
+    // ── Data ──
+    function loadEntries() {
+      db.ref('library').on('value', snap => {
+        _entries = snap.val() || {};
+        renderMeetings(); renderArticles(); renderUpdates();
+      });
+    }
+    function loadAnnouncements() {
+      db.ref('announcements').on('value', snap => {
+        _announcements = snap.val() || {};
+        renderUpdates();
+      });
+    }
+
+    function renderMeetings() {
+      const rows = Object.entries(_entries).filter(([,e])=>e.type==='meeting').sort((a,b)=>(b[1].date||'').localeCompare(a[1].date||''));
+      const wrap=document.getElementById('wrap-meeting'), empty=document.getElementById('empty-meeting');
+      if (!rows.length) { wrap.style.display='none'; empty.style.display=''; return; }
+      wrap.style.display=''; empty.style.display='none';
+      document.getElementById('tbody-meeting').innerHTML = rows.map(([id,e]) =>
+        `<tr onclick="openView('${id}')">
+          <td class="col-title"><span>${esc(e.title)}</span></td>
+          <td class="col-date">${fmtDate(e.date, true)}</td>
+          <td class="col-dim">${esc(e.duration||'')}</td>
+          <td class="col-dim col-wrap">${badge(e.attendees)}</td>
+          <td class="col-dim col-wrap">${esc(joinVal(e.location))}</td>
+        </tr>`).join('');
+    }
+
+    function renderArticles() {
+      const rows = Object.entries(_entries).filter(([,e])=>e.type==='article').sort((a,b)=>(b[1].createdAt||'').localeCompare(a[1].createdAt||''));
+      const wrap=document.getElementById('wrap-article'), empty=document.getElementById('empty-article');
+      if (!rows.length) { wrap.style.display='none'; empty.style.display=''; return; }
+      wrap.style.display=''; empty.style.display='none';
+      document.getElementById('tbody-article').innerHTML = rows.map(([id,e]) => {
+        const adminHtml = _role==='admin'
+          ? `<div class="view-actions">
+               <button class="btn-edit" onclick="openEditModal('${id}')">編輯</button>
+               <button class="btn-del"  onclick="confirmDelete('${id}')">刪除</button>
+             </div>` : '';
+        return `<tr class="art-row" onclick="toggleArticle('${id}')">
+            <td class="col-title"><i class="art-chev">▸</i><span>${esc(e.title)}</span></td>
+            <td class="col-dim col-author">${esc(e.author||'')}</td>
+            <td class="col-date">${fmtDate(e.createdAt||e.updatedAt)}</td>
+          </tr>
+          <tr class="art-detail" id="art-detail-${id}">
+            <td colspan="3">
+              <div class="view-content">${e.content || '<span style="color:var(--dim2)">（尚無內容）</span>'}</div>
+              ${adminHtml}
+            </td>
+          </tr>`;
+      }).join('');
+    }
+    function toggleArticle(id) {
+      const detail = document.getElementById('art-detail-'+id);
+      const row = detail.previousElementSibling;
+      detail.classList.toggle('open');
+      row.classList.toggle('open');
+    }
+
+    function renderUpdates() {
+      const annoItems = Object.entries(_announcements)
+        .sort((a,b)=>(b[1].createdAt||'').localeCompare(a[1].createdAt||''))
+        .slice(0,3)
+        .map(([id,a])=>({ type:'公告', title:a.text, date:fmtDate(a.createdAt), id, isAnnounce:true }));
+
+      const entryItems = Object.entries(_entries)
+        .sort((a,b)=>(b[1].createdAt||'').localeCompare(a[1].createdAt||''))
+        .slice(0,5)
+        .map(([,e])=>({ type:e.type==='meeting'?'會議':'文章', title:e.title, date:fmtDate(e.updatedAt||e.createdAt), isAnnounce:false }));
+
+      const all = [...annoItems, ...entryItems];
+      const el = document.getElementById('update-list');
+      if (!all.length) { el.innerHTML='<div class="update-empty">尚無紀錄</div>'; return; }
+      el.innerHTML = all.map(item =>
+        `<div class="update-item">
+          <span class="update-type${item.isAnnounce?' update-type-announce':''}">${item.type}</span>
+          <span class="update-item-title">${esc(item.title)}</span>
+          <span class="update-item-date">${item.date}</span>
+          ${item.isAnnounce && _role==='admin' ? `<button class="update-del-btn" onclick="deleteAnnounce('${item.id}')">×</button>` : ''}
+        </div>`).join('');
+    }
+
+    // ── Announcements ──
+    function showAnnounceInput() {
+      document.getElementById('announce-input-wrap').style.display = '';
+      document.getElementById('announce-text').focus();
+    }
+    function hideAnnounceInput() {
+      document.getElementById('announce-input-wrap').style.display = 'none';
+      document.getElementById('announce-text').value = '';
+    }
+    async function submitAnnounce() {
+      const text = document.getElementById('announce-text').value.trim();
+      if (!text) return;
+      await db.ref('announcements').push({ text, createdAt: new Date().toISOString(), createdBy: _user?.uid||'local' })
+        .catch(e => alert('儲存失敗：'+e.message));
+      hideAnnounceInput();
+    }
+    async function deleteAnnounce(id) {
+      if (!confirm('確定刪除此公告？')) return;
+      await db.ref('announcements/'+id).remove();
+    }
+
+    // ── Tabs ──
+    function setTab(tab) {
+      const map = { meeting:0, article:1, polaroid:2, faq:3 };
+      document.querySelectorAll('.lib-tab').forEach((el,i)=>el.classList.toggle('on',i===map[tab]));
+      document.getElementById('sec-meeting').classList.toggle('on',tab==='meeting');
+      document.getElementById('sec-article').classList.toggle('on',tab==='article');
+      document.getElementById('sec-polaroid').classList.toggle('on',tab==='polaroid');
+      document.getElementById('sec-faq').classList.toggle('on',tab==='faq');
+    }
+
+    // ── View ──
+    function openView(id) {
+      const e = _entries[id]; if (!e) return;
+      const meta = `<div class="view-meta">
+            <div class="view-meta-item"><div class="view-meta-lbl">排定日期</div><div class="view-meta-val">${fmtDate(e.date, true)||'—'}</div></div>
+            ${e.duration?`<div class="view-meta-item"><div class="view-meta-lbl">會議時間</div><div class="view-meta-val">${esc(e.duration)}</div></div>`:''}
+            <div class="view-meta-item"><div class="view-meta-lbl">出席</div><div class="view-meta-val">${badge(e.attendees)}</div></div>
+            ${e.host?`<div class="view-meta-item"><div class="view-meta-lbl">主持人</div><div class="view-meta-val">${esc(e.host)}</div></div>`:''}
+            ${e.location&&e.location.length?`<div class="view-meta-item"><div class="view-meta-lbl">地點</div><div class="view-meta-val">${esc(joinVal(e.location))}</div></div>`:''}
+           </div>`;
+      const adminHtml = _role==='admin'
+        ? `<div class="view-actions">
+             <button class="btn-edit" onclick="openEditModal('${id}')">編輯</button>
+             <button class="btn-del"  onclick="confirmDelete('${id}')">刪除</button>
+           </div>` : '';
+      document.getElementById('view-body').innerHTML =
+        `<div class="view-title">${esc(e.title)}</div>
+         ${meta}
+         <div class="view-section-lbl">會議內容</div>
+         <div class="view-content" id="view-rich"></div>
+         ${adminHtml}`;
+      document.getElementById('view-rich').innerHTML = e.content || '<span style="color:var(--dim2)">（尚無內容）</span>';
+      const viewOverlay = document.getElementById('modal-view');
+      viewOverlay.classList.add('open');
+      viewOverlay.scrollTop = 0;
+    }
+    function closeView() { document.getElementById('modal-view').classList.remove('open'); }
+
+    // ── Form ──
+    function openFormModal() {
+      const formOverlay = document.getElementById('modal-form');
+      formOverlay.classList.add('open');
+      formOverlay.scrollTop = 0;
+    }
+    function openAddModal(type)  { _editingId=null; buildForm(type,null); openFormModal(); }
+    function openEditModal(id)   { closeView(); _editingId=id; buildForm(_entries[id].type,_entries[id]); openFormModal(); }
+    function closeForm() {
+      document.getElementById('modal-form').classList.remove('open');
+      _editingId=null; _quill=null;
+      if (_fpDate) { _fpDate.destroy(); _fpDate=null; }
+    }
+    function requestCloseForm() {
+      if (!confirm('確定要離開嗎？尚未發佈的內容將會遺失。')) return;
+      closeForm();
+    }
+
+    function buildForm(type, d) {
+      const m = type==='meeting'; d=d||{};
+      const dateVal = d.date ? d.date.substring(0,10) : '';
+      const timeVal = d.date && d.date.includes('T') ? d.date.substring(11,16) : '';
+      const host=d.host||'', att=Array.isArray(d.attendees)?d.attendees:(d.attendees?[d.attendees]:[]), loc=Array.isArray(d.location)?d.location:(d.location?[d.location]:[]);
+
+      document.getElementById('form-body').innerHTML = m ? `
+        <div class="form-title">${_editingId?'編輯':'新增'}會議紀錄</div>
+        <div class="form-row">
+          <label>會議主題 *</label>
+          <input class="form-input" id="f-title" value="${esc(d.title||'')}">
+        </div>
+        <div class="form-row-2">
+          <div class="form-col">
+            <label>排定日期 *</label>
+            <div class="form-dt">
+              <input class="form-input" id="f-date" placeholder="選擇日期" readonly>
+              <input class="form-input" type="time" id="f-time" value="${timeVal}">
+            </div>
+          </div>
+          <!-- ponytail: Elysium 用固定下拉選單(兩位管理員姓名)，Pietersite 沒有現成的主持人名單，先開放自由輸入 -->
+          <div class="form-col">
+            <label>主持人 *</label>
+            <input class="form-input" id="f-person" value="${esc(host||'')}" placeholder="主持人姓名">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-col">
+            <label>出席 * <span style="font-weight:400;color:var(--dim2)">（可複選）</span></label>
+            <div class="chip-group" id="f-attendees">
+              ${ATTENDEE_OPTIONS.map(v => `<button type="button" class="chip-btn${att.includes(v)?' on':''}" data-v="${v}" onclick="this.classList.toggle('on')">${v}</button>`).join('')}
+            </div>
+          </div>
+          <div class="form-col">
+            <label>地點 * <span style="font-weight:400;color:var(--dim2)">（可複選）</span></label>
+            <div class="chip-group" id="f-location">
+              ${LOCATION_OPTIONS.map(v => `<button type="button" class="chip-btn${loc.includes(v)?' on':''}" data-v="${v}" onclick="this.classList.toggle('on')">${v}</button>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>會議時間</label>
+          <input class="form-input" id="f-duration" placeholder="例：1 小時 30 分" value="${esc(d.duration||'')}">
+        </div>
+        <div class="form-row">
+          <label>會議內容</label>
+          <div id="f-editor"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="requestCloseForm()">取消</button>
+          <button class="btn-publish" onclick="saveEntry('meeting')">發佈</button>
+        </div>` : `
+        <div class="form-title">${_editingId?'編輯':'新增'}文章</div>
+        <div class="form-row">
+          <label>標題 *</label>
+          <input class="form-input" id="f-title" value="${esc(d.title||'')}">
+        </div>
+        <div class="form-row">
+          <label>作者 <span style="font-weight:400;color:var(--dim2)">（多人請用「、」分隔）</span></label>
+          <input class="form-input" id="f-author" value="${esc(_editingId ? (d.author||'') : (_displayName||''))}">
+        </div>
+        <div class="form-row">
+          <label>文章內容</label>
+          <div id="f-editor"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="requestCloseForm()">取消</button>
+          <button class="btn-publish" onclick="saveEntry('article')">發佈</button>
+        </div>`;
+
+      // Flatpickr for date only (time uses native input)
+      if (m) {
+        _fpDate = flatpickr('#f-date', {
+          locale: zhTW, dateFormat: 'Y-m-d',
+          altInput: true, altFormat: 'Y年n月j日', altInputClass: 'form-input',
+          defaultDate: dateVal || null,
+          minDate: _editingId ? null : 'today',
+          appendTo: document.body,
+        });
+      }
+
+      _quill = new Quill('#f-editor', {
+        theme: 'snow',
+        placeholder: '請輸入內容…',
+        modules: {
+          toolbar: {
+            container: [
+              [{ header:[1,2,3,false] }],
+              [{ size:[false, ...QUILL_SIZES] }],
+              ['bold','italic','underline','strike'],
+              [{ script:'sub' }, { script:'super' }],
+              [{ color:[] }, { background:[] }],
+              [{ align:[] }],
+              [{ list:'ordered' }, { list:'bullet' }],
+              [{ indent:'-1' }, { indent:'+1' }],
+              ['blockquote','code-block'],
+              ['link','image','video'],
+              ['clean'],
+            ],
+            handlers: { image: quillImageHandler }
+          }
+        }
+      });
+      const toolbarEl = _quill.getModule('toolbar').container;
+      addUndoRedoButtons(toolbarEl, _quill);
+      addFirstLineIndentInput(toolbarEl, _quill);
+      addToolbarTooltips(toolbarEl);
+      if (d.content) _quill.root.innerHTML = d.content;
+    }
+
+    function quillImageHandler() {
+      const quill = this.quill;
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (!file) return;
+        const range = quill.getSelection(true);
+        const ext  = file.name.split('.').pop().toLowerCase();
+        const path = `library-images/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        try {
+          const ref = storage.ref(path);
+          await ref.put(file);
+          const url = await ref.getDownloadURL();
+          quill.insertEmbed(range.index, 'image', url, 'user');
+          quill.setSelection(range.index + 1);
+        } catch (e) {
+          alert('圖片上傳失敗：' + e.message);
+        }
+      };
+      input.click();
+    }
+
+    async function saveEntry(type) {
+      const m = type==='meeting';
+      const title = document.getElementById('f-title').value.trim();
+      if (!title) { alert('請填寫標題'); return; }
+      let date = '';
+      let attendees = [];
+      let locations = [];
+      if (m) {
+        const dv = document.getElementById('f-date').value;
+        const tv = document.getElementById('f-time').value || '00:00';
+        if (!dv) { alert('請選擇日期'); return; }
+        date = `${dv}T${tv}`;
+        if (!document.getElementById('f-person').value)    { alert('請輸入主持人'); return; }
+        attendees = Array.from(document.querySelectorAll('#f-attendees .chip-btn.on')).map(b => b.dataset.v);
+        if (!attendees.length) { alert('請選擇出席'); return; }
+        locations = Array.from(document.querySelectorAll('#f-location .chip-btn.on')).map(b => b.dataset.v);
+        if (!locations.length) { alert('請選擇地點'); return; }
+      }
+      const now = new Date().toISOString();
+      const content = _quill ? _quill.root.innerHTML : '';
+      const entry = { type, title, content, updatedAt:now, updatedBy:_user?.uid||'local' };
+      if (m) {
+        entry.date      = date;
+        entry.host      = document.getElementById('f-person').value;
+        entry.attendees = attendees;
+        entry.location  = locations;
+        entry.duration  = document.getElementById('f-duration').value.trim();
+      } else {
+        entry.author = document.getElementById('f-author').value.trim();
+      }
+      if (_editingId) {
+        entry.createdAt = _entries[_editingId].createdAt || now;
+        entry.createdBy = _entries[_editingId].createdBy || 'local';
+        await db.ref('library/'+_editingId).set(entry).catch(e=>alert('儲存失敗：'+e.message));
+      } else {
+        entry.createdAt = now;
+        entry.createdBy = _user?.uid||'local';
+        await db.ref('library').push(entry).catch(e=>alert('儲存失敗：'+e.message));
+        if (type === 'article') notifyDiscordUpdate('文章', `作者｜${entry.author || ''}`, `上架：${title}`);
+      }
+      closeForm();
+    }
+
+    async function confirmDelete(id) {
+      if (!confirm('確定要刪除這筆紀錄嗎？此操作無法復原。')) return;
+      closeView();
+      await db.ref('library/'+id).remove();
+    }
+
+    // ── Polaroid ──
+    function fmtPolaroidDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d)) return '';
+      return `${d.getFullYear()} · ${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function loadPolaroids() {
+      db.ref('polaroids').orderByChild('uploadedAt').on('value', snap => {
+        _polaroids = [];
+        if (snap.exists()) snap.forEach(c => _polaroids.unshift({ id: c.key, ...c.val() }));
+        renderPolaroids();
+      });
+    }
+
+    function renderPolaroids() {
+      const grid  = document.getElementById('polaroid-grid');
+      const empty = document.getElementById('empty-polaroid');
+      if (!_polaroids.length) { grid.innerHTML = ''; empty.style.display = ''; return; }
+      empty.style.display = 'none';
+      const delBtn = id => _role==='admin'
+        ? `<button class="polaroid-del" onclick="event.stopPropagation();deletePolaroid('${id}')">✕</button>`
+        : '';
+      grid.innerHTML = _polaroids.map((p,i) =>
+        `<div class="polaroid-item" onclick="openLightbox(${i})">
+          <img src="${esc(p.url)}" alt="" loading="lazy">
+          <div class="polaroid-date">${fmtPolaroidDate(p.uploadedAt)}</div>
+          ${delBtn(p.id)}
+        </div>`
+      ).join('');
+    }
+
+    async function uploadPolaroids(files) {
+      if (!files || !files.length) return;
+      const btn = document.getElementById('btn-upload-polaroid');
+      btn.textContent = '上傳中…'; btn.disabled = true;
+      try {
+        for (const file of Array.from(files)) {
+          if (!file.type.startsWith('image/')) continue;
+          const ext  = file.name.split('.').pop().toLowerCase();
+          const path = `polaroids/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+          const ref  = storage.ref(path);
+          await ref.put(file);
+          const url  = await ref.getDownloadURL();
+          await db.ref('polaroids').push({
+            url, storagePath: path,
+            uploadedAt: new Date().toISOString(),
+            uploadedBy: _user.uid,
+            displayName: _displayName
+          });
+        }
+      } catch(e) { alert('上傳失敗：' + e.message); }
+      btn.textContent = '＋ 上傳照片'; btn.disabled = false;
+      document.getElementById('polaroid-input').value = '';
+    }
+
+    async function deletePolaroid(id) {
+      if (!confirm('確定刪除這張照片？')) return;
+      const p = _polaroids.find(x => x.id === id);
+      if (p?.storagePath) {
+        try { await storage.ref(p.storagePath).delete(); } catch(e) {}
+      }
+      await db.ref('polaroids/' + id).remove();
+    }
+
+    // ── Lightbox ──
+    function openLightbox(idx) {
+      _lbIdx = idx; showLbPhoto();
+      document.getElementById('lightbox').classList.add('open');
+      document.addEventListener('keydown', onLbKey);
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.removeEventListener('keydown', onLbKey);
+    }
+    function showLbPhoto() {
+      const p = _polaroids[_lbIdx]; if (!p) return;
+      document.getElementById('lightbox-img').src   = p.url;
+      document.getElementById('lightbox-date').textContent = fmtPolaroidDate(p.uploadedAt);
+      document.getElementById('lb-prev').style.visibility = _lbIdx > 0 ? '' : 'hidden';
+      document.getElementById('lb-next').style.visibility = _lbIdx < _polaroids.length - 1 ? '' : 'hidden';
+    }
+    function lightboxNav(dir) {
+      const next = _lbIdx + dir;
+      if (next < 0 || next >= _polaroids.length) return;
+      _lbIdx = next; showLbPhoto();
+    }
+    function onLbKey(e) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft')  lightboxNav(-1);
+      if (e.key === 'ArrowRight') lightboxNav(1);
+    }
+
+    // ── FAQ ──
+    function loadFAQ() {
+      db.ref('faq').on('value', snap => {
+        _faqs = snap.val() || {};
+        renderFAQ();
+      });
+      setInterval(updateFaqNewBadge, 60000);
+    }
+
+    function updateFaqNewBadge() {
+      const DAY = 24*60*60*1000;
+      const now = Date.now();
+      const hasNew = Object.values(_faqs).some(f => f.createdAt && (now - new Date(f.createdAt).getTime()) < DAY);
+      const el = document.getElementById('faq-new-badge');
+      if (el) el.style.display = hasNew ? '' : 'none';
+    }
+
+    function renderFAQ() {
+      updateFaqNewBadge();
+      const savedInputs = {};
+      document.querySelectorAll('[id^="faq-ri-"]').forEach(el => {
+        const id = el.id.replace('faq-ri-', '');
+        if (el.value) savedInputs[id] = el.value;
+      });
+      let savedEditContent = null;
+      if (_faqEditing) {
+        const editEl = document.getElementById('faq-edit-'+_faqEditing.replyId);
+        if (editEl) savedEditContent = editEl.value;
+      }
+
+      const list  = document.getElementById('faq-list');
+      const empty = document.getElementById('empty-faq');
+      const entries = Object.entries(_faqs).sort((a,b) => (b[1].createdAt||'').localeCompare(a[1].createdAt||''));
+
+      if (!entries.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+      empty.style.display = 'none';
+
+      list.innerHTML = entries.map(([id, f]) => {
+        const replies = f.replies
+          ? Object.entries(f.replies).sort((a,b) => (a[1].createdAt||'').localeCompare(b[1].createdAt||''))
+          : [];
+        const repliesHtml = replies.map(([rid, r]) => {
+          const canAct = _role==='admin';
+          const isEditing = _faqEditing && _faqEditing.faqId===id && _faqEditing.replyId===rid;
+          const editedLabel = r.updatedAt ? `<span class="faq-reply-edited">（最後編輯 ${fmtDate(r.updatedAt)}）</span>` : '';
+          const meta = `<div class="faq-reply-meta">
+              <span class="faq-reply-name">${esc(r.displayName||'—')}</span>
+              <span class="faq-reply-date">${fmtDate(r.createdAt)}${editedLabel}</span>
+              ${canAct?`<button class="faq-reply-edit" onclick="event.stopPropagation();editReply('${id}','${rid}')">編輯</button>`:''}
+              ${canAct?`<button class="faq-reply-del" onclick="event.stopPropagation();deleteReply('${id}','${rid}')">×</button>`:''}
+            </div>`;
+          if (isEditing) return `<div class="faq-reply">
+            ${meta}
+            <textarea class="faq-edit-input" id="faq-edit-${rid}">${esc(r.content)}</textarea>
+            <div class="faq-edit-actions">
+              <button class="faq-edit-cancel" onclick="cancelEditReply()">取消</button>
+              <button class="faq-edit-save" onclick="saveReply('${id}','${rid}')">儲存</button>
+            </div>
+          </div>`;
+          return `<div class="faq-reply">
+            ${meta}
+            <div class="faq-reply-content">${esc(r.content)}</div>
+          </div>`;
+        }).join('');
+
+        return `<div class="faq-card${replies.length?'':' unanswered'}">
+          <div class="faq-q-row" onclick="toggleFaq('${id}')">
+            <span class="faq-q-icon">Q</span>
+            <span class="faq-q-text">${esc(f.question)}${_role==='admin'&&f.displayName?`<span class="faq-q-author">由 ${esc(f.displayName)} 提問</span>`:''}</span>
+            <div class="faq-q-meta">
+              ${replies.length?`<span class="faq-reply-count">${replies.length} 則回覆</span>`:`<span class="faq-tag-unanswered">待回覆</span>`}
+              ${_role==='admin'?`<button class="faq-del-btn" onclick="event.stopPropagation();deleteFaq('${id}')">×</button>`:''}
+              <span class="faq-arrow" id="faq-arrow-${id}" style="${_faqOpen.has(id)?'transform:rotate(90deg)':''}">›</span>
+            </div>
+          </div>
+          <div class="faq-body" id="faq-body-${id}" style="${_faqOpen.has(id)?'':'display:none'}">
+            <div class="faq-replies">${repliesHtml||'<div class="faq-no-reply">尚無回覆</div>'}</div>
+            ${_role==='admin'?`<div class="faq-reply-input-row">
+              <input class="faq-reply-input" id="faq-ri-${id}" placeholder="輸入回覆…" onkeydown="if(event.key==='Enter')addReply('${id}')">
+              <button class="faq-reply-submit" onclick="addReply('${id}')">回覆</button>
+            </div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+
+      _faqOpen.forEach(id => {
+        const body  = document.getElementById('faq-body-'+id);
+        const arrow = document.getElementById('faq-arrow-'+id);
+        if (body)  body.style.display = '';
+        if (arrow) arrow.style.transform = 'rotate(90deg)';
+      });
+      Object.entries(savedInputs).forEach(([id, val]) => {
+        const el = document.getElementById('faq-ri-'+id);
+        if (el) el.value = val;
+      });
+      if (_faqEditing && savedEditContent !== null) {
+        const editEl = document.getElementById('faq-edit-'+_faqEditing.replyId);
+        if (editEl) editEl.value = savedEditContent;
+      }
+    }
+
+    function toggleFaq(id) {
+      const body  = document.getElementById('faq-body-'+id);
+      const arrow = document.getElementById('faq-arrow-'+id);
+      if (_faqOpen.has(id)) {
+        _faqOpen.delete(id);
+        body.style.display = 'none';
+        arrow.style.transform = '';
+      } else {
+        _faqOpen.add(id);
+        body.style.display = '';
+        arrow.style.transform = 'rotate(90deg)';
+      }
+    }
+
+    function openFaqModal() {
+      document.getElementById('form-body').innerHTML = `
+        <div class="form-title">新增問題</div>
+        <div class="form-row">
+          <label>問題 *</label>
+          <input class="form-input" id="f-question" placeholder="請輸入問題…" onkeydown="if(event.key==='Enter')saveFaq()">
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="requestCloseForm()">取消</button>
+          <button class="btn-publish" onclick="saveFaq()">發佈</button>
+        </div>`;
+      openFormModal();
+      setTimeout(() => document.getElementById('f-question').focus(), 50);
+    }
+
+    async function notifyDiscordUpdate(category, subtext, detail) {
+      try {
+        const detailLine = detail ? `### ${detail}\n` : '';
+        await fetch(DISCORD_RELAY + '/updates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: `## 𝗨𝗽𝗱𝗮𝘁𝗲\n\` 圖書室 ‧ ${category} \`\n${detailLine}-# ${subtext}`
+          })
+        });
+      } catch(e) { /* silent */ }
+    }
+
+    async function notifyDiscord(question, author) {
+      try {
+        await fetch(DISCORD_RELAY + '/qa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            embeds: [{
+              title: '📋 問答集 · 新提問',
+              description: question,
+              color: 0x885B22,
+              footer: { text: '由 ' + author + ' 提問' },
+              timestamp: new Date().toISOString()
+            }]
+          })
+        });
+      } catch(e) { /* silent */ }
+    }
+
+    async function saveFaq() {
+      const q = document.getElementById('f-question').value.trim();
+      if (!q) { alert('請輸入問題'); return; }
+      await db.ref('faq').push({
+        question: q,
+        createdAt: new Date().toISOString(),
+        createdBy: _user?.uid || 'local',
+        displayName: _displayName
+      }).catch(e => alert('儲存失敗：'+e.message));
+      notifyDiscord(q, _displayName);
+      closeForm();
+    }
+
+    async function deleteFaq(id) {
+      if (!confirm('確定刪除此問題及所有回覆？')) return;
+      _faqOpen.delete(id);
+      await db.ref('faq/'+id).remove();
+    }
+
+    async function addReply(faqId) {
+      const input   = document.getElementById('faq-ri-'+faqId);
+      const content = input.value.trim();
+      if (!content) return;
+      input.value = '';
+      await db.ref('faq/'+faqId+'/replies').push({
+        content,
+        createdAt: new Date().toISOString(),
+        createdBy: _user?.uid || 'local',
+        displayName: _displayName
+      }).then(() => {
+        notifyDiscordUpdate('問答集', '已回覆。請至[問答集](https://elysium-ffxivtc.github.io/pietersite/staffonly/library.html)中查看。', `問題：${_faqs[faqId]?.question || ''}`);
+      }).catch(e => { input.value = content; alert('儲存失敗：'+e.message); });
+    }
+
+    async function deleteReply(faqId, replyId) {
+      if (!confirm('確定刪除此回覆？')) return;
+      if (_faqEditing?.replyId === replyId) _faqEditing = null;
+      await db.ref('faq/'+faqId+'/replies/'+replyId).remove();
+    }
+
+    function editReply(faqId, replyId) {
+      _faqEditing = { faqId, replyId };
+      renderFAQ();
+      setTimeout(() => {
+        const el = document.getElementById('faq-edit-'+replyId);
+        if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+      }, 30);
+    }
+
+    function cancelEditReply() {
+      _faqEditing = null;
+      renderFAQ();
+    }
+
+    async function saveReply(faqId, replyId) {
+      const el = document.getElementById('faq-edit-'+replyId);
+      const content = el ? el.value.trim() : '';
+      if (!content) { alert('回覆不能為空'); return; }
+      const existing = _faqs[faqId]?.replies?.[replyId];
+      if (!existing) return;
+      _faqEditing = null;
+      await db.ref('faq/'+faqId+'/replies/'+replyId).set({
+        ...existing,
+        content,
+        updatedAt: new Date().toISOString()
+      }).catch(e => alert('儲存失敗：'+e.message));
+    }
+
+    document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
+    document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
+  </script>
+</body>
+</html>

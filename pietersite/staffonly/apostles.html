@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pietersite · 館藏資料</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #b8913a; --gold-dim: rgba(184,145,58,.12);
+      --bg: #f3f1ee; --panel: #e9e6e1; --card: #ffffff;
+      --border: rgba(0,0,0,.1); --text: #211f1c; --dim: #6e6a63;
+      --green: #2d7a50; --red: #a8433a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    * { scrollbar-width: thin; scrollbar-color: rgba(184,145,58,.3) transparent; }
+    *::-webkit-scrollbar { width: 9px; height: 9px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: rgba(184,145,58,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    *::-webkit-scrollbar-thumb:hover { background: rgba(184,145,58,.55); background-clip: padding-box; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: default; }
+    a, button, [role="button"], select, [onclick] { cursor: pointer; }
+    input, textarea { cursor: text; }
+
+    .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
+
+    .main { flex: 1; padding: 1.25rem 1.5rem; max-width: 900px; width: 100%; margin: 0 auto; display: none; }
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.25rem; align-items: start; }
+    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } }
+
+    .card { background: var(--card); border: 1px solid var(--border); padding: .9rem 1rem; margin-bottom: .75rem; }
+    .card-title { font-size: 11px; color: var(--dim); letter-spacing: .08em; margin-bottom: .65rem; }
+    .acct-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem .3rem; border-bottom: 1px solid rgba(0,0,0,.05); font-size: 13px; }
+    .acct-row:last-child { border-bottom: none; }
+    .acct-row.on { background: var(--gold-dim); }
+    .acct-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .acct-dot.has { background: var(--green); } .acct-dot.no { background: rgba(0,0,0,.15); }
+
+    .form-label { font-size: 12px; color: var(--dim); margin-bottom: .28rem; margin-top: .65rem; }
+    .form-label:first-child { margin-top: 0; }
+    .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: .45rem .65rem; font-size: 13px; font-family: inherit; }
+    .form-input:focus { outline: none; border-color: var(--gold); }
+    textarea.form-input { resize: vertical; min-height: 60px; }
+    .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+    .form-check { display: flex; align-items: center; gap: .4rem; font-size: 13px; margin-top: .65rem; }
+
+    .btn { padding: .48rem 1rem; font-size: 13px; border: none; font-family: inherit; transition: all .15s; }
+    .btn-gold { background: var(--gold); color: #211f1c; font-weight: 600; }
+    .btn-gold:hover { background: #c4a25d; }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm { padding: .3rem .7rem; font-size: 12px; }
+
+    .photo-preview { width: 100px; height: 150px; object-fit: cover; object-position: top; background: #e8e6e3; border: 1px solid var(--border); margin-top: .4rem; display: block; }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .5rem 1.2rem; font-size: 13px; z-index: 9999; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
+    .empty-hint { font-size: 12px; color: var(--dim); padding: .5rem 0; }
+
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+    .auth-logo { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: .25em; margin-bottom: .4rem; }
+    .auth-tagline { font-size: 13px; color: var(--dim); margin-bottom: 2.5rem; letter-spacing: .08em; }
+    .auth-google-btn { width: 100%; justify-content: center; display: flex; align-items: center; }
+    .auth-err { color: var(--red); font-size: 13px; margin-top: .75rem; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-title">✦ Pietersite · 館藏資料</div>
+  <div style="display:flex;align-items:center;gap:.85rem">
+    <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px" ></div>
+  </div>
+</header>
+
+<div class="main" id="main">
+  <div class="layout">
+    <div id="staff-list-col"></div>
+    <div id="edit-col"></div>
+  </div>
+</div>
+
+<div id="auth-overlay" class="auth-overlay">
+  <div id="auth-loading" class="auth-box">
+    <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+  </div>
+  <div id="auth-login" class="auth-box" style="display:none">
+    <div class="auth-logo">Pietersite</div>
+    <div class="auth-tagline">館藏資料</div>
+    <button class="btn btn-gold auth-google-btn" onclick="signInGoogle()">Google 登入</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+  <div id="auth-denied" class="auth-box" style="display:none">
+    <div class="auth-logo" style="font-size:1.5rem;margin-bottom:1rem">無權限</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限管理員與館藏帳號使用。</div>
+    <button class="btn btn-outline" style="width:100%" onclick="doSignOut()">登出</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue, get, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+const app = initializeApp({
+  apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+  authDomain:        "pietersitepos.firebaseapp.com",
+  databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "pietersitepos",
+  storageBucket:     "pietersitepos.firebasestorage.app",
+  messagingSenderId: "336617870672",
+  appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+});
+const db   = getDatabase(app);
+const auth = initializeAuth(app, {
+  persistence:           [indexedDBLocalPersistence, browserLocalPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
+getRedirectResult(auth).catch(() => {});
+
+const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', apostle: '館藏' };
+// 館藏列表顯示順序（依角色名稱或標記比對，不限定 role 欄位）
+/* ponytail: Elysium 沿用舊帳號名單排序，Pietersite 還沒有館藏名單，先留空；有人之後把名字加進來即可 */
+const APOSTLE_ORDER = [];
+// image/ 資料夾內現有的館藏照片檔名（新增照片檔案時要手動更新這份清單）
+/* ponytail: 同上，等 Pietersite 有館藏照片檔案再把檔名加進這份清單 */
+const KNOWN_APOSTLE_IMAGES = [];
+
+let currentUser = null;
+let staffList   = [];
+let apostles    = {};
+let editingUid  = null;
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function isAdmin() { return currentUser && currentUser.role === 'admin'; }
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { showAuth('login'); return; }
+  try {
+    const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
+    if (!staffSnap.exists()) { window.location.replace('index.html'); return; }
+    const data = staffSnap.val();
+    if (data.role !== 'admin') { window.location.replace('index.html'); return; }
+    currentUser = { uid: user.uid, email: user.email, ...data };
+    hideAuth();
+    startListeners();
+  } catch(e) {
+    document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+    showAuth('login');
+  }
+});
+
+function showAuth(s) {
+  document.getElementById('auth-overlay').style.display = 'flex';
+  ['login','loading','denied'].forEach(id => document.getElementById('auth-' + id).style.display = id === s ? '' : 'none');
+}
+function hideAuth() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+}
+function signInGoogle() {
+  document.getElementById('auth-err').textContent = '';
+  signInWithPopup(auth, new GoogleAuthProvider())
+    .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
+}
+function doSignOut() { signOut(auth).then(() => location.reload()); }
+
+function startListeners() {
+  document.getElementById('user-badge').style.display = 'flex';
+  document.getElementById('user-badge').innerHTML = `
+    <span>${esc(currentUser.displayName)}</span>
+    <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border)">${ROLE_LABEL[currentUser.role]||''}</span>
+    <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'" title="返回首頁" style="font-size:11px;padding:.2rem .45rem;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>
+    <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
+
+  onValue(dbRef(db, 'staff'), snap => {
+    staffList = snap.val() ? Object.values(snap.val()) : [];
+    renderList();
+  });
+  onValue(dbRef(db, 'apostles'), snap => {
+    apostles = snap.val() || {};
+    renderList();
+    if (editingUid) renderEdit(editingUid);
+  });
+
+  if (!isAdmin()) { editingUid = currentUser.uid; renderEdit(editingUid); }
+}
+
+function apostleOrderKey(s) {
+  const i = APOSTLE_ORDER.indexOf(s.displayName);
+  if (i !== -1) return i;
+  const j = APOSTLE_ORDER.indexOf(s.apostleTag);
+  return j !== -1 ? j : APOSTLE_ORDER.length;
+}
+
+function renderList() {
+  const col = document.getElementById('staff-list-col');
+  if (!isAdmin()) { col.innerHTML = ''; return; }
+  const all = staffList
+    .filter(s => s.role === 'apostle' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid] || APOSTLE_ORDER.includes(s.displayName) || APOSTLE_ORDER.includes(s.apostleTag))
+    .sort((a, b) => apostleOrderKey(a) - apostleOrderKey(b));
+
+  const isUnbookable = s => {
+    const a = apostles[s.uid];
+    return !a || a.active === false || a.bookable === false;
+  };
+
+  const row = s => {
+    const canBook = !isUnbookable(s);
+    const sel = editingUid === s.uid ? ' on' : '';
+    return `<div class="acct-row${sel}" onclick="openEdit('${s.uid}')">
+      <span><span class="acct-dot ${canBook?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
+    </div>`;
+  };
+  const bookable   = all.filter(s => !isUnbookable(s));
+  const unbookable = all.filter(s => isUnbookable(s));
+
+  const rows = !all.length ? '<div class="empty-hint">尚無館藏角色的員工帳號</div>' : `
+    ${bookable.map(row).join('')}
+    ${unbookable.length ? `
+      <div class="empty-hint" style="margin:.6rem 0 .3rem;padding-top:.6rem;border-top:1px solid var(--border)">無法預約</div>
+      ${unbookable.map(row).join('')}
+    ` : ''}`;
+  col.innerHTML = `<div class="card"><div class="card-title">館藏列表</div>${rows}</div>`;
+}
+
+function openEdit(uid) { editingUid = uid; renderEdit(uid); renderList(); }
+
+function renderEdit(uid) {
+  const a = apostles[uid] || {};
+  const member = staffList.find(s => s.uid === uid) || (uid === currentUser.uid ? currentUser : null);
+  const name = member ? esc(member.displayName) : uid;
+  const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern'); // 新帳號預設實習，舊資料預設正式
+  document.getElementById('edit-col').innerHTML = `
+    <div class="card">
+      <div class="card-title">編輯資料 · ${name}</div>
+      <div class="form-label">照片</div>
+      <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
+      <datalist id="photo-list">${KNOWN_APOSTLE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
+      <img class="photo-preview" id="f-photo-preview" src="${a.photo?'../'+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
+
+      <div class="form-row2">
+        <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
+        <!-- ponytail: Elysium 用固定下拉選單(食罪/妖異等角色分類)，Pietersite 還沒定義這套分類，先開放自由輸入 -->
+        <div><div class="form-label">職位</div>
+          <input class="form-input" id="f-tag" value="${esc(a.tag||'')}" placeholder="例如：館員">
+        </div>
+      </div>
+      <div class="form-label">本名 / 原名</div>
+      <input class="form-input" id="f-original-name" value="${esc(a.originalName||'')}">
+      <div class="form-label">員工等級</div>
+      <select class="form-input" id="f-rank">
+        <option value="formal" ${rankDefault!=='intern'?'selected':''}>正式員工</option>
+        <option value="intern" ${rankDefault==='intern'?'selected':''}>實習員工</option>
+      </select>
+      <div class="form-label">真名</div>
+      <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">
+      <div class="form-label">個體紀錄</div>
+      <textarea class="form-input" id="f-bio">${esc(a.bio||'')}</textarea>
+      <div class="form-label">聊天尺度</div>
+      <textarea class="form-input" id="f-chat">${esc(a.chat||'')}</textarea>
+      <div class="form-label">禁忌與偏好</div>
+      <textarea class="form-input" id="f-taboo">${esc(a.taboo||'')}</textarea>
+      <div class="form-label">延伸資訊</div>
+      <textarea class="form-input" id="f-extra">${esc(a.extra||'')}</textarea>
+      <div class="form-label">個人業務</div>
+      <textarea class="form-input" id="f-business">${esc(a.business||'')}</textarea>
+      <div class="form-label">私藏特調專屬餐點名稱</div>
+      <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="私藏特調">
+      <div class="form-row2">
+        <div><div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}"></div>
+        <div><div class="form-label">&nbsp;</div>
+          <label class="form-check"><input type="checkbox" id="f-active" ${a.active!==false?'checked':''}> 啟用（顯示在預約頁）</label>
+        </div>
+      </div>
+      <label class="form-check"><input type="checkbox" id="f-bookable" ${a.bookable!==false?'checked':''}> 接受預約（關閉後，即使有排班也不開放召引）</label>
+      <div style="margin-top:1rem;display:flex;justify-content:flex-end">
+        <button class="btn btn-gold btn-sm" onclick="saveApostle('${uid}')">儲存</button>
+      </div>
+    </div>`;
+}
+
+function updatePhotoPreview() {
+  const path = document.getElementById('f-photo').value.trim();
+  const img = document.getElementById('f-photo-preview');
+  img.src = path ? '../' + path : '';
+  img.style.display = path ? 'block' : 'none';
+}
+
+async function saveApostle(uid) {
+  const val = {
+    name:     document.getElementById('f-name').value.trim(),
+    originalName: document.getElementById('f-original-name').value.trim(),
+    tag:      document.getElementById('f-tag').value.trim(),
+    rank:     document.getElementById('f-rank').value,
+    photo:    document.getElementById('f-photo').value.trim(),
+    subtitle: document.getElementById('f-subtitle').value.trim(),
+    bio:      document.getElementById('f-bio').value.trim(),
+    chat:     document.getElementById('f-chat').value.trim(),
+    taboo:    document.getElementById('f-taboo').value.trim(),
+    extra:    document.getElementById('f-extra').value.trim(),
+    business: document.getElementById('f-business').value.trim(),
+    specialDish: {
+      name: document.getElementById('f-special-name').value.trim(),
+    },
+    order:    parseInt(document.getElementById('f-order').value, 10) || 0,
+    active:   document.getElementById('f-active').checked,
+    bookable: document.getElementById('f-bookable').checked,
+    updatedBy: currentUser.displayName,
+    updatedAt: new Date().toISOString(),
+  };
+  await set(dbRef(db, 'apostles/' + uid), val);
+  showToast('已儲存');
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
+}
+
+Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveApostle });
+</script>
+</body>
+</html>
