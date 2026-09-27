@@ -271,7 +271,6 @@
         return;
       }
       try {
-        document.getElementById('auth-overlay').classList.add('show');
         const staffSnap = await db.ref('staff/' + user.uid).get();
         if (staffSnap.exists()) {
           const role = staffSnap.val().role;
@@ -301,6 +300,7 @@
           return;
         }
         const pendingSnap = await db.ref('pendingStaff/' + user.uid).get();
+        document.getElementById('auth-overlay').classList.add('show');
         if (pendingSnap.exists()) {
           document.getElementById('pending-email').textContent = user.email;
           showBox('auth-pending');
@@ -309,6 +309,7 @@
           showBox('auth-register');
         }
       } catch(e) {
+        document.getElementById('auth-overlay').classList.add('show');
         document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
         showBox('auth-login');
       }
