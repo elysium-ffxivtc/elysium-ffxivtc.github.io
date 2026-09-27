@@ -9,8 +9,8 @@
   <style>
     :root {
       --gold: #3a5f8a; --gold-dim: rgba(58,95,138,.12);
-      --bg: #f3f1ee; --panel: #e9e6e1; --card: #ffffff;
-      --border: rgba(0,0,0,.1); --text: #211f1c; --dim: #6e6a63;
+      --bg: #eef1f5; --panel: #e2e8ef; --card: #fbfcfe;
+      --border: rgba(58,95,138,.15); --text: #1a2230; --dim: #64707d;
       --green: #2d7a50; --red: #a8433a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
@@ -47,13 +47,13 @@
     .form-check { display: flex; align-items: center; gap: .4rem; font-size: 13px; margin-top: .65rem; }
 
     .btn { padding: .48rem 1rem; font-size: 13px; border: none; font-family: inherit; transition: all .15s; }
-    .btn-gold { background: var(--gold); color: #211f1c; font-weight: 600; }
+    .btn-gold { background: var(--gold); color: #fff; font-weight: 600; }
     .btn-gold:hover { background: #2c4a6e; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
     .btn-sm { padding: .3rem .7rem; font-size: 12px; }
 
-    .photo-preview { width: 100px; height: 150px; object-fit: cover; object-position: top; background: #e8e6e3; border: 1px solid var(--border); margin-top: .4rem; display: block; }
+    .photo-preview { width: 100px; height: 150px; object-fit: cover; object-position: top; background: #dce4ec; border: 1px solid var(--border); margin-top: .4rem; display: block; }
     .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .5rem 1.2rem; font-size: 13px; z-index: 9999; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
     .empty-hint { font-size: 12px; color: var(--dim); padding: .5rem 0; }
 

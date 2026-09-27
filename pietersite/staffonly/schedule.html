@@ -12,12 +12,12 @@
     :root {
       --gold:     #3a5f8a;
       --gold-dim: rgba(58,95,138,.12);
-      --bg:       #f3f1ee;
-      --panel:    #e9e6e1;
-      --card:     #ffffff;
-      --border:   rgba(0,0,0,.1);
-      --text:     #211f1c;
-      --dim:      #6e6a63;
+      --bg:       #eef1f5;
+      --panel:    #e2e8ef;
+      --card:     #fbfcfe;
+      --border:   rgba(58,95,138,.15);
+      --text:     #1a2230;
+      --dim:      #64707d;
       --green:    #2d7a50;
       --green-dim:rgba(45,122,80,.1);
       --red:      #a8433a;
@@ -228,7 +228,7 @@
 
     /* ── Buttons ── */
     .btn { padding: .48rem 1rem; font-size: 13px; cursor: pointer; border: none; font-family: inherit; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; }
-    .btn-gold { background: var(--gold); color: #211f1c; font-weight: 600; }
+    .btn-gold { background: var(--gold); color: #fff; font-weight: 600; }
     .btn-gold:hover { background: #2c4a6e; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
@@ -1477,7 +1477,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     el.style.maxHeight = 'none';
     el.style.overflow  = 'visible';
     try {
-      const canvas = await window.html2canvas(el, { backgroundColor: '#f3f1ee', scale: 2, useCORS: true });
+      const canvas = await window.html2canvas(el, { backgroundColor: '#eef1f5', scale: 2, useCORS: true });
       const a = document.createElement('a');
       a.download = `PIETERSITE排班_${viewYear}${pad(viewMonth + 1)}.png`;
       a.href = canvas.toDataURL('image/png');
