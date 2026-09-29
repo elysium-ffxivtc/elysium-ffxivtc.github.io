@@ -27,6 +27,11 @@
     .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
     .main { flex: 1; padding: 1.25rem 1.5rem; max-width: 1100px; width: 100%; margin: 0 auto; display: none; }
 
+    .tab-row { display: flex; gap: .5rem; margin-bottom: 1.1rem; border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: .55rem 1.1rem; background: none; border: none; border-bottom: 2px solid transparent; color: var(--dim); font-family: inherit; font-size: 13px; transition: all .15s; margin-bottom: -1px; }
+    .tab-btn.on { color: var(--gold); border-bottom-color: var(--gold); }
+    .tab-panel[hidden] { display: none; }
+
     .filter-row { display: flex; gap: .5rem; margin-bottom: .85rem; flex-wrap: wrap; align-items: center; }
     .seg-row { display: flex; }
     .seg-btn { padding: .33rem .85rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); font-family: inherit; transition: all .15s; margin-right: -1px; }
@@ -77,15 +82,26 @@
 </header>
 
 <div class="main" id="main">
-  <div class="filter-row">
-    <div class="seg-row" id="status-filter">
-      <button class="seg-btn on" data-v="all" onclick="setFilter('all')">全部</button>
-      <button class="seg-btn" data-v="new" onclick="setFilter('new')">待處理</button>
-      <button class="seg-btn" data-v="completed" onclick="setFilter('completed')">已完成</button>
-      <button class="seg-btn" data-v="cancelled" onclick="setFilter('cancelled')">已取消</button>
-    </div>
+  <div class="tab-row">
+    <button class="tab-btn on" data-tab="res" onclick="setTab('res')">預約管理</button>
+    <button class="tab-btn" data-tab="eval" onclick="setTab('eval')">邀請回覆</button>
   </div>
-  <div id="res-list"></div>
+
+  <div class="tab-panel" id="tab-res">
+    <div class="filter-row">
+      <div class="seg-row" id="status-filter">
+        <button class="seg-btn on" data-v="all" onclick="setFilter('all')">全部</button>
+        <button class="seg-btn" data-v="new" onclick="setFilter('new')">待處理</button>
+        <button class="seg-btn" data-v="completed" onclick="setFilter('completed')">已完成</button>
+        <button class="seg-btn" data-v="cancelled" onclick="setFilter('cancelled')">已取消</button>
+      </div>
+    </div>
+    <div id="res-list"></div>
+  </div>
+
+  <div class="tab-panel" id="tab-eval" hidden>
+    <div id="eval-list"></div>
+  </div>
 </div>
 
 <div id="auth-overlay" class="auth-overlay">
@@ -139,6 +155,7 @@ const SEAT_LABEL   = { sin: '棲願之間｜食罪席', grudge: '執念迴廊｜
 let currentUser = null;
 let reservations = {};
 let apostles = {};
+let evalResponses = {};
 let filter = 'all';
 
 onAuthStateChanged(auth, async user => {
@@ -187,12 +204,34 @@ function startListeners() {
 
   onValue(dbRef(db, 'reservations'), snap => { reservations = snap.val() || {}; render(); });
   onValue(dbRef(db, 'apostles'), snap => { apostles = snap.val() || {}; render(); });
+  onValue(dbRef(db, 'evaluationResponses'), snap => { evalResponses = snap.val() || {}; renderEval(); });
+}
+
+function setTab(t) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  document.getElementById('tab-res').hidden = t !== 'res';
+  document.getElementById('tab-eval').hidden = t !== 'eval';
 }
 
 function setFilter(v) {
   filter = v;
   document.querySelectorAll('#status-filter .seg-btn').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   render();
+}
+
+function renderEval() {
+  const list = document.getElementById('eval-list');
+  const entries = Object.entries(evalResponses).sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0));
+  if (!entries.length) { list.innerHTML = '<div class="empty-hint">尚無邀請回覆</div>'; return; }
+  list.innerHTML = entries.map(([key, r]) => `<div class="res-card completed">
+    <div class="res-hdr">
+      <span class="res-date">${esc(r.id || key)}</span>
+      <span class="res-status completed">已接受</span>
+    </div>
+    <div class="res-grid">
+      <div><div class="res-field-label">回覆時間</div>${r.ts ? esc(new Date(r.ts).toLocaleString('zh-TW')) : ''}</div>
+    </div>
+  </div>`).join('');
 }
 
 function apostleName(uid) {
@@ -272,7 +311,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation });
+Object.assign(window, { signInGoogle, doSignOut, setTab, setFilter, markCompleted, cancelReservation });
 </script>
 </body>
 </html>
