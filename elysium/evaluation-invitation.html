@@ -164,6 +164,13 @@
       display: flex; align-items: center; justify-content: center;
     }
     .ev-stage-3[hidden] { display: none; }
+    .ev-ticket-info {
+      position: fixed; left: 50%; bottom: 4vh; transform: translateX(-50%);
+      font-family: 'Cormorant Garamond', serif; font-size: .8rem; letter-spacing: .12em;
+      line-height: 1.8; text-align: center; color: rgba(184,144,96,.6);
+      opacity: 0; animation: evLineIn 1.2s ease 1.5s forwards;
+      pointer-events: none;
+    }
     .ev-ticket-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
     .ev-ticket-glow {
       position: absolute; width: 60vh; height: 60vh; border-radius: 50%;
@@ -215,10 +222,16 @@
       color: rgba(184,144,96,.6); margin: 0;
       opacity: 0; animation: evLineIn 1.2s ease .5s forwards;
     }
+    .ev-end-sub.clickable {
+      cursor: pointer; pointer-events: none;
+      animation: evEndReturnIn 1.2s ease .5s forwards;
+      transition: color .3s ease, text-shadow .3s ease;
+    }
+    .ev-end-sub.clickable:hover { color: var(--gold); text-shadow: 0 0 14px rgba(184,144,96,.85); }
 
     @media (prefers-reduced-motion: reduce) {
-      .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap, .ev-ticket-img, .ev-ticket-glow, .ev-end-text, .ev-end-return, .ev-end-sub { animation: none; opacity: 1; transform: none; }
-      .ev-end-return { pointer-events: auto; }
+      .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap, .ev-ticket-img, .ev-ticket-glow, .ev-end-text, .ev-end-return, .ev-end-sub, .ev-ticket-info { animation: none; opacity: 1; transform: none; }
+      .ev-end-return, .ev-end-sub.clickable { pointer-events: auto; }
     }
 
     .ev-mobile-block { display: none; }
@@ -267,6 +280,7 @@
       <div class="ev-ticket-glow"></div>
       <img class="ev-ticket-img" id="ev-ticket-img" src="image/evaluation-invitation/評鑑門票1009.png" alt="評鑑門票">
     </div>
+    <p class="ev-ticket-info">評鑑日期：2026.10.09<br>開場時間：23:00<br>評鑑地點：伊弗利特 · 穹頂皓天 · 9 區 12 號</p>
   </div>
 
   <div class="ev-end-stage" id="ev-stage-4a" hidden>
@@ -279,7 +293,7 @@
   <div class="ev-end-stage" id="ev-stage-4b" hidden>
     <div class="ev-end-block">
       <p class="ev-end-text">靜候您的到來。</p>
-      <p class="ev-end-sub">伊弗利特 · 穹頂皓天 · 9 區 12 號</p>
+      <p class="ev-end-sub clickable" id="ev-end-download">取出門票，重新檢視。</p>
     </div>
   </div>
 
@@ -477,6 +491,15 @@
         img.style.transform = 'rotate(0deg)';
         img.style.opacity = '1';
         document.getElementById('ev-stage-3').hidden = false;
+      });
+
+      document.getElementById('ev-end-download').addEventListener('click', function() {
+        var a = document.createElement('a');
+        a.href = 'image/evaluation-invitation/評鑑門票1009.png';
+        a.download = '評鑑門票.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       });
     })();
 
