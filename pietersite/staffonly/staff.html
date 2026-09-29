@@ -3,26 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>安息地 · 使徒資料</title>
-  <link rel="icon" type="image/png" href="../image/icon/Elysium_LOGO_mini_dark.png">
+  <title>PIETERSITE · 館藏資料</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gold: #9c7a35; --gold-dim: rgba(156,122,53,.12);
-      --bg: #f3f1ee; --panel: #e9e6e1; --card: #ffffff;
-      --border: rgba(0,0,0,.1); --text: #211f1c; --dim: #6e6a63;
+      --gold: #3a5f8a; --gold-dim: rgba(58,95,138,.12);
+      --bg: #eef1f5; --panel: #e2e8ef; --card: #fbfcfe;
+      --border: rgba(58,95,138,.15); --text: #1a2230; --dim: #64707d;
       --green: #2d7a50; --red: #a8433a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
-    * { scrollbar-width: thin; scrollbar-color: rgba(156,122,53,.3) transparent; }
+    * { scrollbar-width: thin; scrollbar-color: rgba(58,95,138,.3) transparent; }
     *::-webkit-scrollbar { width: 9px; height: 9px; }
     *::-webkit-scrollbar-track { background: transparent; }
-    *::-webkit-scrollbar-thumb { background: rgba(156,122,53,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
-    *::-webkit-scrollbar-thumb:hover { background: rgba(156,122,53,.55); background-clip: padding-box; }
-    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
-    a, button, [role="button"], select, [onclick] { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
-    input, textarea { cursor: url('../image/arr-cursors/arr-small-text.cur'), text; }
+    *::-webkit-scrollbar-thumb { background: rgba(58,95,138,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
+    *::-webkit-scrollbar-thumb:hover { background: rgba(58,95,138,.55); background-clip: padding-box; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: default; }
+    a, button, [role="button"], select, [onclick] { cursor: pointer; }
+    input, textarea { cursor: text; }
 
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
     .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
@@ -45,7 +44,7 @@
     .acct-row:last-child { border-bottom: none; }
     .acct-row.on { background: var(--gold-dim); }
     .acct-row-float { position: fixed; z-index: 1000; pointer-events: none; background: var(--panel); box-shadow: 0 6px 16px rgba(0,0,0,.2); opacity: .95; border-bottom: none !important; }
-    .acct-row-placeholder { border: 1px dashed var(--gold); background: var(--gold-bg); box-sizing: border-box; }
+    .acct-row-placeholder { border: 1px dashed var(--gold); background: var(--gold-dim); box-sizing: border-box; }
     .acct-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .acct-dot.has { background: var(--green); } .acct-dot.no { background: rgba(0,0,0,.15); }
 
@@ -58,13 +57,13 @@
     .form-check { display: flex; align-items: center; gap: .4rem; font-size: 13px; margin-top: .65rem; }
 
     .btn { padding: .48rem 1rem; font-size: 13px; border: none; font-family: inherit; transition: all .15s; }
-    .btn-gold { background: var(--gold); color: #211f1c; font-weight: 600; }
-    .btn-gold:hover { background: #c4a25d; }
+    .btn-gold { background: var(--gold); color: #fff; font-weight: 600; }
+    .btn-gold:hover { background: #2c4a6e; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
     .btn-sm { padding: .3rem .7rem; font-size: 12px; }
 
-    .photo-preview { width: 100px; height: 150px; object-fit: cover; object-position: top; background: #e8e6e3; border: 1px solid var(--border); margin-top: .4rem; display: block; }
+    .photo-preview { width: 100px; height: 150px; object-fit: cover; object-position: top; background: #dce4ec; border: 1px solid var(--border); margin-top: .4rem; display: block; }
     .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .5rem 1.2rem; font-size: 13px; z-index: 9999; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
     .empty-hint { font-size: 12px; color: var(--dim); padding: .5rem 0; }
 
@@ -79,7 +78,7 @@
 <body>
 
 <header class="hdr">
-  <div class="hdr-title">✦ 安息地 · 使徒資料</div>
+  <div class="hdr-title">✦ PIETERSITE · 館藏資料</div>
   <div style="display:flex;align-items:center;gap:.85rem">
     <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px" ></div>
   </div>
@@ -97,14 +96,14 @@
     <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
   </div>
   <div id="auth-login" class="auth-box" style="display:none">
-    <div class="auth-logo">安息地</div>
-    <div class="auth-tagline">使徒資料</div>
+    <div class="auth-logo">PIETERSITE</div>
+    <div class="auth-tagline">館藏資料</div>
     <button class="btn btn-gold auth-google-btn" onclick="signInGoogle()">Google 登入</button>
     <div class="auth-err" id="auth-err"></div>
   </div>
   <div id="auth-denied" class="auth-box" style="display:none">
     <div class="auth-logo" style="font-size:1.5rem;margin-bottom:1rem">無權限</div>
-    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限管理員與使徒帳號使用。</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限管理員與館藏帳號使用。</div>
     <button class="btn btn-outline" style="width:100%" onclick="doSignOut()">登出</button>
   </div>
 </div>
@@ -115,13 +114,13 @@ import { getDatabase, ref as dbRef, onValue, get, set, update } from 'https://ww
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 const app = initializeApp({
-  apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
-  authDomain:        "elysiumpos.firebaseapp.com",
-  databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:         "elysiumpos",
-  storageBucket:     "elysiumpos.firebasestorage.app",
-  messagingSenderId: "430177597593",
-  appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+  apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+  authDomain:        "pietersitepos.firebaseapp.com",
+  databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "pietersitepos",
+  storageBucket:     "pietersitepos.firebasestorage.app",
+  messagingSenderId: "336617870672",
+  appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
 });
 const db   = getDatabase(app);
 const auth = initializeAuth(app, {
@@ -130,20 +129,10 @@ const auth = initializeAuth(app, {
 });
 getRedirectResult(auth).catch(() => {});
 
-const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
-// image/ 資料夾內現有的使徒照片檔名（新增照片檔案時要手動更新這份清單）
-const KNOWN_APOSTLE_IMAGES = [
-  'image/members/八乙女華蓮.png', 'image/members/八乙女華蓮_水印.png', 'image/members/八乙女華蓮_頭像.png',
-  'image/members/咪努.png', 'image/members/咪努_水印.png', 'image/members/咪努_頭像.png',
-  'image/members/安怛.png', 'image/members/安怛_水印.png', 'image/members/安怛_頭像.png',
-  'image/members/安石.png', 'image/members/安石_水印.png', 'image/members/安石_頭像.png',
-  'image/members/尼克席恩.png', 'image/members/尼克席恩_水印.png', 'image/members/尼克席恩_頭像.png',
-  'image/members/已離職/掠影.png', 'image/members/已離職/掠影_水印.png', 'image/members/已離職/掠影_頭像.png',
-  'image/members/著魔.png', 'image/members/著魔_水印.png', 'image/members/著魔_頭像.png',
-  'image/members/靜火.png', 'image/members/靜火_頭像.png',
-  'image/members/切斯特.png',
-  'image/members/末涼.png',
-];
+const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', apostle: '館藏' };
+// image/ 資料夾內現有的館藏照片檔名（新增照片檔案時要手動更新這份清單）
+/* ponytail: 等 Pietersite 有館藏照片檔案再把檔名加進這份清單 */
+const KNOWN_APOSTLE_IMAGES = [];
 
 let currentUser = null;
 let staffList   = [];
@@ -234,13 +223,13 @@ function renderList() {
   _bookableList   = all.filter(s => !isUnbookable(s));
   _unbookableList = all.filter(s => isUnbookable(s));
 
-  const rows = !all.length ? '<div class="empty-hint">尚無使徒角色的員工帳號</div>' : `
+  const rows = !all.length ? '<div class="empty-hint">尚無館藏角色的員工帳號</div>' : `
     ${_bookableList.map(s => row(s, 'bookable')).join('')}
     ${_unbookableList.length ? `
       <div class="empty-hint" style="margin:.6rem 0 .3rem;padding-top:.6rem;border-top:1px solid var(--border)">無法預約</div>
       ${_unbookableList.map(s => row(s, 'unbookable')).join('')}
     ` : ''}`;
-  col.innerHTML = `<div class="card"><div class="card-title">使徒列表</div>${rows}</div>`;
+  col.innerHTML = `<div class="card"><div class="card-title">館藏列表</div>${rows}</div>`;
   col.querySelectorAll('.acct-row').forEach(attachRowDrag);
 }
 
@@ -318,15 +307,9 @@ function renderEdit(uid) {
 
       <div class="form-row2">
         <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
+        <!-- ponytail: Elysium 用固定下拉選單(食罪/妖異等角色分類)，Pietersite 還沒定義這套分類，先開放自由輸入 -->
         <div><div class="form-label">職位</div>
-          <select class="form-input" id="f-tag">
-            <option value="" ${a.tag?'':'selected'}>選擇職位</option>
-            <option value="食罪" ${a.tag==='食罪'?'selected':''}>食罪</option>
-            <option value="妖異" ${a.tag==='妖異'?'selected':''}>妖異</option>
-            <option value="司祭・監禮者" ${a.tag==='司祭・監禮者'?'selected':''}>司祭・監禮者</option>
-            <option value="銀紗使" ${a.tag==='銀紗使'?'selected':''}>銀紗使</option>
-            <option value="引路人" ${a.tag==='引路人'?'selected':''}>引路人</option>
-          </select>
+          <input class="form-input" id="f-tag" value="${esc(a.tag||'')}" placeholder="例如：館員">
         </div>
       </div>
       <div class="form-label">本名 / 原名</div>
@@ -348,8 +331,8 @@ function renderEdit(uid) {
       <textarea class="form-input" id="f-extra">${esc(a.extra||'')}</textarea>
       <div class="form-label">個人業務</div>
       <textarea class="form-input" id="f-business">${esc(a.business||'')}</textarea>
-      <div class="form-label">心像殘響專屬餐點名稱</div>
-      <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="心像殘響">
+      <div class="form-label">私藏特調專屬餐點名稱</div>
+      <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="私藏特調">
       <div class="form-row2">
         <div><div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}"></div>
         <div><div class="form-label">&nbsp;</div>
