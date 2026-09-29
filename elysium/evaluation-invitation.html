@@ -24,6 +24,7 @@
       position: fixed; inset: 0;
       display: flex; align-items: center; justify-content: center;
       padding: 0 1.5rem;
+      cursor: pointer;
     }
 
     .ev-title-block { text-align: left; width: min(560px, 100%); }
@@ -420,6 +421,10 @@
         img.style.animation = 'none';
         img.style.opacity = '1';
         img.style.transform = 'rotate(0deg)';
+      });
+      info.addEventListener('animationend', function() {
+        info.style.animation = 'none';
+        info.style.opacity = '1';
       });
 
       function pointY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
