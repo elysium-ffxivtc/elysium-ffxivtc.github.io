@@ -309,7 +309,16 @@
     .flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay { color:var(--dim2); }
 
     /* ── Quill overrides ── */
-    .ql-toolbar.ql-snow { border:1px solid var(--border); border-bottom:none; background:var(--panel2); padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif; }
+    .ql-toolbar.ql-snow {
+      border:1px solid var(--border); border-bottom:none; background:var(--panel2);
+      padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif;
+      display:flex; flex-wrap:wrap; align-items:center; gap:.45rem .65rem;
+    }
+    .ql-toolbar.ql-snow .ql-formats {
+      display:flex; align-items:center; margin:0;
+      padding-right:.65rem; border-right:1px solid var(--border);
+    }
+    .ql-toolbar.ql-snow .ql-formats:last-child { border-right:none; padding-right:0; }
     .ql-container.ql-snow { border:1px solid var(--border); font-family:'Noto Sans TC',sans-serif; font-size:.93rem; }
     .ql-editor { min-height:220px; max-height:50vh; overflow-y:auto; line-height:1.65; color:var(--text); }
     .ql-editor p { margin-bottom: .5em; }
@@ -317,6 +326,14 @@
     .ql-editor img { max-width: 100%; }
     .ql-editor iframe { max-width: 100%; }
     .ql-editor.ql-blank::before { color:var(--dim2); font-style:normal; }
+    .ql-editor table { border-collapse:collapse; width:100%; margin:.5em 0; table-layout:fixed; }
+    .ql-editor table td, .ql-editor table th { border:1px solid var(--border); padding:.35em .55em; min-width:2em; overflow-wrap:break-word; }
+    .ql-table-embed { position:relative; }
+    .ql-col-resizer { position:absolute; width:6px; cursor:col-resize; z-index:5; background:transparent; }
+    .ql-col-resizer.ql-table-edge-resizer { cursor:ew-resize; }
+    .ql-col-resizer:hover, .ql-col-resizer.dragging { background:var(--gold); opacity:.4; }
+    .ql-row-resizer { position:absolute; height:6px; cursor:row-resize; z-index:5; background:transparent; }
+    .ql-row-resizer:hover, .ql-row-resizer.dragging { background:var(--gold); opacity:.4; }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
     .ql-snow .ql-picker { color:var(--dim); }
@@ -326,13 +343,57 @@
     .ql-snow .ql-picker-options { background:var(--panel); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,.08); }
     .ql-snow .ql-picker-item:hover,.ql-snow .ql-picker-item.ql-selected { color:var(--gold); }
     .ql-editor a { color:var(--gold); }
-    .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
-    .ql-history-btn { font-size:14px; color:var(--dim); }
-    .ql-history-btn:hover { color:var(--gold); }
-    .ql-snow .ql-picker.ql-size .ql-picker-label::before,
-    .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
-    .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
-    .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: '預設'; }
+    .ql-history-btn, .ql-table-btn {
+      width:28px; height:24px; display:inline-flex; align-items:center; justify-content:center;
+      padding:0; font-size:14px; color:var(--dim); border-radius:3px;
+    }
+    .ql-history-btn:hover, .ql-table-btn:hover { color:var(--gold); background:var(--gold-bg); }
+    .ql-table-wrap { position: relative; display: inline-block; }
+    .ql-table-picker {
+      position: absolute; top: calc(100% + 4px); left: 0;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12); padding: .6rem; z-index: 20;
+    }
+    .ql-table-picker[hidden] { display: none; }
+    .ql-table-grid { display: grid; gap: 2px; }
+    .ql-table-cell { width: 16px; height: 16px; border: 1px solid var(--border); background: var(--bg); }
+    .ql-table-cell.on { background: var(--gold-bg); border-color: var(--gold); }
+    .ql-table-picker-label { margin-top: .4rem; font-size: .78rem; color: var(--dim); text-align: center; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item::before { content: '一般文字'; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before { content: '標題 1'; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before { content: '標題 2'; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before { content: '標題 3'; }
+    .ql-fontsize-btn {
+      width: 22px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+      padding: 0; margin: 0 1px; font-size: 14px; color: var(--dim); border-radius: 3px;
+    }
+    .ql-fontsize-btn:hover { color: var(--gold); background: var(--gold-bg); }
+    .ql-fontsize-input {
+      width: 42px; font-size: .82rem; font-family: inherit; text-align: center;
+      border: 1px solid var(--border); border-radius: 3px; padding: .15rem .2rem; margin: 0 2px;
+      background: var(--panel); color: var(--text);
+      -moz-appearance: textfield; appearance: textfield;
+    }
+    .ql-fontsize-input::-webkit-outer-spin-button,
+    .ql-fontsize-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .ql-fontsize-input:focus { outline: none; border-color: var(--gold); }
+    .ql-fontsize-wrap { position: relative; display: inline-block; }
+    .ql-fontsize-menu {
+      position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+      background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12); padding: .25rem 0; z-index: 20;
+      max-height: 220px; overflow-y: auto; min-width: 56px;
+    }
+    .ql-fontsize-menu[hidden] { display: none; }
+    .ql-fontsize-menu-item {
+      display: block; width: 100%; text-align: center; font-size: .82rem;
+      padding: .3rem .6rem; color: var(--text); background: none; border: none;
+    }
+    .ql-fontsize-menu-item:hover { background: var(--gold-bg); color: var(--gold); }
     .ql-firstline-group { display: flex; align-items: center; gap: .3rem; }
     .ql-firstline-label { font-size: .78rem; color: var(--dim); white-space: nowrap; }
     .ql-firstline-input {
@@ -580,9 +641,8 @@
     const db      = firebase.database();
     const storage = firebase.storage();
 
-    const QUILL_SIZES = ['8pt','10pt','12pt','14pt','16pt','18pt','24pt','36pt'];
     const QuillSizeStyle = Quill.import('attributors/style/size');
-    QuillSizeStyle.whitelist = QUILL_SIZES;
+    QuillSizeStyle.whitelist = null;
     Quill.register(QuillSizeStyle, true);
 
     const Parchment = Quill.import('parchment');
@@ -591,15 +651,30 @@
     });
     Quill.register(FirstLineStyle, true);
 
+    // Quill 核心不認識 <table>，用一般的 Delta/HTML 流程插入會被同步機制清掉；
+    // 註冊成內嵌（embed）格式讓 Quill 把整張表格當成單一不透明區塊保留（跟圖片的原理一樣）
+    const BlockEmbed = Quill.import('blots/block/embed');
+    class TableBlot extends BlockEmbed {
+      static create(value) {
+        const node = super.create();
+        node.innerHTML = value;
+        return node;
+      }
+      static value(node) {
+        return node.innerHTML;
+      }
+    }
+    TableBlot.blotName = 'table-html';
+    TableBlot.tagName = 'div';
+    TableBlot.className = 'ql-table-embed';
+    Quill.register(TableBlot);
+
     const TOOLTIP_MAP = [
       ['.ql-header .ql-picker-label', '標題'],
-      ['.ql-size .ql-picker-label', '字體大小'],
       ['.ql-bold', '粗體'],
       ['.ql-italic', '斜體'],
       ['.ql-underline', '底線'],
       ['.ql-strike', '刪除線'],
-      ['.ql-script[value="sub"]', '下標'],
-      ['.ql-script[value="super"]', '上標'],
       ['.ql-color .ql-picker-label', '文字顏色'],
       ['.ql-background .ql-picker-label', '背景顏色'],
       ['.ql-align .ql-picker-label', '對齊方式'],
@@ -621,8 +696,7 @@
     }
 
     function addUndoRedoButtons(toolbarEl, quill) {
-      const group = document.createElement('span');
-      group.className = 'ql-formats';
+      const mainGroup = toolbarEl.querySelector('.ql-formats');
       const mkBtn = (label, title, fn) => {
         const btn = document.createElement('button');
         btn.type = 'button'; btn.className = 'ql-history-btn';
@@ -630,9 +704,8 @@
         btn.onclick = fn;
         return btn;
       };
-      group.appendChild(mkBtn('↶', '復原', () => quill.history.undo()));
-      group.appendChild(mkBtn('↷', '重做', () => quill.history.redo()));
-      toolbarEl.insertBefore(group, toolbarEl.firstChild);
+      mainGroup.insertBefore(mkBtn('↷', '重做', () => quill.history.redo()), mainGroup.firstChild);
+      mainGroup.insertBefore(mkBtn('↶', '復原', () => quill.history.undo()), mainGroup.firstChild);
     }
 
     function addFirstLineIndentInput(toolbarEl, quill) {
@@ -675,6 +748,253 @@
       group.appendChild(input);
       group.appendChild(unit);
       toolbarEl.appendChild(group);
+    }
+
+    const FONT_SIZE_PRESETS = [8,9,10,11,12,14,18,24,36,48];
+
+    function addFontSizeStepper(toolbarEl, quill) {
+      const frag = document.createDocumentFragment();
+      const minus = document.createElement('button');
+      minus.type = 'button'; minus.className = 'ql-fontsize-btn'; minus.title = '縮小字體';
+      minus.textContent = '−';
+      const wrap = document.createElement('span');
+      wrap.className = 'ql-fontsize-wrap';
+      const input = document.createElement('input');
+      input.type = 'number'; input.min = '1'; input.step = 'any';
+      input.className = 'ql-fontsize-input';
+      input.value = '11';
+      input.autocomplete = 'off';
+      const menu = document.createElement('div');
+      menu.className = 'ql-fontsize-menu';
+      menu.hidden = true;
+      FONT_SIZE_PRESETS.forEach(size => {
+        const item = document.createElement('button');
+        item.type = 'button'; item.className = 'ql-fontsize-menu-item';
+        item.textContent = size;
+        item.onclick = () => { input.value = size; apply(size); closeMenu(); };
+        menu.appendChild(item);
+      });
+      const plus = document.createElement('button');
+      plus.type = 'button'; plus.className = 'ql-fontsize-btn'; plus.title = '放大字體';
+      plus.textContent = '+';
+
+      function openMenu() { menu.hidden = false; }
+      function closeMenu() { menu.hidden = true; }
+      function apply(v) {
+        quill.focus();
+        quill.format('size', v + 'pt', 'user');
+      }
+      function step(delta) {
+        let v = parseFloat(input.value);
+        if (!v || v < 1) v = 11;
+        v = Math.max(1, v + delta);
+        input.value = v;
+        apply(v);
+      }
+      minus.onclick = () => step(-1);
+      plus.onclick = () => step(1);
+      input.addEventListener('click', e => { e.stopPropagation(); openMenu(); });
+      input.addEventListener('change', () => {
+        let v = parseFloat(input.value);
+        if (!v || v < 1) v = 11;
+        input.value = v;
+        apply(v);
+      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); closeMenu(); } });
+      document.addEventListener('click', e => { if (!wrap.contains(e.target)) closeMenu(); });
+      quill.on('selection-change', range => {
+        if (!range || document.activeElement === input) return;
+        const val = quill.getFormat(range).size;
+        input.value = val ? parseFloat(val) : 11;
+      });
+
+      wrap.appendChild(input);
+      wrap.appendChild(menu);
+      frag.appendChild(minus);
+      frag.appendChild(wrap);
+      frag.appendChild(plus);
+      const headerPicker = toolbarEl.querySelector('.ql-header');
+      headerPicker.parentNode.insertBefore(frag, headerPicker.nextSibling);
+    }
+
+    function insertTable(quill, rows, cols) {
+      const range = quill.getSelection(true) || { index: quill.getLength() };
+      const colWidth = (100 / cols).toFixed(4);
+      let html = '<table><colgroup>';
+      for (let c = 0; c < cols; c++) html += `<col style="width:${colWidth}%">`;
+      html += '</colgroup>';
+      for (let r = 0; r < rows; r++) {
+        html += '<tr>' + '<td><br></td>'.repeat(cols) + '</tr>';
+      }
+      html += '</table>';
+      quill.insertEmbed(range.index, 'table-html', html, 'user');
+      quill.insertText(range.index + 1, '\n', 'user');
+      quill.setSelection(range.index + 2, 0, 'silent');
+      initTableResize(quill.root);
+    }
+
+    // 讓表格欄寬可以拖曳調整；每欄用 <colgroup><col style="width:%"> 控制寬度，
+    // 拖桿是疊在欄與欄交界處的透明條，用滑鼠位移換算百分比去改相鄰兩欄的寬度
+    function initTableResize(root) {
+      root.querySelectorAll('.ql-table-embed:not([data-resize-init])').forEach(embedDiv => {
+        embedDiv.dataset.resizeInit = '1';
+        const table = embedDiv.querySelector('table');
+        if (!table) return;
+        let cols = table.querySelectorAll('colgroup col');
+        if (!cols.length) {
+          const firstRow = table.rows[0];
+          if (!firstRow) return;
+          const n = firstRow.cells.length;
+          const colgroup = document.createElement('colgroup');
+          for (let i = 0; i < n; i++) {
+            const col = document.createElement('col');
+            col.style.width = (100 / n) + '%';
+            colgroup.appendChild(col);
+          }
+          table.insertBefore(colgroup, table.firstChild);
+          cols = table.querySelectorAll('colgroup col');
+        }
+        table.style.width = table.style.width || '100%';
+        const colHandles = [];
+        cols.forEach((col, i) => {
+          const handle = document.createElement('div');
+          handle.className = 'ql-col-resizer';
+          if (i === cols.length - 1) handle.classList.add('ql-table-edge-resizer');
+          embedDiv.appendChild(handle);
+          colHandles.push({ handle, col, index: i, isEdge: i === cols.length - 1 });
+        });
+        const rowHandles = [];
+        Array.from(table.rows).forEach((tr, i) => {
+          const handle = document.createElement('div');
+          handle.className = 'ql-row-resizer';
+          embedDiv.appendChild(handle);
+          rowHandles.push({ handle, row: tr });
+        });
+        function reposition() {
+          const embedRect = embedDiv.getBoundingClientRect();
+          const firstRow = table.rows[0];
+          if (!firstRow) return;
+          colHandles.forEach(({ handle, index }) => {
+            const cell = firstRow.cells[index];
+            if (!cell) return;
+            const r = cell.getBoundingClientRect();
+            handle.style.left = (r.right - embedRect.left - 3) + 'px';
+            handle.style.top = (r.top - embedRect.top) + 'px';
+            handle.style.height = table.offsetHeight + 'px';
+          });
+          rowHandles.forEach(({ handle, row }) => {
+            const r = row.getBoundingClientRect();
+            handle.style.top = (r.bottom - embedRect.top - 3) + 'px';
+            handle.style.left = (r.left - embedRect.left) + 'px';
+            handle.style.width = table.offsetWidth + 'px';
+          });
+        }
+        reposition();
+        colHandles.forEach(({ handle, col, index, isEdge }) => {
+          handle.addEventListener('mousedown', e => {
+            e.preventDefault();
+            handle.classList.add('dragging');
+            const startX = e.clientX;
+            const embedWidth = embedDiv.offsetWidth;
+            const tableWidth = table.offsetWidth;
+            const startTableWidth = parseFloat(table.style.width) || 100;
+            const startWidth = parseFloat(col.style.width);
+            const nextCol = isEdge ? null : cols[index + 1];
+            const nextStartWidth = nextCol ? parseFloat(nextCol.style.width) : null;
+            function onMove(ev) {
+              if (isEdge) {
+                const deltaPercent = ((ev.clientX - startX) / embedWidth) * 100;
+                table.style.width = Math.max(20, Math.min(100, startTableWidth + deltaPercent)) + '%';
+              } else {
+                const deltaPercent = ((ev.clientX - startX) / tableWidth) * 100;
+                const newWidth = Math.max(5, startWidth + deltaPercent);
+                col.style.width = newWidth + '%';
+                if (nextCol) nextCol.style.width = Math.max(5, nextStartWidth - deltaPercent) + '%';
+              }
+              reposition();
+            }
+            function onUp() {
+              handle.classList.remove('dragging');
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          });
+        });
+        rowHandles.forEach(({ handle, row }) => {
+          handle.addEventListener('mousedown', e => {
+            e.preventDefault();
+            handle.classList.add('dragging');
+            const startY = e.clientY;
+            const startHeight = row.offsetHeight;
+            function onMove(ev) {
+              const newHeight = Math.max(20, startHeight + (ev.clientY - startY));
+              Array.from(row.cells).forEach(td => { td.style.height = newHeight + 'px'; });
+              reposition();
+            }
+            function onUp() {
+              handle.classList.remove('dragging');
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          });
+        });
+        window.addEventListener('resize', reposition);
+      });
+    }
+
+    function addTableButton(toolbarEl, quill) {
+      const GRID_COLS = 10, GRID_ROWS = 8;
+      const wrap = document.createElement('span');
+      wrap.className = 'ql-table-wrap';
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'ql-table-btn'; btn.title = '插入表格';
+      btn.textContent = '⊞';
+
+      const picker = document.createElement('div');
+      picker.className = 'ql-table-picker';
+      picker.hidden = true;
+      const grid = document.createElement('div');
+      grid.className = 'ql-table-grid';
+      grid.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
+      const label = document.createElement('div');
+      label.className = 'ql-table-picker-label';
+      label.textContent = '插入表格';
+
+      const cells = [];
+      for (let r = 1; r <= GRID_ROWS; r++) {
+        for (let c = 1; c <= GRID_COLS; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'ql-table-cell';
+          cell.dataset.row = r; cell.dataset.col = c;
+          cell.addEventListener('mouseenter', () => highlight(r, c));
+          cell.addEventListener('click', () => { insertTable(quill, r, c); closePicker(); });
+          grid.appendChild(cell);
+          cells.push(cell);
+        }
+      }
+      function highlight(row, col) {
+        cells.forEach(cell => {
+          cell.classList.toggle('on', +cell.dataset.row <= row && +cell.dataset.col <= col);
+        });
+        label.textContent = `${col} x ${row}`;
+      }
+      function resetHighlight() { highlight(0, 0); label.textContent = '插入表格'; }
+
+      function openPicker() { picker.hidden = false; resetHighlight(); }
+      function closePicker() { picker.hidden = true; }
+      btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
+      document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
+
+      picker.appendChild(grid);
+      picker.appendChild(label);
+      wrap.appendChild(btn);
+      wrap.appendChild(picker);
+      const codeBlockBtn = toolbarEl.querySelector('.ql-code-block');
+      codeBlockBtn.parentNode.insertBefore(wrap, codeBlockBtn.nextSibling);
     }
 
     // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
@@ -1030,15 +1350,8 @@
         modules: {
           toolbar: {
             container: [
-              [{ header:[1,2,3,false] }],
-              [{ size:[false, ...QUILL_SIZES] }],
-              ['bold','italic','underline','strike'],
-              [{ script:'sub' }, { script:'super' }],
-              [{ color:[] }, { background:[] }],
-              [{ align:[] }],
-              [{ list:'ordered' }, { list:'bullet' }],
-              [{ indent:'-1' }, { indent:'+1' }],
-              ['blockquote','code-block'],
+              [{ header:[1,2,3,false] }, 'bold','italic','underline','strike', { color:[] }, { background:[] }],
+              [{ align:[] }, { list:'ordered' }, { list:'bullet' }, { indent:'-1' }, { indent:'+1' }, 'blockquote','code-block'],
               ['link','image','video'],
               ['clean'],
             ],
@@ -1048,9 +1361,13 @@
       });
       const toolbarEl = _quill.getModule('toolbar').container;
       addUndoRedoButtons(toolbarEl, _quill);
+      addFontSizeStepper(toolbarEl, _quill);
+      addTableButton(toolbarEl, _quill);
+      toolbarEl.appendChild(toolbarEl.querySelector('.ql-clean').closest('.ql-formats'));
       addFirstLineIndentInput(toolbarEl, _quill);
       addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
+      initTableResize(_quill.root);
     }
 
     function quillImageHandler() {
