@@ -505,7 +505,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let _bulkWeeks = [];
 
   onAuthStateChanged(auth, async user => {
-    if (!user) { showScreen('login'); return; }
+    if (!user || user.isAnonymous) { showScreen('login'); return; }
     try {
       const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
       if (staffSnap.exists()) {

@@ -265,7 +265,7 @@
 
     firebase.auth().onAuthStateChanged(async user => {
       document.getElementById('loading-state').style.display = 'none';
-      if (!user) {
+      if (!user || user.isAnonymous) {
         document.getElementById('auth-overlay').classList.add('show');
         document.getElementById('portal').classList.remove('show');
         showBox('auth-login');

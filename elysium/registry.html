@@ -1326,7 +1326,7 @@
   }
   onAuthStateChanged(auth, user => {
     document.getElementById('auth-overlay').style.display = 'none';
-    if (!user) { window.location.href = 'index.html'; return; }
+    if (!user || user.isAnonymous) { window.location.href = 'index.html'; return; }
     init();
   });
 

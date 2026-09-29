@@ -154,7 +154,7 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 function isAdmin() { return currentUser && currentUser.role === 'admin'; }
 
 onAuthStateChanged(auth, async user => {
-  if (!user) { showAuth('login'); return; }
+  if (!user || user.isAnonymous) { showAuth('login'); return; }
   try {
     const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
     if (!staffSnap.exists()) { window.location.replace('index.html'); return; }

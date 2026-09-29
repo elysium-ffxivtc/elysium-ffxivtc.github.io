@@ -907,7 +907,7 @@
 
       firebase.auth().onAuthStateChanged(async user => {
         document.getElementById('pos-auth-loading').style.display = 'none';
-        if (!user) {
+        if (!user || user.isAnonymous) {
           document.getElementById('pos-auth-login').style.display = '';
           document.getElementById('pos-auth-overlay').classList.add('show');
           posUser = null;

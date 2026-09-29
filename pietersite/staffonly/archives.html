@@ -1016,7 +1016,7 @@
 
     firebase.auth().onAuthStateChanged(async user => {
       document.getElementById('auth-overlay').style.display = 'none';
-      if (!user) { window.location.href = 'index.html'; return; }
+      if (!user || user.isAnonymous) { window.location.href = 'index.html'; return; }
       _user = user;
       try {
         const staffSnap = await db.ref('staff/'+user.uid).get();
