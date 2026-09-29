@@ -282,6 +282,38 @@
 
   <div class="ev-veil" id="ev-veil"></div>
 
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+    import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+    const app = initializeApp({
+      apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
+      authDomain:        "elysiumpos.firebaseapp.com",
+      databaseURL:       "https://elysiumpos-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "elysiumpos",
+      storageBucket:     "elysiumpos.firebasestorage.app",
+      messagingSenderId: "430177597593",
+      appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
+    });
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const authReady = signInAnonymously(auth).catch(function() {});
+
+    // 每個 ID 只能接受一次：用清洗過的 ID 當 key，資料庫規則要設 !data.exists() 才能在伺服器端擋掉重複寫入
+    function sanitizeKey(s) {
+      return String(s || '').trim().replace(/[.#$\[\]\/]/g, '_');
+    }
+    window.evSubmitAccept = async function(id) {
+      try {
+        await authReady;
+        const key = sanitizeKey(id);
+        if (!key) return;
+        await set(dbRef(db, 'evaluationResponses/' + key), { id: id, ts: Date.now() });
+      } catch (e) {}
+    };
+  </script>
+
   <script>
     function buildLetterText(id) {
       return '致' + id + '：\n\n這是一份來自 Elysium 的特別邀請。\n\n為了讓聖堂的召引能夠更加完善，我正在邀請少數熟悉角色扮演、並願意提供真實感受的人們擔任本次的客座評鑑員。\n\n在此次評鑑中，你只需要以一般會眾的身份進入 Elysium，實際體驗使徒的接待、互動與服務，並在結束後，依照自己的感受留下評分與回饋。\n\n無論是令人印象深刻的地方、互動中感到不自然之處，或是你認為仍有改善空間的部分，都歡迎如實告訴我們。\n\n你的觀察與建議，將成為後續培訓的重要參考，也是使徒們在正式召引前非常重要的一次練習。同時，也讓我們能從不同的角度重新檢視聖堂的服務。\n\n若你願意成為本次客座評鑑員，請收下這張入場門票。\n\n期待在那一夜，於安息地與你相見。\n\n也期待透過你的眼睛，看見我們尚未察覺的 Elysium。';
@@ -410,6 +442,7 @@
         rot = 0; dragY = 0; progress = 0;
       }
       function commit(type) {
+        if (type === 'accept' && window.evSubmitAccept) window.evSubmitAccept(window.evId);
         var flyY = (type === 'reject' ? -1 : 1) * (window.innerHeight * 0.9);
         if (type === 'reject') {
           img.style.transition = 'transform .8s cubic-bezier(.4,0,.7,1), opacity .8s ease';
