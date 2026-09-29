@@ -394,6 +394,7 @@
     document.getElementById('ev-stage').addEventListener('click', function() {
       if (evBegun) return;
       evBegun = true;
+      this.style.cursor = 'default';
       startTypewriterSound();
       setTimeout(runNarrativeTyping, 8500);
     });
