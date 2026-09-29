@@ -345,6 +345,17 @@
       padding:0; font-size:14px; color:var(--dim); border-radius:3px;
     }
     .ql-history-btn:hover, .ql-table-btn:hover { color:var(--gold); background:var(--gold-bg); }
+    .ql-table-wrap { position: relative; display: inline-block; }
+    .ql-table-picker {
+      position: absolute; top: calc(100% + 4px); left: 0;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12); padding: .6rem; z-index: 20;
+    }
+    .ql-table-picker[hidden] { display: none; }
+    .ql-table-grid { display: grid; gap: 2px; }
+    .ql-table-cell { width: 16px; height: 16px; border: 1px solid var(--border); background: var(--bg); }
+    .ql-table-cell.on { background: var(--gold-bg); border-color: var(--gold); }
+    .ql-table-picker-label { margin-top: .4rem; font-size: .78rem; color: var(--dim); text-align: center; }
     .ql-snow .ql-picker.ql-header .ql-picker-label::before,
     .ql-snow .ql-picker.ql-header .ql-picker-item::before { content: '一般文字'; }
     .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,
@@ -785,24 +796,65 @@
       headerPicker.parentNode.insertBefore(frag, headerPicker.nextSibling);
     }
 
+    function insertTable(quill, rows, cols) {
+      const range = quill.getSelection(true);
+      let html = '<table>';
+      for (let r = 0; r < rows; r++) {
+        html += '<tr>' + '<td><br></td>'.repeat(cols) + '</tr>';
+      }
+      html += '</table><p><br></p>';
+      quill.clipboard.dangerouslyPasteHTML(range.index, html, 'user');
+    }
+
     function addTableButton(toolbarEl, quill) {
+      const GRID_COLS = 10, GRID_ROWS = 8;
+      const wrap = document.createElement('span');
+      wrap.className = 'ql-table-wrap';
       const btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'ql-table-btn'; btn.title = '插入表格';
       btn.textContent = '⊞';
-      btn.onclick = () => {
-        const rows = parseInt(prompt('列數（橫排）？', '3'), 10);
-        const cols = parseInt(prompt('欄數（直排）？', '3'), 10);
-        if (!rows || !cols || rows < 1 || cols < 1) return;
-        const range = quill.getSelection(true);
-        let html = '<table>';
-        for (let r = 0; r < rows; r++) {
-          html += '<tr>' + '<td><br></td>'.repeat(cols) + '</tr>';
+
+      const picker = document.createElement('div');
+      picker.className = 'ql-table-picker';
+      picker.hidden = true;
+      const grid = document.createElement('div');
+      grid.className = 'ql-table-grid';
+      grid.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
+      const label = document.createElement('div');
+      label.className = 'ql-table-picker-label';
+      label.textContent = '插入表格';
+
+      const cells = [];
+      for (let r = 1; r <= GRID_ROWS; r++) {
+        for (let c = 1; c <= GRID_COLS; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'ql-table-cell';
+          cell.dataset.row = r; cell.dataset.col = c;
+          cell.addEventListener('mouseenter', () => highlight(r, c));
+          cell.addEventListener('click', () => { insertTable(quill, r, c); closePicker(); });
+          grid.appendChild(cell);
+          cells.push(cell);
         }
-        html += '</table><p><br></p>';
-        quill.clipboard.dangerouslyPasteHTML(range.index, html, 'user');
-      };
+      }
+      function highlight(row, col) {
+        cells.forEach(cell => {
+          cell.classList.toggle('on', +cell.dataset.row <= row && +cell.dataset.col <= col);
+        });
+        label.textContent = `${col} x ${row}`;
+      }
+      function resetHighlight() { highlight(0, 0); label.textContent = '插入表格'; }
+
+      function openPicker() { picker.hidden = false; resetHighlight(); }
+      function closePicker() { picker.hidden = true; }
+      btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
+      document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
+
+      picker.appendChild(grid);
+      picker.appendChild(label);
+      wrap.appendChild(btn);
+      wrap.appendChild(picker);
       const codeBlockBtn = toolbarEl.querySelector('.ql-code-block');
-      codeBlockBtn.parentNode.insertBefore(btn, codeBlockBtn.nextSibling);
+      codeBlockBtn.parentNode.insertBefore(wrap, codeBlockBtn.nextSibling);
     }
 
     // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
