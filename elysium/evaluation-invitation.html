@@ -104,6 +104,14 @@
     }
     .ev-veil.show { opacity: 1; }
 
+    .ev-skip-btn {
+      position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
+      font-family: 'Cormorant Garamond', serif; font-size: .8rem; letter-spacing: .1em;
+      background: rgba(0,0,0,.4); border: 1px solid rgba(184,144,96,.4); color: rgba(232,224,210,.7);
+      padding: .4rem .8rem; cursor: pointer; opacity: .5; transition: opacity .2s ease;
+    }
+    .ev-skip-btn:hover { opacity: 1; }
+
     .ev-stage-2 {
       position: fixed; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -159,8 +167,58 @@
     @keyframes evNextIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .ev-next-btn:hover { background: rgba(43,40,34,.08); }
 
+    .ev-stage-3 {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ev-stage-3[hidden] { display: none; }
+    .ev-ticket-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .ev-ticket-glow {
+      position: absolute; width: 60vh; height: 60vh; border-radius: 50%;
+      background: radial-gradient(circle, rgba(184,144,96,.4) 0%, rgba(184,144,96,0) 70%);
+      opacity: 0;
+      animation: evGlowIn 1.4s ease forwards, evGlowPulse 3s ease-in-out 1.4s infinite;
+    }
+    @keyframes evGlowIn { to { opacity: 1; } }
+    @keyframes evGlowPulse {
+      0%, 100% { transform: scale(1); opacity: .75; }
+      50%      { transform: scale(1.15); opacity: 1; }
+    }
+    .ev-ticket-img {
+      position: relative; max-width: 80vw; max-height: 80vh;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,.6));
+      opacity: 0; transform: scale(.85) rotate(-4deg);
+      animation: evTicketIn 1s cubic-bezier(.19,1,.22,1) .3s forwards;
+      user-select: none; -webkit-user-drag: none;
+      cursor: grab; touch-action: none;
+    }
+    .ev-ticket-img:active { cursor: grabbing; }
+    @keyframes evTicketIn { to { opacity: 1; transform: scale(1) rotate(0deg); } }
+
+    .ev-end-stage {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 1.5rem; text-align: center;
+    }
+    .ev-end-stage[hidden] { display: none; }
+    .ev-end-block { display: flex; flex-direction: column; align-items: center; gap: .7rem; }
+    .ev-end-text {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: clamp(1rem, 2.4vw, 1.3rem); letter-spacing: -.01em;
+      color: #cabfae; white-space: pre-line; margin: 0;
+      opacity: 0; animation: evLineIn 1.2s ease forwards;
+    }
+    .ev-end-return {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: .92rem; letter-spacing: -.01em; margin: 0; cursor: pointer;
+      color: rgba(184,144,96,.55);
+      opacity: 0; animation: evLineIn 1.2s ease 3s forwards;
+      transition: color .3s ease, text-shadow .3s ease;
+    }
+    .ev-end-return:hover { color: var(--gold); text-shadow: 0 0 14px rgba(184,144,96,.85); }
+
     @media (prefers-reduced-motion: reduce) {
-      .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap { animation: none; opacity: 1; transform: none; }
+      .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap, .ev-ticket-img, .ev-ticket-glow, .ev-end-text, .ev-end-return { animation: none; opacity: 1; transform: none; }
     }
   </style>
 </head>
@@ -186,9 +244,57 @@
     </div>
   </div>
 
+  <div class="ev-stage-3" id="ev-stage-3" hidden>
+    <div class="ev-ticket-wrap" id="ev-ticket-wrap">
+      <div class="ev-ticket-glow"></div>
+      <img class="ev-ticket-img" id="ev-ticket-img" src="image/evaluation-invitation/評鑑門票1009.png" alt="評鑑門票">
+    </div>
+  </div>
+
+  <div class="ev-end-stage" id="ev-stage-4a" hidden>
+    <div class="ev-end-block">
+      <p class="ev-end-text">願我們在更溫柔的天幕下相遇。</p>
+      <p class="ev-end-return" id="ev-end-return">邀請仍在。</p>
+    </div>
+  </div>
+
+  <div class="ev-end-stage" id="ev-stage-4b" hidden>
+    <div class="ev-end-block">
+      <p class="ev-end-text">靜候您的到來。</p>
+    </div>
+  </div>
+
   <div class="ev-veil" id="ev-veil"></div>
 
+  <button class="ev-skip-btn" id="ev-skip-btn" onclick="evSkip()" title="跳過目前階段（測試用）">跳過 »</button>
+
   <script>
+    function buildLetterText(id) {
+      return '致' + id + '：\n\n這是一份來自 Elysium 的特別邀請。\n\n為了讓聖堂的召引能夠更加完善，我正在邀請少數熟悉角色扮演、並願意提供真實感受的人們擔任本次的客座評鑑員。\n\n在此次評鑑中，你只需要以一般會眾的身份進入 Elysium，實際體驗使徒的接待、互動與服務，並在結束後，依照自己的感受留下評分與回饋。\n\n無論是令人印象深刻的地方、互動中感到不自然之處，或是你認為仍有改善空間的部分，都歡迎如實告訴我們。\n\n你的觀察與建議，將成為後續培訓的重要參考，也是使徒們在正式召引前非常重要的一次練習。同時，也讓我們能從不同的角度重新檢視聖堂的服務。\n\n若你願意成為本次客座評鑑員，請收下這張入場門票。\n\n期待在那一夜，於安息地與你相見。\n\n也期待透過你的眼睛，看見我們尚未察覺的 Elysium。';
+    }
+    // 測試用：跳到下一個階段，不用每次都重新等動畫跑完
+    function evSkip() {
+      var stage1 = document.getElementById('ev-stage');
+      var stage2 = document.getElementById('ev-stage-2');
+      var stage3 = document.getElementById('ev-stage-3');
+      if (stage1.style.display !== 'none') {
+        var idInput = document.getElementById('ev-id-input');
+        var id = idInput.value.trim() || '測試';
+        stage1.style.display = 'none';
+        stage2.hidden = false;
+        document.getElementById('ev-veil').classList.remove('show');
+        document.getElementById('ev-paper-text').innerHTML = escText(buildLetterText(id));
+        var btn = document.getElementById('ev-next-btn');
+        btn.hidden = false;
+        btn.classList.add('show');
+      } else if (stage2.style.display !== 'none') {
+        stage2.style.display = 'none';
+        stage3.hidden = false;
+        document.getElementById('ev-veil').classList.remove('show');
+        document.getElementById('ev-skip-btn').hidden = true;
+        sndPageFlip.play().catch(function() {});
+      }
+    }
     function escText(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
@@ -239,6 +345,7 @@
     var sndTypewriter = new Audio('image/evaluation-invitation/Typewriter.mp3');
     sndTypewriter.loop = true;
     var sndDing = new Audio('image/evaluation-invitation/ding.mp3');
+    var sndPageFlip = new Audio('image/evaluation-invitation/短翻頁.wav');
 
     function startTypewriterSound() {
       sndTypewriter.play().catch(function() {});
@@ -258,7 +365,89 @@
 
     document.getElementById('ev-next-btn').addEventListener('click', function() {
       sndDing.play().catch(function() {});
+      document.getElementById('ev-veil').classList.add('show');
+      setTimeout(function() {
+        document.getElementById('ev-stage-2').style.display = 'none';
+        document.getElementById('ev-stage-3').hidden = false;
+        document.getElementById('ev-veil').classList.remove('show');
+        sndPageFlip.play().catch(function() {});
+      }, 700);
     });
+
+    (function() {
+      var img = document.getElementById('ev-ticket-img');
+      var TRIGGER_RATIO = 0.6;
+      var dragging = false, startY = 0, rot = 0, dragY = 0, progress = 0;
+
+      // evTicketIn 用 fill-mode:forwards，結束後仍會鎖住 transform 蓋掉這裡用 JS 設的旋轉值，要在動畫結束時解除；
+      // 但拿掉 animation 後會整個掉回規則裡寫的起始值（opacity:0、縮小旋轉），要同時手動補回動畫結束時的最終狀態
+      img.addEventListener('animationend', function() {
+        img.style.animation = 'none';
+        img.style.opacity = '1';
+        img.style.transform = 'rotate(0deg)';
+      });
+
+      function pointY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
+
+      function onDown(e) {
+        dragging = true;
+        startY = pointY(e);
+        img.style.transformOrigin = 'left center';
+        img.style.transition = 'none';
+      }
+      function onMove(e) {
+        if (!dragging) return;
+        var dy = pointY(e) - startY;
+        progress = dy / (img.offsetHeight * TRIGGER_RATIO);
+        rot = (dy / img.offsetHeight) * 40;
+        dragY = dy * 0.55;
+        img.style.transform = 'translateY(' + dragY + 'px) rotate(' + rot + 'deg)';
+        img.style.opacity = dy < 0 ? (1 - Math.min(Math.abs(progress), 1)) : 1;
+      }
+      function onUp() {
+        if (!dragging) return;
+        dragging = false;
+        if (progress <= -1) {
+          commit('reject');
+        } else if (progress >= 1) {
+          commit('accept');
+        } else {
+          img.style.transition = 'transform .4s cubic-bezier(.19,1,.22,1), opacity .4s ease';
+          img.style.transform = 'rotate(0deg)';
+          img.style.opacity = '1';
+        }
+        rot = 0; dragY = 0; progress = 0;
+      }
+      function commit(type) {
+        var flyY = (type === 'reject' ? -1 : 1) * (window.innerHeight * 0.9);
+        if (type === 'reject') {
+          img.style.transition = 'transform .8s cubic-bezier(.4,0,.7,1), opacity .8s ease';
+          img.style.opacity = '0';
+        } else {
+          img.style.transition = 'transform .8s cubic-bezier(.4,0,.7,1)';
+        }
+        img.style.transform = 'translateY(' + flyY + 'px) rotate(' + (type === 'reject' ? -35 : 35) + 'deg)';
+        setTimeout(function() {
+          document.getElementById('ev-stage-3').hidden = true;
+          document.getElementById(type === 'reject' ? 'ev-stage-4a' : 'ev-stage-4b').hidden = false;
+        }, 800);
+      }
+
+      img.addEventListener('mousedown', onDown);
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      img.addEventListener('touchstart', onDown, { passive: true });
+      document.addEventListener('touchmove', onMove, { passive: true });
+      document.addEventListener('touchend', onUp);
+
+      document.getElementById('ev-end-return').addEventListener('click', function() {
+        document.getElementById('ev-stage-4a').hidden = true;
+        img.style.transition = 'none';
+        img.style.transform = 'rotate(0deg)';
+        img.style.opacity = '1';
+        document.getElementById('ev-stage-3').hidden = false;
+      });
+    })();
 
     var evIdInput = document.getElementById('ev-id-input');
     var evIdSubmitted = false;
@@ -275,7 +464,7 @@
         document.getElementById('ev-stage-2').hidden = false;
         document.getElementById('ev-veil').classList.remove('show');
         setTimeout(function() {
-          typeOnPaper('致' + id + '：\n\n這是一份來自 Elysium 的特別邀請。\n\n為了讓聖堂的召引能夠更加完善，我正在邀請少數熟悉角色扮演、並願意提供真實感受的人們擔任本次的客座評鑑員。\n\n在此次評鑑中，你只需要以一般會眾的身份進入 Elysium，實際體驗使徒的接待、互動與服務，並在結束後，依照自己的感受留下評分與回饋。\n\n無論是令人印象深刻的地方、互動中感到不自然之處，或是你認為仍有改善空間的部分，都歡迎如實告訴我們。\n\n你的觀察與建議，將成為後續培訓的重要參考，也是使徒們在正式召引前非常重要的一次練習。同時，也讓我們能從不同的角度重新檢視聖堂的服務。\n\n若你願意成為本次客座評鑑員，請選擇一張可參與日期的入場門票。\n\n我們將依據各張門票所承載的日期進行安排，並於確認後另行告知最終的評鑑場次與參與名單。\n\n期待在那一夜，於安息地與你相見。\n\n也期待透過你的眼睛，看見我們尚未察覺的 Elysium。', 32, function() {
+          typeOnPaper(buildLetterText(id), 32, function() {
             stopTypewriterSound();
             var btn = document.getElementById('ev-next-btn');
             btn.hidden = false;
