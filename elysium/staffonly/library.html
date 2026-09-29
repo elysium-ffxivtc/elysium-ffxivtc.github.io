@@ -752,8 +752,6 @@
     }
 
     function addTableButton(toolbarEl, quill) {
-      const group = document.createElement('span');
-      group.className = 'ql-formats';
       const btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'ql-table-btn'; btn.title = '插入表格';
       btn.textContent = '⊞';
@@ -769,8 +767,8 @@
         html += '</table><p><br></p>';
         quill.clipboard.dangerouslyPasteHTML(range.index, html, 'user');
       };
-      group.appendChild(btn);
-      toolbarEl.appendChild(group);
+      const codeBlockBtn = toolbarEl.querySelector('.ql-code-block');
+      codeBlockBtn.parentNode.insertBefore(btn, codeBlockBtn.nextSibling);
     }
 
     // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
