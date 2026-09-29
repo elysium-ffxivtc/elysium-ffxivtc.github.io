@@ -718,7 +718,7 @@
       toolbarEl.appendChild(group);
     }
 
-    const FONT_SIZE_PRESETS = [8,9,10,10.5,11,12,14,18,24,36,48];
+    const FONT_SIZE_PRESETS = [8,9,10,11,12,14,18,24,36,48];
 
     function addFontSizeStepper(toolbarEl, quill) {
       const frag = document.createDocumentFragment();
@@ -728,7 +728,7 @@
       const wrap = document.createElement('span');
       wrap.className = 'ql-fontsize-wrap';
       const input = document.createElement('input');
-      input.type = 'number'; input.min = '1'; input.step = '1';
+      input.type = 'number'; input.min = '1'; input.step = 'any';
       input.className = 'ql-fontsize-input';
       input.value = '11';
       input.autocomplete = 'off';
@@ -753,7 +753,7 @@
         quill.format('size', v + 'pt', 'user');
       }
       function step(delta) {
-        let v = parseInt(input.value, 10);
+        let v = parseFloat(input.value);
         if (!v || v < 1) v = 11;
         v = Math.max(1, v + delta);
         input.value = v;
@@ -763,7 +763,7 @@
       plus.onclick = () => step(1);
       input.addEventListener('click', e => { e.stopPropagation(); openMenu(); });
       input.addEventListener('change', () => {
-        let v = parseInt(input.value, 10);
+        let v = parseFloat(input.value);
         if (!v || v < 1) v = 11;
         input.value = v;
         apply(v);
@@ -773,7 +773,7 @@
       quill.on('selection-change', range => {
         if (!range || document.activeElement === input) return;
         const val = quill.getFormat(range).size;
-        input.value = val ? parseInt(val, 10) : 11;
+        input.value = val ? parseFloat(val) : 11;
       });
 
       wrap.appendChild(input);
