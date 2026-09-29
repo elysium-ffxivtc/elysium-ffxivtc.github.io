@@ -333,7 +333,10 @@
     .ql-editor table td, .ql-editor table th { border:1px solid var(--border); padding:.35em .55em; min-width:2em; overflow-wrap:break-word; }
     .ql-table-embed { position:relative; }
     .ql-col-resizer { position:absolute; width:6px; cursor:col-resize; z-index:5; background:transparent; }
+    .ql-col-resizer.ql-table-edge-resizer { cursor:ew-resize; }
     .ql-col-resizer:hover, .ql-col-resizer.dragging { background:var(--gold); opacity:.4; }
+    .ql-row-resizer { position:absolute; height:6px; cursor:row-resize; z-index:5; background:transparent; }
+    .ql-row-resizer:hover, .ql-row-resizer.dragging { background:var(--gold); opacity:.4; }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
     .ql-snow .ql-picker { color:var(--dim); }
@@ -854,42 +857,83 @@
           table.insertBefore(colgroup, table.firstChild);
           cols = table.querySelectorAll('colgroup col');
         }
-        const handles = [];
+        table.style.width = table.style.width || '100%';
+        const colHandles = [];
         cols.forEach((col, i) => {
-          if (i === cols.length - 1) return;
           const handle = document.createElement('div');
           handle.className = 'ql-col-resizer';
+          if (i === cols.length - 1) handle.classList.add('ql-table-edge-resizer');
           embedDiv.appendChild(handle);
-          handles.push({ handle, col, index: i });
+          colHandles.push({ handle, col, index: i, isEdge: i === cols.length - 1 });
+        });
+        const rowHandles = [];
+        Array.from(table.rows).forEach((tr, i) => {
+          const handle = document.createElement('div');
+          handle.className = 'ql-row-resizer';
+          embedDiv.appendChild(handle);
+          rowHandles.push({ handle, row: tr });
         });
         function reposition() {
           const embedRect = embedDiv.getBoundingClientRect();
-          const row = table.rows[0];
-          if (!row) return;
-          handles.forEach(({ handle, index }) => {
-            const cell = row.cells[index];
+          const firstRow = table.rows[0];
+          if (!firstRow) return;
+          colHandles.forEach(({ handle, index }) => {
+            const cell = firstRow.cells[index];
             if (!cell) return;
             const r = cell.getBoundingClientRect();
             handle.style.left = (r.right - embedRect.left - 3) + 'px';
             handle.style.top = (r.top - embedRect.top) + 'px';
             handle.style.height = table.offsetHeight + 'px';
           });
+          rowHandles.forEach(({ handle, row }) => {
+            const r = row.getBoundingClientRect();
+            handle.style.top = (r.bottom - embedRect.top - 3) + 'px';
+            handle.style.left = (r.left - embedRect.left) + 'px';
+            handle.style.width = table.offsetWidth + 'px';
+          });
         }
         reposition();
-        handles.forEach(({ handle, col, index }) => {
+        colHandles.forEach(({ handle, col, index, isEdge }) => {
           handle.addEventListener('mousedown', e => {
             e.preventDefault();
             handle.classList.add('dragging');
             const startX = e.clientX;
+            const embedWidth = embedDiv.offsetWidth;
             const tableWidth = table.offsetWidth;
+            const startTableWidth = parseFloat(table.style.width) || 100;
             const startWidth = parseFloat(col.style.width);
-            const nextCol = cols[index + 1];
+            const nextCol = isEdge ? null : cols[index + 1];
             const nextStartWidth = nextCol ? parseFloat(nextCol.style.width) : null;
             function onMove(ev) {
-              const deltaPercent = ((ev.clientX - startX) / tableWidth) * 100;
-              const newWidth = Math.max(5, startWidth + deltaPercent);
-              col.style.width = newWidth + '%';
-              if (nextCol) nextCol.style.width = Math.max(5, nextStartWidth - deltaPercent) + '%';
+              if (isEdge) {
+                const deltaPercent = ((ev.clientX - startX) / embedWidth) * 100;
+                table.style.width = Math.max(20, Math.min(100, startTableWidth + deltaPercent)) + '%';
+              } else {
+                const deltaPercent = ((ev.clientX - startX) / tableWidth) * 100;
+                const newWidth = Math.max(5, startWidth + deltaPercent);
+                col.style.width = newWidth + '%';
+                if (nextCol) nextCol.style.width = Math.max(5, nextStartWidth - deltaPercent) + '%';
+              }
+              reposition();
+            }
+            function onUp() {
+              handle.classList.remove('dragging');
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          });
+        });
+        rowHandles.forEach(({ handle, row }) => {
+          handle.addEventListener('mousedown', e => {
+            e.preventDefault();
+            handle.classList.add('dragging');
+            const startY = e.clientY;
+            const startHeight = row.offsetHeight;
+            function onMove(ev) {
+              const newHeight = Math.max(20, startHeight + (ev.clientY - startY));
+              Array.from(row.cells).forEach(td => { td.style.height = newHeight + 'px'; });
               reposition();
             }
             function onUp() {
