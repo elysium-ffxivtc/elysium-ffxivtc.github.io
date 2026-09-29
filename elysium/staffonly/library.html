@@ -345,10 +345,26 @@
       padding:0; font-size:14px; color:var(--dim); border-radius:3px;
     }
     .ql-history-btn:hover, .ql-table-btn:hover { color:var(--gold); background:var(--gold-bg); }
-    .ql-snow .ql-picker.ql-size .ql-picker-label::before,
-    .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
-    .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
-    .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before { content: '預設'; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item::before { content: '一般文字'; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before { content: '標題 1'; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before { content: '標題 2'; }
+    .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,
+    .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before { content: '標題 3'; }
+    .ql-fontsize-group { display: flex; align-items: center; gap: .15rem; }
+    .ql-fontsize-btn {
+      width: 22px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+      padding: 0; font-size: 14px; color: var(--dim); border-radius: 3px;
+    }
+    .ql-fontsize-btn:hover { color: var(--gold); background: var(--gold-bg); }
+    .ql-fontsize-input {
+      width: 34px; font-size: .82rem; font-family: inherit; text-align: center;
+      border: 1px solid var(--border); border-radius: 3px; padding: .15rem .2rem;
+      background: var(--panel); color: var(--text);
+    }
+    .ql-fontsize-input:focus { outline: none; border-color: var(--gold); }
     .ql-firstline-group { display: flex; align-items: center; gap: .3rem; }
     .ql-firstline-label { font-size: .78rem; color: var(--dim); white-space: nowrap; }
     .ql-firstline-input {
@@ -596,9 +612,8 @@
     const db      = firebase.database();
     const storage = firebase.storage();
 
-    const QUILL_SIZES = ['8pt','10pt','12pt','14pt','16pt','18pt','24pt','36pt'];
     const QuillSizeStyle = Quill.import('attributors/style/size');
-    QuillSizeStyle.whitelist = QUILL_SIZES;
+    QuillSizeStyle.whitelist = null;
     Quill.register(QuillSizeStyle, true);
 
     const Parchment = Quill.import('parchment');
@@ -609,7 +624,6 @@
 
     const TOOLTIP_MAP = [
       ['.ql-header .ql-picker-label', '標題'],
-      ['.ql-size .ql-picker-label', '字體大小'],
       ['.ql-bold', '粗體'],
       ['.ql-italic', '斜體'],
       ['.ql-underline', '底線'],
@@ -691,6 +705,53 @@
       group.appendChild(input);
       group.appendChild(unit);
       toolbarEl.appendChild(group);
+    }
+
+    function addFontSizeStepper(toolbarEl, quill) {
+      const group = document.createElement('span');
+      group.className = 'ql-formats ql-fontsize-group';
+      const minus = document.createElement('button');
+      minus.type = 'button'; minus.className = 'ql-fontsize-btn'; minus.title = '縮小字體';
+      minus.textContent = '−';
+      const input = document.createElement('input');
+      input.type = 'number'; input.min = '1'; input.step = '1';
+      input.className = 'ql-fontsize-input';
+      input.value = '11';
+      const plus = document.createElement('button');
+      plus.type = 'button'; plus.className = 'ql-fontsize-btn'; plus.title = '放大字體';
+      plus.textContent = '+';
+
+      function apply(v) {
+        quill.focus();
+        quill.format('size', v + 'pt', 'user');
+      }
+      function step(delta) {
+        let v = parseInt(input.value, 10);
+        if (!v || v < 1) v = 11;
+        v = Math.max(1, v + delta);
+        input.value = v;
+        apply(v);
+      }
+      minus.onclick = () => step(-1);
+      plus.onclick = () => step(1);
+      input.addEventListener('change', () => {
+        let v = parseInt(input.value, 10);
+        if (!v || v < 1) v = 11;
+        input.value = v;
+        apply(v);
+      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+      quill.on('selection-change', range => {
+        if (!range || document.activeElement === input) return;
+        const val = quill.getFormat(range).size;
+        input.value = val ? parseInt(val, 10) : 11;
+      });
+
+      group.appendChild(minus);
+      group.appendChild(input);
+      group.appendChild(plus);
+      const headerGroup = toolbarEl.querySelector('.ql-header').closest('.ql-formats');
+      headerGroup.parentNode.insertBefore(group, headerGroup.nextSibling);
     }
 
     function addTableButton(toolbarEl, quill) {
@@ -1071,7 +1132,6 @@
           toolbar: {
             container: [
               [{ header:[1,2,3,false] }],
-              [{ size:[false, ...QUILL_SIZES] }],
               ['bold','italic','underline','strike'],
               [{ script:'sub' }, { script:'super' }],
               [{ color:[] }, { background:[] }],
@@ -1088,6 +1148,7 @@
       });
       const toolbarEl = _quill.getModule('toolbar').container;
       addUndoRedoButtons(toolbarEl, _quill);
+      addFontSizeStepper(toolbarEl, _quill);
       addTableButton(toolbarEl, _quill);
       addFirstLineIndentInput(toolbarEl, _quill);
       addToolbarTooltips(toolbarEl);
