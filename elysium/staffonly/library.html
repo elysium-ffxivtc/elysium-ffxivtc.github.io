@@ -648,6 +648,24 @@
     });
     Quill.register(FirstLineStyle, true);
 
+    // Quill 核心不認識 <table>，用一般的 Delta/HTML 流程插入會被同步機制清掉；
+    // 註冊成內嵌（embed）格式讓 Quill 把整張表格當成單一不透明區塊保留（跟圖片的原理一樣）
+    const BlockEmbed = Quill.import('blots/block/embed');
+    class TableBlot extends BlockEmbed {
+      static create(value) {
+        const node = super.create();
+        node.innerHTML = value;
+        return node;
+      }
+      static value(node) {
+        return node.innerHTML;
+      }
+    }
+    TableBlot.blotName = 'table-html';
+    TableBlot.tagName = 'div';
+    TableBlot.className = 'ql-table-embed';
+    Quill.register(TableBlot);
+
     const TOOLTIP_MAP = [
       ['.ql-header .ql-picker-label', '標題'],
       ['.ql-bold', '粗體'],
@@ -798,15 +816,14 @@
 
     function insertTable(quill, rows, cols) {
       const range = quill.getSelection(true) || { index: quill.getLength() };
-      quill.setSelection(range.index, 0, 'silent');
       let html = '<table>';
       for (let r = 0; r < rows; r++) {
         html += '<tr>' + '<td><br></td>'.repeat(cols) + '</tr>';
       }
-      html += '</table><p><br></p>';
-      // dangerouslyPasteHTML 會被 Quill 的 HTML→Delta 轉換過濾掉不認識的 table 標籤（空儲存格會整個消失），
-      // 改用 execCommand 直接寫進 contenteditable 的 DOM，Quill 的 MutationObserver 會自動同步狀態
-      document.execCommand('insertHTML', false, html);
+      html += '</table>';
+      quill.insertEmbed(range.index, 'table-html', html, 'user');
+      quill.insertText(range.index + 1, '\n', 'user');
+      quill.setSelection(range.index + 2, 0, 'silent');
     }
 
     function addTableButton(toolbarEl, quill) {
