@@ -134,7 +134,7 @@
       overflow-y: auto; overflow-x: hidden;
       scrollbar-width: none; -ms-overflow-style: none;
       font-family: 'Special Elite', 'Courier New', monospace;
-      font-size: clamp(.7rem, calc(min(80vh, 94vw) * .0225), 1.02rem);
+      font-size: clamp(.6rem, calc(min(80vh, 94vw) * .019), .88rem);
       line-height: 1.6; color: #2b2822; text-align: left;
       white-space: pre-wrap;
     }
@@ -449,7 +449,7 @@
         document.getElementById('ev-stage-2').hidden = false;
         document.getElementById('ev-veil').classList.remove('show');
         setTimeout(function() {
-          typeOnPaper(buildLetterText(id), 32, function() {
+          typeOnPaper(buildLetterText(id), 40, function() {
             stopTypewriterSound();
             var btn = document.getElementById('ev-next-btn');
             btn.hidden = false;
