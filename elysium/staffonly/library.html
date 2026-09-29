@@ -329,8 +329,11 @@
     .ql-editor img { max-width: 100%; }
     .ql-editor iframe { max-width: 100%; }
     .ql-editor.ql-blank::before { color:var(--dim2); font-style:normal; }
-    .ql-editor table { border-collapse:collapse; width:100%; margin:.5em 0; }
-    .ql-editor table td, .ql-editor table th { border:1px solid var(--border); padding:.35em .55em; min-width:2em; }
+    .ql-editor table { border-collapse:collapse; width:100%; margin:.5em 0; table-layout:fixed; }
+    .ql-editor table td, .ql-editor table th { border:1px solid var(--border); padding:.35em .55em; min-width:2em; overflow-wrap:break-word; }
+    .ql-table-embed { position:relative; }
+    .ql-col-resizer { position:absolute; width:6px; cursor:col-resize; z-index:5; background:transparent; }
+    .ql-col-resizer:hover, .ql-col-resizer.dragging { background:var(--gold); opacity:.4; }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
     .ql-snow .ql-picker { color:var(--dim); }
@@ -816,7 +819,10 @@
 
     function insertTable(quill, rows, cols) {
       const range = quill.getSelection(true) || { index: quill.getLength() };
-      let html = '<table>';
+      const colWidth = (100 / cols).toFixed(4);
+      let html = '<table><colgroup>';
+      for (let c = 0; c < cols; c++) html += `<col style="width:${colWidth}%">`;
+      html += '</colgroup>';
       for (let r = 0; r < rows; r++) {
         html += '<tr>' + '<td><br></td>'.repeat(cols) + '</tr>';
       }
@@ -824,6 +830,79 @@
       quill.insertEmbed(range.index, 'table-html', html, 'user');
       quill.insertText(range.index + 1, '\n', 'user');
       quill.setSelection(range.index + 2, 0, 'silent');
+      initTableResize(quill.root);
+    }
+
+    // 讓表格欄寬可以拖曳調整；每欄用 <colgroup><col style="width:%"> 控制寬度，
+    // 拖桿是疊在欄與欄交界處的透明條，用滑鼠位移換算百分比去改相鄰兩欄的寬度
+    function initTableResize(root) {
+      root.querySelectorAll('.ql-table-embed:not([data-resize-init])').forEach(embedDiv => {
+        embedDiv.dataset.resizeInit = '1';
+        const table = embedDiv.querySelector('table');
+        if (!table) return;
+        let cols = table.querySelectorAll('colgroup col');
+        if (!cols.length) {
+          const firstRow = table.rows[0];
+          if (!firstRow) return;
+          const n = firstRow.cells.length;
+          const colgroup = document.createElement('colgroup');
+          for (let i = 0; i < n; i++) {
+            const col = document.createElement('col');
+            col.style.width = (100 / n) + '%';
+            colgroup.appendChild(col);
+          }
+          table.insertBefore(colgroup, table.firstChild);
+          cols = table.querySelectorAll('colgroup col');
+        }
+        const handles = [];
+        cols.forEach((col, i) => {
+          if (i === cols.length - 1) return;
+          const handle = document.createElement('div');
+          handle.className = 'ql-col-resizer';
+          embedDiv.appendChild(handle);
+          handles.push({ handle, col, index: i });
+        });
+        function reposition() {
+          const embedRect = embedDiv.getBoundingClientRect();
+          const row = table.rows[0];
+          if (!row) return;
+          handles.forEach(({ handle, index }) => {
+            const cell = row.cells[index];
+            if (!cell) return;
+            const r = cell.getBoundingClientRect();
+            handle.style.left = (r.right - embedRect.left - 3) + 'px';
+            handle.style.top = (r.top - embedRect.top) + 'px';
+            handle.style.height = table.offsetHeight + 'px';
+          });
+        }
+        reposition();
+        handles.forEach(({ handle, col, index }) => {
+          handle.addEventListener('mousedown', e => {
+            e.preventDefault();
+            handle.classList.add('dragging');
+            const startX = e.clientX;
+            const tableWidth = table.offsetWidth;
+            const startWidth = parseFloat(col.style.width);
+            const nextCol = cols[index + 1];
+            const nextStartWidth = nextCol ? parseFloat(nextCol.style.width) : null;
+            function onMove(ev) {
+              const deltaPercent = ((ev.clientX - startX) / tableWidth) * 100;
+              const newWidth = Math.max(5, startWidth + deltaPercent);
+              col.style.width = newWidth + '%';
+              if (nextCol) nextCol.style.width = Math.max(5, nextStartWidth - deltaPercent) + '%';
+              reposition();
+            }
+            function onUp() {
+              handle.classList.remove('dragging');
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          });
+        });
+        window.addEventListener('resize', reposition);
+      });
     }
 
     function addTableButton(toolbarEl, quill) {
@@ -1249,6 +1328,7 @@
       addFirstLineIndentInput(toolbarEl, _quill);
       addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
+      initTableResize(_quill.root);
     }
 
     function quillImageHandler() {
