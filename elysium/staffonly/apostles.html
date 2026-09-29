@@ -30,6 +30,13 @@
     .main { flex: 1; padding: 1.25rem 1.5rem; max-width: 900px; width: 100%; margin: 0 auto; display: none; }
     .layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.25rem; align-items: start; }
     @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } }
+    #staff-list-col { position: sticky; top: 60px; max-height: calc(100vh - 76px); overflow-y: auto; }
+    @media (max-width: 700px) { #staff-list-col { position: static; max-height: none; } }
+    .save-bar {
+      position: sticky; bottom: 0; margin: 1rem -1rem -.9rem; padding: .75rem 1rem;
+      background: var(--card); border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; box-shadow: 0 -6px 12px -8px rgba(0,0,0,.15);
+    }
 
     .card { background: var(--card); border: 1px solid var(--border); padding: .9rem 1rem; margin-bottom: .75rem; }
     .card-title { font-size: 11px; color: var(--dim); letter-spacing: .08em; margin-bottom: .65rem; }
@@ -350,7 +357,7 @@ function renderEdit(uid) {
         </div>
       </div>
       <label class="form-check"><input type="checkbox" id="f-bookable" ${a.bookable!==false?'checked':''}> 接受預約（關閉後，即使有排班也不開放召引）</label>
-      <div style="margin-top:1rem;display:flex;justify-content:flex-end">
+      <div class="save-bar">
         <button class="btn btn-gold btn-sm" onclick="saveApostle('${uid}')">儲存</button>
       </div>
     </div>`;
