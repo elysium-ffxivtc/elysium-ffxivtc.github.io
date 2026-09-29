@@ -204,9 +204,11 @@
       font-family: 'Cormorant Garamond', serif; font-style: italic;
       font-size: .92rem; letter-spacing: -.01em; margin: 0; cursor: pointer;
       color: rgba(184,144,96,.55);
-      opacity: 0; animation: evLineIn 1.2s ease 3s forwards;
+      opacity: 0; pointer-events: none;
+      animation: evEndReturnIn 1.2s ease 3s forwards;
       transition: color .3s ease, text-shadow .3s ease;
     }
+    @keyframes evEndReturnIn { to { opacity: 1; pointer-events: auto; } }
     .ev-end-return:hover { color: var(--gold); text-shadow: 0 0 14px rgba(184,144,96,.85); }
     .ev-end-sub {
       font-family: 'Cormorant Garamond', serif; font-size: .8rem; letter-spacing: .15em;
@@ -216,6 +218,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap, .ev-ticket-img, .ev-ticket-glow, .ev-end-text, .ev-end-return, .ev-end-sub { animation: none; opacity: 1; transform: none; }
+      .ev-end-return { pointer-events: auto; }
     }
 
     .ev-mobile-block { display: none; }
