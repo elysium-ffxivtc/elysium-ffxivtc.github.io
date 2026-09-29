@@ -303,9 +303,6 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
     import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 
-    // 不登入直接寫入——不管用什麼招式隔離匿名登入，只要這個頁面呼叫 Firebase Auth
-    // 就會干擾到同瀏覽器裡 staffonly 的登入狀態，試了好幾種做法都一樣。乾脆完全不碰 Auth，
-    // 安全性改交給資料庫規則本身把關（格式驗證 + 同一個 ID 不能覆蓋已寫入的資料）
     const app = initializeApp({
       apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
       authDomain:        "elysiumpos.firebaseapp.com",
@@ -314,10 +311,9 @@
       storageBucket:     "elysiumpos.firebasestorage.app",
       messagingSenderId: "430177597593",
       appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
-    }, 'evalInvitationApp');
+    });
     const db = getDatabase(app);
 
-    // 每個 ID 只能接受一次：用清洗過的 ID 當 key，資料庫規則要設 !data.exists() 才能在伺服器端擋掉重複寫入
     function sanitizeKey(s) {
       return String(s || '').trim().replace(/[.#$\[\]\/]/g, '_');
     }
