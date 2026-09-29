@@ -212,9 +212,27 @@
     @media (prefers-reduced-motion: reduce) {
       .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap, .ev-ticket-img, .ev-ticket-glow, .ev-end-text, .ev-end-return { animation: none; opacity: 1; transform: none; }
     }
+
+    .ev-mobile-block { display: none; }
+    @media (max-width: 700px) {
+      .ev-mobile-block {
+        display: flex; align-items: center; justify-content: center;
+        position: fixed; inset: 0; z-index: 9999;
+        background: var(--ink); padding: 0 2.2rem; text-align: center;
+      }
+      .ev-mobile-block p {
+        font-family: 'Cormorant Garamond', serif; font-style: italic;
+        font-size: 1.05rem; line-height: 2; letter-spacing: .02em;
+        color: #cabfae;
+      }
+    }
   </style>
 </head>
 <body>
+
+  <div class="ev-mobile-block">
+    <p>這份邀請函的內容較為講究，手機畫面難以完整呈現。<br>請改以電腦瀏覽器開啟，方能盡覽其中細節。</p>
+  </div>
 
   <div class="ev-stage" id="ev-stage">
     <div class="ev-title-block">
