@@ -104,14 +104,6 @@
     }
     .ev-veil.show { opacity: 1; }
 
-    .ev-skip-btn {
-      position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
-      font-family: 'Cormorant Garamond', serif; font-size: .8rem; letter-spacing: .1em;
-      background: rgba(0,0,0,.4); border: 1px solid rgba(184,144,96,.4); color: rgba(232,224,210,.7);
-      padding: .4rem .8rem; cursor: pointer; opacity: .5; transition: opacity .2s ease;
-    }
-    .ev-skip-btn:hover { opacity: 1; }
-
     .ev-stage-2 {
       position: fixed; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -266,34 +258,9 @@
 
   <div class="ev-veil" id="ev-veil"></div>
 
-  <button class="ev-skip-btn" id="ev-skip-btn" onclick="evSkip()" title="跳過目前階段（測試用）">跳過 »</button>
-
   <script>
     function buildLetterText(id) {
       return '致' + id + '：\n\n這是一份來自 Elysium 的特別邀請。\n\n為了讓聖堂的召引能夠更加完善，我正在邀請少數熟悉角色扮演、並願意提供真實感受的人們擔任本次的客座評鑑員。\n\n在此次評鑑中，你只需要以一般會眾的身份進入 Elysium，實際體驗使徒的接待、互動與服務，並在結束後，依照自己的感受留下評分與回饋。\n\n無論是令人印象深刻的地方、互動中感到不自然之處，或是你認為仍有改善空間的部分，都歡迎如實告訴我們。\n\n你的觀察與建議，將成為後續培訓的重要參考，也是使徒們在正式召引前非常重要的一次練習。同時，也讓我們能從不同的角度重新檢視聖堂的服務。\n\n若你願意成為本次客座評鑑員，請收下這張入場門票。\n\n期待在那一夜，於安息地與你相見。\n\n也期待透過你的眼睛，看見我們尚未察覺的 Elysium。';
-    }
-    // 測試用：跳到下一個階段，不用每次都重新等動畫跑完
-    function evSkip() {
-      var stage1 = document.getElementById('ev-stage');
-      var stage2 = document.getElementById('ev-stage-2');
-      var stage3 = document.getElementById('ev-stage-3');
-      if (stage1.style.display !== 'none') {
-        var idInput = document.getElementById('ev-id-input');
-        var id = idInput.value.trim() || '測試';
-        stage1.style.display = 'none';
-        stage2.hidden = false;
-        document.getElementById('ev-veil').classList.remove('show');
-        document.getElementById('ev-paper-text').innerHTML = escText(buildLetterText(id));
-        var btn = document.getElementById('ev-next-btn');
-        btn.hidden = false;
-        btn.classList.add('show');
-      } else if (stage2.style.display !== 'none') {
-        stage2.style.display = 'none';
-        stage3.hidden = false;
-        document.getElementById('ev-veil').classList.remove('show');
-        document.getElementById('ev-skip-btn').hidden = true;
-        sndPageFlip.play().catch(function() {});
-      }
     }
     function escText(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
