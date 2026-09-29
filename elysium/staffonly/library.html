@@ -312,7 +312,16 @@
     .flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay { color:var(--dim2); }
 
     /* ── Quill overrides ── */
-    .ql-toolbar.ql-snow { border:1px solid var(--border); border-bottom:none; background:var(--panel2); padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif; }
+    .ql-toolbar.ql-snow {
+      border:1px solid var(--border); border-bottom:none; background:var(--panel2);
+      padding:.5rem .75rem; font-family:'Noto Sans TC',sans-serif;
+      display:flex; flex-wrap:wrap; align-items:center; gap:.45rem .65rem;
+    }
+    .ql-toolbar.ql-snow .ql-formats {
+      display:flex; align-items:center; margin:0;
+      padding-right:.65rem; border-right:1px solid var(--border);
+    }
+    .ql-toolbar.ql-snow .ql-formats:last-child { border-right:none; padding-right:0; }
     .ql-container.ql-snow { border:1px solid var(--border); font-family:'Noto Sans TC',sans-serif; font-size:.93rem; }
     .ql-editor { min-height:220px; max-height:50vh; overflow-y:auto; line-height:1.65; color:var(--text); }
     .ql-editor p { margin-bottom: .5em; }
@@ -320,6 +329,8 @@
     .ql-editor img { max-width: 100%; }
     .ql-editor iframe { max-width: 100%; }
     .ql-editor.ql-blank::before { color:var(--dim2); font-style:normal; }
+    .ql-editor table { border-collapse:collapse; width:100%; margin:.5em 0; }
+    .ql-editor table td, .ql-editor table th { border:1px solid var(--border); padding:.35em .55em; min-width:2em; }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
     .ql-snow .ql-picker { color:var(--dim); }
@@ -329,9 +340,11 @@
     .ql-snow .ql-picker-options { background:var(--panel); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,.08); }
     .ql-snow .ql-picker-item:hover,.ql-snow .ql-picker-item.ql-selected { color:var(--gold); }
     .ql-editor a { color:var(--gold); }
-    .ql-toolbar.ql-snow .ql-formats { margin-right:10px; }
-    .ql-history-btn { font-size:14px; color:var(--dim); }
-    .ql-history-btn:hover { color:var(--gold); }
+    .ql-history-btn, .ql-table-btn {
+      width:28px; height:24px; display:inline-flex; align-items:center; justify-content:center;
+      padding:0; font-size:14px; color:var(--dim); border-radius:3px;
+    }
+    .ql-history-btn:hover, .ql-table-btn:hover { color:var(--gold); background:var(--gold-bg); }
     .ql-snow .ql-picker.ql-size .ql-picker-label::before,
     .ql-snow .ql-picker.ql-size .ql-picker-item::before { content: attr(data-value); }
     .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
@@ -677,6 +690,28 @@
       group.appendChild(label);
       group.appendChild(input);
       group.appendChild(unit);
+      toolbarEl.appendChild(group);
+    }
+
+    function addTableButton(toolbarEl, quill) {
+      const group = document.createElement('span');
+      group.className = 'ql-formats';
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'ql-table-btn'; btn.title = '插入表格';
+      btn.textContent = '⊞';
+      btn.onclick = () => {
+        const rows = parseInt(prompt('列數（橫排）？', '3'), 10);
+        const cols = parseInt(prompt('欄數（直排）？', '3'), 10);
+        if (!rows || !cols || rows < 1 || cols < 1) return;
+        const range = quill.getSelection(true);
+        let html = '<table>';
+        for (let r = 0; r < rows; r++) {
+          html += '<tr>' + '<td><br></td>'.repeat(cols) + '</tr>';
+        }
+        html += '</table><p><br></p>';
+        quill.clipboard.dangerouslyPasteHTML(range.index, html, 'user');
+      };
+      group.appendChild(btn);
       toolbarEl.appendChild(group);
     }
 
@@ -1053,6 +1088,7 @@
       });
       const toolbarEl = _quill.getModule('toolbar').container;
       addUndoRedoButtons(toolbarEl, _quill);
+      addTableButton(toolbarEl, _quill);
       addFirstLineIndentInput(toolbarEl, _quill);
       addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
