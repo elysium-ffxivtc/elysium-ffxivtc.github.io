@@ -195,10 +195,9 @@
     .ev-end-stage[hidden] { display: none; }
     .ev-end-block { display: flex; flex-direction: column; align-items: center; gap: .7rem; }
     .ev-end-text {
-      font-family: 'Noto Serif TC', serif; font-weight: 700;
-      font-size: clamp(1.7rem, 5vw, 2.6rem); letter-spacing: .3em;
-      color: #f0e6d4; text-shadow: 0 0 26px rgba(184,144,96,.3);
-      white-space: pre-line; margin: 0;
+      font-family: 'Noto Serif TC', serif; font-style: italic;
+      font-size: clamp(1rem, 2.4vw, 1.3rem); letter-spacing: -.01em;
+      color: #cabfae; white-space: pre-line; margin: 0;
       opacity: 0; animation: evLineIn 1.2s ease forwards;
     }
     .ev-end-return {
@@ -209,9 +208,14 @@
       transition: color .3s ease, text-shadow .3s ease;
     }
     .ev-end-return:hover { color: var(--gold); text-shadow: 0 0 14px rgba(184,144,96,.85); }
+    .ev-end-sub {
+      font-family: 'Cormorant Garamond', serif; font-size: .8rem; letter-spacing: .15em;
+      color: rgba(184,144,96,.6); margin: 0;
+      opacity: 0; animation: evLineIn 1.2s ease .5s forwards;
+    }
 
     @media (prefers-reduced-motion: reduce) {
-      .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap, .ev-ticket-img, .ev-ticket-glow, .ev-end-text, .ev-end-return { animation: none; opacity: 1; transform: none; }
+      .ev-title, .ev-subtitle, .ev-narrative p, .ev-click-hint, .ev-typewriter-wrap, .ev-ticket-img, .ev-ticket-glow, .ev-end-text, .ev-end-return, .ev-end-sub { animation: none; opacity: 1; transform: none; }
     }
 
     .ev-mobile-block { display: none; }
@@ -272,6 +276,7 @@
   <div class="ev-end-stage" id="ev-stage-4b" hidden>
     <div class="ev-end-block">
       <p class="ev-end-text">靜候您的到來。</p>
+      <p class="ev-end-sub">伊弗利特 · 穹頂皓天 · 9 區 12 號</p>
     </div>
   </div>
 
