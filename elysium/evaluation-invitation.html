@@ -302,7 +302,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
     import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-    import { getAuth, setPersistence, inMemoryPersistence, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+    import { initializeAuth, inMemoryPersistence, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
     const app = initializeApp({
       apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
@@ -314,12 +314,11 @@
       appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
     });
     const db = getDatabase(app);
-    const auth = getAuth(app);
-    // 這個匿名登入只是為了拿寫入權限，絕對不能被瀏覽器記住——不然同一台瀏覽器之後打開 staffonly
-    // 會被誤認成「已登入但不是員工」而被導走。用 inMemoryPersistence 讓它只在這次分頁有效，關閉即消失
-    const authReady = setPersistence(auth, inMemoryPersistence)
-      .then(function() { return signInAnonymously(auth); })
-      .catch(function() {});
+    // 這個匿名登入只是為了拿寫入權限，絕對不能被瀏覽器記住——用 getAuth() 再 setPersistence() 中間會有一瞬間
+    // 用到預設的共用 IndexedDB persistence，足以干擾同瀏覽器裡已經開著的 staffonly 分頁。
+    // 改用 initializeAuth() 從建立的當下就直接指定 inMemoryPersistence，完全不會碰共用儲存空間
+    const auth = initializeAuth(app, { persistence: inMemoryPersistence });
+    const authReady = signInAnonymously(auth).catch(function() {});
 
     // 每個 ID 只能接受一次：用清洗過的 ID 當 key，資料庫規則要設 !data.exists() 才能在伺服器端擋掉重複寫入
     function sanitizeKey(s) {
