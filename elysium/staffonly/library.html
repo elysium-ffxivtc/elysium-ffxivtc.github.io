@@ -353,17 +353,19 @@
     .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before { content: '標題 2'; }
     .ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,
     .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before { content: '標題 3'; }
-    .ql-fontsize-group { display: flex; align-items: center; gap: .15rem; }
     .ql-fontsize-btn {
       width: 22px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
-      padding: 0; font-size: 14px; color: var(--dim); border-radius: 3px;
+      padding: 0; margin: 0 1px; font-size: 14px; color: var(--dim); border-radius: 3px;
     }
     .ql-fontsize-btn:hover { color: var(--gold); background: var(--gold-bg); }
     .ql-fontsize-input {
-      width: 34px; font-size: .82rem; font-family: inherit; text-align: center;
-      border: 1px solid var(--border); border-radius: 3px; padding: .15rem .2rem;
+      width: 42px; font-size: .82rem; font-family: inherit; text-align: center;
+      border: 1px solid var(--border); border-radius: 3px; padding: .15rem .2rem; margin: 0 2px;
       background: var(--panel); color: var(--text);
+      -moz-appearance: textfield; appearance: textfield;
     }
+    .ql-fontsize-input::-webkit-outer-spin-button,
+    .ql-fontsize-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .ql-fontsize-input:focus { outline: none; border-color: var(--gold); }
     .ql-firstline-group { display: flex; align-items: center; gap: .3rem; }
     .ql-firstline-label { font-size: .78rem; color: var(--dim); white-space: nowrap; }
@@ -628,8 +630,6 @@
       ['.ql-italic', '斜體'],
       ['.ql-underline', '底線'],
       ['.ql-strike', '刪除線'],
-      ['.ql-script[value="sub"]', '下標'],
-      ['.ql-script[value="super"]', '上標'],
       ['.ql-color .ql-picker-label', '文字顏色'],
       ['.ql-background .ql-picker-label', '背景顏色'],
       ['.ql-align .ql-picker-label', '對齊方式'],
@@ -651,8 +651,7 @@
     }
 
     function addUndoRedoButtons(toolbarEl, quill) {
-      const group = document.createElement('span');
-      group.className = 'ql-formats';
+      const mainGroup = toolbarEl.querySelector('.ql-formats');
       const mkBtn = (label, title, fn) => {
         const btn = document.createElement('button');
         btn.type = 'button'; btn.className = 'ql-history-btn';
@@ -660,9 +659,8 @@
         btn.onclick = fn;
         return btn;
       };
-      group.appendChild(mkBtn('↶', '復原', () => quill.history.undo()));
-      group.appendChild(mkBtn('↷', '重做', () => quill.history.redo()));
-      toolbarEl.insertBefore(group, toolbarEl.firstChild);
+      mainGroup.insertBefore(mkBtn('↷', '重做', () => quill.history.redo()), mainGroup.firstChild);
+      mainGroup.insertBefore(mkBtn('↶', '復原', () => quill.history.undo()), mainGroup.firstChild);
     }
 
     function addFirstLineIndentInput(toolbarEl, quill) {
@@ -708,8 +706,7 @@
     }
 
     function addFontSizeStepper(toolbarEl, quill) {
-      const group = document.createElement('span');
-      group.className = 'ql-formats ql-fontsize-group';
+      const frag = document.createDocumentFragment();
       const minus = document.createElement('button');
       minus.type = 'button'; minus.className = 'ql-fontsize-btn'; minus.title = '縮小字體';
       minus.textContent = '−';
@@ -747,11 +744,11 @@
         input.value = val ? parseInt(val, 10) : 11;
       });
 
-      group.appendChild(minus);
-      group.appendChild(input);
-      group.appendChild(plus);
-      const headerGroup = toolbarEl.querySelector('.ql-header').closest('.ql-formats');
-      headerGroup.parentNode.insertBefore(group, headerGroup.nextSibling);
+      frag.appendChild(minus);
+      frag.appendChild(input);
+      frag.appendChild(plus);
+      const headerPicker = toolbarEl.querySelector('.ql-header');
+      headerPicker.parentNode.insertBefore(frag, headerPicker.nextSibling);
     }
 
     function addTableButton(toolbarEl, quill) {
@@ -1131,14 +1128,8 @@
         modules: {
           toolbar: {
             container: [
-              [{ header:[1,2,3,false] }],
-              ['bold','italic','underline','strike'],
-              [{ script:'sub' }, { script:'super' }],
-              [{ color:[] }, { background:[] }],
-              [{ align:[] }],
-              [{ list:'ordered' }, { list:'bullet' }],
-              [{ indent:'-1' }, { indent:'+1' }],
-              ['blockquote','code-block'],
+              [{ header:[1,2,3,false] }, 'bold','italic','underline','strike', { color:[] }, { background:[] }],
+              [{ align:[] }, { list:'ordered' }, { list:'bullet' }, { indent:'-1' }, { indent:'+1' }, 'blockquote','code-block'],
               ['link','image','video'],
               ['clean'],
             ],
@@ -1150,6 +1141,7 @@
       addUndoRedoButtons(toolbarEl, _quill);
       addFontSizeStepper(toolbarEl, _quill);
       addTableButton(toolbarEl, _quill);
+      toolbarEl.appendChild(toolbarEl.querySelector('.ql-clean').closest('.ql-formats'));
       addFirstLineIndentInput(toolbarEl, _quill);
       addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
