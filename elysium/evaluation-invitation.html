@@ -304,6 +304,9 @@
     import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
     import { initializeAuth, inMemoryPersistence, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
+    // 用「另外命名」的 app 實例（不是預設的 "[DEFAULT]"），讓 Firebase SDK 內部所有狀態
+    // （包含分頁間協調用的 IndexedDB 事件通道）完全獨立於 staffonly 用的預設 app，
+    // 才不會不管用什麼 persistence 設定都還是干擾到同瀏覽器裡已登入的 staffonly 分頁
     const app = initializeApp({
       apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
       authDomain:        "elysiumpos.firebaseapp.com",
@@ -312,11 +315,8 @@
       storageBucket:     "elysiumpos.firebasestorage.app",
       messagingSenderId: "430177597593",
       appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
-    });
+    }, 'evalInvitationApp');
     const db = getDatabase(app);
-    // 這個匿名登入只是為了拿寫入權限，絕對不能被瀏覽器記住——用 getAuth() 再 setPersistence() 中間會有一瞬間
-    // 用到預設的共用 IndexedDB persistence，足以干擾同瀏覽器裡已經開著的 staffonly 分頁。
-    // 改用 initializeAuth() 從建立的當下就直接指定 inMemoryPersistence，完全不會碰共用儲存空間
     const auth = initializeAuth(app, { persistence: inMemoryPersistence });
     const authReady = signInAnonymously(auth).catch(function() {});
 
