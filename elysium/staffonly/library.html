@@ -367,6 +367,19 @@
     .ql-fontsize-input::-webkit-outer-spin-button,
     .ql-fontsize-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .ql-fontsize-input:focus { outline: none; border-color: var(--gold); }
+    .ql-fontsize-wrap { position: relative; display: inline-block; }
+    .ql-fontsize-menu {
+      position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+      background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12); padding: .25rem 0; z-index: 20;
+      max-height: 220px; overflow-y: auto; min-width: 56px;
+    }
+    .ql-fontsize-menu[hidden] { display: none; }
+    .ql-fontsize-menu-item {
+      display: block; width: 100%; text-align: center; font-size: .82rem;
+      padding: .3rem .6rem; color: var(--text); background: none; border: none;
+    }
+    .ql-fontsize-menu-item:hover { background: var(--gold-bg); color: var(--gold); }
     .ql-firstline-group { display: flex; align-items: center; gap: .3rem; }
     .ql-firstline-label { font-size: .78rem; color: var(--dim); white-space: nowrap; }
     .ql-firstline-input {
@@ -705,19 +718,36 @@
       toolbarEl.appendChild(group);
     }
 
+    const FONT_SIZE_PRESETS = [8,9,10,10.5,11,12,14,18,24,36,48];
+
     function addFontSizeStepper(toolbarEl, quill) {
       const frag = document.createDocumentFragment();
       const minus = document.createElement('button');
       minus.type = 'button'; minus.className = 'ql-fontsize-btn'; minus.title = '縮小字體';
       minus.textContent = '−';
+      const wrap = document.createElement('span');
+      wrap.className = 'ql-fontsize-wrap';
       const input = document.createElement('input');
       input.type = 'number'; input.min = '1'; input.step = '1';
       input.className = 'ql-fontsize-input';
       input.value = '11';
+      input.autocomplete = 'off';
+      const menu = document.createElement('div');
+      menu.className = 'ql-fontsize-menu';
+      menu.hidden = true;
+      FONT_SIZE_PRESETS.forEach(size => {
+        const item = document.createElement('button');
+        item.type = 'button'; item.className = 'ql-fontsize-menu-item';
+        item.textContent = size;
+        item.onclick = () => { input.value = size; apply(size); closeMenu(); };
+        menu.appendChild(item);
+      });
       const plus = document.createElement('button');
       plus.type = 'button'; plus.className = 'ql-fontsize-btn'; plus.title = '放大字體';
       plus.textContent = '+';
 
+      function openMenu() { menu.hidden = false; }
+      function closeMenu() { menu.hidden = true; }
       function apply(v) {
         quill.focus();
         quill.format('size', v + 'pt', 'user');
@@ -731,21 +761,25 @@
       }
       minus.onclick = () => step(-1);
       plus.onclick = () => step(1);
+      input.addEventListener('click', e => { e.stopPropagation(); openMenu(); });
       input.addEventListener('change', () => {
         let v = parseInt(input.value, 10);
         if (!v || v < 1) v = 11;
         input.value = v;
         apply(v);
       });
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); closeMenu(); } });
+      document.addEventListener('click', e => { if (!wrap.contains(e.target)) closeMenu(); });
       quill.on('selection-change', range => {
         if (!range || document.activeElement === input) return;
         const val = quill.getFormat(range).size;
         input.value = val ? parseInt(val, 10) : 11;
       });
 
+      wrap.appendChild(input);
+      wrap.appendChild(menu);
       frag.appendChild(minus);
-      frag.appendChild(input);
+      frag.appendChild(wrap);
       frag.appendChild(plus);
       const headerPicker = toolbarEl.querySelector('.ql-header');
       headerPicker.parentNode.insertBefore(frag, headerPicker.nextSibling);
