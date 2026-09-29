@@ -33,16 +33,14 @@
 
     .card { background: var(--card); border: 1px solid var(--border); padding: .9rem 1rem; margin-bottom: .75rem; }
     .card-title { font-size: 11px; color: var(--dim); letter-spacing: .08em; margin-bottom: .65rem; }
-    .acct-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem .3rem; border-bottom: 1px solid rgba(0,0,0,.05); font-size: 13px; }
+    .acct-row { display: flex; align-items: center; gap: .5rem; padding: .5rem .3rem; border-bottom: 1px solid rgba(0,0,0,.05); font-size: 13px; cursor: grab; user-select: none; }
+    .acct-row:active { cursor: grabbing; }
     .acct-row:last-child { border-bottom: none; }
     .acct-row.on { background: var(--gold-dim); }
+    .acct-row-float { position: fixed; z-index: 1000; pointer-events: none; background: var(--panel); box-shadow: 0 6px 16px rgba(0,0,0,.2); opacity: .95; border-bottom: none !important; }
+    .acct-row-placeholder { border: 1px dashed var(--gold); background: var(--gold-bg); box-sizing: border-box; }
     .acct-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .acct-dot.has { background: var(--green); } .acct-dot.no { background: rgba(0,0,0,.15); }
-    .acct-label { flex: 1; }
-    .order-btns { display: flex; gap: .1rem; flex-shrink: 0; }
-    .order-btn { font-size: 10px; line-height: 1; color: var(--dim); background: none; border: 1px solid var(--border); padding: .2rem .3rem; }
-    .order-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
-    .order-btn:disabled { opacity: .25; cursor: default; }
 
     .form-label { font-size: 12px; color: var(--dim); margin-bottom: .28rem; margin-top: .65rem; }
     .form-label:first-child { margin-top: 0; }
@@ -106,7 +104,7 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getDatabase, ref as dbRef, onValue, get, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { getDatabase, ref as dbRef, onValue, get, set, update } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 const app = initializeApp({
@@ -219,36 +217,81 @@ function renderList() {
     return !a || a.active === false || a.bookable === false;
   };
 
-  const row = (s, groupName, idx, groupLen) => {
+  const row = (s, groupName) => {
     const canBook = !isUnbookable(s);
     const sel = editingUid === s.uid ? ' on' : '';
-    return `<div class="acct-row${sel}">
-      <span class="acct-label" onclick="openEdit('${s.uid}')"><span class="acct-dot ${canBook?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}</span>
-      <span class="order-btns">
-        <button class="order-btn" title="上移" onclick="event.stopPropagation();moveApostle('${s.uid}','${groupName}',-1)"${idx===0?' disabled':''}>▲</button>
-        <button class="order-btn" title="下移" onclick="event.stopPropagation();moveApostle('${s.uid}','${groupName}',1)"${idx===groupLen-1?' disabled':''}>▼</button>
-      </span>
+    return `<div class="acct-row${sel}" data-uid="${s.uid}" data-group="${groupName}">
+      <span class="acct-dot ${canBook?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}
     </div>`;
   };
   _bookableList   = all.filter(s => !isUnbookable(s));
   _unbookableList = all.filter(s => isUnbookable(s));
 
   const rows = !all.length ? '<div class="empty-hint">尚無使徒角色的員工帳號</div>' : `
-    ${_bookableList.map((s,i) => row(s, 'bookable', i, _bookableList.length)).join('')}
+    ${_bookableList.map(s => row(s, 'bookable')).join('')}
     ${_unbookableList.length ? `
       <div class="empty-hint" style="margin:.6rem 0 .3rem;padding-top:.6rem;border-top:1px solid var(--border)">無法預約</div>
-      ${_unbookableList.map((s,i) => row(s, 'unbookable', i, _unbookableList.length)).join('')}
+      ${_unbookableList.map(s => row(s, 'unbookable')).join('')}
     ` : ''}`;
   col.innerHTML = `<div class="card"><div class="card-title">使徒列表</div>${rows}</div>`;
+  col.querySelectorAll('.acct-row').forEach(attachRowDrag);
 }
 
-async function moveApostle(uid, groupName, dir) {
-  const arr = (groupName === 'bookable' ? _bookableList : _unbookableList).slice();
-  const idx = arr.findIndex(s => s.uid === uid);
-  const swapIdx = idx + dir;
-  if (idx === -1 || swapIdx < 0 || swapIdx >= arr.length) return;
-  [arr[idx], arr[swapIdx]] = [arr[swapIdx], arr[idx]];
-  await Promise.all(arr.map((s, i) => set(dbRef(db, 'apostles/' + s.uid + '/order'), i)));
+// 拖曳時讓一個浮動分身跟著滑鼠移動，原位置留一個佔位格顯示會插入的地方；
+// 放開滑鼠時依佔位格當下所在順序寫回 order 欄位。沒有移動超過門檻就視為一般點擊（開啟編輯）
+function attachRowDrag(rowEl) {
+  rowEl.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    const uid = rowEl.dataset.uid, groupName = rowEl.dataset.group;
+    const startX = e.clientX, startY = e.clientY;
+    const rect = rowEl.getBoundingClientRect();
+    let floatEl = null, placeholder = null, moved = false;
+
+    function onMove(ev) {
+      const dx = ev.clientX - startX, dy = ev.clientY - startY;
+      if (!moved) {
+        if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+        moved = true;
+        floatEl = rowEl.cloneNode(true);
+        floatEl.classList.add('acct-row-float');
+        floatEl.style.width = rect.width + 'px';
+        floatEl.style.left = rect.left + 'px';
+        floatEl.style.top = rect.top + 'px';
+        document.body.appendChild(floatEl);
+        placeholder = document.createElement('div');
+        placeholder.className = 'acct-row-placeholder';
+        placeholder.style.height = rect.height + 'px';
+        rowEl.parentNode.insertBefore(placeholder, rowEl);
+        rowEl.style.display = 'none';
+      }
+      floatEl.style.top = (rect.top + dy) + 'px';
+      floatEl.style.left = (rect.left + dx) + 'px';
+      const overEl = document.elementFromPoint(ev.clientX, ev.clientY);
+      const overRow = overEl && overEl.closest('.acct-row');
+      if (overRow && overRow !== rowEl && overRow.dataset.group === groupName) {
+        const overRect = overRow.getBoundingClientRect();
+        const isTop = ev.clientY < overRect.top + overRect.height / 2;
+        overRow.parentNode.insertBefore(placeholder, isTop ? overRow : overRow.nextSibling);
+      }
+    }
+    async function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      if (!moved) { openEdit(uid); return; }
+      rowEl.style.display = '';
+      const parent = placeholder.parentNode;
+      parent.insertBefore(rowEl, placeholder);
+      placeholder.remove();
+      floatEl.remove();
+      const updates = {};
+      parent.querySelectorAll(`.acct-row[data-group="${groupName}"]`).forEach((el, i) => {
+        updates[`apostles/${el.dataset.uid}/order`] = i;
+      });
+      await update(dbRef(db), updates);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
 }
 
 function openEdit(uid) { editingUid = uid; renderEdit(uid); renderList(); }
