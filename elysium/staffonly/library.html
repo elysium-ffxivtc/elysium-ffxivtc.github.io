@@ -797,13 +797,16 @@
     }
 
     function insertTable(quill, rows, cols) {
-      const range = quill.getSelection(true);
+      const range = quill.getSelection(true) || { index: quill.getLength() };
+      quill.setSelection(range.index, 0, 'silent');
       let html = '<table>';
       for (let r = 0; r < rows; r++) {
         html += '<tr>' + '<td><br></td>'.repeat(cols) + '</tr>';
       }
       html += '</table><p><br></p>';
-      quill.clipboard.dangerouslyPasteHTML(range.index, html, 'user');
+      // dangerouslyPasteHTML 會被 Quill 的 HTML→Delta 轉換過濾掉不認識的 table 標籤（空儲存格會整個消失），
+      // 改用 execCommand 直接寫進 contenteditable 的 DOM，Quill 的 MutationObserver 會自動同步狀態
+      document.execCommand('insertHTML', false, html);
     }
 
     function addTableButton(toolbarEl, quill) {
