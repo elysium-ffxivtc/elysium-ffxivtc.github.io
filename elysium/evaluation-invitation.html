@@ -302,11 +302,10 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
     import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-    import { initializeAuth, inMemoryPersistence, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
-    // 用「另外命名」的 app 實例（不是預設的 "[DEFAULT]"），讓 Firebase SDK 內部所有狀態
-    // （包含分頁間協調用的 IndexedDB 事件通道）完全獨立於 staffonly 用的預設 app，
-    // 才不會不管用什麼 persistence 設定都還是干擾到同瀏覽器裡已登入的 staffonly 分頁
+    // 不登入直接寫入——不管用什麼招式隔離匿名登入，只要這個頁面呼叫 Firebase Auth
+    // 就會干擾到同瀏覽器裡 staffonly 的登入狀態，試了好幾種做法都一樣。乾脆完全不碰 Auth，
+    // 安全性改交給資料庫規則本身把關（格式驗證 + 同一個 ID 不能覆蓋已寫入的資料）
     const app = initializeApp({
       apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
       authDomain:        "elysiumpos.firebaseapp.com",
@@ -317,8 +316,6 @@
       appId:             "1:430177597593:web:7598eaf6e5e6264dc82008"
     }, 'evalInvitationApp');
     const db = getDatabase(app);
-    const auth = initializeAuth(app, { persistence: inMemoryPersistence });
-    const authReady = signInAnonymously(auth).catch(function() {});
 
     // 每個 ID 只能接受一次：用清洗過的 ID 當 key，資料庫規則要設 !data.exists() 才能在伺服器端擋掉重複寫入
     function sanitizeKey(s) {
@@ -326,7 +323,6 @@
     }
     window.evSubmitAccept = async function(id) {
       try {
-        await authReady;
         const key = sanitizeKey(id);
         if (!key) return;
         await set(dbRef(db, 'evaluationResponses/' + key), { id: id, ts: Date.now() });
