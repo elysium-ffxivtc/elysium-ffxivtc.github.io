@@ -29,11 +29,11 @@
     .ev-title-block { text-align: left; width: min(560px, 100%); }
     .ev-narrative { text-align: left; width: min(560px, calc(100% - 3rem)); }
 
-    .ev-title-block { transform: translateY(-5.2rem); }
+    .ev-title-block { transform: translateY(-7.2rem); }
 
     .ev-narrative {
       position: absolute; left: 50%; top: 50%;
-      transform: translate(-50%, .8rem);
+      transform: translate(-50%, -1.2rem);
     }
 
     .ev-title, .ev-subtitle {
@@ -161,13 +161,12 @@
 
     .ev-stage-3 {
       position: fixed; inset: 0;
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2rem;
     }
     .ev-stage-3[hidden] { display: none; }
     .ev-ticket-info {
-      position: fixed; left: 50%; bottom: 4vh; transform: translateX(-50%);
-      font-family: 'Cormorant Garamond', serif; font-size: .8rem; letter-spacing: .12em;
-      line-height: 1.8; text-align: center; color: rgba(184,144,96,.6);
+      font-family: 'Noto Serif TC', serif; font-size: .8rem; letter-spacing: .08em;
+      line-height: 1.8; text-align: left; color: rgba(184,144,96,.6);
       opacity: 0; animation: evLineIn 1.2s ease 1.5s forwards;
       pointer-events: none;
     }
@@ -280,7 +279,7 @@
       <div class="ev-ticket-glow"></div>
       <img class="ev-ticket-img" id="ev-ticket-img" src="image/evaluation-invitation/評鑑門票1009.png" alt="評鑑門票">
     </div>
-    <p class="ev-ticket-info">評鑑日期：2026.10.09<br>開場時間：23:00<br>評鑑地點：伊弗利特 · 穹頂皓天 · 9 區 12 號</p>
+    <p class="ev-ticket-info" id="ev-ticket-info">評鑑日期：2026.10.09<br>開場時間：23:00<br>評鑑地點：伊弗利特 · 穹頂皓天 · 9 區 12 號</p>
   </div>
 
   <div class="ev-end-stage" id="ev-stage-4a" hidden>
@@ -413,6 +412,7 @@
       var img = document.getElementById('ev-ticket-img');
       var TRIGGER_RATIO = 0.6;
       var dragging = false, startY = 0, rot = 0, dragY = 0, progress = 0;
+      var info = document.getElementById('ev-ticket-info');
 
       // evTicketIn 用 fill-mode:forwards，結束後仍會鎖住 transform 蓋掉這裡用 JS 設的旋轉值，要在動畫結束時解除；
       // 但拿掉 animation 後會整個掉回規則裡寫的起始值（opacity:0、縮小旋轉），要同時手動補回動畫結束時的最終狀態
@@ -429,6 +429,8 @@
         startY = pointY(e);
         img.style.transformOrigin = 'left center';
         img.style.transition = 'none';
+        info.style.transition = 'opacity .2s ease';
+        info.style.opacity = '0';
       }
       function onMove(e) {
         if (!dragging) return;
@@ -450,6 +452,7 @@
           img.style.transition = 'transform .4s cubic-bezier(.19,1,.22,1), opacity .4s ease';
           img.style.transform = 'rotate(0deg)';
           img.style.opacity = '1';
+          info.style.opacity = '1';
         }
         rot = 0; dragY = 0; progress = 0;
       }
@@ -485,12 +488,7 @@
       });
 
       document.getElementById('ev-end-download').addEventListener('click', function() {
-        var a = document.createElement('a');
-        a.href = 'image/evaluation-invitation/評鑑門票1009.png';
-        a.download = '評鑑門票.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        window.open('image/evaluation-invitation/評鑑門票1009.png', '_blank');
       });
     })();
 
