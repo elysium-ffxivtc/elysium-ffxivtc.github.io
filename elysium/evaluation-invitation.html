@@ -112,7 +112,7 @@
     .ev-stage-2[hidden] { display: none; }
     .ev-typewriter-wrap {
       position: relative;
-      width: min(80vh, 94vw);
+      width: min(88vh, 97vw);
       flex-shrink: 0;
       opacity: 0;
       animation: evImgIn 1s ease forwards;
@@ -134,7 +134,7 @@
       overflow-y: auto; overflow-x: hidden;
       scrollbar-width: none; -ms-overflow-style: none;
       font-family: 'Special Elite', 'Courier New', monospace;
-      font-size: clamp(.6rem, calc(min(80vh, 94vw) * .019), .88rem);
+      font-size: clamp(.6rem, calc(min(88vh, 97vw) * .019), .88rem);
       line-height: 1.6; color: #2b2822; text-align: left;
       white-space: pre-wrap;
     }
@@ -148,7 +148,7 @@
     .ev-next-btn {
       position: absolute; left: 70%; top: 38.5%;
       font-family: 'Special Elite', 'Courier New', monospace;
-      font-size: clamp(.62rem, calc(min(80vh, 94vw) * .02), .92rem);
+      font-size: clamp(.62rem, calc(min(88vh, 97vw) * .02), .92rem);
       letter-spacing: .15em;
       background: none; border: 1px solid rgba(43,40,34,.55); color: #2b2822;
       padding: .4em 1.1em; cursor: pointer;
@@ -269,7 +269,7 @@
   <div class="ev-end-stage" id="ev-stage-4a" hidden>
     <div class="ev-end-block">
       <p class="ev-end-text">願我們在更溫柔的天幕下相遇。</p>
-      <p class="ev-end-return" id="ev-end-return">邀請仍在。</p>
+      <p class="ev-end-return" id="ev-end-return">現在，邀請仍在。</p>
     </div>
   </div>
 
@@ -285,7 +285,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
     import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+    import { getAuth, setPersistence, inMemoryPersistence, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
     const app = initializeApp({
       apiKey:            "AIzaSyCZkdAeMKUWXQPXFptw3t4dYVOBAo7lF5Q",
@@ -298,7 +298,11 @@
     });
     const db = getDatabase(app);
     const auth = getAuth(app);
-    const authReady = signInAnonymously(auth).catch(function() {});
+    // 這個匿名登入只是為了拿寫入權限，絕對不能被瀏覽器記住——不然同一台瀏覽器之後打開 staffonly
+    // 會被誤認成「已登入但不是員工」而被導走。用 inMemoryPersistence 讓它只在這次分頁有效，關閉即消失
+    const authReady = setPersistence(auth, inMemoryPersistence)
+      .then(function() { return signInAnonymously(auth); })
+      .catch(function() {});
 
     // 每個 ID 只能接受一次：用清洗過的 ID 當 key，資料庫規則要設 !data.exists() 才能在伺服器端擋掉重複寫入
     function sanitizeKey(s) {
