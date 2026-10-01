@@ -337,6 +337,17 @@
     .ql-col-resizer:hover, .ql-col-resizer.dragging { background:var(--gold); opacity:.4; }
     .ql-row-resizer { position:absolute; height:6px; cursor:row-resize; z-index:5; background:transparent; }
     .ql-row-resizer:hover, .ql-row-resizer.dragging { background:var(--gold); opacity:.4; }
+    .ql-table-embed table.ql-cell-dragging, .ql-table-embed table.ql-cell-dragging * { user-select:none; }
+    .ql-editor table td.ql-cell-selected { box-shadow: inset 0 0 0 2px var(--gold); }
+    .ql-cellfill-bar {
+      position:absolute; z-index:30; display:flex; gap:4px; align-items:center;
+      background:var(--panel); border:1px solid var(--border); border-radius:6px;
+      padding:.4rem; box-shadow:0 4px 12px rgba(0,0,0,.15);
+    }
+    .ql-cellfill-swatch { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); cursor:pointer; padding:0; }
+    .ql-cellfill-swatch:hover { outline:2px solid var(--gold); }
+    .ql-cellfill-custom { width:24px; height:24px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none; }
+    .ql-cellfill-clear { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); background:var(--bg); cursor:pointer; font-size:.7rem; color:var(--dim); }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
     .ql-snow .ql-picker { color:var(--dim); }
@@ -834,6 +845,7 @@
       quill.insertText(range.index + 1, '\n', 'user');
       quill.setSelection(range.index + 2, 0, 'silent');
       initTableResize(quill.root);
+      initCellSelect(quill.root);
     }
 
     // 讓表格欄寬可以拖曳調整；每欄用 <colgroup><col style="width:%"> 控制寬度，
@@ -949,6 +961,109 @@
       });
     }
 
+    // 表格儲存格選取與填色：拖曳跨儲存格框選矩形範圍，雙擊單一格也可選取，
+    // 選取後會跳出小色盤，點選即套用該範圍每個 <td> 的背景色
+    const CELL_FILL_COLORS = ['#ffffff','#fef3c7','#fde68a','#fecaca','#bbf7d0','#bfdbfe','#e9d5ff','#f3f4f6'];
+
+    function initCellSelect(root) {
+      root.querySelectorAll('.ql-table-embed:not([data-cellselect-init])').forEach(embedDiv => {
+        embedDiv.dataset.cellselectInit = '1';
+        const table = embedDiv.querySelector('table');
+        if (!table) return;
+
+        let anchor = null, dragging = false, rangeActive = false, fillBar = null;
+
+        function cellPos(td) {
+          const tr = td.parentElement;
+          return { r: Array.from(table.rows).indexOf(tr), c: Array.from(tr.cells).indexOf(td) };
+        }
+        function clearSelection() {
+          table.querySelectorAll('td.ql-cell-selected').forEach(td => td.classList.remove('ql-cell-selected'));
+          rangeActive = false;
+          hideFillBar();
+        }
+        function selectRange(a, b) {
+          const r1 = Math.min(a.r, b.r), r2 = Math.max(a.r, b.r);
+          const c1 = Math.min(a.c, b.c), c2 = Math.max(a.c, b.c);
+          table.querySelectorAll('td.ql-cell-selected').forEach(td => td.classList.remove('ql-cell-selected'));
+          Array.from(table.rows).slice(r1, r2 + 1).forEach(tr => {
+            Array.from(tr.cells).slice(c1, c2 + 1).forEach(td => td.classList.add('ql-cell-selected'));
+          });
+        }
+        function applyFill(color) {
+          table.querySelectorAll('td.ql-cell-selected').forEach(td => { td.style.backgroundColor = color; });
+        }
+        function hideFillBar() { if (fillBar) { fillBar.remove(); fillBar = null; } }
+        function showFillBar() {
+          hideFillBar();
+          const selected = table.querySelectorAll('td.ql-cell-selected');
+          if (!selected.length) return;
+          const rect = selected[0].getBoundingClientRect();
+          fillBar = document.createElement('div');
+          fillBar.className = 'ql-cellfill-bar';
+          CELL_FILL_COLORS.forEach(color => {
+            const sw = document.createElement('button');
+            sw.type = 'button'; sw.className = 'ql-cellfill-swatch';
+            sw.style.background = color; sw.title = color;
+            sw.onclick = ev => { ev.stopPropagation(); applyFill(color); };
+            fillBar.appendChild(sw);
+          });
+          const customInput = document.createElement('input');
+          customInput.type = 'color'; customInput.className = 'ql-cellfill-custom'; customInput.title = '自訂顏色';
+          customInput.addEventListener('input', () => applyFill(customInput.value));
+          fillBar.appendChild(customInput);
+          const clearBtn = document.createElement('button');
+          clearBtn.type = 'button'; clearBtn.className = 'ql-cellfill-clear'; clearBtn.title = '清除填色';
+          clearBtn.textContent = '✕';
+          clearBtn.onclick = ev => { ev.stopPropagation(); applyFill(''); };
+          fillBar.appendChild(clearBtn);
+          document.body.appendChild(fillBar);
+          fillBar.style.left = (rect.left + window.scrollX) + 'px';
+          fillBar.style.top = (rect.top + window.scrollY - fillBar.offsetHeight - 6) + 'px';
+        }
+
+        table.addEventListener('mousedown', e => {
+          const td = e.target.closest('td');
+          if (!td || !table.contains(td)) return;
+          clearSelection();
+          anchor = cellPos(td);
+          dragging = true;
+        });
+        table.addEventListener('mousemove', e => {
+          if (!dragging || !anchor) return;
+          const td = e.target.closest('td');
+          if (!td) return;
+          const pos = cellPos(td);
+          if (!rangeActive && (pos.r !== anchor.r || pos.c !== anchor.c)) {
+            rangeActive = true;
+            table.classList.add('ql-cell-dragging');
+            const sel = window.getSelection();
+            if (sel) sel.removeAllRanges();
+          }
+          if (rangeActive) { e.preventDefault(); selectRange(anchor, pos); }
+        });
+        document.addEventListener('mouseup', () => {
+          if (!dragging) return;
+          dragging = false;
+          table.classList.remove('ql-cell-dragging');
+          if (rangeActive) showFillBar();
+        });
+        table.addEventListener('dblclick', e => {
+          const td = e.target.closest('td');
+          if (!td) return;
+          e.preventDefault();
+          const sel = window.getSelection();
+          if (sel) sel.removeAllRanges();
+          anchor = cellPos(td);
+          selectRange(anchor, anchor);
+          showFillBar();
+        });
+        document.addEventListener('mousedown', e => {
+          if (!embedDiv.contains(e.target) && !(fillBar && fillBar.contains(e.target))) clearSelection();
+        });
+      });
+    }
+
     function addTableButton(toolbarEl, quill) {
       const START_COLS = 10, START_ROWS = 8, MAX_COLS = 20, MAX_ROWS = 20;
       let curCols = START_COLS, curRows = START_ROWS;
@@ -968,6 +1083,7 @@
       label.textContent = '插入表格';
 
       let cells = [];
+      let selRow = 0, selCol = 0;
       function buildGrid() {
         grid.innerHTML = '';
         grid.style.gridTemplateColumns = `repeat(${curCols}, 1fr)`;
@@ -985,6 +1101,7 @@
         }
       }
       function highlight(row, col) {
+        selRow = row; selCol = col;
         let newRows = curRows, newCols = curCols;
         if (row >= newRows && newRows < MAX_ROWS) newRows++;
         else if (row < newRows - 1) newRows = Math.max(START_ROWS, row + 1);
@@ -1010,6 +1127,31 @@
       function closePicker() { picker.hidden = true; }
       btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
       document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
+
+      const NAV_DELTA = {
+        ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0],
+      };
+      btn.addEventListener('keydown', e => {
+        if (picker.hidden) return;
+        let delta = NAV_DELTA[e.key];
+        if (e.key === 'Tab') delta = e.shiftKey ? [0, -1] : [0, 1];
+        if (delta) {
+          e.preventDefault();
+          if (selRow < 1 || selCol < 1) { selRow = 1; selCol = 1; }
+          else {
+            selRow = Math.min(MAX_ROWS, Math.max(1, selRow + delta[0]));
+            selCol = Math.min(MAX_COLS, Math.max(1, selCol + delta[1]));
+          }
+          highlight(selRow, selCol);
+          return;
+        }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (selRow >= 1 && selCol >= 1) { insertTable(quill, selRow, selCol); closePicker(); }
+          return;
+        }
+        if (e.key === 'Escape') { e.preventDefault(); closePicker(); }
+      });
 
       buildGrid();
       picker.appendChild(grid);
@@ -1393,6 +1535,7 @@
       addToolbarTooltips(toolbarEl);
       if (d.content) _quill.root.innerHTML = d.content;
       initTableResize(_quill.root);
+      initCellSelect(_quill.root);
     }
 
     function quillImageHandler() {
