@@ -337,7 +337,7 @@
     .ql-table-embed table.ql-cell-dragging, .ql-table-embed table.ql-cell-dragging * { user-select:none; }
     .ql-editor table td.ql-cell-selected { box-shadow: inset 0 0 0 2px var(--gold); }
     .ql-cellfill-bar {
-      position:absolute; z-index:30; display:flex; gap:4px; align-items:center;
+      position:absolute; z-index:150; display:flex; gap:4px; align-items:center;
       background:var(--panel); border:1px solid var(--border); border-radius:6px;
       padding:.4rem; box-shadow:0 4px 12px rgba(0,0,0,.15);
     }
@@ -1116,8 +1116,7 @@
       function resetHighlight() {
         curCols = START_COLS; curRows = START_ROWS;
         buildGrid();
-        highlight(0, 0);
-        label.textContent = '插入表格';
+        highlight(1, 1);
       }
 
       function openPicker() { picker.hidden = false; resetHighlight(); }
@@ -1134,17 +1133,14 @@
         if (e.key === 'Tab') delta = e.shiftKey ? [0, -1] : [0, 1];
         if (delta) {
           e.preventDefault();
-          if (selRow < 1 || selCol < 1) { selRow = 1; selCol = 1; }
-          else {
-            selRow = Math.min(MAX_ROWS, Math.max(1, selRow + delta[0]));
-            selCol = Math.min(MAX_COLS, Math.max(1, selCol + delta[1]));
-          }
+          selRow = Math.min(MAX_ROWS, Math.max(1, selRow + delta[0]));
+          selCol = Math.min(MAX_COLS, Math.max(1, selCol + delta[1]));
           highlight(selRow, selCol);
           return;
         }
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          if (selRow >= 1 && selCol >= 1) { insertTable(quill, selRow, selCol); closePicker(); }
+          insertTable(quill, selRow, selCol); closePicker();
           return;
         }
         if (e.key === 'Escape') { e.preventDefault(); closePicker(); }
