@@ -546,7 +546,6 @@
       <div class="update-hdr">
         <div class="update-title">最近更新</div>
         <button class="update-add-btn" id="btn-add-announce" onclick="showAnnounceInput()" style="display:none" title="新增公告">＋</button>
-        <button class="update-add-btn" id="btn-cleanup-tables" onclick="cleanupAllTableEmbeds()" style="display:none" title="清理所有文章內表格的編輯殘留元素">🧹</button>
       </div>
       <div class="announce-row" id="announce-input-wrap" style="display:none">
         <input class="announce-input" id="announce-text" placeholder="輸入公告內容…">
@@ -895,22 +894,6 @@
       });
       div.querySelectorAll('.ql-editor table td.ql-cell-selected, table td.ql-cell-selected').forEach(td => td.classList.remove('ql-cell-selected'));
       return div.innerHTML;
-    }
-
-    async function cleanupAllTableEmbeds() {
-      if (!confirm('將掃描所有會議紀錄與文章，清除表格裡殘留的編輯用元素，確定執行？')) return;
-      const snap = await db.ref('library').get();
-      const all = snap.val() || {};
-      let changed = 0;
-      for (const [id, entry] of Object.entries(all)) {
-        if (!entry.content || !/ql-col-resizer|ql-row-resizer|data-resize-init|data-cellselect-init/.test(entry.content)) continue;
-        const cleaned = cleanTableEmbedsForSave(entry.content);
-        if (cleaned !== entry.content) {
-          await db.ref('library/' + id + '/content').set(cleaned);
-          changed++;
-        }
-      }
-      alert(`清理完成，共更新 ${changed} 筆內容。`);
     }
 
     function initTableKeyNav(root) {
@@ -1349,7 +1332,6 @@
         document.getElementById('btn-add-meeting').style.display     = '';
         document.getElementById('btn-add-announce').style.display    = '';
         document.getElementById('btn-upload-polaroid').style.display = '';
-        document.getElementById('btn-cleanup-tables').style.display  = '';
       }
       renderBadge();
       loadEntries();
