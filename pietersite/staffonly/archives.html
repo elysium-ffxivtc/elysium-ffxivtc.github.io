@@ -833,8 +833,6 @@
       headerPicker.parentNode.insertBefore(frag, headerPicker.nextSibling);
     }
 
-    // Quill 內建的文字/背景顏色選單只有固定色盤，額外塞一個原生色盤進下拉選單裡，
-    // 選色時用 setSelection 把開啟選單前記住的選取範圍還原，再套用格式
     function addCustomColorPickers(toolbarEl, quill) {
       function addOne(pickerSelector, formatName) {
         const pickerEl = toolbarEl.querySelector(pickerSelector);
@@ -995,8 +993,6 @@
       });
     }
 
-    // 表格儲存格選取與填色：拖曳跨儲存格框選矩形範圍，雙擊單一格也可選取，
-    // 選取後會跳出小色盤，點選即套用該範圍每個 <td> 的背景色
     const CELL_FILL_COLORS = ['#ffffff','#fef3c7','#fde68a','#fecaca','#bbf7d0','#bfdbfe','#e9d5ff','#f3f4f6'];
 
     function initCellSelect(root) {
@@ -1156,19 +1152,11 @@
         highlight(1, 1);
       }
 
-      function openPicker() { picker.hidden = false; resetHighlight(); btn.focus(); }
-      function closePicker() { picker.hidden = true; }
-      btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
-      document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
-
-      // 鍵盤導覽只在目前已經長出來的格數範圍內移動、不觸發自動延伸，
-      // 避免邊移動邊長格子讓順序看起來很亂；監聽掛在 document 上而非按鈕本身，
-      // 不依賴按鈕是否真的拿到焦點（不同瀏覽器點擊按鈕後是否給焦點的預設行為不一致）
       const NAV_DELTA = {
         ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0],
       };
-      document.addEventListener('keydown', e => {
-        if (picker.hidden) return;
+      function onPickerKeydown(e) {
+        if (!picker.isConnected) { document.removeEventListener('keydown', onPickerKeydown); return; }
         let delta = NAV_DELTA[e.key];
         if (e.key === 'Tab') delta = e.shiftKey ? [0, -1] : [0, 1];
         if (delta) {
@@ -1187,7 +1175,17 @@
           return;
         }
         if (e.key === 'Escape') { e.preventDefault(); closePicker(); }
-      });
+      }
+      function openPicker() {
+        picker.hidden = false; resetHighlight(); btn.focus();
+        document.addEventListener('keydown', onPickerKeydown);
+      }
+      function closePicker() {
+        picker.hidden = true;
+        document.removeEventListener('keydown', onPickerKeydown);
+      }
+      btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
+      document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
 
       buildGrid();
       picker.appendChild(grid);
