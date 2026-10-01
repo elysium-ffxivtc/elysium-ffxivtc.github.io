@@ -1164,18 +1164,24 @@
       btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
       document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
 
+      // 鍵盤導覽只在目前已經長出來的格數範圍內移動、不觸發自動延伸，
+      // 避免邊移動邊長格子讓順序看起來很亂；監聽掛在 document 上而非按鈕本身，
+      // 不依賴按鈕是否真的拿到焦點（不同瀏覽器點擊按鈕後是否給焦點的預設行為不一致）
       const NAV_DELTA = {
         ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0],
       };
-      btn.addEventListener('keydown', e => {
+      document.addEventListener('keydown', e => {
         if (picker.hidden) return;
         let delta = NAV_DELTA[e.key];
         if (e.key === 'Tab') delta = e.shiftKey ? [0, -1] : [0, 1];
         if (delta) {
           e.preventDefault();
-          selRow = Math.min(MAX_ROWS, Math.max(1, selRow + delta[0]));
-          selCol = Math.min(MAX_COLS, Math.max(1, selCol + delta[1]));
-          highlight(selRow, selCol);
+          selRow = Math.min(curRows, Math.max(1, selRow + delta[0]));
+          selCol = Math.min(curCols, Math.max(1, selCol + delta[1]));
+          cells.forEach(cell => {
+            cell.classList.toggle('on', +cell.dataset.row <= selRow && +cell.dataset.col <= selCol);
+          });
+          label.textContent = `${selCol} x ${selRow}`;
           return;
         }
         if (e.key === 'Enter' || e.key === ' ') {
