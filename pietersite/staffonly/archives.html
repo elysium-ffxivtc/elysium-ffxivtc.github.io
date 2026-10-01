@@ -982,10 +982,15 @@
         }
       }
       function highlight(row, col) {
-        let grew = false;
-        if (row >= curRows && curRows < MAX_ROWS) { curRows++; grew = true; }
-        if (col >= curCols && curCols < MAX_COLS) { curCols++; grew = true; }
-        if (grew) buildGrid();
+        let newRows = curRows, newCols = curCols;
+        if (row >= newRows && newRows < MAX_ROWS) newRows++;
+        else if (row < newRows - 1) newRows = Math.max(START_ROWS, row + 1);
+        if (col >= newCols && newCols < MAX_COLS) newCols++;
+        else if (col < newCols - 1) newCols = Math.max(START_COLS, col + 1);
+        if (newRows !== curRows || newCols !== curCols) {
+          curRows = newRows; curCols = newCols;
+          buildGrid();
+        }
         cells.forEach(cell => {
           cell.classList.toggle('on', +cell.dataset.row <= row && +cell.dataset.col <= col);
         });
