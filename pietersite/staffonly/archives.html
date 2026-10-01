@@ -947,7 +947,8 @@
     }
 
     function addTableButton(toolbarEl, quill) {
-      const GRID_COLS = 10, GRID_ROWS = 8;
+      const START_COLS = 10, START_ROWS = 8, MAX_COLS = 20, MAX_ROWS = 20;
+      let curCols = START_COLS, curRows = START_ROWS;
       const wrap = document.createElement('span');
       wrap.className = 'ql-table-wrap';
       const btn = document.createElement('button');
@@ -959,36 +960,50 @@
       picker.hidden = true;
       const grid = document.createElement('div');
       grid.className = 'ql-table-grid';
-      grid.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
       const label = document.createElement('div');
       label.className = 'ql-table-picker-label';
       label.textContent = '插入表格';
 
-      const cells = [];
-      for (let r = 1; r <= GRID_ROWS; r++) {
-        for (let c = 1; c <= GRID_COLS; c++) {
-          const cell = document.createElement('div');
-          cell.className = 'ql-table-cell';
-          cell.dataset.row = r; cell.dataset.col = c;
-          cell.addEventListener('mouseenter', () => highlight(r, c));
-          cell.addEventListener('click', () => { insertTable(quill, r, c); closePicker(); });
-          grid.appendChild(cell);
-          cells.push(cell);
+      let cells = [];
+      function buildGrid() {
+        grid.innerHTML = '';
+        grid.style.gridTemplateColumns = `repeat(${curCols}, 1fr)`;
+        cells = [];
+        for (let r = 1; r <= curRows; r++) {
+          for (let c = 1; c <= curCols; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'ql-table-cell';
+            cell.dataset.row = r; cell.dataset.col = c;
+            cell.addEventListener('mouseenter', () => highlight(r, c));
+            cell.addEventListener('click', () => { insertTable(quill, r, c); closePicker(); });
+            grid.appendChild(cell);
+            cells.push(cell);
+          }
         }
       }
       function highlight(row, col) {
+        let grew = false;
+        if (row >= curRows && curRows < MAX_ROWS) { curRows++; grew = true; }
+        if (col >= curCols && curCols < MAX_COLS) { curCols++; grew = true; }
+        if (grew) buildGrid();
         cells.forEach(cell => {
           cell.classList.toggle('on', +cell.dataset.row <= row && +cell.dataset.col <= col);
         });
         label.textContent = `${col} x ${row}`;
       }
-      function resetHighlight() { highlight(0, 0); label.textContent = '插入表格'; }
+      function resetHighlight() {
+        curCols = START_COLS; curRows = START_ROWS;
+        buildGrid();
+        highlight(0, 0);
+        label.textContent = '插入表格';
+      }
 
       function openPicker() { picker.hidden = false; resetHighlight(); }
       function closePicker() { picker.hidden = true; }
       btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
       document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
 
+      buildGrid();
       picker.appendChild(grid);
       picker.appendChild(label);
       wrap.appendChild(btn);
