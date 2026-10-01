@@ -349,7 +349,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 .about-glossary { margin-top: 1.5rem; }
 
 .about-glossary-item {
-  display: grid; grid-template-columns: 140px 1fr; gap: 2rem;
+  display: grid; grid-template-columns: 140px 1fr; gap: 2rem; align-items: center;
   padding: 1.5rem 0; border-bottom: 1px solid rgba(184,144,96,.25);
 }
 .about-glossary-item:first-child { border-top: 1px solid rgba(184,144,96,.25); }
