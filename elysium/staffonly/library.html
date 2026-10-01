@@ -348,6 +348,11 @@
     .ql-cellfill-swatch:hover { outline:2px solid var(--gold); }
     .ql-cellfill-custom { width:24px; height:24px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none; }
     .ql-cellfill-clear { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); background:var(--bg); cursor:pointer; font-size:.7rem; color:var(--dim); }
+    .ql-custom-color-row {
+      display:flex; align-items:center; gap:.4rem; margin-top:.4rem; padding-top:.4rem;
+      border-top:1px solid var(--border); font-size:.72rem; color:var(--dim);
+    }
+    .ql-custom-color-input { width:22px; height:22px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none; }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
     .ql-snow .ql-picker { color:var(--dim); }
@@ -831,6 +836,38 @@
       headerPicker.parentNode.insertBefore(frag, headerPicker.nextSibling);
     }
 
+    // Quill 內建的文字/背景顏色選單只有固定色盤，額外塞一個原生色盤進下拉選單裡，
+    // 選色時用 setSelection 把開啟選單前記住的選取範圍還原，再套用格式
+    function addCustomColorPickers(toolbarEl, quill) {
+      function addOne(pickerSelector, formatName) {
+        const pickerEl = toolbarEl.querySelector(pickerSelector);
+        if (!pickerEl) return;
+        const options = pickerEl.querySelector('.ql-picker-options');
+        if (!options) return;
+        let savedRange = null;
+        pickerEl.addEventListener('mousedown', () => {
+          const r = quill.getSelection();
+          if (r) savedRange = r;
+        }, true);
+        const row = document.createElement('div');
+        row.className = 'ql-custom-color-row';
+        const label = document.createElement('span');
+        label.textContent = '自訂';
+        const input = document.createElement('input');
+        input.type = 'color'; input.className = 'ql-custom-color-input'; input.value = '#000000';
+        input.addEventListener('click', e => e.stopPropagation());
+        input.addEventListener('input', () => {
+          if (savedRange) quill.setSelection(savedRange.index, savedRange.length, 'silent');
+          quill.format(formatName, input.value, 'user');
+        });
+        row.appendChild(label);
+        row.appendChild(input);
+        options.appendChild(row);
+      }
+      addOne('.ql-color', 'color');
+      addOne('.ql-background', 'background');
+    }
+
     function insertTable(quill, rows, cols) {
       const range = quill.getSelection(true) || { index: quill.getLength() };
       const colWidth = (100 / cols).toFixed(4);
@@ -1122,7 +1159,7 @@
         highlight(1, 1);
       }
 
-      function openPicker() { picker.hidden = false; resetHighlight(); }
+      function openPicker() { picker.hidden = false; resetHighlight(); btn.focus(); }
       function closePicker() { picker.hidden = true; }
       btn.onclick = () => { picker.hidden ? openPicker() : closePicker(); };
       document.addEventListener('click', e => { if (!wrap.contains(e.target)) closePicker(); });
@@ -1525,6 +1562,7 @@
       const toolbarEl = _quill.getModule('toolbar').container;
       addUndoRedoButtons(toolbarEl, _quill);
       addFontSizeStepper(toolbarEl, _quill);
+      addCustomColorPickers(toolbarEl, _quill);
       addTableButton(toolbarEl, _quill);
       toolbarEl.appendChild(toolbarEl.querySelector('.ql-clean').closest('.ql-formats'));
       addFirstLineIndentInput(toolbarEl, _quill);
