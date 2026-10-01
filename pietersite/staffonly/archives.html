@@ -885,7 +885,7 @@
       if (root.dataset.tableKeyNavInit) return;
       root.dataset.tableKeyNavInit = '1';
       root.addEventListener('keydown', e => {
-        if (!['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+        if (!['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Backspace', 'Delete'].includes(e.key)) return;
         const sel = window.getSelection();
         if (!sel || !sel.anchorNode) return;
         const startEl = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement;
@@ -938,6 +938,18 @@
           if (target) focusCell(target, true);
           return;
         }
+        if (e.key === 'Backspace' && atBoundary(false)) { e.preventDefault(); return; }
+        if (e.key === 'Delete' && atBoundary(true)) { e.preventDefault(); return; }
+      }, true);
+      root.addEventListener('paste', e => {
+        const sel = window.getSelection();
+        if (!sel || !sel.anchorNode) return;
+        const startEl = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement;
+        if (!startEl || !startEl.closest('td')) return;
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        document.execCommand('insertText', false, text);
       }, true);
     }
 
