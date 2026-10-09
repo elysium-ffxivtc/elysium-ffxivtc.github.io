@@ -443,6 +443,8 @@
   const DAILY_CAPACITY = 40; // 線上預約單日總人數上限，保留現場席次
   function sKey(t) { return t.replace(':', ''); }
   function sanitizeKey(s) { return String(s||'').trim().replace(/[.#$/\[\]]/g, '_'); }
+  const CDN = 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/';
+  function photoUrl(photo) { return CDN + String(photo||'').replace(/^image\/(?!members\/)/, 'image/members/'); }
 
   const PREVIEW = location.search.includes('preview');
 
@@ -705,7 +707,7 @@
       const isSel     = st.apostle === a.uid;
       const isLocked  = seatMode || (hasDateTime && !hasNomen && !cls);
       const photoHtml = a.photo
-        ? `<img src="${escH(a.photo)}" alt="${escH(a.name)}">`
+        ? `<img src="${escH(photoUrl(a.photo))}" alt="${escH(a.name)}">`
         : `<div class="bk2-card-photo-init">${escH(a.initial||a.name.slice(0,1))}</div>`;
       const clickEv = (cls || isLocked) ? '' : `onclick="selectApostle2('${a.uid}')"`;
       return `<div class="bk2-card${isSel?' sel':''}${cls}${isLocked?' locked':''}" ${clickEv}>
