@@ -131,21 +131,29 @@ const auth = initializeAuth(app, {
 getRedirectResult(auth).catch(() => {});
 
 const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
-// image/ 資料夾內現有的使徒照片檔名（新增照片檔案時要手動更新這份清單）
-const KNOWN_APOSTLE_IMAGES = [
-  'image/members/八乙女華蓮.png', 'image/members/八乙女華蓮.webp', 'image/members/八乙女華蓮_二版頭像.webp', 'image/members/八乙女華蓮_水印.png', 'image/members/八乙女華蓮_頭像.png', 'image/members/正式頭像/八乙女華蓮.png',
-  'image/members/咪努.png', 'image/members/咪努.webp', 'image/members/咪努_二版頭像.webp', 'image/members/咪努_水印.png', 'image/members/咪努_頭像.png',
-  'image/members/安怛.png', 'image/members/安怛.webp', 'image/members/安怛_二版頭像.webp', 'image/members/安怛_水印.png', 'image/members/安怛_頭像.png', 'image/members/正式頭像/安怛.png',
-  'image/members/安石.png', 'image/members/安石.webp', 'image/members/安石_二版頭像.webp', 'image/members/安石_水印.png', 'image/members/安石_頭像.png', 'image/members/正式頭像/安石.png',
-  'image/members/尼克席恩.png', 'image/members/尼克席恩.webp', 'image/members/尼克席恩_二版頭像.webp', 'image/members/尼克席恩_水印.png', 'image/members/尼克席恩_頭像.png', 'image/members/正式頭像/尼克席恩.png',
-  'image/members/著魔.png', 'image/members/著魔.webp', 'image/members/著魔_二版頭像.webp', 'image/members/著魔_水印.png', 'image/members/著魔_頭像.png', 'image/members/正式頭像/著魔.png',
-  'image/members/靜火.png', 'image/members/靜火.webp', 'image/members/靜火_二版頭像.webp', 'image/members/靜火_頭像.png',
-  'image/members/切斯特.webp', 'image/members/切斯特_二版頭像.webp', 'image/members/正式頭像/切斯特.png',
-  'image/members/末涼.webp', 'image/members/末涼_二版頭像.webp', 'image/members/正式頭像/末涼.png',
-  'image/members/呼啊啊.png', 'image/members/呼啊啊_二版頭像.png', 'image/members/正式頭像/呼啊啊.png',
-  'image/members/秋明菊.png', 'image/members/秋明菊_二版頭像.png', 'image/members/正式頭像/秋明菊.png',
-  'image/members/咕嚕小貓.png', 'image/members/咕嚕小貓_二版頭像.png', 'image/members/正式頭像/咕嚕小貓.png',
-];
+// image/ 資料夾內現有的使徒照片檔名（新增照片檔案時要手動更新這份清單），依資料夾分組
+const KNOWN_APOSTLE_IMAGE_GROUPS = {
+  'image/members/': [
+    '八乙女華蓮.png', '八乙女華蓮.webp', '八乙女華蓮_二版頭像.webp', '八乙女華蓮_水印.png', '八乙女華蓮_頭像.png',
+    '咪努.png', '咪努.webp', '咪努_二版頭像.webp', '咪努_水印.png', '咪努_頭像.png',
+    '安怛.png', '安怛.webp', '安怛_二版頭像.webp', '安怛_水印.png', '安怛_頭像.png',
+    '安石.png', '安石.webp', '安石_二版頭像.webp', '安石_水印.png', '安石_頭像.png',
+    '尼克席恩.png', '尼克席恩.webp', '尼克席恩_二版頭像.webp', '尼克席恩_水印.png', '尼克席恩_頭像.png',
+    '著魔.png', '著魔.webp', '著魔_二版頭像.webp', '著魔_水印.png', '著魔_頭像.png',
+    '靜火.png', '靜火.webp', '靜火_二版頭像.webp', '靜火_頭像.png',
+    '切斯特.webp', '切斯特_二版頭像.webp',
+    '末涼.webp', '末涼_二版頭像.webp',
+    '呼啊啊.png', '呼啊啊_二版頭像.png',
+    '秋明菊.png', '秋明菊_二版頭像.png',
+    '咕嚕小貓.png', '咕嚕小貓_二版頭像.png',
+  ],
+  'image/members/正式頭像/': [
+    '八乙女華蓮.png', '安怛.png', '安石.png', '尼克席恩.png', '著魔.png',
+    '切斯特.png', '末涼.png', '呼啊啊.png', '秋明菊.png', '咕嚕小貓.png',
+  ],
+};
+const KNOWN_APOSTLE_IMAGES = Object.entries(KNOWN_APOSTLE_IMAGE_GROUPS)
+  .flatMap(([folder, files]) => files.map(f => folder + f));
 
 let currentUser = null;
 let staffList   = [];
@@ -315,7 +323,7 @@ function renderEdit(uid) {
       <div class="card-title">編輯資料 · ${name}</div>
       <div class="form-label">照片</div>
       <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
-      <datalist id="photo-list">${KNOWN_APOSTLE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
+      <datalist id="photo-list">${Object.entries(KNOWN_APOSTLE_IMAGE_GROUPS).flatMap(([folder, files]) => files.map(f=>`<option value="${folder}${f}" label="${esc(folder)}">`)).join('')}</datalist>
       <img class="photo-preview" id="f-photo-preview" src="${a.photo?'../'+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
 
       <div class="form-label">名冊縮圖</div>
