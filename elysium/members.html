@@ -322,7 +322,7 @@
       const cls = rosterAnimated ? ' no-drop' : '';
       const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
       return `<div class="ms-tile${sel}${cls}"${style} onclick="selectPerson('${p.key}')" onmouseenter="prefetchPhoto('${esc(p.photo)}')">
-        <img src="${esc(thumbOf(p.photo))}" alt="${esc(p.name)}" decoding="async">
+        <img src="${esc(p.thumbPhoto ? fullPhotoOf(p.thumbPhoto) : thumbOf(p.photo))}" alt="${esc(p.name)}" decoding="async">
         <div class="ms-tile-tag">${esc(p.roleLabel)}</div>
       </div>`;
     }
