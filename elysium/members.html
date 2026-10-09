@@ -283,8 +283,8 @@
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function escBr(s) { return esc(s).replace(/\n/g, '<br>'); }
     const CDN = 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/';
-    function thumbOf(photo) { return CDN + String(photo||'').replace(/^image\//, 'image/members/').replace(/\.[a-zA-Z0-9]+$/, '_二版頭像.webp'); }
-    function fullPhotoOf(photo) { return CDN + String(photo||'').replace(/^image\//, 'image/members/').replace(/\.[a-zA-Z0-9]+$/, '.webp'); }
+    function thumbOf(photo) { return CDN + String(photo||'').replace(/^image\/(?!members\/)/, 'image/members/').replace(/\.[a-zA-Z0-9]+$/, '_二版頭像.webp'); }
+    function fullPhotoOf(photo) { return CDN + String(photo||'').replace(/^image\/(?!members\/)/, 'image/members/'); }
     function rawPhotoOf(photo) { return CDN + String(photo||''); }
 
     function prefetchPhoto(photo) {
