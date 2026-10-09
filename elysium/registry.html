@@ -248,6 +248,11 @@
     .bk2-rp-label { font-family: 'Noto Serif TC', serif; font-size: .9rem; font-weight: 700; color: var(--text); letter-spacing: .05em; transition: color .18s; white-space: nowrap; flex-shrink: 0; }
     .bk2-rp-row.sel .bk2-rp-label { color: var(--gold); }
     .bk2-rp-desc  { font-size: 12px; color: var(--dim); line-height: 1.65; }
+    .bk2-rp-row-special { background: rgba(184,144,96,.06); }
+    .bk2-rp-row-special .bk2-rp-label::after {
+      content: '特邀'; margin-left: .5rem; font-family: 'Noto Sans TC', sans-serif; font-size: 10px; font-weight: 400;
+      color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; padding: .05rem .35rem; letter-spacing: 0; vertical-align: 1px;
+    }
 
     /* Agree row */
     .bk2-agree-row {
@@ -477,6 +482,7 @@
   const VISIT_TYPES = [
     { id: 'ritual', label: '儀式預約', desc: '進行召引等儀式服務。' },
     { id: 'seat',   label: '席位預約', desc: '僅預留席位入場，感受禮堂氛圍。' },
+    { id: 'priest', label: '司祭留席', desc: '承司祭之邀，得以入堂的會眾。', special: true },
   ];
 
   const SEAT_TYPES = [
@@ -624,6 +630,7 @@
     return sid === 'nomen30' ? nomenPrice() : (SERVICES.find(s => s.id===sid)?.price||0);
   }
   function calcTotal() {
+    if (st.visitType === 'priest') return 0; // 司祭留席：承司祭之邀入堂，不計費用
     if (st.visitType === 'seat') return st.seatCount * 20000;
     return st.services.reduce((t, sid) => t + svcPrice(sid), 0)
       + (st.photoSig && st.services.includes('photo') ? 20000 : 0)
@@ -882,7 +889,7 @@
       ? `<p style="font-size:12px;color:var(--dim);line-height:1.9;">請先選擇日期與場次</p>`
       : VISIT_TYPES.map(o => {
           const sel = st.visitType === o.id;
-          return `<div class="bk2-rp-row${sel?' sel':''}" onclick="selectVisitType2('${o.id}')">
+          return `<div class="bk2-rp-row${sel?' sel':''}${o.special?' bk2-rp-row-special':''}" onclick="selectVisitType2('${o.id}')">
             <div class="bk2-rp-label">${o.label}</div>
             <div class="bk2-rp-desc">${o.desc}</div>
           </div>`;
@@ -892,7 +899,7 @@
   function updateVisitSections() {
     const ritualEl = document.getElementById('bk2-ritual-sec');
     const seatEl   = document.getElementById('bk2-seat-sec');
-    if (ritualEl) ritualEl.style.display = st.visitType === 'ritual' ? '' : 'none';
+    if (ritualEl) ritualEl.style.display = (st.visitType === 'ritual' || st.visitType === 'priest') ? '' : 'none';
     if (seatEl)   seatEl.style.display   = st.visitType === 'seat'   ? '' : 'none';
   }
 
@@ -968,6 +975,14 @@
   }
 
   function costRowHtml() {
+    if (st.visitType === 'priest') {
+      return `
+        <div class="bk2-cost-row">
+          <span class="bk2-cost-lbl">費用合計</span>
+          <div><span class="bk2-cost-val">免費</span></div>
+        </div>
+        <div style="font-size:11px;color:var(--dim);margin-top:.25rem;text-align:right;">※承司祭之邀入堂，不計費用</div>`;
+    }
     const total = calcTotal();
     return `
       <div class="bk2-cost-row">
@@ -1006,7 +1021,7 @@
     const btn = document.getElementById('bk2-submit-btn');
     if (!btn) return;
     let ok = !!(st.date && st.time && st.visitType && st.rp);
-    if (st.visitType === 'ritual') {
+    if (st.visitType === 'ritual' || st.visitType === 'priest') {
       const canDesig  = st.services.some(sid => SERVICES.find(s => s.id===sid)?.canDesig);
       const apostleOk = canDesig ? !!st.apostle : true;
       ok = ok && st.services.length > 0 && apostleOk;
@@ -1115,7 +1130,7 @@
 
   function selectVisitType2(id) {
     st.visitType = (st.visitType === id ? '' : id);
-    if (st.visitType !== 'ritual') {
+    if (st.visitType !== 'ritual' && st.visitType !== 'priest') {
       st.services = []; st.photoSig = false; st.photoExtra = 0;
       st.apostle = null; st.designated = false;
     }
