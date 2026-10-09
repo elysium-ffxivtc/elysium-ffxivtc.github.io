@@ -319,6 +319,10 @@ function renderEdit(uid) {
       <datalist id="photo-list">${KNOWN_APOSTLE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
       <img class="photo-preview" id="f-photo-preview" src="${a.photo?'../'+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
 
+      <div class="form-label">名冊縮圖</div>
+      <input class="form-input" id="f-thumb-photo" list="photo-list" value="${esc(a.thumbPhoto||'')}" placeholder="image/檔名.png" oninput="updateThumbPreview()">
+      <img class="photo-preview" id="f-thumb-photo-preview" src="${a.thumbPhoto?'../'+esc(a.thumbPhoto):''}" style="display:${a.thumbPhoto?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
+
       <div class="form-row2">
         <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
         <div><div class="form-label">職位</div>
@@ -373,6 +377,13 @@ function updatePhotoPreview() {
   img.style.display = path ? 'block' : 'none';
 }
 
+function updateThumbPreview() {
+  const path = document.getElementById('f-thumb-photo').value.trim();
+  const img = document.getElementById('f-thumb-photo-preview');
+  img.src = path ? '../' + path : '';
+  img.style.display = path ? 'block' : 'none';
+}
+
 async function saveApostle(uid) {
   const val = {
     name:     document.getElementById('f-name').value.trim(),
@@ -380,6 +391,7 @@ async function saveApostle(uid) {
     tag:      document.getElementById('f-tag').value.trim(),
     rank:     document.getElementById('f-rank').value,
     photo:    document.getElementById('f-photo').value.trim(),
+    thumbPhoto: document.getElementById('f-thumb-photo').value.trim(),
     subtitle: document.getElementById('f-subtitle').value.trim(),
     bio:      document.getElementById('f-bio').value.trim(),
     chat:     document.getElementById('f-chat').value.trim(),
