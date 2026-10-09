@@ -285,6 +285,7 @@
     const CDN = 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/elysium/';
     function thumbOf(photo) { return CDN + String(photo||'').replace(/^image\//, 'image/members/').replace(/\.[a-zA-Z0-9]+$/, '_二版頭像.webp'); }
     function fullPhotoOf(photo) { return CDN + String(photo||'').replace(/^image\//, 'image/members/').replace(/\.[a-zA-Z0-9]+$/, '.webp'); }
+    function rawPhotoOf(photo) { return CDN + String(photo||''); }
 
     function prefetchPhoto(photo) {
       const src = fullPhotoOf(photo);
@@ -322,7 +323,7 @@
       const cls = rosterAnimated ? ' no-drop' : '';
       const style = rosterAnimated ? '' : ` style="animation-delay:${(idx * 0.045).toFixed(3)}s"`;
       return `<div class="ms-tile${sel}${cls}"${style} onclick="selectPerson('${p.key}')" onmouseenter="prefetchPhoto('${esc(p.photo)}')">
-        <img src="${esc(p.thumbPhoto ? fullPhotoOf(p.thumbPhoto) : thumbOf(p.photo))}" alt="${esc(p.name)}" decoding="async">
+        <img src="${esc(p.thumbPhoto ? rawPhotoOf(p.thumbPhoto) : thumbOf(p.photo))}" alt="${esc(p.name)}" decoding="async">
         <div class="ms-tile-tag">${esc(p.roleLabel)}</div>
       </div>`;
     }
