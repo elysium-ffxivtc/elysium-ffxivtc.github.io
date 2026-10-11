@@ -570,7 +570,7 @@
 
         <div class="exhibit-grid" data-cards>
 
-            <a class="exhibit" href="profile-template.html">
+            <a class="exhibit" href="profile-template.html" data-apostle-name="凜冬的餘溫">
                 <div class="photo-wrap exhibit-photo">
                     <div class="photo-placeholder">
                         <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
@@ -579,7 +579,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 001</div>
                     <div class="exhibit-name">凜冬的餘溫</div>
                     <div class="exhibit-rule"></div>
@@ -600,7 +600,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 000</div>
                     <div class="exhibit-name">——</div>
                     <div class="exhibit-rule"></div>
@@ -621,7 +621,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 000</div>
                     <div class="exhibit-name">——</div>
                     <div class="exhibit-rule"></div>
@@ -642,7 +642,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 000</div>
                     <div class="exhibit-name">——</div>
                     <div class="exhibit-rule"></div>
@@ -663,7 +663,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 000</div>
                     <div class="exhibit-name">——</div>
                     <div class="exhibit-rule"></div>
@@ -684,7 +684,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 000</div>
                     <div class="exhibit-name">——</div>
                     <div class="exhibit-rule"></div>
@@ -705,7 +705,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 000</div>
                     <div class="exhibit-name">——</div>
                     <div class="exhibit-rule"></div>
@@ -726,7 +726,7 @@
                     <div class="photo-overlay"><span>查看</span></div>
                 </div>
                 <div class="exhibit-info">
-                    <div class="exhibit-dot"></div>
+                    <div class="exhibit-dot off"></div>
                     <div class="exhibit-num">No. 000</div>
                     <div class="exhibit-name">——</div>
                     <div class="exhibit-rule"></div>
@@ -903,6 +903,41 @@ const floatTopBtn = document.getElementById('float-top');
 window.addEventListener('scroll', () => {
     floatTopBtn.classList.toggle('show', window.scrollY > 400);
 }, { passive: true });
+</script>
+
+<!-- 館藏綠燈：讀取 staffonly/schedule.html 寫出的「今日有排班」名單（唯讀，不含內部資料）-->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const rosterApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteRoster');
+const rosterDb = getDatabase(rosterApp);
+
+function getBusinessDate() {
+    const d = new Date();
+    if (d.getHours() < 2) d.setDate(d.getDate() - 1);
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+
+onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
+    const roster = snap.val();
+    const scheduledToday = (roster && roster.date === getBusinessDate()) ? roster.names || {} : {};
+    document.querySelectorAll('[data-apostle-name]').forEach(el => {
+        const name = el.dataset.apostleName;
+        const dot = el.querySelector('.exhibit-dot');
+        if (!dot) return;
+        dot.classList.toggle('off', !(name && scheduledToday[name]));
+    });
+});
 </script>
 </body>
 </html>

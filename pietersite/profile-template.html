@@ -541,11 +541,10 @@
 
         <a class="back-link" href="collections.html">返回館藏目錄</a>
 
-        <div class="profile-status">
-            <div class="status-dot"></div>
-            <!-- 不在時改為 <div class="status-dot off"></div> -->
-            <span class="status-label">館內展覽中</span>
-            <!-- 不在時改為：今日暫停展覽 -->
+        <!-- ponytail: 綠燈狀態由 JS 依「今日排班名單」自動判斷，不用手動改，data-apostle-name 要跟後台角色名一致 -->
+        <div class="profile-status" id="profile-status" data-apostle-name="凜冬的餘溫">
+            <div class="status-dot off" id="status-dot"></div>
+            <span class="status-label" id="status-label">今日暫停展覽</span>
         </div>
 
         <h1 class="profile-title">《凜冬的餘溫》</h1>
@@ -722,6 +721,40 @@ const floatTopBtn = document.getElementById('float-top');
 window.addEventListener('scroll', () => {
     floatTopBtn.classList.toggle('show', window.scrollY > 400);
 }, { passive: true });
+</script>
+
+<!-- 館藏綠燈：讀取 staffonly/schedule.html 寫出的「今日有排班」名單（唯讀，不含內部資料）-->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const rosterApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteRoster');
+const rosterDb = getDatabase(rosterApp);
+
+function getBusinessDate() {
+    const d = new Date();
+    if (d.getHours() < 2) d.setDate(d.getDate() - 1);
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+
+onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
+    const roster = snap.val();
+    const scheduledToday = (roster && roster.date === getBusinessDate()) ? roster.names || {} : {};
+    const wrap = document.getElementById('profile-status');
+    const name = wrap?.dataset.apostleName;
+    const isOn = !!(name && scheduledToday[name]);
+    document.getElementById('status-dot').classList.toggle('off', !isOn);
+    document.getElementById('status-label').textContent = isOn ? '館內展覽中' : '今日暫停展覽';
+});
 </script>
 </body>
 </html>
