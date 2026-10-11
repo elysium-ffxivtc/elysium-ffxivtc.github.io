@@ -389,107 +389,6 @@
             .rule-section { grid-template-columns: 1fr; gap: .8rem 0; }
         }
 
-        /* ── SERVICE CARDS ── */
-        .service-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1px;
-            background: var(--line);
-        }
-
-        .service-card {
-            background: var(--bg-card);
-            padding: 3.2rem 2.8rem;
-            position: relative;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(24px);
-            transition: background .4s;
-        }
-
-        .service-card.vis {
-            opacity: 1;
-            transform: none;
-            transition: background .4s, opacity .9s ease, transform .9s cubic-bezier(.16,1,.3,1);
-        }
-
-        .service-card:nth-child(1) { transition-delay: .0s; }
-        .service-card:nth-child(2) { transition-delay: .12s; }
-        .service-card:nth-child(3) { transition-delay: .24s; }
-        .service-card:nth-child(4) { transition-delay: .08s; }
-        .service-card:nth-child(5) { transition-delay: .2s; }
-        .service-card:nth-child(6) { transition-delay: .32s; }
-
-        .service-card::before {
-            content: '';
-            position: absolute;
-            inset: 0 0 auto 0;
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
-            transform: scaleX(0);
-            transition: transform .6s ease;
-        }
-
-        .service-card:hover { background: var(--bg-card-h); }
-        .service-card:hover::before { transform: scaleX(1); }
-
-        .service-tag {
-            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: .72rem;
-            letter-spacing: .35em;
-            color: var(--blue-bright);
-            border: 1px solid rgba(90,141,196,.3);
-            display: inline-block;
-            padding: .25rem .9rem;
-            margin-bottom: 2rem;
-        }
-
-        .service-tag.gold {
-            color: var(--gold);
-            border-color: var(--gold-dim);
-        }
-
-        .service-name {
-            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: 1.25rem;
-            font-weight: 400;
-            color: var(--ivory);
-            margin-bottom: 1.2rem;
-            line-height: 1.4;
-        }
-
-        .service-rule {
-            width: 24px;
-            height: 1px;
-            background: var(--gold-border);
-            margin-bottom: 1.5rem;
-        }
-
-        .service-desc {
-            font-size: .9rem;
-            color: var(--ivory-dim);
-            line-height: 2.3;
-            margin-bottom: 2rem;
-            min-height: 6.3rem;
-        }
-
-        .service-meta {
-            display: flex;
-            flex-direction: column;
-            gap: .6rem;
-            border-top: 1px solid var(--line);
-            padding-top: 1.5rem;
-        }
-
-        .service-meta-row {
-            display: flex;
-            gap: 1rem;
-            font-size: .82rem;
-        }
-
-        .service-meta-lbl { color: var(--ivory-dim); flex-shrink: 0; }
-        .service-meta-val { color: var(--ivory); }
-
         /* ── CTA ── */
         .cta-block {
             text-align: center;
@@ -617,10 +516,6 @@
         }
 
         /* ── RESPONSIVE ── */
-        @media (max-width: 1024px) {
-            .service-grid { grid-template-columns: 1fr 1fr; }
-        }
-
         @media (max-width: 900px) {
             .concept-grid { grid-template-columns: 1fr; gap: 4rem; }
             .steps { grid-template-columns: 1fr 1fr; gap: 3rem 1rem; }
@@ -635,7 +530,6 @@
             #page-intro { padding: 14rem 1.5rem 6rem; }
             .wrap { padding: 6rem 1.5rem; }
             .cta-block { padding: 5rem 1.5rem; }
-            .service-grid { grid-template-columns: 1fr; }
             .steps { grid-template-columns: 1fr; }
             footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
             .footer-nav { align-items: flex-start; }
@@ -714,6 +608,7 @@
     <nav>
         <a href="collections.html">館藏</a>
         <a href="acquisition.html" class="active">競藏</a>
+        <a href="exhibitions.html">展覽</a>
         <a href="menu.html">酒單</a>
         <a href="about.html">關於</a>
         <a href="rules.html">規章</a>
@@ -860,114 +755,6 @@
     </div>
 </section>
 
-<!-- SERVICES -->
-<section class="section-sep">
-    <div class="wrap">
-        <p class="eyebrow" data-eyebrow>服務項目</p>
-        <h2><span class="h2-inner" data-h2>私人展廳提供的相遇形式。</span></h2>
-
-        <div class="service-grid" data-services>
-
-            <div class="service-card">
-                <span class="service-tag">STANDARD</span>
-                <div class="service-name">館內休憩</div>
-                <div class="service-rule"></div>
-                <p class="service-desc">
-                    自由入座，享用館內酒水。
-                <br>只是坐在同一個空間裡，各自做著什麼，或什麼都不做。 適合需要安靜卻不想獨處的人。
-                </p>
-                <div class="service-meta">
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">時長</span>
-                        <span class="service-meta-val">至閉館為止</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">形式</span>
-                        <span class="service-meta-val">館內展廳</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">費用</span>
-                        <span class="service-meta-val">入場費已包含座席／酒水另計</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <span class="service-tag">STANDARD</span>
-                <div class="service-name">展場漫遊</div>
-                <div class="service-rule"></div>
-                <p class="service-desc">
-                    館內的典藏在鑑賞時間以外也能自由欣賞。
-                <br>收藏家可自在漫遊，帶著自己的目光，找到那件讓你忍不住多看一眼的。
-                </p>
-                <div class="service-meta">
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">時長</span>
-                        <span class="service-meta-val">至館藏展期更動</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">形式</span>
-                        <span class="service-meta-val">館內展廳</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">費用</span>
-                        <span class="service-meta-val">無須費用</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <span class="service-tag gold">EXCLUSIVE</span>
-                <div class="service-name">典藏鑑賞</div>
-                <div class="service-rule"></div>
-                <p class="service-desc">
-                    每件館藏皆承載著獨特的過往與痕跡。
-                <br>透過館藏親自講述，聆聽其來歷、見聞與故事，作為初次認識彼此的起點。
-                </p>
-                <div class="service-meta">
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">時長</span>
-                        <span class="service-meta-val">30 分鐘起</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">形式</span>
-                        <span class="service-meta-val">私人展廳</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">費用</span>
-                        <span class="service-meta-val">200,000 Gil 起標</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <span class="service-tag gold">EXCLUSIVE</span>
-                <div class="service-name">策展委託</div>
-                <div class="service-rule"></div>
-                <p class="service-desc">
-                    由收藏家提出主題，館藏依此構思專屬展覽。
-                <br>可能是一段故事、一首詩，或其他形式的創作，僅於本次展期中展出。
-                </p>
-                <div class="service-meta">
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">時長</span>
-                        <span class="service-meta-val">依策展內容而定</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">形式</span>
-                        <span class="service-meta-val">專屬展覽</span>
-                    </div>
-                    <div class="service-meta-row">
-                        <span class="service-meta-lbl">費用</span>
-                        <span class="service-meta-val">依規格調整</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
 <!-- CTA -->
 <div class="cta-block" data-reveal>
     <p class="cta-eyebrow">AUCTION DAY</p>
@@ -989,6 +776,7 @@
     <nav class="footer-nav">
         <a href="collections.html">COLLECTIONS</a>
         <a href="acquisition.html">ACQUISITION</a>
+        <a href="exhibitions.html">EXHIBITIONS</a>
         <a href="menu.html">MENU</a>
         <a href="about.html">ABOUT</a>
         <a href="rules.html">RULES</a>
@@ -1016,16 +804,10 @@
                 io.unobserve(el);
             }
 
-            if (el.dataset.services !== undefined) {
-                el.querySelectorAll('.service-card').forEach((c, i) => {
-                    setTimeout(() => c.classList.add('vis'), i * 80);
-                });
-                io.unobserve(el);
-            }
         });
     }, { threshold: .08 });
 
-    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-steps],[data-services]')
+    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-steps]')
         .forEach(el => io.observe(el));
 
     /* ── Header hide on scroll ── */

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>展覽 — PIETERSITE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --bg-card:     #111827;
+            --bg-card-h:   #151e30;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --blue:        #3a5f8a;
+            --blue-bright: #5a8dc4;
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--gold); color: #06090f; }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.97) 0%, transparent 100%);
+            transition: opacity .4s ease;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* ── PAGE INTRO ── */
+        #page-intro {
+            padding: 18rem 3.5rem 8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-eyebrow {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: rise .8s ease .1s forwards;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300;
+            letter-spacing: .12em;
+            line-height: 1.1;
+            color: var(--ivory);
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: rise 1s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        .page-desc {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.4;
+            max-width: 640px;
+            opacity: 0;
+            animation: rise .9s ease .4s forwards;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* ── SHARED ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 3.5rem;
+        }
+
+        .section-sep { border-top: 1px solid var(--line); }
+
+        .eyebrow {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .9rem;
+            letter-spacing: .35em;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .eyebrow::after {
+            content: '';
+            width: 0;
+            height: 1px;
+            background: var(--line);
+            flex-shrink: 0;
+            transition: width .8s ease .3s;
+        }
+
+        .eyebrow.vis { opacity: 1; transform: none; }
+        .eyebrow.vis::after { width: 48px; }
+
+        h2 {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+            font-weight: 300;
+            line-height: 1.25;
+            color: var(--ivory);
+            margin-bottom: 3.5rem;
+            overflow: hidden;
+        }
+
+        .h2-inner {
+            display: block;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity .9s cubic-bezier(.16,1,.3,1) .15s,
+                        transform .9s cubic-bezier(.16,1,.3,1) .15s;
+        }
+
+        .h2-inner.vis { opacity: 1; transform: none; }
+
+        /* ── SERVICE CARDS ── */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--line);
+        }
+
+        .service-card {
+            background: var(--bg-card);
+            padding: 3.2rem 2.8rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: background .4s;
+        }
+
+        .service-card.vis {
+            opacity: 1;
+            transform: none;
+            transition: background .4s, opacity .9s ease, transform .9s cubic-bezier(.16,1,.3,1);
+        }
+
+        .service-card:nth-child(1) { transition-delay: .0s; }
+        .service-card:nth-child(2) { transition-delay: .12s; }
+        .service-card:nth-child(3) { transition-delay: .24s; }
+        .service-card:nth-child(4) { transition-delay: .08s; }
+        .service-card:nth-child(5) { transition-delay: .2s; }
+        .service-card:nth-child(6) { transition-delay: .32s; }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+            transform: scaleX(0);
+            transition: transform .6s ease;
+        }
+
+        .service-card:hover { background: var(--bg-card-h); }
+        .service-card:hover::before { transform: scaleX(1); }
+
+        .service-tag {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .72rem;
+            letter-spacing: .35em;
+            color: var(--blue-bright);
+            border: 1px solid rgba(90,141,196,.3);
+            display: inline-block;
+            padding: .25rem .9rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-tag.gold {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .service-name {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--ivory);
+            margin-bottom: 1.2rem;
+            line-height: 1.4;
+        }
+
+        .service-rule {
+            width: 24px;
+            height: 1px;
+            background: var(--gold-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .service-desc {
+            font-size: .9rem;
+            color: var(--ivory-dim);
+            line-height: 2.3;
+            margin-bottom: 2rem;
+            min-height: 6.3rem;
+        }
+
+        .service-meta {
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+            border-top: 1px solid var(--line);
+            padding-top: 1.5rem;
+        }
+
+        .service-meta-row {
+            display: flex;
+            gap: 1rem;
+            font-size: .82rem;
+        }
+
+        .service-meta-lbl { color: var(--ivory-dim); flex-shrink: 0; }
+        .service-meta-val { color: var(--ivory); }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4.5rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+            letter-spacing: .08em;
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .78rem;
+            letter-spacing: .25em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .62rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+            .service-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.5rem; }
+            .logo { font-size: .75rem; letter-spacing: .3em; }
+            nav { gap: 1rem; }
+            nav a { font-size: .75rem; letter-spacing: .1em; }
+            #page-intro { padding: 14rem 1.5rem 6rem; }
+            .wrap { padding: 6rem 1.5rem; }
+            .service-grid { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
+            .footer-nav { align-items: flex-start; }
+        }
+
+        /* ── FLOATING WIDGET ── */
+        .float-notice {
+            display: none;
+            position: fixed;
+            left: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 300;
+            flex-direction: column;
+            align-items: flex-start;
+            background: #111827;
+            border: 1px solid var(--gold-border);
+            padding: .7rem 1.1rem;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(6,9,15,.5);
+            transition: border-color .25s, background .25s;
+        }
+
+        .float-notice.show { display: flex; }
+        .float-notice:hover { border-color: var(--gold); background: #151e30; }
+
+        .float-notice-label {
+            font-size: .62rem;
+            letter-spacing: .28em;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .float-notice-date {
+            font-size: .9rem;
+            color: var(--ivory);
+            letter-spacing: .08em;
+            margin-top: .3rem;
+        }
+
+        .float-top {
+            position: fixed;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 300;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(17,24,39,.7);
+            border-radius: 50%;
+            border: none;
+            color: var(--gold);
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: color .25s, opacity .25s;
+        }
+
+        .float-top.show { opacity: 1; pointer-events: auto; }
+        .float-top:hover { color: var(--ivory); }
+
+        @media (max-width: 768px) {
+            .float-notice { left: 1rem; bottom: 1rem; padding: .55rem .85rem; }
+            .float-top { right: 1rem; bottom: 1rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo" href="index.html">PIETERSITE</a>
+    <nav>
+        <a href="collections.html">館藏</a>
+        <a href="acquisition.html">競藏</a>
+        <a href="exhibitions.html" class="active">展覽</a>
+        <a href="menu.html">酒單</a>
+        <a href="about.html">關於</a>
+        <a href="rules.html">規章</a>
+    </nav>
+</header>
+
+<!-- PAGE INTRO -->
+<div id="page-intro">
+    <p class="page-eyebrow">EXHIBITIONS</p>
+    <h1 class="page-title">展覽</h1>
+    <p class="page-desc">
+        同一件館藏，在不同的展間裡，<br>
+        會是不同的樣子。
+    </p>
+</div>
+
+<!-- SERVICES -->
+<section class="section-sep">
+    <div class="wrap">
+        <p class="eyebrow" data-eyebrow>服務項目</p>
+        <h2><span class="h2-inner" data-h2>私人展廳提供的相遇形式。</span></h2>
+
+        <div class="service-grid" data-services>
+
+            <div class="service-card">
+                <span class="service-tag">STANDARD</span>
+                <div class="service-name">館內休憩</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    自由入座，享用館內酒水。
+                <br>只是坐在同一個空間裡，各自做著什麼，或什麼都不做。 適合需要安靜卻不想獨處的人。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">至閉館為止</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">館內展廳</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">入場費已包含座席／酒水另計</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag">STANDARD</span>
+                <div class="service-name">展場漫遊</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    館內的典藏在鑑賞時間以外也能自由欣賞。
+                <br>收藏家可自在漫遊，帶著自己的目光，找到那件讓你忍不住多看一眼的。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">至館藏展期更動</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">館內展廳</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">無須費用</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag gold">EXCLUSIVE</span>
+                <div class="service-name">典藏鑑賞</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    每件館藏皆承載著獨特的過往與痕跡。
+                <br>透過館藏親自講述，聆聽其來歷、見聞與故事，作為初次認識彼此的起點。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">30 分鐘起</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">私人展廳</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">200,000 Gil 起標</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag gold">EXCLUSIVE</span>
+                <div class="service-name">策展委託</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    由收藏家提出主題，館藏依此構思專屬展覽。
+                <br>可能是一段故事、一首詩，或其他形式的創作，僅於本次展期中展出。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">時長</span>
+                        <span class="service-meta-val">依策展內容而定</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">專屬展覽</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">依規格調整</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限受邀者入場
+            <span class="footer-motto">展期有盡，珍藏無期</span>
+        </p>
+    </div>
+    <nav class="footer-nav">
+        <a href="collections.html">COLLECTIONS</a>
+        <a href="acquisition.html">ACQUISITION</a>
+        <a href="exhibitions.html">EXHIBITIONS</a>
+        <a href="menu.html">MENU</a>
+        <a href="about.html">ABOUT</a>
+        <a href="rules.html">RULES</a>
+    </nav>
+</footer>
+
+<script>
+(function () {
+
+    /* ── Scroll reveals ── */
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+
+            if (el.dataset.eyebrow !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.h2     !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+            if (el.dataset.reveal !== undefined) { el.classList.add('vis'); io.unobserve(el); }
+
+            if (el.dataset.steps !== undefined) {
+                el.classList.add('vis');
+                el.querySelectorAll('.step').forEach((s, i) => {
+                    setTimeout(() => s.classList.add('vis'), i * 100);
+                });
+                io.unobserve(el);
+            }
+
+            if (el.dataset.services !== undefined) {
+                el.querySelectorAll('.service-card').forEach((c, i) => {
+                    setTimeout(() => c.classList.add('vis'), i * 80);
+                });
+                io.unobserve(el);
+            }
+        });
+    }, { threshold: .08 });
+
+    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-steps],[data-services]')
+        .forEach(el => io.observe(el));
+
+    /* ── Header hide on scroll ── */
+    const hdr = document.getElementById('site-header');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        hdr.style.opacity       = y > lastY && y > 100 ? '0' : '1';
+        hdr.style.pointerEvents = y > lastY && y > 100 ? 'none' : '';
+        lastY = y;
+    }, { passive: true });
+
+})();
+</script>
+
+<!-- ── 下次競藏日（左下）+ 回到頂部（右下，小圖示）── -->
+<a href="acquisition.html" class="float-notice" id="float-notice">
+    <span class="float-notice-label">下次競藏日</span>
+    <span class="float-notice-date" id="float-notice-date"></span>
+</a>
+<button class="float-top" id="float-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂部">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9L7 4L12 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const floatApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteFloatWidget');
+const floatDb = getDatabase(floatApp);
+
+onValue(dbRef(floatDb, 'publicNotices/acquisitionDay'), snap => {
+    const notice = snap.val();
+    const el = document.getElementById('float-notice');
+    if (notice?.date) {
+        const dt = new Date(notice.date + 'T00:00:00');
+        let text = `${dt.getMonth()+1}/${dt.getDate()}（${'日一二三四五六'[dt.getDay()]}）`;
+        if (notice.time) text += ` ${notice.time}`;
+        document.getElementById('float-notice-date').textContent = text;
+        el.classList.add('show');
+    } else {
+        el.classList.remove('show');
+    }
+});
+
+const floatTopBtn = document.getElementById('float-top');
+window.addEventListener('scroll', () => {
+    floatTopBtn.classList.toggle('show', window.scrollY > 400);
+}, { passive: true });
+</script>
+</body>
+</html>
