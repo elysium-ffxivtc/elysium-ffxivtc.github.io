@@ -1374,16 +1374,24 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     const time = document.getElementById('public-notice-time').value.trim();
     const note = document.getElementById('public-notice-note').value.trim();
     if (!date) { await clearPublicNotice(); return; }
-    await set(dbRef(db, 'publicNotices/acquisitionDay'), {
-      date, time, note, updatedBy: currentUser.displayName, updatedAt: new Date().toISOString()
-    });
-    closePublicNoticeModal();
+    try {
+      await set(dbRef(db, 'publicNotices/acquisitionDay'), {
+        date, time, note, updatedBy: currentUser.displayName, updatedAt: new Date().toISOString()
+      });
+      closePublicNoticeModal();
+    } catch (e) {
+      alert('儲存失敗：' + e.message);
+    }
   }
 
   async function clearPublicNotice() {
     if (publicNotice?.date && !confirm('確定清除競藏日公告？')) return;
-    await remove(dbRef(db, 'publicNotices/acquisitionDay'));
-    closePublicNoticeModal();
+    try {
+      await remove(dbRef(db, 'publicNotices/acquisitionDay'));
+      closePublicNoticeModal();
+    } catch (e) {
+      alert('清除失敗：' + e.message);
+    }
   }
 
   // ── Accounts ──────────────────────────────────────────────────
