@@ -228,16 +228,17 @@
         /* ── CURATORS ── */
         .curator-list {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2.5rem;
             margin-bottom: 5rem;
         }
 
         .curator-card {
-            background: var(--bg-1);
-            overflow: hidden;
-            outline: 1px solid var(--line);
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            gap: 1.3rem;
             opacity: 0;
-            transform: translateY(24px);
+            transform: translateY(18px);
             transition: opacity .9s ease, transform .9s ease;
         }
 
@@ -245,56 +246,57 @@
         .curator-card:nth-child(2) { transition-delay: .15s; }
 
         .curator-photo {
-            aspect-ratio: 1/1;
+            aspect-ratio: 3/4;
             background: var(--bg-2);
+            outline: 1px solid var(--line);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: .6rem;
+            gap: .5rem;
             color: var(--ivory-dim);
             opacity: .35;
         }
 
-        .curator-photo svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
+        .curator-photo svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
 
         .curator-photo span {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: .55rem;
-            letter-spacing: .35em;
+            font-size: .42rem;
+            letter-spacing: .25em;
         }
 
-        .curator-info { padding: 1.3rem 1.5rem 1.7rem; }
+        .curator-info { display: flex; flex-direction: column; justify-content: center; }
 
         .curator-role {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: .64rem;
-            letter-spacing: .4em;
+            font-size: .62rem;
+            letter-spacing: .35em;
             color: var(--gold);
-            margin-bottom: .6rem;
+            margin-bottom: .55rem;
         }
 
         .curator-name {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 300;
             color: var(--ivory);
             letter-spacing: .1em;
             line-height: 1.2;
-            margin-bottom: .8rem;
+            margin-bottom: .7rem;
         }
 
         .curator-rule {
-            width: 22px;
+            width: 20px;
             height: 1px;
             background: var(--gold-border);
-            margin-bottom: .8rem;
+            margin-bottom: .7rem;
         }
 
         .curator-bio {
-            font-size: .82rem;
+            font-size: .8rem;
             color: var(--ivory-dim);
-            line-height: 1.9;
+            line-height: 1.8;
         }
 
         /* ── STAFF ── */
@@ -303,16 +305,16 @@
         .staff-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1px;
-            background: var(--line);
+            gap: 2.5rem 2rem;
             margin-top: 2.5rem;
         }
 
         .staff-card {
-            background: var(--bg-card);
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 1.1rem;
             opacity: 0;
-            transform: translateY(24px);
+            transform: translateY(18px);
             transition: opacity .9s ease, transform .9s ease;
         }
 
@@ -321,56 +323,57 @@
         .staff-card:nth-child(3) { transition-delay: .24s; }
 
         .staff-photo {
-            aspect-ratio: 1/1;
+            aspect-ratio: 3/4;
             background: var(--bg-2);
+            outline: 1px solid var(--line);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: .6rem;
+            gap: .5rem;
             color: var(--ivory-dim);
             opacity: .35;
         }
 
-        .staff-photo svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+        .staff-photo svg { width: 14px; height: 14px; stroke: currentColor; fill: none; }
 
         .staff-photo span {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: .5rem;
-            letter-spacing: .35em;
+            font-size: .4rem;
+            letter-spacing: .25em;
         }
 
-        .staff-info { padding: 1.3rem 1.5rem 1.7rem; }
+        .staff-info { display: flex; flex-direction: column; justify-content: center; }
 
         .staff-role {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: .62rem;
-            letter-spacing: .4em;
+            font-size: .58rem;
+            letter-spacing: .35em;
             color: var(--gold);
-            margin-bottom: .7rem;
+            margin-bottom: .5rem;
         }
 
         .staff-name {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             font-weight: 300;
             color: var(--ivory);
             letter-spacing: .1em;
             line-height: 1.2;
-            margin-bottom: .9rem;
+            margin-bottom: .6rem;
         }
 
         .staff-rule {
-            width: 20px;
+            width: 18px;
             height: 1px;
             background: var(--gold-border);
-            margin-bottom: .9rem;
+            margin-bottom: .6rem;
         }
 
         .staff-bio {
-            font-size: .82rem;
+            font-size: .78rem;
             color: var(--ivory-dim);
-            line-height: 1.9;
+            line-height: 1.8;
         }
 
         /* ── FOOTER ── */
