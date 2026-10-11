@@ -347,6 +347,24 @@
   </div>
 </div>
 
+<!-- ── 競藏日公告編輯 modal（公開顯示於官網）── -->
+<div class="modal-overlay" id="modal-public-notice" onclick="if(event.target===this)closePublicNoticeModal()">
+  <div class="modal-box" style="width:400px">
+    <div class="modal-title">編輯競藏日公告</div>
+    <div class="form-grid">
+      <div>
+        <div class="form-label">內容（會公開顯示在官網 acquisition.html 頁面）</div>
+        <textarea id="public-notice-text" class="form-input" placeholder="例如：下次競藏日 11/15（六）晚間 21:00 開始"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" onclick="clearPublicNotice()">清除</button>
+      <button class="btn btn-outline btn-sm" onclick="closePublicNoticeModal()">取消</button>
+      <button class="btn btn-gold btn-sm" onclick="savePublicNotice()">儲存</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── 日期管理 modal ── -->
 <div class="modal-overlay" id="modal-day" onclick="if(event.target===this)closeDayModal()">
   <div class="modal-box">
@@ -471,6 +489,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let bizStatus    = {};
   let apostlesData = {}; // { uid: { name, tag, ... } }，營業日規則用來判斷排班人員職位
   let announcement = null; // { text, updatedBy, updatedAt }
+  let publicNotice = null; // { text, updatedBy, updatedAt } — 公開顯示於官網 acquisition.html 的競藏日公告
   let myMemo       = '';
   // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡。
   /* ponytail: Pietersite 尚未部署自己的 Discord relay worker，先留空，通知會靜默失敗；之後有 worker 網址再填進來 */
@@ -620,6 +639,10 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       announcement = snap.val() || null;
       render();
     });
+    onValue(dbRef(db, 'publicNotices/acquisitionDay'), snap => {
+      publicNotice = snap.val() || null;
+      render();
+    });
     onValue(dbRef(db, `memos/${currentUser.uid}`), snap => {
       myMemo = snap.val()?.text || '';
       const el = document.getElementById('memo-input');
@@ -678,6 +701,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     document.getElementById('main').innerHTML = `
       ${isAdmin() ? tabBar() : ''}
       ${buildAnnoHtml()}
+      ${buildPublicNoticeHtml()}
       ${buildBizSumHtml()}
       ${schedSubTabBar()}
       <div class="cal-tab-content">${content}</div>`;
@@ -698,6 +722,24 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         ${isAdmin() ? `<button class="btn btn-xs btn-outline" onclick="openAnnoModal()" style="font-size:11px">編輯</button>` : ''}
       </div>
       <div class="anno-text">${esc(announcement.text)}</div>
+    </div>`;
+  }
+
+  // ── 競藏日公告（公開顯示於官網 acquisition.html）──────────────
+  function buildPublicNoticeHtml() {
+    if (!publicNotice?.text && !isAdmin()) return '';
+    if (!publicNotice?.text) {
+      return `<div class="anno-card">
+        <div class="anno-header"><span class="anno-label">✦ 競藏日公告（公開顯示於官網）</span></div>
+        <div class="anno-empty" onclick="openPublicNoticeModal()">＋ 點此新增公告</div>
+      </div>`;
+    }
+    return `<div class="anno-card">
+      <div class="anno-header">
+        <span class="anno-label">✦ 競藏日公告（公開顯示於官網）</span>
+        ${isAdmin() ? `<button class="btn btn-xs btn-outline" onclick="openPublicNoticeModal()" style="font-size:11px">編輯</button>` : ''}
+      </div>
+      <div class="anno-text">${esc(publicNotice.text)}</div>
     </div>`;
   }
 
@@ -1297,6 +1339,31 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     closeAnnoModal();
   }
 
+  // ── 競藏日公告 modal（公開顯示於官網）──────────────────────────
+  function openPublicNoticeModal() {
+    document.getElementById('public-notice-text').value = publicNotice?.text || '';
+    document.getElementById('modal-public-notice').classList.add('open');
+  }
+
+  function closePublicNoticeModal() {
+    document.getElementById('modal-public-notice').classList.remove('open');
+  }
+
+  async function savePublicNotice() {
+    const text = document.getElementById('public-notice-text').value.trim();
+    if (!text) { await clearPublicNotice(); return; }
+    await set(dbRef(db, 'publicNotices/acquisitionDay'), {
+      text, updatedBy: currentUser.displayName, updatedAt: new Date().toISOString()
+    });
+    closePublicNoticeModal();
+  }
+
+  async function clearPublicNotice() {
+    if (publicNotice?.text && !confirm('確定清除競藏日公告？')) return;
+    await remove(dbRef(db, 'publicNotices/acquisitionDay'));
+    closePublicNoticeModal();
+  }
+
   // ── Accounts ──────────────────────────────────────────────────
   function renderAccounts() {
     get(dbRef(db, 'pendingStaff')).then(snap => {
@@ -1498,6 +1565,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     openDayModal, closeDayModal, removePerson, toggleBiz,
     openAddModal, closeAddModal, confirmAdd,
     openAnnoModal, closeAnnoModal, saveAnnouncement, clearAnnouncement,
+    openPublicNoticeModal, closePublicNoticeModal, savePublicNotice, clearPublicNotice,
     openBulkModal, closeBulkModal, confirmBulk, setBulkMode, toggleBulkDay, onWeekCheck,
     clearMonthSchedule, clearAllMonthSchedules, saveMemo,
     openExportModal, closeExportModal, downloadScheduleImg,

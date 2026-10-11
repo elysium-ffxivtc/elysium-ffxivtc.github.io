@@ -779,7 +779,7 @@
 <div class="cta-block" data-reveal>
     <p class="cta-eyebrow">REGISTRY</p>
     <h2 class="cta-heading">準備好出席競藏日了嗎？</h2>
-    <p class="cta-sub">競藏日由館方定期公告。<br>確認目標館藏的鑑賞時段，屆時親臨本館參與現場競拍。</p>
+    <p class="cta-sub" id="cta-sub">競藏日由館方定期公告。<br>確認目標館藏的鑑賞時段，屆時親臨本館參與現場競拍。</p>
     <span class="btn-ghost">查看競藏日公告</span>
     <a href="collections.html" class="btn-ghost dim">瀏覽館藏目錄</a>
 </div>
@@ -846,6 +846,30 @@
     }, { passive: true });
 
 })();
+</script>
+
+<!-- 競藏日公告：唯讀，內容由 staffonly/schedule.html 的管理員維護 -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const app = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+});
+const db = getDatabase(app);
+
+onValue(dbRef(db, 'publicNotices/acquisitionDay'), snap => {
+    const notice = snap.val();
+    if (notice?.text) {
+        document.getElementById('cta-sub').textContent = notice.text;
+    }
+});
 </script>
 
 </body>
