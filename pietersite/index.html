@@ -590,11 +590,11 @@
         .float-notice {
             display: none;
             position: fixed;
-            right: 1.5rem;
+            left: 1.5rem;
             bottom: 1.5rem;
             z-index: 300;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: flex-start;
             background: #111827;
             border: 1px solid var(--gold-border);
             padding: .7rem 1.1rem;
@@ -608,7 +608,7 @@
 
         .float-notice-label {
             font-size: .62rem;
-            letter-spacing: .2em;
+            letter-spacing: .28em;
             color: var(--gold);
             text-transform: uppercase;
         }
@@ -616,12 +616,13 @@
         .float-notice-date {
             font-size: .9rem;
             color: var(--ivory);
+            letter-spacing: .08em;
             margin-top: .3rem;
         }
 
         .float-top {
             position: fixed;
-            left: 1.5rem;
+            right: 1.5rem;
             bottom: 1.5rem;
             z-index: 300;
             width: 38px;
@@ -644,8 +645,8 @@
         .float-top:hover { color: var(--ivory); }
 
         @media (max-width: 768px) {
-            .float-notice { right: 1rem; bottom: 1rem; padding: .55rem .85rem; }
-            .float-top { left: 1rem; bottom: 1rem; }
+            .float-notice { left: 1rem; bottom: 1rem; padding: .55rem .85rem; }
+            .float-top { right: 1rem; bottom: 1rem; }
         }
 
     </style>
@@ -888,12 +889,14 @@
 })();
 </script>
 
-<!-- ── 回到頂部（左下，小圖示）+ 下次競藏日（右下）── -->
-<button class="float-top" id="float-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂部">↑</button>
+<!-- ── 下次競藏日（左下）+ 回到頂部（右下，小圖示）── -->
 <a href="acquisition.html" class="float-notice" id="float-notice">
     <span class="float-notice-label">下次競藏日</span>
     <span class="float-notice-date" id="float-notice-date"></span>
 </a>
+<button class="float-top" id="float-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂部">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9L7 4L12 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 
 
 <script type="module">
