@@ -180,8 +180,8 @@
             background: var(--bg-2);
         }
 
+        a.exhibit { text-decoration: none; color: inherit; cursor: pointer; }
         .exhibit { cursor: default; }
-        .exhibit .photo-wrap { cursor: zoom-in; }
 
         .photo-wrap img {
             width: 100%;
@@ -316,7 +316,7 @@
         .meta { display: flex; flex-direction: column; gap: .8rem; }
         .meta-row { display: flex; gap: 1rem; font-size: .85rem; }
         .meta-lbl { color: var(--ivory-dim); white-space: nowrap; flex-shrink: 0; }
-        .meta-val { color: var(--ivory); line-height: 1.7; }
+        .meta-val { color: var(--ivory); line-height: 1.7; min-height: 2.9rem; }
 
         /* ── LIGHTBOX ── */
         .lightbox {
@@ -570,8 +570,8 @@
 
         <div class="exhibit-grid" data-cards>
 
-            <div class="exhibit">
-                <div class="photo-wrap exhibit-photo" data-lb-src="" data-lb-num="No. 000" data-lb-name="——">
+            <a class="exhibit" href="profile-template.html">
+                <div class="photo-wrap exhibit-photo">
                     <div class="photo-placeholder">
                         <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
                         <span>待上傳</span>
@@ -580,16 +580,16 @@
                 </div>
                 <div class="exhibit-info">
                     <div class="exhibit-dot"></div>
-                    <div class="exhibit-num">No. 000</div>
-                    <div class="exhibit-name">——</div>
+                    <div class="exhibit-num">No. 001</div>
+                    <div class="exhibit-name">凜冬的餘溫</div>
                     <div class="exhibit-rule"></div>
                     <div class="meta">
-                        <div class="meta-row"><span class="meta-lbl">展覽形式</span><span class="meta-val">——</span></div>
-                        <div class="meta-row"><span class="meta-lbl">展覽簡介</span><span class="meta-val">待填寫</span></div>
-                        <div class="meta-row"><span class="meta-lbl">推薦對象</span><span class="meta-val">——</span></div>
+                        <div class="meta-row"><span class="meta-lbl">展覽形式</span><span class="meta-val">靜默陪伴</span></div>
+                        <div class="meta-row"><span class="meta-lbl">展覽簡介</span><span class="meta-val">冷靜外表下的意外溫度</span></div>
+                        <div class="meta-row"><span class="meta-lbl">推薦對象</span><span class="meta-val">需要一段安靜的人</span></div>
                     </div>
                 </div>
-            </div>
+            </a>
 
             <div class="exhibit">
                 <div class="photo-wrap exhibit-photo" data-lb-src="" data-lb-num="No. 000" data-lb-name="——">
@@ -748,7 +748,7 @@
         <div class="footer-logo">PIETERSITE</div>
         <p class="footer-copy">
             私人典藏館　｜　僅限受邀者入場
-            <span class="footer-motto">展期有盡，珍藏無期</span>
+            <span class="footer-motto">展陳有盡，珍藏無期</span>
         </p>
     </div>
     <nav class="footer-nav">
