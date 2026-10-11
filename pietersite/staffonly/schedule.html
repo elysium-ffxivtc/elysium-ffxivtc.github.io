@@ -518,6 +518,11 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   function esc(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function isAdmin() { return currentUser && currentUser.role === 'admin'; }
   function todayStr(){ return new Date().toISOString().slice(0, 10); }
+  function getBusinessDate() {
+    const d = new Date();
+    if (d.getHours() < 2) d.setDate(d.getDate() - 1);
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  }
   function pad(n)    { return String(n).padStart(2, '0'); }
 
   // ── publicShifts 鏡射（給預約頁讀的精簡版，不含 isLeave/role/displayName） ──
@@ -628,12 +633,12 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       _schedLoaded = true;
       render();
       if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
-      if (_apostlesLoaded) syncBizStatus();
+      if (_apostlesLoaded) { syncBizStatus(); syncPublicRoster(); }
     });
     onValue(dbRef(db, 'apostles'), snap => {
       apostlesData = snap.val() || {};
       _apostlesLoaded = true;
-      if (_schedLoaded) syncBizStatus();
+      if (_schedLoaded) { syncBizStatus(); syncPublicRoster(); }
     });
     onValue(dbRef(db, 'staff'), snap => {
       staff = snap.val() ? Object.values(snap.val()) : [];
@@ -1299,6 +1304,26 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       }
     }
     if (writes.length) await Promise.all(writes);
+  }
+
+  // ── 公開版「今日有排班的館藏」名單（給 collections.html / profile 頁的綠燈用）──
+  // 只寫出姓名清單，不含 apostles 的 bio/chat/taboo 等內部資料，避免外洩
+  async function syncPublicRoster() {
+    const today = getBusinessDate();
+    const names = {};
+    TIME_SLOTS.forEach(t => {
+      const entry = schedData[`${today}_${sKey(t)}`] || {};
+      Object.entries(entry).forEach(([uid, p]) => {
+        if (p.isLeave) return;
+        const nm = apostlesData[uid]?.name;
+        if (nm) names[nm] = true;
+      });
+    });
+    await set(dbRef(db, 'publicTodayRoster'), {
+      date: today,
+      names,
+      updatedAt: new Date().toISOString()
+    });
   }
 
   // ── Add person modal ──────────────────────────────────────────
