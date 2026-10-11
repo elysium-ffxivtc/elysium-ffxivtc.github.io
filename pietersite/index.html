@@ -388,6 +388,8 @@
             margin-bottom: 3rem;
         }
 
+        a.exhibit { text-decoration: none; color: inherit; cursor: pointer; }
+
         .exhibit {
             background: var(--bg-card);
             padding: 3rem 2.8rem;
@@ -749,8 +751,18 @@
         <h2><span class="h2-inner" data-h2>館藏</span></h2>
 
         <div class="preview-grid" data-cards>
+            <a class="exhibit" href="profile-template.html" data-apostle-name="凜冬的餘溫">
+                <div class="exhibit-dot off"></div>
+                <div class="exhibit-num">No. 001</div>
+                <div class="exhibit-name">凜冬的餘溫</div>
+                <div class="exhibit-rule"></div>
+                <div class="meta">
+                    <div class="meta-row"><span class="meta-lbl">展覽形式</span><span class="meta-val">靜默陪伴</span></div>
+                    <div class="meta-row"><span class="meta-lbl">推薦對象</span><span class="meta-val">需要一段安靜的人</span></div>
+                </div>
+            </a>
             <div class="exhibit">
-                <div class="exhibit-dot"></div>
+                <div class="exhibit-dot off"></div>
                 <div class="exhibit-num">No. 000</div>
                 <div class="exhibit-name">——</div>
                 <div class="exhibit-rule"></div>
@@ -760,17 +772,7 @@
                 </div>
             </div>
             <div class="exhibit">
-                <div class="exhibit-dot"></div>
-                <div class="exhibit-num">No. 000</div>
-                <div class="exhibit-name">——</div>
-                <div class="exhibit-rule"></div>
-                <div class="meta">
-                    <div class="meta-row"><span class="meta-lbl">展覽形式</span><span class="meta-val">——</span></div>
-                    <div class="meta-row"><span class="meta-lbl">推薦對象</span><span class="meta-val">——</span></div>
-                </div>
-            </div>
-            <div class="exhibit">
-                <div class="exhibit-dot"></div>
+                <div class="exhibit-dot off"></div>
                 <div class="exhibit-num">No. 000</div>
                 <div class="exhibit-name">——</div>
                 <div class="exhibit-rule"></div>
@@ -943,6 +945,41 @@ const floatTopBtn = document.getElementById('float-top');
 window.addEventListener('scroll', () => {
     floatTopBtn.classList.toggle('show', window.scrollY > 400);
 }, { passive: true });
+</script>
+
+<!-- 館藏綠燈：讀取 staffonly/schedule.html 寫出的「今日有排班」名單（唯讀，不含內部資料）-->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const rosterApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteRoster');
+const rosterDb = getDatabase(rosterApp);
+
+function getBusinessDate() {
+    const d = new Date();
+    if (d.getHours() < 2) d.setDate(d.getDate() - 1);
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+
+onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
+    const roster = snap.val();
+    const scheduledToday = (roster && roster.date === getBusinessDate()) ? roster.names || {} : {};
+    document.querySelectorAll('[data-apostle-name]').forEach(el => {
+        const name = el.dataset.apostleName;
+        const dot = el.querySelector('.exhibit-dot');
+        if (!dot) return;
+        dot.classList.toggle('off', !(name && scheduledToday[name]));
+    });
+});
 </script>
 </body>
 </html>
