@@ -277,6 +277,64 @@
         .service-meta-lbl { color: var(--ivory-dim); flex-shrink: 0; }
         .service-meta-val { color: var(--ivory); }
 
+        /* ── CTA ── */
+        .cta-block {
+            text-align: center;
+            padding: 6rem 3.5rem;
+            border-top: 1px solid var(--line);
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .cta-block.vis { opacity: 1; transform: none; }
+
+        .cta-eyebrow {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .82rem;
+            letter-spacing: .4em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-heading {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+            font-weight: 300;
+            color: var(--ivory);
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-ghost {
+            border: 1px solid var(--gold-dim);
+            color: var(--gold);
+            padding: .85rem 3rem;
+            font-family: 'Noto Serif TC', serif;
+            font-size: .88rem;
+            letter-spacing: .18em;
+            text-decoration: none;
+            transition: all .3s;
+            display: inline-block;
+        }
+
+        .btn-ghost:hover {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+            color: var(--ivory);
+        }
+
+        .btn-ghost.dim {
+            border-color: rgba(154,138,116,.25);
+            color: var(--ivory-dim);
+            margin-left: 1rem;
+        }
+
+        .btn-ghost.dim:hover {
+            background: rgba(154,138,116,.1);
+            border-color: var(--ivory-dim);
+            color: var(--ivory);
+        }
+
         /* ── FOOTER ── */
         footer {
             border-top: 1px solid var(--line);
@@ -338,7 +396,9 @@
             nav a { font-size: .75rem; letter-spacing: .1em; }
             #page-intro { padding: 14rem 1.5rem 6rem; }
             .wrap { padding: 6rem 1.5rem; }
+            .cta-block { padding: 5rem 1.5rem; }
             .service-grid { grid-template-columns: 1fr; }
+            .btn-ghost.dim { margin-left: 0; margin-top: 1rem; }
             footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
             .footer-nav { align-items: flex-start; }
         }
@@ -540,6 +600,14 @@
         </div>
     </div>
 </section>
+
+<!-- CTA -->
+<div class="cta-block" data-reveal>
+    <p class="cta-eyebrow">ACQUISITION</p>
+    <h2 class="cta-heading">鑑賞資格，<br>由競藏決定。</h2>
+    <a href="acquisition.html" class="btn-ghost">了解競藏制度</a>
+    <a href="collections.html" class="btn-ghost dim">瀏覽館藏目錄</a>
+</div>
 
 <!-- FOOTER -->
 <footer>
