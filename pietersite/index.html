@@ -568,6 +568,14 @@
             color: rgba(154,138,116,.35);
         }
 
+        .footer-copyright {
+            display: block;
+            margin-top: .6rem;
+            font-size: .6rem;
+            letter-spacing: .15em;
+            color: rgba(154,138,116,.35);
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
             .preview-grid { grid-template-columns: 1fr 1fr; }
@@ -787,6 +795,7 @@
         <p class="footer-copy">
             私人典藏館　｜　僅限受邀者入場
             <span class="footer-motto">展陳有盡，珍藏無期</span>
+            <span class="footer-copyright">© 2026 PIETERSITE. All Rights Reserved</span>
         </p>
     </div>
     <nav class="footer-nav">
@@ -878,10 +887,10 @@
     let lastY = 0;
     window.addEventListener('scroll', () => {
         const y = window.scrollY;
-        if (y > lastY && y > 100) {
+        if (y > 100 && y > lastY) {
             hdr.style.opacity = '0';
             hdr.style.pointerEvents = 'none';
-        } else {
+        } else if (y <= 100) {
             hdr.style.opacity = '1';
             hdr.style.pointerEvents = '';
         }
