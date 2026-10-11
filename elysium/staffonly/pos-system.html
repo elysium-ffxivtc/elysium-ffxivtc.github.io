@@ -1403,7 +1403,6 @@
                     ${(v.total||0).toLocaleString()} Gil
                     ${(v.tips||[]).map(t=>`<div style="font-size:12px;color:var(--gold);margin-top:2px">打賞 ${t.amount.toLocaleString()} → ${esc(t.to)}</div>`).join('')}
                     <div style="display:flex;gap:.35rem;margin-top:4px;flex-wrap:wrap">
-                      <button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="copyVisitSummary('${v.id}',this)">複製帳單</button>
                       ${v.date === _today && isNomenVisit && !visits.some(x=>x.customerId===v.customerId&&x.date===_today&&x.id!==v.id&&isNomenRecord(x)&&(x.time||'')>(v.time||'')) ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="addOvertime('${v.id}')">加時</button>` : ''}
                       ${v.date === _today ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="openAddTipModal('${v.id}','${id}')">＋ 打賞</button>` : ''}
                       ${isEditableVisit(v) ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:.15rem .45rem" onclick="openEditVisit('${v.id}','${id}')">編輯</button>` : ''}
@@ -1707,26 +1706,6 @@
         el.style.color = 'var(--green)';
         setTimeout(() => { el.textContent = orig; el.style.color = origColor; }, 1200);
       });
-    }
-
-    // 帳單摘要複製成一行文字，方便貼進遊戲聊天框
-    function copyVisitSummary(visitId, el) {
-      const v = visits.find(x => x.id === visitId);
-      if (!v) return;
-      const c = customers.find(x => x.id === v.customerId);
-      const items = [
-        ...(v.services||[]).map(sid => SERVICES.find(s=>s.id===sid)?.name).filter(Boolean),
-        ...(v.orders||[]).map(o => `${o.name}×${o.qty}`),
-      ];
-      const tipsTotal = (v.tips||[]).reduce((t,x) => t+x.amount, 0);
-      const parts = [
-        `【安息地】${c?c.name:''}`,
-        v.date && v.time ? `${v.date} ${v.time}` : '',
-        items.join('、'),
-        tipsTotal ? `小費 ${tipsTotal.toLocaleString()}` : '',
-        `合計 ${((v.total||0)+tipsTotal).toLocaleString()} Gil`,
-      ].filter(Boolean);
-      copyToClip(parts.join('｜'), el);
     }
 
     function tagColor(tag) {
