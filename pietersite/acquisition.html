@@ -325,6 +325,70 @@
             line-height: 2.1;
         }
 
+        /* ── AUCTION RULES ── */
+        .rule-section {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 0 5rem;
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--line);
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .rule-section:first-of-type { padding-top: 1rem; }
+        .rule-section:last-of-type { border-bottom: none; padding-bottom: 0; }
+
+        .rule-section.vis { opacity: 1; transform: none; }
+
+        .rule-header { padding-top: .3rem; }
+
+        .rule-num {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .72rem;
+            letter-spacing: .45em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .rule-title {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: 1.25rem;
+            font-weight: 300;
+            letter-spacing: .1em;
+            color: var(--ivory);
+            line-height: 1.4;
+        }
+
+        .rule-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+            font-size: .95rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+        }
+
+        .rule-item::before {
+            content: '✦';
+            color: var(--gold);
+            font-size: .65rem;
+            flex-shrink: 0;
+            margin-top: .42rem;
+        }
+
+        @media (max-width: 768px) {
+            .rule-section { grid-template-columns: 1fr; gap: .8rem 0; }
+        }
+
         /* ── SERVICE CARDS ── */
         .service-grid {
             display: grid;
@@ -619,10 +683,7 @@
                 </p>
                 <div class="concept-note" data-reveal style="transition-delay:.16s">
                     <span class="concept-note-icon">※</span>
-                    <p>競藏僅接受現場出價，恕不受理委託。<br>
-                    同一時段內，每位收藏家僅能取得一位館藏的鑑賞資格。<br>
-                    得標後須先支付押金，餘款於鑑賞當日結清，退款規則詳見規章。<br>
-                    館藏不屬於任何人，也不販售予任何人。</p>
+                    <p>館藏不屬於任何人，也不販售予任何人。</p>
                 </div>
             </div>
             <div>
@@ -674,6 +735,63 @@
                 <div class="step-title">進入展廳</div>
                 <p class="step-desc">於營業日依約入場<br>結清餘款<br>開始你們專屬的相遇</p>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- RULES -->
+<section class="section-sep">
+    <div class="wrap">
+        <p class="eyebrow" data-eyebrow>競藏規則</p>
+        <h2><span class="h2-inner" data-h2>參與競藏前，請詳閱以下規則。</span></h2>
+
+        <div class="rule-section" data-reveal>
+            <div class="rule-header">
+                <div class="rule-num">01</div>
+                <h3 class="rule-title">喊價與落槌</h3>
+            </div>
+            <ul class="rule-list">
+                <li class="rule-item">競藏日依館方公告時間舉行，僅接受現場出價，恕不受理代理或委託競拍。</li>
+                <li class="rule-item">競拍以撲克牌花色代替金額喊價，各花色對應之加碼金額以當期公告為準。無法輸入花色符號者，得以英文字母 C、D、H、S 代替，效力相同。</li>
+                <li class="rule-item">出價一經送出即視為有效，不得撤回。</li>
+                <li class="rule-item">最後一次出價後，由主持人進行落槌倒數，倒數期間無人加價即告成交。競拍結果以落槌時之出價為準，館方與館藏均不介入。</li>
+                <li class="rule-item">同一時段內，每位收藏家僅能取得一位館藏之鑑賞資格。</li>
+            </ul>
+        </div>
+
+        <div class="rule-section" data-reveal>
+            <div class="rule-header">
+                <div class="rule-num">02</div>
+                <h3 class="rule-title">押金與退款</h3>
+            </div>
+            <ul class="rule-list">
+                <li class="rule-item">得標後須當場支付押金，餘款於鑑賞當日結清。</li>
+                <li class="rule-item">因館方因素取消鑑賞，押金全額退還。</li>
+                <li class="rule-item">收藏家於鑑賞前 24 小時告知取消，押金全額退還；當日取消或無故缺席者，押金恕不退還。</li>
+            </ul>
+        </div>
+
+        <div class="rule-section" data-reveal>
+            <div class="rule-header">
+                <div class="rule-num">03</div>
+                <h3 class="rule-title">順位遞補</h3>
+            </div>
+            <ul class="rule-list">
+                <li class="rule-item">得標者取消或未依規定付款時，鑑賞資格由下一順位遞補。</li>
+                <li class="rule-item">遞補者以其最後出價取得資格，亦得選擇放棄。</li>
+            </ul>
+        </div>
+
+        <div class="rule-section" data-reveal>
+            <div class="rule-header">
+                <div class="rule-num">04</div>
+                <h3 class="rule-title">競拍禮儀</h3>
+            </div>
+            <ul class="rule-list">
+                <li class="rule-item">競拍期間請勿嘲諷、挑釁其他收藏家。</li>
+                <li class="rule-item">結果公布後，請勿對得標者或館藏施壓或表達不滿。</li>
+                <li class="rule-item">主持人得視情況予以警告或請離。</li>
+            </ul>
         </div>
     </div>
 </section>
