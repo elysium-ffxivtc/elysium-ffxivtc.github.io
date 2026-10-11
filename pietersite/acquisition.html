@@ -454,6 +454,20 @@
             margin-bottom: 1.2rem;
         }
 
+        .cta-date {
+            display: none;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 400;
+            letter-spacing: .08em;
+            color: var(--gold-bright);
+            border: 1px solid var(--gold-border);
+            padding: .9rem 2rem;
+            margin: 0 auto 1.6rem;
+        }
+
+        .cta-date.show { display: inline-block; }
+
         .cta-sub {
             font-size: .95rem;
             color: var(--ivory-dim);
@@ -777,6 +791,7 @@
 <div class="cta-block" data-reveal>
     <p class="cta-eyebrow">AUCTION DAY</p>
     <h2 class="cta-heading">準備好出席競藏日了嗎？</h2>
+    <div class="cta-date" id="cta-date"></div>
     <p class="cta-sub" id="cta-sub">競藏日由館方定期公告。<br>確認目標館藏的鑑賞時段，屆時親臨本館參與現場競拍。</p>
     <a href="collections.html" class="btn-ghost dim">瀏覽館藏目錄</a>
 </div>
@@ -865,10 +880,14 @@ onValue(dbRef(db, 'publicNotices/acquisitionDay'), snap => {
     const notice = snap.val();
     if (notice?.date) {
         const dt = new Date(notice.date + 'T00:00:00');
-        let text = `下次競藏日：${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${'日一二三四五六'[dt.getDay()]}）`;
-        if (notice.time) text += ` ${notice.time}`;
-        if (notice.note) text += `　${notice.note}`;
-        document.getElementById('cta-sub').textContent = text;
+        let dateText = `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${'日一二三四五六'[dt.getDay()]}）`;
+        if (notice.time) dateText += ` ${notice.time}`;
+
+        const dateEl = document.getElementById('cta-date');
+        dateEl.textContent = dateText;
+        dateEl.classList.add('show');
+
+        document.getElementById('cta-sub').textContent = notice.note || '確認目標館藏的鑑賞時段，屆時親臨本館參與現場競拍。';
     }
 });
 </script>
