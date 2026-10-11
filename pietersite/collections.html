@@ -471,6 +471,69 @@
         @media (max-width: 480px) {
             .exhibit-grid { grid-template-columns: 1fr; }
         }
+
+        /* ── FLOATING WIDGET ── */
+        .float-notice {
+            display: none;
+            position: fixed;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 300;
+            flex-direction: column;
+            align-items: flex-end;
+            background: #111827;
+            border: 1px solid var(--gold-border);
+            padding: .7rem 1.1rem;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(6,9,15,.5);
+            transition: border-color .25s, background .25s;
+        }
+
+        .float-notice.show { display: flex; }
+        .float-notice:hover { border-color: var(--gold); background: #151e30; }
+
+        .float-notice-label {
+            font-size: .62rem;
+            letter-spacing: .2em;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .float-notice-date {
+            font-size: .9rem;
+            color: var(--ivory);
+            margin-top: .3rem;
+        }
+
+        .float-top {
+            position: fixed;
+            left: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 300;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(17,24,39,.7);
+            border-radius: 50%;
+            border: none;
+            color: var(--gold);
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: color .25s, opacity .25s;
+        }
+
+        .float-top.show { opacity: 1; pointer-events: auto; }
+        .float-top:hover { color: var(--ivory); }
+
+        @media (max-width: 768px) {
+            .float-notice { right: 1rem; bottom: 1rem; padding: .55rem .85rem; }
+            .float-top { left: 1rem; bottom: 1rem; }
+        }
+
     </style>
 </head>
 <body>
@@ -794,5 +857,47 @@
 })();
 </script>
 
+<!-- ── 回到頂部（左下，小圖示）+ 下次競藏日（右下）── -->
+<button class="float-top" id="float-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂部">↑</button>
+<a href="acquisition.html" class="float-notice" id="float-notice">
+    <span class="float-notice-label">下次競藏日</span>
+    <span class="float-notice-date" id="float-notice-date"></span>
+</a>
+
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const floatApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteFloatWidget');
+const floatDb = getDatabase(floatApp);
+
+onValue(dbRef(floatDb, 'publicNotices/acquisitionDay'), snap => {
+    const notice = snap.val();
+    const el = document.getElementById('float-notice');
+    if (notice?.date) {
+        const dt = new Date(notice.date + 'T00:00:00');
+        let text = `${dt.getMonth()+1}/${dt.getDate()}（${'日一二三四五六'[dt.getDay()]}）`;
+        if (notice.time) text += ` ${notice.time}`;
+        document.getElementById('float-notice-date').textContent = text;
+        el.classList.add('show');
+    } else {
+        el.classList.remove('show');
+    }
+});
+
+const floatTopBtn = document.getElementById('float-top');
+window.addEventListener('scroll', () => {
+    floatTopBtn.classList.toggle('show', window.scrollY > 400);
+}, { passive: true });
+</script>
 </body>
 </html>
