@@ -866,8 +866,12 @@ const db = getDatabase(app);
 
 onValue(dbRef(db, 'publicNotices/acquisitionDay'), snap => {
     const notice = snap.val();
-    if (notice?.text) {
-        document.getElementById('cta-sub').textContent = notice.text;
+    if (notice?.date) {
+        const dt = new Date(notice.date + 'T00:00:00');
+        let text = `下次競藏日：${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${'日一二三四五六'[dt.getDay()]}）`;
+        if (notice.time) text += ` ${notice.time}`;
+        if (notice.note) text += `　${notice.note}`;
+        document.getElementById('cta-sub').textContent = text;
     }
 });
 </script>

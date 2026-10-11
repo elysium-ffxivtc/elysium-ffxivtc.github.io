@@ -353,10 +353,19 @@
     <div class="modal-title">編輯競藏日公告</div>
     <div class="form-grid">
       <div>
-        <div class="form-label">內容（會公開顯示在官網 acquisition.html 頁面）</div>
-        <textarea id="public-notice-text" class="form-input" placeholder="例如：下次競藏日 11/15（六）晚間 21:00 開始"></textarea>
+        <div class="form-label">日期</div>
+        <input type="date" id="public-notice-date" class="form-input">
+      </div>
+      <div>
+        <div class="form-label">時間（選填）</div>
+        <input type="time" id="public-notice-time" class="form-input">
+      </div>
+      <div>
+        <div class="form-label">備註（選填，會接在日期後面一起顯示）</div>
+        <input type="text" id="public-notice-note" class="form-input" placeholder="例如：現場限 20 位">
       </div>
     </div>
+    <div style="font-size:11px;color:var(--dim);margin-top:.5rem">會公開顯示在官網 acquisition.html 頁面底部</div>
     <div class="modal-actions">
       <button class="btn btn-danger btn-sm" onclick="clearPublicNotice()">清除</button>
       <button class="btn btn-outline btn-sm" onclick="closePublicNoticeModal()">取消</button>
@@ -726,9 +735,18 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   // ── 競藏日公告（公開顯示於官網 acquisition.html）──────────────
+  function formatPublicNotice(n) {
+    if (!n?.date) return '';
+    const dt = new Date(n.date + 'T00:00:00');
+    let s = `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${'日一二三四五六'[dt.getDay()]}）`;
+    if (n.time) s += ` ${n.time}`;
+    if (n.note) s += ` ${n.note}`;
+    return s;
+  }
+
   function buildPublicNoticeHtml() {
-    if (!publicNotice?.text && !isAdmin()) return '';
-    if (!publicNotice?.text) {
+    if (!publicNotice?.date && !isAdmin()) return '';
+    if (!publicNotice?.date) {
       return `<div class="anno-card">
         <div class="anno-header"><span class="anno-label">✦ 競藏日公告（公開顯示於官網）</span></div>
         <div class="anno-empty" onclick="openPublicNoticeModal()">＋ 點此新增公告</div>
@@ -739,7 +757,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         <span class="anno-label">✦ 競藏日公告（公開顯示於官網）</span>
         ${isAdmin() ? `<button class="btn btn-xs btn-outline" onclick="openPublicNoticeModal()" style="font-size:11px">編輯</button>` : ''}
       </div>
-      <div class="anno-text">${esc(publicNotice.text)}</div>
+      <div class="anno-text">${esc(formatPublicNotice(publicNotice))}</div>
     </div>`;
   }
 
@@ -1341,7 +1359,9 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
 
   // ── 競藏日公告 modal（公開顯示於官網）──────────────────────────
   function openPublicNoticeModal() {
-    document.getElementById('public-notice-text').value = publicNotice?.text || '';
+    document.getElementById('public-notice-date').value = publicNotice?.date || '';
+    document.getElementById('public-notice-time').value = publicNotice?.time || '';
+    document.getElementById('public-notice-note').value = publicNotice?.note || '';
     document.getElementById('modal-public-notice').classList.add('open');
   }
 
@@ -1350,16 +1370,18 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   async function savePublicNotice() {
-    const text = document.getElementById('public-notice-text').value.trim();
-    if (!text) { await clearPublicNotice(); return; }
+    const date = document.getElementById('public-notice-date').value;
+    const time = document.getElementById('public-notice-time').value.trim();
+    const note = document.getElementById('public-notice-note').value.trim();
+    if (!date) { await clearPublicNotice(); return; }
     await set(dbRef(db, 'publicNotices/acquisitionDay'), {
-      text, updatedBy: currentUser.displayName, updatedAt: new Date().toISOString()
+      date, time, note, updatedBy: currentUser.displayName, updatedAt: new Date().toISOString()
     });
     closePublicNoticeModal();
   }
 
   async function clearPublicNotice() {
-    if (publicNotice?.text && !confirm('確定清除競藏日公告？')) return;
+    if (publicNotice?.date && !confirm('確定清除競藏日公告？')) return;
     await remove(dbRef(db, 'publicNotices/acquisitionDay'));
     closePublicNoticeModal();
   }
