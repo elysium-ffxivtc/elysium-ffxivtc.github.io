@@ -42,8 +42,18 @@
     .total-val { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: var(--gold); }
     .total-val span { font-size: 1.1rem; font-weight: 400; color: var(--dim); margin-left: .3rem; }
 
+    /* ── 落槌倒數 ── */
+    .timer-box { background: var(--card); border: 1px solid var(--border); padding: 1.2rem; text-align: center; transition: border-color .3s, background .3s; }
+    .timer-box.urgent { border-color: var(--red); }
+    .timer-box.sold { border-color: var(--green); background: rgba(45,122,80,.08); }
+    .timer-label { font-size: 12px; color: var(--dim); letter-spacing: .1em; margin-bottom: .5rem; }
+    .timer-val { font-family: 'Noto Serif TC', serif; font-size: 2.6rem; font-weight: 700; color: var(--text); }
+    .timer-val.urgent { color: var(--red); }
+    .timer-val.sold { color: var(--green); font-size: 2rem; }
+
     /* ── 花色按鈕 ── */
-    .suit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+    .suit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; transition: opacity .2s; }
+    .suit-grid.locked { opacity: .4; pointer-events: none; }
     .suit-btn {
       background: var(--card); border: 1px solid var(--border); padding: 1.1rem .5rem;
       display: flex; flex-direction: column; align-items: center; gap: .35rem;
@@ -101,7 +111,12 @@
     <div class="total-val" id="total-val">200,000<span>Gil</span></div>
   </div>
 
-  <div class="suit-grid">
+  <div class="timer-box" id="timer-box">
+    <div class="timer-label">落槌倒數</div>
+    <div class="timer-val" id="timer-val">—</div>
+  </div>
+
+  <div class="suit-grid" id="suit-grid">
     <button class="suit-btn" onclick="addBid('club')">
       <span class="suit-icon dark">♣</span>
       <span class="suit-name">梅花 C</span>
@@ -221,6 +236,7 @@ function startApp() {
     <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'" title="返回首頁" style="font-size:11px;padding:.2rem .45rem;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>
     <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
   renderAmounts();
+  updateTimerDisplay();
   render();
 }
 
@@ -247,19 +263,70 @@ function onBaseChange() {
   render();
 }
 
+// ── 落槌倒數（60 秒，每次喊價重新倒數；倒數歸零即告成交）──
+let countdownTimer = null;
+let secondsLeft = 60;
+let sold = false;
+
+function startCountdown() {
+  clearInterval(countdownTimer);
+  sold = false;
+  secondsLeft = 60;
+  updateTimerDisplay();
+  countdownTimer = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      sold = true;
+    }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopCountdown() {
+  clearInterval(countdownTimer);
+  countdownTimer = null;
+  secondsLeft = 60;
+  sold = false;
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const box = document.getElementById('timer-box');
+  const val = document.getElementById('timer-val');
+  box.classList.remove('urgent', 'sold');
+  val.classList.remove('urgent', 'sold');
+  if (sold) {
+    box.classList.add('sold');
+    val.classList.add('sold');
+    val.textContent = '成交！';
+  } else if (countdownTimer) {
+    val.textContent = secondsLeft + ' s';
+    if (secondsLeft <= 10) { box.classList.add('urgent'); val.classList.add('urgent'); }
+  } else {
+    val.textContent = '—';
+  }
+  document.getElementById('suit-grid').classList.toggle('locked', sold);
+}
+
 window.addBid = function(suit) {
+  if (sold) return;
   bids.push({ suit, amount: SUIT_INFO[suit].amount });
+  startCountdown();
   render();
 };
 
 window.undoBid = function() {
   bids.pop();
+  if (bids.length) startCountdown(); else stopCountdown();
   render();
 };
 
 window.resetBid = function() {
   if (bids.length && !confirm('確定清空目前的喊價紀錄？')) return;
   bids = [];
+  stopCountdown();
   render();
 };
 
