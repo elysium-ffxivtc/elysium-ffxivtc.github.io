@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIETERSITE · 競價計算機</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #3a5f8a; --gold-dim: rgba(58,95,138,.12);
+      --bg: #eef1f5; --panel: #e2e8ef; --card: #fbfcfe;
+      --border: rgba(58,95,138,.15); --text: #1a2230; --dim: #64707d;
+      --red: #a8433a; --green: #2d7a50;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: default; }
+    a, button, [role="button"], select, [onclick] { cursor: pointer; }
+
+    .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100; }
+    .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
+    .main { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding: 2rem 1.5rem 3rem; display: none; flex-direction: column; gap: 1.5rem; }
+
+    .btn { padding: .38rem .85rem; font-size: 12px; border: none; font-family: inherit; transition: all .15s; }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-gold { background: var(--gold); color: #ffffff; }
+    .btn-gold:hover { background: #2c4a6e; }
+    .btn-danger { background: none; border: 1px solid var(--red); color: var(--red); }
+    .btn-danger:hover { background: rgba(168,67,58,.08); }
+    .btn-sm { padding: .3rem .7rem; font-size: 12px; }
+
+    /* ── 底價設定 ── */
+    .base-row { display: flex; align-items: center; gap: .75rem; background: var(--card); border: 1px solid var(--border); padding: .9rem 1.1rem; }
+    .base-label { font-size: 13px; color: var(--dim); white-space: nowrap; }
+    .base-input { flex: 1; border: 1px solid var(--border); background: var(--bg); color: var(--text); padding: .5rem .7rem; font-size: 14px; font-family: inherit; outline: none; }
+    .base-input:focus { border-color: var(--gold); }
+
+    /* ── 總價顯示 ── */
+    .total-box { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 1.6rem; text-align: center; }
+    .total-label { font-size: 12px; color: var(--dim); letter-spacing: .1em; margin-bottom: .5rem; }
+    .total-val { font-family: 'Noto Serif TC', serif; font-size: 2.4rem; font-weight: 700; color: var(--gold); }
+    .total-val span { font-size: 1.1rem; font-weight: 400; color: var(--dim); margin-left: .3rem; }
+
+    /* ── 花色按鈕 ── */
+    .suit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+    .suit-btn {
+      background: var(--card); border: 1px solid var(--border); padding: 1.1rem .5rem;
+      display: flex; flex-direction: column; align-items: center; gap: .35rem;
+      font-family: inherit; transition: all .15s;
+    }
+    .suit-btn:hover { border-color: var(--gold); background: var(--gold-dim); }
+    .suit-btn:active { transform: scale(.96); }
+    .suit-icon { font-size: 1.6rem; line-height: 1; }
+    .suit-icon.red { color: var(--red); }
+    .suit-icon.dark { color: var(--text); }
+    .suit-name { font-size: 13px; color: var(--text); }
+    .suit-amt { font-size: 11px; color: var(--dim); }
+
+    /* ── 操作列 ── */
+    .action-row { display: flex; gap: .6rem; justify-content: flex-end; }
+
+    /* ── 紀錄 ── */
+    .log-box { background: var(--card); border: 1px solid var(--border); flex: 1; min-height: 0; }
+    .log-hdr { padding: .7rem 1rem; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--dim); letter-spacing: .08em; }
+    .log-list { max-height: 320px; overflow-y: auto; }
+    .log-row { display: flex; align-items: center; gap: .75rem; padding: .6rem 1rem; border-bottom: 1px solid rgba(0,0,0,.04); font-size: 13px; }
+    .log-row:last-child { border-bottom: none; }
+    .log-idx { color: var(--dim); font-size: 11px; width: 1.4em; flex-shrink: 0; }
+    .log-suit { width: 1.4em; flex-shrink: 0; font-size: 1rem; }
+    .log-amt { color: var(--dim); flex: 1; }
+    .log-run { color: var(--text); font-weight: 600; }
+    .log-empty { padding: 1.5rem 1rem; text-align: center; color: var(--dim); font-size: 13px; }
+
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .auth-box { text-align: center; width: 340px; padding: 2rem; }
+    .auth-logo { font-family: 'Noto Serif TC', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: .25em; margin-bottom: .4rem; }
+    .auth-tagline { font-size: 13px; color: var(--dim); margin-bottom: 2.5rem; letter-spacing: .08em; }
+    .auth-google-btn { width: 100%; justify-content: center; display: flex; align-items: center; }
+    .auth-err { color: var(--red); font-size: 13px; margin-top: .75rem; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-title">✦ PIETERSITE · 競價計算機</div>
+  <div style="display:flex;align-items:center;gap:.85rem">
+    <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px"></div>
+  </div>
+</header>
+
+<div class="main" id="main">
+
+  <div class="base-row">
+    <span class="base-label">底價 Gil</span>
+    <input class="base-input" type="number" id="base-input" value="200000" step="10000" oninput="onBaseChange()">
+  </div>
+
+  <div class="total-box">
+    <div class="total-label">目前出價</div>
+    <div class="total-val" id="total-val">200,000<span>Gil</span></div>
+  </div>
+
+  <div class="suit-grid">
+    <button class="suit-btn" onclick="addBid('club')">
+      <span class="suit-icon dark">♣</span>
+      <span class="suit-name">梅花 C</span>
+      <span class="suit-amt" id="amt-club"></span>
+    </button>
+    <button class="suit-btn" onclick="addBid('diamond')">
+      <span class="suit-icon red">♦</span>
+      <span class="suit-name">方塊 D</span>
+      <span class="suit-amt" id="amt-diamond"></span>
+    </button>
+    <button class="suit-btn" onclick="addBid('heart')">
+      <span class="suit-icon red">♥</span>
+      <span class="suit-name">紅心 H</span>
+      <span class="suit-amt" id="amt-heart"></span>
+    </button>
+    <button class="suit-btn" onclick="addBid('spade')">
+      <span class="suit-icon dark">♠</span>
+      <span class="suit-name">黑桃 S</span>
+      <span class="suit-amt" id="amt-spade"></span>
+    </button>
+  </div>
+
+  <div class="action-row">
+    <button class="btn btn-outline btn-sm" onclick="undoBid()">上一步</button>
+    <button class="btn btn-danger btn-sm" onclick="resetBid()">重設</button>
+  </div>
+
+  <div class="log-box">
+    <div class="log-hdr">喊價紀錄</div>
+    <div class="log-list" id="log-list"></div>
+  </div>
+
+</div>
+
+<div id="auth-overlay" class="auth-overlay">
+  <div id="auth-loading" class="auth-box">
+    <div style="color:var(--dim);font-size:15px;letter-spacing:.1em">載入中…</div>
+  </div>
+  <div id="auth-login" class="auth-box" style="display:none">
+    <div class="auth-logo">PIETERSITE</div>
+    <div class="auth-tagline">競價計算機</div>
+    <button class="btn btn-outline auth-google-btn" style="background:var(--gold);color:#fff;font-weight:600" onclick="signInGoogle()">Google 登入</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+  <div id="auth-denied" class="auth-box" style="display:none">
+    <div class="auth-logo" style="font-size:1.5rem;margin-bottom:1rem">無權限</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限已核准的館員/館藏/管理員使用。</div>
+    <button class="btn btn-outline" style="width:100%" onclick="doSignOut()">登出</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, get } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+const app = initializeApp({
+  apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+  authDomain:        "pietersitepos.firebaseapp.com",
+  databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "pietersitepos",
+  storageBucket:     "pietersitepos.firebasestorage.app",
+  messagingSenderId: "336617870672",
+  appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+});
+const db   = getDatabase(app);
+const auth = initializeAuth(app, {
+  persistence:           [indexedDBLocalPersistence, browserLocalPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
+getRedirectResult(auth).catch(() => {});
+
+const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', apostle: '館藏' };
+let currentUser = null;
+
+onAuthStateChanged(auth, async user => {
+  if (!user || user.isAnonymous) { showAuth('login'); return; }
+  try {
+    const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
+    if (staffSnap.exists()) {
+      currentUser = { uid: user.uid, email: user.email, ...staffSnap.val() };
+    } else {
+      const pilgrimSnap = await get(dbRef(db, 'pilgrims/' + user.uid));
+      if (!pilgrimSnap.exists()) { window.location.replace('index.html'); return; }
+      currentUser = { uid: user.uid, email: user.email, role: 'pilgrim', displayName: pilgrimSnap.val().name || user.displayName || '' };
+    }
+    hideAuth();
+    startApp();
+  } catch(e) {
+    document.getElementById('auth-err').textContent = '系統錯誤：' + e.message;
+    showAuth('login');
+  }
+});
+
+function showAuth(s) {
+  document.getElementById('auth-overlay').style.display = 'flex';
+  ['login','loading','denied'].forEach(id => document.getElementById('auth-' + id).style.display = id === s ? '' : 'none');
+}
+function hideAuth() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('main').style.display = 'flex';
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+window.signInGoogle = function() {
+  document.getElementById('auth-err').textContent = '';
+  signInWithPopup(auth, new GoogleAuthProvider())
+    .catch(e => { document.getElementById('auth-err').textContent = '登入失敗：' + e.message; });
+};
+window.doSignOut = function() { signOut(auth).then(() => location.reload()); };
+
+function startApp() {
+  document.getElementById('user-badge').style.display = 'flex';
+  document.getElementById('user-badge').innerHTML = `
+    <span>${esc(currentUser.displayName)}</span>
+    <span style="font-size:11px;color:var(--dim);padding:.1rem .4rem;border:1px solid var(--border)">${ROLE_LABEL[currentUser.role]||''}</span>
+    <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'" title="返回首頁" style="font-size:11px;padding:.2rem .45rem;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>
+    <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
+  renderAmounts();
+  render();
+}
+
+// ── 花色加碼金額（競藏規則頁的對照表）──────────────────
+const SUIT_INFO = {
+  club:    { icon: '♣', name: '梅花 C', amount: 50000 },
+  diamond: { icon: '♦', name: '方塊 D', amount: 100000 },
+  heart:   { icon: '♥', name: '紅心 H', amount: 200000 },
+  spade:   { icon: '♠', name: '黑桃 S', amount: 500000 },
+};
+
+let basePrice = 200000;
+let bids = []; // [{ suit, amount }]
+
+function renderAmounts() {
+  Object.entries(SUIT_INFO).forEach(([key, s]) => {
+    document.getElementById('amt-' + key).textContent = '+' + s.amount.toLocaleString() + ' Gil';
+  });
+}
+
+function onBaseChange() {
+  const v = parseInt(document.getElementById('base-input').value, 10);
+  basePrice = isNaN(v) ? 0 : v;
+  render();
+}
+
+window.addBid = function(suit) {
+  bids.push({ suit, amount: SUIT_INFO[suit].amount });
+  render();
+};
+
+window.undoBid = function() {
+  bids.pop();
+  render();
+};
+
+window.resetBid = function() {
+  if (bids.length && !confirm('確定清空目前的喊價紀錄？')) return;
+  bids = [];
+  render();
+};
+
+function render() {
+  const total = basePrice + bids.reduce((s, b) => s + b.amount, 0);
+  document.getElementById('total-val').innerHTML = total.toLocaleString() + '<span>Gil</span>';
+
+  const list = document.getElementById('log-list');
+  if (!bids.length) {
+    list.innerHTML = '<div class="log-empty">尚無喊價，點上面的花色按鈕開始</div>';
+    return;
+  }
+  let running = basePrice;
+  list.innerHTML = bids.map((b, i) => {
+    running += b.amount;
+    const s = SUIT_INFO[b.suit];
+    const redClass = (b.suit === 'diamond' || b.suit === 'heart') ? 'red' : 'dark';
+    return `<div class="log-row">
+      <span class="log-idx">${i + 1}</span>
+      <span class="log-suit suit-icon ${redClass}">${s.icon}</span>
+      <span class="log-amt">+${b.amount.toLocaleString()}</span>
+      <span class="log-run">${running.toLocaleString()} Gil</span>
+    </div>`;
+  }).reverse().join('');
+}
+</script>
+</body>
+</html>
