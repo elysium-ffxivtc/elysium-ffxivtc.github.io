@@ -280,7 +280,7 @@ function writeState(partial) {
     ...state, ...partial,
     updatedBy: currentUser.displayName,
     updatedAt: new Date().toISOString()
-  });
+  }).catch(e => alert('同步失敗：' + e.message));
 }
 
 function renderAmounts() {
