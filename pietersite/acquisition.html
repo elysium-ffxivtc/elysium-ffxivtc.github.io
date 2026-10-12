@@ -385,6 +385,37 @@
             margin-top: .42rem;
         }
 
+        .rule-content { display: flex; flex-direction: column; gap: 3.2rem; }
+
+        .suit-table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 420px;
+            font-size: .88rem;
+        }
+
+        .suit-table th {
+            text-align: left;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .68rem;
+            letter-spacing: .25em;
+            color: var(--gold);
+            font-weight: 400;
+            padding: 0 1rem .7rem 0;
+            border-bottom: 1px solid var(--gold-border);
+        }
+
+        .suit-table td {
+            padding: .7rem 1rem .7rem 0;
+            border-bottom: 1px solid var(--line);
+            color: var(--ivory-dim);
+        }
+
+        .suit-table tr:last-child td { border-bottom: none; }
+
+        .suit-club, .suit-spade { color: var(--ivory); }
+        .suit-diamond, .suit-heart { color: #a85a5a; }
+
         @media (max-width: 768px) {
             .rule-section { grid-template-columns: 1fr; gap: .8rem 0; }
         }
@@ -717,13 +748,27 @@
                 <div class="rule-num">01</div>
                 <h3 class="rule-title">喊價與落槌</h3>
             </div>
-            <ul class="rule-list">
-                <li class="rule-item">競藏日依館方公告時間舉行，僅接受現場出價，恕不受理代理或委託競拍。</li>
-                <li class="rule-item">競拍以撲克牌花色代替金額喊價，各花色對應之加碼金額以當期公告為準。無法輸入花色符號者，得以英文字母 C、D、H、S 代替，效力相同。</li>
-                <li class="rule-item">出價一經送出即視為有效，不得撤回。</li>
-                <li class="rule-item">最後一次出價後，由主持人進行落槌倒數，倒數期間無人加價即告成交。競拍結果以落槌時之出價為準，館方與館藏均不介入。</li>
-                <li class="rule-item">同一時段內，每位收藏家僅能取得一位館藏之鑑賞資格。</li>
-            </ul>
+            <div class="rule-content">
+                <ul class="rule-list">
+                    <li class="rule-item">競藏日依館方公告時間舉行，僅接受現場出價，恕不受理代理或委託競拍。</li>
+                    <li class="rule-item">競拍以撲克牌花色代替金額喊價，各花色對應之加碼金額如下表。無法輸入花色符號者，得以英文字母 C、D、H、S 代替，效力相同。</li>
+                    <li class="rule-item">出價一經送出即視為有效，不得撤回。</li>
+                    <li class="rule-item">最後一次出價後，由主持人進行落槌倒數，倒數期間無人加價即告成交。競拍結果以落槌時之出價為準，館方與館藏均不介入。</li>
+                    <li class="rule-item">同一時段內，每位收藏家僅能取得一位館藏之鑑賞資格。</li>
+                </ul>
+
+                <table class="suit-table">
+                    <thead>
+                        <tr><th>花色</th><th>代號</th><th>加碼</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="suit-club">♣ 梅花</td><td>C</td><td>+ ??? Gil</td></tr>
+                        <tr><td class="suit-diamond">♦ 方塊</td><td>D</td><td>+ ??? Gil</td></tr>
+                        <tr><td class="suit-heart">♥ 紅心</td><td>H</td><td>+ ??? Gil</td></tr>
+                        <tr><td class="suit-spade">♠ 黑桃</td><td>S</td><td>+ ??? Gil</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="rule-section" data-reveal>
