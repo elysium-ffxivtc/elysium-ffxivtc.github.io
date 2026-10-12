@@ -43,13 +43,17 @@
     .total-val span { font-size: 1.1rem; font-weight: 400; color: var(--dim); margin-left: .3rem; }
 
     /* ── 落槌倒數 ── */
-    .timer-box { background: var(--card); border: 1px solid var(--border); padding: 1.2rem; text-align: center; transition: border-color .3s, background .3s; }
+    .timer-box {
+      background: var(--card); border: 1px solid var(--border); padding: .5rem .9rem;
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+      transition: border-color .3s, background .3s;
+    }
     .timer-box.urgent { border-color: var(--red); }
     .timer-box.sold { border-color: var(--green); background: rgba(45,122,80,.08); }
-    .timer-label { font-size: 12px; color: var(--dim); letter-spacing: .1em; margin-bottom: .5rem; }
-    .timer-val { font-family: 'Noto Serif TC', serif; font-size: 2.6rem; font-weight: 700; color: var(--text); }
+    .timer-label { font-size: 11px; color: var(--dim); letter-spacing: .1em; }
+    .timer-val { font-family: 'Noto Serif TC', serif; font-size: 1.3rem; font-weight: 700; color: var(--text); }
     .timer-val.urgent { color: var(--red); }
-    .timer-val.sold { color: var(--green); font-size: 2rem; }
+    .timer-val.sold { color: var(--green); font-size: 1.1rem; }
 
     /* ── 花色按鈕 ── */
     .suit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; transition: opacity .2s; }
@@ -170,7 +174,7 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getDatabase, ref as dbRef, get } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { getDatabase, ref as dbRef, get, onValue, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 const app = initializeApp({
@@ -236,8 +240,8 @@ function startApp() {
     <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'" title="返回首頁" style="font-size:11px;padding:.2rem .45rem;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>
     <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
   renderAmounts();
-  updateTimerDisplay();
-  render();
+  startListeners();
+  setInterval(updateTimerDisplay, 1000);
 }
 
 // ── 花色加碼金額（競藏規則頁的對照表）──────────────────
@@ -248,8 +252,36 @@ const SUIT_INFO = {
   spade:   { icon: '♠', name: '黑桃 S', amount: 500000 },
 };
 
-let basePrice = 200000;
-let bids = []; // [{ suit, amount }]
+// ── 同步狀態（Firebase，所有登入者共用同一份，給主持人+幫手一起操作）──
+const SESSION_PATH = 'bidSession/current';
+let state = { basePrice: 200000, bids: [], deadline: null, sold: false };
+let soldWritten = false;
+let baseInputFocused = false;
+
+function startListeners() {
+  const baseInput = document.getElementById('base-input');
+  baseInput.addEventListener('focus', () => { baseInputFocused = true; });
+  baseInput.addEventListener('blur',  () => { baseInputFocused = false; });
+
+  onValue(dbRef(db, SESSION_PATH), snap => {
+    const v = snap.val();
+    state = v
+      ? { basePrice: v.basePrice ?? 200000, bids: v.bids || [], deadline: v.deadline || null, sold: !!v.sold }
+      : { basePrice: 200000, bids: [], deadline: null, sold: false };
+    soldWritten = false;
+    if (!baseInputFocused) baseInput.value = state.basePrice;
+    render();
+    updateTimerDisplay();
+  });
+}
+
+function writeState(partial) {
+  set(dbRef(db, SESSION_PATH), {
+    ...state, ...partial,
+    updatedBy: currentUser.displayName,
+    updatedAt: new Date().toISOString()
+  });
+}
 
 function renderAmounts() {
   Object.entries(SUIT_INFO).forEach(([key, s]) => {
@@ -259,88 +291,61 @@ function renderAmounts() {
 
 function onBaseChange() {
   const v = parseInt(document.getElementById('base-input').value, 10);
-  basePrice = isNaN(v) ? 0 : v;
-  render();
+  writeState({ basePrice: isNaN(v) ? 0 : v });
 }
 
 // ── 落槌倒數（60 秒，每次喊價重新倒數；倒數歸零即告成交）──
-let countdownTimer = null;
-let secondsLeft = 60;
-let sold = false;
-
-function startCountdown() {
-  clearInterval(countdownTimer);
-  sold = false;
-  secondsLeft = 60;
-  updateTimerDisplay();
-  countdownTimer = setInterval(() => {
-    secondsLeft--;
-    if (secondsLeft <= 0) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
-      sold = true;
-    }
-    updateTimerDisplay();
-  }, 1000);
-}
-
-function stopCountdown() {
-  clearInterval(countdownTimer);
-  countdownTimer = null;
-  secondsLeft = 60;
-  sold = false;
-  updateTimerDisplay();
-}
-
+// deadline 是時間戳記，所有裝置各自用自己的時鐘算剩餘秒數，不用各自本地計時，避免跑不同步
 function updateTimerDisplay() {
   const box = document.getElementById('timer-box');
   const val = document.getElementById('timer-val');
   box.classList.remove('urgent', 'sold');
   val.classList.remove('urgent', 'sold');
-  if (sold) {
+
+  if (state.sold || (state.deadline && state.deadline - Date.now() <= 0)) {
     box.classList.add('sold');
     val.classList.add('sold');
     val.textContent = '成交！';
-  } else if (countdownTimer) {
-    val.textContent = secondsLeft + ' s';
-    if (secondsLeft <= 10) { box.classList.add('urgent'); val.classList.add('urgent'); }
-  } else {
-    val.textContent = '—';
+    document.getElementById('suit-grid').classList.add('locked');
+    if (!state.sold && !soldWritten) { soldWritten = true; writeState({ sold: true }); }
+    return;
   }
-  document.getElementById('suit-grid').classList.toggle('locked', sold);
+
+  document.getElementById('suit-grid').classList.remove('locked');
+  if (!state.deadline) { val.textContent = '—'; return; }
+
+  const secondsLeft = Math.max(0, Math.ceil((state.deadline - Date.now()) / 1000));
+  val.textContent = secondsLeft + ' s';
+  if (secondsLeft <= 10) { box.classList.add('urgent'); val.classList.add('urgent'); }
 }
 
 window.addBid = function(suit) {
-  if (sold) return;
-  bids.push({ suit, amount: SUIT_INFO[suit].amount });
-  startCountdown();
-  render();
+  if (state.sold) return;
+  const newBids = [...state.bids, { suit, amount: SUIT_INFO[suit].amount }];
+  writeState({ bids: newBids, deadline: Date.now() + 60000, sold: false });
 };
 
 window.undoBid = function() {
-  bids.pop();
-  if (bids.length) startCountdown(); else stopCountdown();
-  render();
+  const newBids = state.bids.slice(0, -1);
+  writeState({ bids: newBids, deadline: newBids.length ? Date.now() + 60000 : null, sold: false });
 };
 
 window.resetBid = function() {
-  if (bids.length && !confirm('確定清空目前的喊價紀錄？')) return;
-  bids = [];
-  stopCountdown();
-  render();
+  if (state.bids.length && !confirm('確定清空目前的喊價紀錄？')) return;
+  writeState({ bids: [], deadline: null, sold: false });
 };
 
 function render() {
-  const total = basePrice + bids.reduce((s, b) => s + b.amount, 0);
+  const total = state.basePrice + state.bids.reduce((s, b) => s + b.amount, 0);
   document.getElementById('total-val').innerHTML = total.toLocaleString() + '<span>Gil</span>';
 
   const list = document.getElementById('log-list');
-  if (!bids.length) {
+  if (!state.bids.length) {
     list.innerHTML = '<div class="log-empty">尚無喊價，點上面的花色按鈕開始</div>';
     return;
   }
-  let running = basePrice;
-  list.innerHTML = bids.map((b, i) => {
+  let running = state.basePrice;
+  list.innerHTML = state.bids.map((b, i) => {
     running += b.amount;
     const s = SUIT_INFO[b.suit];
     const redClass = (b.suit === 'diamond' || b.suit === 'heart') ? 'red' : 'dark';
