@@ -206,7 +206,7 @@ function renderList() {
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const all = staffList
     .filter(s => s.role === 'staff' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid])
-    .sort((a, b) => apostleOrderVal(a) - apostleOrderVal(b) || a.displayName.localeCompare(b.displayName));
+    .sort((a, b) => apostleOrderVal(a) - apostleOrderVal(b) || (a.createdAt||'').localeCompare(b.createdAt||''));
 
   const isApostle = s => s.role === 'staff';
   const apostleMembers = all.filter(isApostle);
