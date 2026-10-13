@@ -321,12 +321,15 @@ function renderEdit(uid) {
         <option value="formal" ${rankDefault!=='intern'?'selected':''}>正式員工</option>
         <option value="intern" ${rankDefault==='intern'?'selected':''}>實習員工</option>
       </select>
-      <div class="form-label">真名</div>
-      <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">
+      <div class="form-label">作品名稱</div>
+      <input class="form-input" id="f-subtitle" value="${esc(a.workTitle||'')}">
       <div class="form-label">展覽形式</div>
-      <input class="form-input" id="f-format" value="${esc(a.exhibitFormat||'')}">
-      <div class="form-label">推薦對象</div>
-      <input class="form-input" id="f-recommend" value="${esc(a.recommendFor||'')}">
+      <label class="form-check"><input type="checkbox" id="f-format-appreciation" ${(a.exhibitFormat||[]).includes('典藏鑑賞')?'checked':''}> 典藏鑑賞</label>
+      <label class="form-check"><input type="checkbox" id="f-format-commission" ${(a.exhibitFormat||[]).includes('策展委託')?'checked':''}> 策展委託</label>
+      <div class="form-row2">
+        <div><div class="form-label">推薦對象</div><input class="form-input" id="f-recommend" value="${esc(a.recommendFor||'')}"></div>
+        <div><div class="form-label">鑑賞距離</div><input class="form-input" id="f-viewdistance" value="${esc(a.viewDistance||'')}"></div>
+      </div>
       <div class="form-label">展覽簡介</div>
       <textarea class="form-input" id="f-intro">${esc(a.introduction||'')}</textarea>
       <div class="form-label">背景故事</div>
@@ -356,9 +359,13 @@ async function saveApostle(uid) {
     tag:      document.getElementById('f-tag').value.trim(),
     rank:     document.getElementById('f-rank').value,
     photo:    document.getElementById('f-photo').value.trim(),
-    subtitle: document.getElementById('f-subtitle').value.trim(),
-    exhibitFormat: document.getElementById('f-format').value.trim(),
+    workTitle: document.getElementById('f-subtitle').value.trim(),
+    exhibitFormat: [
+      ...(document.getElementById('f-format-appreciation').checked ? ['典藏鑑賞'] : []),
+      ...(document.getElementById('f-format-commission').checked ? ['策展委託'] : []),
+    ],
     recommendFor:  document.getElementById('f-recommend').value.trim(),
+    viewDistance:  document.getElementById('f-viewdistance').value.trim(),
     introduction:  document.getElementById('f-intro').value.trim(),
     backstory:     document.getElementById('f-backstory').value.trim(),
     notes:         document.getElementById('f-notes').value.trim(),
