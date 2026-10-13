@@ -266,6 +266,9 @@
             letter-spacing: .3em;
         }
 
+        .curator-photo.has-photo { opacity: 1; }
+        .curator-photo.has-photo img { width: 100%; height: 100%; object-fit: cover; }
+
         .curator-info { display: flex; flex-direction: column; justify-content: flex-start; }
 
         .curator-role {
@@ -342,6 +345,9 @@
             font-size: .46rem;
             letter-spacing: .3em;
         }
+
+        .staff-photo.has-photo { opacity: 1; }
+        .staff-photo.has-photo img { width: 100%; height: 100%; object-fit: cover; }
 
         .staff-info { display: flex; flex-direction: column; justify-content: flex-start; }
 
@@ -574,80 +580,11 @@
         <p class="eyebrow" data-eyebrow>策展人</p>
         <h2><span class="h2-inner" data-h2>館方策展團隊</span></h2>
 
-        <div class="curator-list" data-curators>
-
-            <div class="curator-card">
-                <div class="curator-photo">
-                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-                    <span>待上傳</span>
-                </div>
-                <div class="curator-info">
-                    <div class="curator-role">CHIEF CURATOR</div>
-                    <div class="curator-name">靜火</div>
-                    <div class="curator-rule"></div>
-                    <p class="curator-bio">待填寫</p>
-                </div>
-            </div>
-
-            <div class="curator-card">
-                <div class="curator-photo">
-                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-                    <span>待上傳</span>
-                </div>
-                <div class="curator-info">
-                    <div class="curator-role">ASSOCIATE CURATOR</div>
-                    <div class="curator-name">——</div>
-                    <div class="curator-rule"></div>
-                    <p class="curator-bio">待填寫</p>
-                </div>
-            </div>
-
-        </div>
+        <div class="curator-list" data-curators id="curator-list"></div>
 
         <p class="eyebrow staff-eyebrow-gap" data-eyebrow>館員</p>
 
-        <div class="staff-grid" data-staff>
-
-            <div class="staff-card">
-                <div class="staff-photo">
-                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-                    <span>待上傳</span>
-                </div>
-                <div class="staff-info">
-                    <div class="staff-role">STAFF</div>
-                    <div class="staff-name">——</div>
-                    <div class="staff-rule"></div>
-                    <p class="staff-bio">待填寫</p>
-                </div>
-            </div>
-
-            <div class="staff-card">
-                <div class="staff-photo">
-                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-                    <span>待上傳</span>
-                </div>
-                <div class="staff-info">
-                    <div class="staff-role">STAFF</div>
-                    <div class="staff-name">——</div>
-                    <div class="staff-rule"></div>
-                    <p class="staff-bio">待填寫</p>
-                </div>
-            </div>
-
-            <div class="staff-card">
-                <div class="staff-photo">
-                    <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-                    <span>待上傳</span>
-                </div>
-                <div class="staff-info">
-                    <div class="staff-role">STAFF</div>
-                    <div class="staff-name">——</div>
-                    <div class="staff-rule"></div>
-                    <p class="staff-bio">待填寫</p>
-                </div>
-            </div>
-
-        </div>
+        <div class="staff-grid" data-staff id="staff-grid"></div>
     </div>
 </section>
 
@@ -763,6 +700,55 @@ const floatTopBtn = document.getElementById('float-top');
 window.addEventListener('scroll', () => {
     floatTopBtn.classList.toggle('show', window.scrollY > 400);
 }, { passive: true });
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const teamApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteTeam');
+const teamDb = getDatabase(teamApp);
+
+function escTeam(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function teamCard(kind, m) {
+    const photoCls = kind === 'curator' ? 'curator-photo' : 'staff-photo';
+    const photo = m.photo
+        ? `<div class="${photoCls} has-photo"><img src="../${escTeam(m.photo)}" alt="${escTeam(m.name)}"></div>`
+        : `<div class="${photoCls}"><svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg><span>待上傳</span></div>`;
+    return `<div class="${kind}-card vis">
+        ${photo}
+        <div class="${kind}-info">
+            <div class="${kind}-role">${escTeam(m.tag) || (kind === 'curator' ? 'CURATOR' : 'STAFF')}</div>
+            <div class="${kind}-name">${escTeam(m.name) || '——'}</div>
+            <div class="${kind}-rule"></div>
+            <p class="${kind}-bio">${escTeam(m.bio) || '待填寫'}</p>
+        </div>
+    </div>`;
+}
+
+onValue(dbRef(teamDb, 'publicTeam'), snap => {
+    const all = Object.values(snap.val() || {});
+    const sortFn = (a, b) => (a.order||0) - (b.order||0) || (a.createdAt||'').localeCompare(b.createdAt||'');
+    const curators = all.filter(m => m.role === 'admin').sort(sortFn);
+    const staffMembers = all.filter(m => m.role === 'docent').sort(sortFn);
+
+    document.getElementById('curator-list').innerHTML = curators.length
+        ? curators.map(m => teamCard('curator', m)).join('')
+        : '<div style="font-size:13px;color:var(--ivory-dim)">尚無策展人資料</div>';
+
+    document.getElementById('staff-grid').innerHTML = staffMembers.length
+        ? staffMembers.map(m => teamCard('staff', m)).join('')
+        : '<div style="font-size:13px;color:var(--ivory-dim)">尚無館員資料</div>';
+});
 </script>
 </body>
 </html>
