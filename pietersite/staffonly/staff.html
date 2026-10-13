@@ -345,9 +345,10 @@ function renderEdit(uid) {
       <textarea class="form-input" id="f-backstory">${esc(a.backstory||'')}</textarea>
       <div class="form-label">鑑賞筆記</div>
       <textarea class="form-input" id="f-notes">${esc(a.notes||'')}</textarea>
+      <div class="form-label">委託項目</div>
+      <textarea class="form-input" id="f-commission">${esc(a.commissionItems||'')}</textarea>
       <div class="form-label">私藏特調專屬餐點名稱</div>
       <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="私藏特調">
-      <div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}">
       <div class="save-bar">
         <button class="btn btn-gold btn-sm" onclick="saveApostle('${uid}')">儲存</button>
       </div>
@@ -378,10 +379,11 @@ async function saveApostle(uid) {
     introduction:  document.getElementById('f-intro').value.trim(),
     backstory:     document.getElementById('f-backstory').value.trim(),
     notes:         document.getElementById('f-notes').value.trim(),
+    commissionItems: document.getElementById('f-commission').value.trim(),
     specialDish: {
       name: document.getElementById('f-special-name').value.trim(),
     },
-    order:    parseInt(document.getElementById('f-order').value, 10) || 0,
+    order:    apostles[uid]?.order ?? 0,
     updatedBy: currentUser.displayName,
     updatedAt: new Date().toISOString(),
   };
