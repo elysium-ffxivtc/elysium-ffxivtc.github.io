@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIETERSITE — 得標資料填寫</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-0: #06090f; --bg-card: #111827;
+    --gold: #b8913a; --gold-bright: #d4aa52; --gold-dim: rgba(184,145,58,0.25); --gold-border: rgba(184,145,58,0.4);
+    --ivory: #e4d8c4; --ivory-dim: #9a8a74; --line: rgba(184,145,58,0.12);
+    --red: #c0665a;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg-0); color: var(--ivory); font-family: 'Noto Serif TC', 'Cormorant Garamond', serif; font-weight: 300; line-height: 1.8; min-height: 100vh; display: flex; flex-direction: column; }
+  ::selection { background: var(--gold); color: #06090f; }
+
+  .wrap { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 4rem 1.5rem 3rem; }
+  .mark { font-size: 1.5rem; letter-spacing: .3em; color: var(--gold); margin-bottom: .6rem; }
+  .sub { font-size: .85rem; letter-spacing: .15em; color: var(--ivory-dim); margin-bottom: 2.6rem; text-transform: uppercase; }
+
+  .panel { width: 100%; max-width: 480px; background: var(--bg-card); border: 1px solid var(--line); padding: 2rem 1.9rem; }
+
+  .confirm-box { border: 1px solid var(--gold-border); background: var(--gold-dim); padding: 1.1rem 1.3rem; margin-bottom: 1.8rem; font-family: 'Noto Sans TC', sans-serif; }
+  .confirm-row { display: flex; justify-content: space-between; gap: 1rem; font-size: .85rem; padding: .3rem 0; }
+  .confirm-k { color: var(--ivory-dim); flex-shrink: 0; }
+  .confirm-v { color: var(--gold-bright); text-align: right; }
+
+  .f-label { font-family: 'Noto Sans TC', sans-serif; font-size: .78rem; letter-spacing: .08em; color: var(--ivory-dim); margin-bottom: .45rem; margin-top: 1.3rem; }
+  .f-label:first-of-type { margin-top: 0; }
+  .f-req { color: var(--gold); margin-left: 2px; }
+  .f-input, .f-select, .f-textarea {
+    width: 100%; background: var(--bg-0); border: 1px solid var(--line); color: var(--ivory);
+    padding: .65rem .8rem; font-family: 'Noto Sans TC', sans-serif; font-size: .9rem; outline: none; transition: border-color .15s;
+  }
+  .f-input:focus, .f-select:focus, .f-textarea:focus { border-color: var(--gold); }
+  .f-textarea { resize: vertical; min-height: 64px; line-height: 1.6; }
+  .f-select { cursor: pointer; }
+  .f-hint { font-family: 'Noto Sans TC', sans-serif; font-size: .74rem; color: var(--ivory-dim); margin-top: .4rem; line-height: 1.6; }
+
+  .f-submit { width: 100%; margin-top: 2rem; padding: .85rem; background: var(--gold); color: #06090f; border: none; font-family: 'Noto Sans TC', sans-serif; font-size: .9rem; letter-spacing: .1em; cursor: pointer; transition: background .15s; }
+  .f-submit:hover { background: var(--gold-bright); }
+  .f-err { font-family: 'Noto Sans TC', sans-serif; font-size: .8rem; color: var(--red); margin-top: .8rem; min-height: 1.2em; text-align: center; }
+
+  .state { display: none; text-align: center; padding: 2rem 0; }
+  .state.show { display: block; }
+  .state-title { font-size: 1.2rem; color: var(--gold); letter-spacing: .1em; margin-bottom: 1rem; }
+  .state-desc { font-family: 'Noto Sans TC', sans-serif; font-size: .85rem; color: var(--ivory-dim); line-height: 1.9; }
+
+  .foot { font-family: 'Noto Sans TC', sans-serif; font-size: .72rem; color: var(--ivory-dim); letter-spacing: .05em; padding: 1.5rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="mark">PIETERSITE</div>
+  <div class="sub">得標資料填寫</div>
+
+  <div class="panel">
+    <div id="state-loading" class="state show"><div class="state-desc">載入中…</div></div>
+
+    <div id="state-error" class="state">
+      <div class="state-title">連結無效</div>
+      <div class="state-desc">找不到對應的得標記錄，連結可能已失效。<br>請聯繫館方確認。</div>
+    </div>
+
+    <div id="state-success" class="state">
+      <div class="state-title">已收到您的資料</div>
+      <div class="state-desc">感謝填寫，館方將依此安排鑑賞事宜。<br>如需更改資料，可重新開啟此連結填寫。</div>
+    </div>
+
+    <div id="state-form" class="state">
+      <div class="confirm-box">
+        <div class="confirm-row"><span class="confirm-k">得標者</span><span class="confirm-v" id="c-winner"></span></div>
+        <div class="confirm-row"><span class="confirm-k">得標館藏</span><span class="confirm-v" id="c-apostle"></span></div>
+        <div class="confirm-row"><span class="confirm-k">競藏日期</span><span class="confirm-v" id="c-date"></span></div>
+      </div>
+
+      <div class="f-label">World（伺服器）<span class="f-req">*</span></div>
+      <select class="f-select" id="f-server">
+        <option value="">請選擇</option>
+      </select>
+
+      <div class="f-label">Discord ID / 聯絡方式<span class="f-req">*</span></div>
+      <input class="f-input" id="f-contact" placeholder="方便館方聯繫安排鑑賞">
+
+      <div class="f-label">RP 程度<span class="f-req">*</span></div>
+      <select class="f-select" id="f-rp">
+        <option value="">請選擇</option>
+      </select>
+      <div class="f-hint" id="f-rp-hint"></div>
+
+      <div class="f-label">RP 備註</div>
+      <textarea class="f-textarea" id="f-rpnote" placeholder="稱呼、背景、特殊要求、禁止事項⋯"></textarea>
+
+      <div class="f-label">其他備註</div>
+      <textarea class="f-textarea" id="f-notes" placeholder="如有其他需要補充的事項"></textarea>
+
+      <button class="f-submit" onclick="submitForm()">送出</button>
+      <div class="f-err" id="f-err"></div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">© 2026 PIETERSITE. All Rights Reserved</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, get, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const app = initializeApp({
+  apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+  authDomain:        "pietersitepos.firebaseapp.com",
+  databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "pietersitepos",
+  storageBucket:     "pietersitepos.firebasestorage.app",
+  messagingSenderId: "336617870672",
+  appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteWinnerForm');
+const db = getDatabase(app);
+
+const SERVERS = ['伊弗利特', '迦樓羅', '利維坦', '鳳凰', '奧汀', '巴哈姆特', '泰坦'];
+const RP_OPTS = [
+  { id: 'heavy',  label: '重 RP',  desc: '完全以角色視角行動，嚴格遵守世界觀與角色設定。' },
+  { id: 'medium', label: '中 RP',  desc: '含有角色設定背景，完全沉浸在世界觀之中。' },
+  { id: 'light',  label: '輕 RP',  desc: '以自身角色進行，享受鑑賞過程與互動。' },
+  { id: 'none',   label: '無 RP',  desc: '不進行角色扮演，作為一般玩家參與。' },
+];
+
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showState(s) { ['loading','error','success','form'].forEach(k => document.getElementById('state-'+k).classList.toggle('show', k===s)); }
+
+document.getElementById('f-server').innerHTML += SERVERS.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+document.getElementById('f-rp').innerHTML += RP_OPTS.map(o => `<option value="${o.id}">${o.label}</option>`).join('');
+document.getElementById('f-rp').addEventListener('change', e => {
+  const o = RP_OPTS.find(x => x.id === e.target.value);
+  document.getElementById('f-rp-hint').textContent = o ? o.desc : '';
+});
+
+async function init() {
+  if (!id) { showState('error'); return; }
+  try {
+    const snap = await get(dbRef(db, 'winnerPublic/' + id));
+    if (!snap.exists()) { showState('error'); return; }
+    const pub = snap.val();
+    document.getElementById('c-winner').textContent = pub.winnerName || '—';
+    document.getElementById('c-apostle').textContent = pub.apostleName || '—';
+    document.getElementById('c-date').textContent = pub.auctionDate || '—';
+
+    const subSnap = await get(dbRef(db, 'winnerSubmissions/' + id));
+    if (subSnap.exists()) {
+      const d = subSnap.val();
+      document.getElementById('f-server').value = d.server || '';
+      document.getElementById('f-contact').value = d.contact || '';
+      document.getElementById('f-rp').value = d.rp || '';
+      document.getElementById('f-rp').dispatchEvent(new Event('change'));
+      document.getElementById('f-rpnote').value = d.rpNote || '';
+      document.getElementById('f-notes').value = d.notes || '';
+    }
+    showState('form');
+  } catch(e) {
+    document.getElementById('f-err').textContent = '載入失敗：' + e.message;
+    showState('error');
+  }
+}
+init();
+
+window.submitForm = async function() {
+  const server  = document.getElementById('f-server').value;
+  const contact = document.getElementById('f-contact').value.trim();
+  const rp      = document.getElementById('f-rp').value;
+  const errEl   = document.getElementById('f-err');
+  if (!server || !contact || !rp) { errEl.textContent = '請完整填寫必填欄位'; return; }
+  errEl.textContent = '';
+  try {
+    await set(dbRef(db, 'winnerSubmissions/' + id), {
+      server, contact, rp,
+      rpNote: document.getElementById('f-rpnote').value.trim(),
+      notes:  document.getElementById('f-notes').value.trim(),
+      submittedAt: new Date().toISOString(),
+    });
+    showState('success');
+  } catch(e) {
+    errEl.textContent = '送出失敗：' + e.message;
+  }
+};
+</script>
+</body>
+</html>
