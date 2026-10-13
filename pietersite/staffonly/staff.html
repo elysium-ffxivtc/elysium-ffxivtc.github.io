@@ -314,8 +314,8 @@ function renderEdit(uid) {
           <input class="form-input" id="f-tag" value="${esc(a.tag||'')}" placeholder="例如：館員">
         </div>
       </div>
-      <div class="form-label">本名 / 原名</div>
-      <input class="form-input" id="f-original-name" value="${esc(a.originalName||'')}">
+      <div class="form-label">館藏編號</div>
+      <input class="form-input" id="f-catalogno" value="${esc(a.catalogNo||'')}" placeholder="例如：No.014">
       <div class="form-label">員工等級</div>
       <select class="form-input" id="f-rank">
         <option value="formal" ${rankDefault!=='intern'?'selected':''}>正式員工</option>
@@ -323,16 +323,16 @@ function renderEdit(uid) {
       </select>
       <div class="form-label">真名</div>
       <input class="form-input" id="f-subtitle" value="${esc(a.subtitle||'')}">
-      <div class="form-label">個體紀錄</div>
-      <textarea class="form-input" id="f-bio">${esc(a.bio||'')}</textarea>
-      <div class="form-label">聊天尺度</div>
-      <textarea class="form-input" id="f-chat">${esc(a.chat||'')}</textarea>
-      <div class="form-label">禁忌與偏好</div>
-      <textarea class="form-input" id="f-taboo">${esc(a.taboo||'')}</textarea>
-      <div class="form-label">延伸資訊</div>
-      <textarea class="form-input" id="f-extra">${esc(a.extra||'')}</textarea>
-      <div class="form-label">個人業務</div>
-      <textarea class="form-input" id="f-business">${esc(a.business||'')}</textarea>
+      <div class="form-label">展覽形式</div>
+      <input class="form-input" id="f-format" value="${esc(a.exhibitFormat||'')}">
+      <div class="form-label">推薦對象</div>
+      <input class="form-input" id="f-recommend" value="${esc(a.recommendFor||'')}">
+      <div class="form-label">展覽簡介</div>
+      <textarea class="form-input" id="f-intro">${esc(a.introduction||'')}</textarea>
+      <div class="form-label">背景故事</div>
+      <textarea class="form-input" id="f-backstory">${esc(a.backstory||'')}</textarea>
+      <div class="form-label">鑑賞筆記</div>
+      <textarea class="form-input" id="f-notes">${esc(a.notes||'')}</textarea>
       <div class="form-label">私藏特調專屬餐點名稱</div>
       <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="私藏特調">
       <div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}">
@@ -352,16 +352,16 @@ function updatePhotoPreview() {
 async function saveApostle(uid) {
   const val = {
     name:     document.getElementById('f-name').value.trim(),
-    originalName: document.getElementById('f-original-name').value.trim(),
+    catalogNo: document.getElementById('f-catalogno').value.trim(),
     tag:      document.getElementById('f-tag').value.trim(),
     rank:     document.getElementById('f-rank').value,
     photo:    document.getElementById('f-photo').value.trim(),
     subtitle: document.getElementById('f-subtitle').value.trim(),
-    bio:      document.getElementById('f-bio').value.trim(),
-    chat:     document.getElementById('f-chat').value.trim(),
-    taboo:    document.getElementById('f-taboo').value.trim(),
-    extra:    document.getElementById('f-extra').value.trim(),
-    business: document.getElementById('f-business').value.trim(),
+    exhibitFormat: document.getElementById('f-format').value.trim(),
+    recommendFor:  document.getElementById('f-recommend').value.trim(),
+    introduction:  document.getElementById('f-intro').value.trim(),
+    backstory:     document.getElementById('f-backstory').value.trim(),
+    notes:         document.getElementById('f-notes').value.trim(),
     specialDish: {
       name: document.getElementById('f-special-name').value.trim(),
     },
