@@ -183,7 +183,7 @@ getRedirectResult(auth).catch(() => {});
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function newId()  { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
-const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
+const ROLE_LABEL = { admin: '管理員', docent: '館員', collection: '館藏' };
 let currentUser = null;
 let workflows = {};
 let renderPending = false;
@@ -198,9 +198,9 @@ onAuthStateChanged(auth, async user => {
     if (staffSnap.exists()) {
       currentUser = { uid: user.uid, email: user.email, ...staffSnap.val() };
     } else {
-      const pilgrimSnap = await get(dbRef(db, 'pilgrims/' + user.uid));
-      if (!pilgrimSnap.exists()) { window.location.replace('index.html'); return; }
-      currentUser = { uid: user.uid, email: user.email, role: 'pilgrim', displayName: pilgrimSnap.val().name || user.displayName || '' };
+      const docentSnap = await get(dbRef(db, 'docents/' + user.uid));
+      if (!docentSnap.exists()) { window.location.replace('index.html'); return; }
+      currentUser = { uid: user.uid, email: user.email, role: 'docent', displayName: docentSnap.val().name || user.displayName || '' };
     }
     hideAuth();
     startListeners();

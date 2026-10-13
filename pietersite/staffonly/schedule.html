@@ -503,7 +503,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let viewMonth = _now.getMonth();
 
   const TIME_SLOTS = ['22:00', '23:00', '00:00'];
-  const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
+  const ROLE_LABEL = { admin: '管理員', docent: '館員', collection: '館藏' };
   const WD_FULL    = ['日', '一', '二', '三', '四', '五', '六'];
 
   function sKey(t)   { return t.replace(':', ''); }
@@ -533,9 +533,9 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         renderBadge(); hideAuth(); startListeners();
         return;
       }
-      const pilgrimSnap = await get(dbRef(db, 'pilgrims/' + user.uid));
-      if (pilgrimSnap.exists()) {
-        currentUser = { uid: user.uid, email: user.email, role: 'pilgrim', displayName: pilgrimSnap.val().name || user.displayName || '' };
+      const docentSnap = await get(dbRef(db, 'docents/' + user.uid));
+      if (docentSnap.exists()) {
+        currentUser = { uid: user.uid, email: user.email, role: 'docent', displayName: docentSnap.val().name || user.displayName || '' };
         renderBadge(); hideAuth(); startListeners();
         return;
       }
@@ -1404,8 +1404,8 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
             <div style="display:flex;gap:.4rem;flex-wrap:wrap">
               <input id="pn-${p.uid}" class="form-input" style="width:110px" placeholder="顯示名稱" value="${esc(p.displayName||'')}">
               <select id="pr-${p.uid}" class="form-input" style="width:82px">
-                <option value="staff">館藏</option>
-                <option value="pilgrim">館員</option>
+                <option value="collection">館藏</option>
+                <option value="docent">館員</option>
                 <option value="admin">管理員</option>
               </select>
               <input id="pt-${p.uid}" class="form-input" style="width:95px" placeholder="標記（選填）">
@@ -1449,7 +1449,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     const snap = await get(dbRef(db, 'pendingStaff/' + uid));
     const p = snap.val(); if (!p) return;
     const name = document.getElementById('pn-' + uid)?.value.trim() || p.displayName || p.email;
-    const role = document.getElementById('pr-' + uid)?.value || 'staff';
+    const role = document.getElementById('pr-' + uid)?.value || 'collection';
     const tag  = document.getElementById('pt-' + uid)?.value.trim() || '';
     await set(dbRef(db, 'staff/' + uid), {
       uid, email: p.email, displayName: name, role, staffTag: tag,

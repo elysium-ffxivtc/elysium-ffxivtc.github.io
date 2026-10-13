@@ -291,23 +291,23 @@
           const role = staffSnap.val().role;
           if (role !== 'admin') {
             document.getElementById('card-profiles').style.display = 'none';
-            if (role !== 'pilgrim') {
+            if (role !== 'docent') {
               document.getElementById('card-winners').style.display = 'none';
             }
           }
-          if (role === 'staff') {
+          if (role === 'collection') {
             document.getElementById('card-pos').style.display = 'none';
           }
           document.getElementById('auth-overlay').classList.remove('show');
           document.getElementById('portal').classList.add('show');
           return;
         }
-        let inPilgrims = false;
+        let inDocents = false;
         try {
-          const pilgrimSnap = await db.ref('pilgrims/' + user.uid).get();
-          inPilgrims = pilgrimSnap.exists();
+          const docentSnap = await db.ref('docents/' + user.uid).get();
+          inDocents = docentSnap.exists();
         } catch(e) {}
-        if (inPilgrims) {
+        if (inDocents) {
           document.getElementById('card-pos').style.display = 'none';
           document.getElementById('card-profiles').style.display = 'none';
           document.getElementById('auth-overlay').classList.remove('show');

@@ -1354,25 +1354,25 @@
       try {
         const staffSnap = await db.ref('staff/'+user.uid).get();
         if (staffSnap.exists()) {
-          _role = staffSnap.val().role || 'staff';
+          _role = staffSnap.val().role || 'docent';
           _displayName = staffSnap.val().displayName || user.displayName || user.email || '';
         } else {
-          let inPilgrims = false;
+          let inDocents = false;
           try {
-            const pilgrimSnap = await db.ref('pilgrims/'+user.uid).get();
-            if (pilgrimSnap.exists()) {
-              inPilgrims = true;
-              _role = 'pilgrim';
-              _displayName = pilgrimSnap.val().name || user.displayName || user.email || '';
+            const docentSnap = await db.ref('docents/'+user.uid).get();
+            if (docentSnap.exists()) {
+              inDocents = true;
+              _role = 'docent';
+              _displayName = docentSnap.val().name || user.displayName || user.email || '';
             }
           } catch(e) { /* rules may restrict */ }
-          if (!inPilgrims) {
+          if (!inDocents) {
             await firebase.auth().signOut();
             window.location.href = 'index.html';
             return;
           }
         }
-      } catch(e) { _role = 'staff'; }
+      } catch(e) { _role = 'docent'; }
       document.getElementById('btn-add-article').style.display = '';
       document.getElementById('btn-add-faq').style.display = '';
       if (_role === 'admin') {
@@ -1387,7 +1387,7 @@
       loadFAQ();
     });
 
-    const ROLE_LABEL = { admin: '管理員', staff: '館藏', pilgrim: '館員' };
+    const ROLE_LABEL = { admin: '管理員', docent: '館員', collection: '館藏' };
     function renderBadge() {
       const el = document.getElementById('user-badge');
       el.style.display = 'flex';

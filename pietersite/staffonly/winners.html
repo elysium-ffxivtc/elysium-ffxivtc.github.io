@@ -183,7 +183,7 @@ getRedirectResult(auth).catch(() => {});
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-const ROLE_LABEL   = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
+const ROLE_LABEL   = { admin: '管理員', docent: '館員', collection: '館藏' };
 const STATUS_LABEL = { pending: '待安排', completed: '已完成', transferred: '已轉讓', noshow: '未到訪' };
 const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none: '無 RP' };
 
@@ -200,12 +200,12 @@ onAuthStateChanged(auth, async user => {
     const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
     if (staffSnap.exists()) {
       const data = staffSnap.val();
-      if (data.role !== 'admin' && data.role !== 'pilgrim') { window.location.replace('index.html'); return; }
+      if (data.role !== 'admin' && data.role !== 'docent') { window.location.replace('index.html'); return; }
       currentUser = { uid: user.uid, email: user.email, ...data };
     } else {
-      const pilgrimSnap = await get(dbRef(db, 'pilgrims/' + user.uid));
-      if (!pilgrimSnap.exists()) { window.location.replace('index.html'); return; }
-      currentUser = { uid: user.uid, email: user.email, role: 'pilgrim', displayName: pilgrimSnap.val().name || user.displayName || '' };
+      const docentSnap = await get(dbRef(db, 'docents/' + user.uid));
+      if (!docentSnap.exists()) { window.location.replace('index.html'); return; }
+      currentUser = { uid: user.uid, email: user.email, role: 'docent', displayName: docentSnap.val().name || user.displayName || '' };
     }
     hideAuth();
     startListeners();

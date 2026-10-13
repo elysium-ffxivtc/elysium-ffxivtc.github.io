@@ -126,7 +126,7 @@ const auth = initializeAuth(app, {
 });
 getRedirectResult(auth).catch(() => {});
 
-const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
+const ROLE_LABEL = { admin: '管理員', docent: '館員', collection: '館藏' };
 /* ponytail: image/ 資料夾內現有的館藏照片檔名，等 Pietersite 有照片檔案再把檔名加進這份清單 */
 const KNOWN_PROFILE_IMAGES = [];
 
@@ -179,9 +179,9 @@ function startListeners() {
 
   onValue(dbRef(db, 'staff'), snap => {
     staffList = snap.val() ? Object.values(snap.val()) : [];
-    /* ponytail: 一次性修正舊資料殘留的 role:'apostle'，改名後的新帳號不會再出現這個值 */
+    /* ponytail: 一次性修正舊資料殘留的 role:'apostle'/'staff'（館藏角色命名改了兩次），改名後的新帳號不會再出現這些值 */
     staffList.forEach(s => {
-      if (s.role === 'apostle') { s.role = 'staff'; update(dbRef(db, 'staff/' + s.uid), { role: 'staff' }); }
+      if (s.role === 'apostle' || s.role === 'staff') { s.role = 'collection'; update(dbRef(db, 'staff/' + s.uid), { role: 'collection' }); }
     });
     renderList();
   });
@@ -203,10 +203,10 @@ function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const all = staffList
-    .filter(s => s.role === 'staff' || s.role === 'admin' || s.role === 'pilgrim' || !!profiles[s.uid])
+    .filter(s => s.role === 'collection' || s.role === 'admin' || s.role === 'docent' || !!profiles[s.uid])
     .sort((a, b) => profileOrderVal(a) - profileOrderVal(b) || (a.createdAt||'').localeCompare(b.createdAt||''));
 
-  const isProfile = s => s.role === 'staff';
+  const isProfile = s => s.role === 'collection';
   const profileMembers = all.filter(isProfile);
   const staffMembers   = all.filter(s => !isProfile(s));
 
