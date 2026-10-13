@@ -730,7 +730,7 @@ function teamCard(kind, m) {
             <div class="${kind}-role">${escTeam(m.tag) || (kind === 'curator' ? 'CURATOR' : 'STAFF')}</div>
             <div class="${kind}-name">${escTeam(m.name) || '——'}</div>
             <div class="${kind}-rule"></div>
-            <p class="${kind}-bio">${escTeam(m.bio) || '待填寫'}</p>
+            <p class="${kind}-bio">${escTeam(m.bio) || '暫無相關介紹'}</p>
         </div>
     </div>`;
 }
@@ -748,6 +748,10 @@ onValue(dbRef(teamDb, 'publicTeam'), snap => {
     document.getElementById('staff-grid').innerHTML = staffMembers.length
         ? staffMembers.map(m => teamCard('staff', m)).join('')
         : '<div style="font-size:13px;color:var(--ivory-dim)">尚無館員資料</div>';
+}, err => {
+    const msg = `<div style="font-size:13px;color:#c0665a">讀取失敗：${err.message}</div>`;
+    document.getElementById('curator-list').innerHTML = msg;
+    document.getElementById('staff-grid').innerHTML = msg;
 });
 </script>
 </body>
