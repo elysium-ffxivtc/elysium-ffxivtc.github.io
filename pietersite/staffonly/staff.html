@@ -208,7 +208,7 @@ function renderList() {
     .filter(s => s.role === 'apostle' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid])
     .sort((a, b) => apostleOrderVal(a) - apostleOrderVal(b) || a.displayName.localeCompare(b.displayName));
 
-  const isApostle = s => s.role === 'apostle' || !!apostles[s.uid];
+  const isApostle = s => s.role === 'apostle';
   const apostleMembers = all.filter(isApostle);
   const staffMembers   = all.filter(s => !isApostle(s));
 
