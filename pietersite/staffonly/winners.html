@@ -49,6 +49,10 @@
     .res-note { font-size: 12.5px; color: var(--text); background: var(--bg); padding: .4rem .55rem; margin-top: .3rem; white-space: pre-wrap; }
     .res-actions { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
 
+    .form-badge { font-size: 11px; padding: .12rem .5rem; border: 1px solid var(--border); color: var(--dim); }
+    .form-badge.done { color: var(--green); border-color: var(--green); }
+    .sub-box { border-top: 1px dashed var(--border); margin-top: .6rem; padding-top: .55rem; }
+
     .btn { padding: .38rem .85rem; font-size: 12px; border: none; font-family: inherit; transition: all .15s; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
@@ -184,10 +188,12 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 
 const ROLE_LABEL   = { admin: '管理員', pilgrim: '館員', apostle: '館藏' };
 const STATUS_LABEL = { pending: '待安排', completed: '已完成', transferred: '已轉讓', noshow: '未到訪' };
+const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none: '無 RP' };
 
 let currentUser = null;
 let winners = {};
 let apostles = {};
+let submissions = {};
 let filter = 'all';
 let editingId = null;
 
@@ -236,6 +242,7 @@ function startListeners() {
     <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
 
   onValue(dbRef(db, 'winners'), snap => { winners = snap.val() || {}; render(); });
+  onValue(dbRef(db, 'winnerSubmissions'), snap => { submissions = snap.val() || {}; render(); });
   onValue(dbRef(db, 'apostles'), snap => {
     apostles = snap.val() || {};
     const sel = document.getElementById('f-apostle');
@@ -268,10 +275,14 @@ function render() {
 
   list.innerHTML = entries.map(([id, r]) => {
     const status = r.status || 'pending';
+    const sub = submissions[id];
     return `<div class="res-card ${status}">
       <div class="res-hdr">
         <span class="res-date">${esc(r.auctionDate || '')}</span>
-        <span class="res-status ${status}">${STATUS_LABEL[status] || status}</span>
+        <div style="display:flex;gap:.4rem">
+          <span class="form-badge ${sub ? 'done' : ''}">${sub ? '表單已填寫' : '尚未填寫表單'}</span>
+          <span class="res-status ${status}">${STATUS_LABEL[status] || status}</span>
+        </div>
       </div>
       <div class="res-grid">
         <div><div class="res-field-label">得標者</div>${esc(r.winnerName)}</div>
@@ -280,8 +291,16 @@ function render() {
         <div><div class="res-field-label">成交金額</div>${(r.amount||0).toLocaleString()} Gil</div>
       </div>
       ${r.notes ? `<div class="res-note"><span class="res-field-label">備註</span><br>${esc(r.notes)}</div>` : ''}
+      ${sub ? `<div class="sub-box res-grid">
+        <div><div class="res-field-label">World</div>${esc(sub.server)}</div>
+        <div><div class="res-field-label">聯絡方式</div>${esc(sub.contact)}</div>
+        <div><div class="res-field-label">RP 程度</div>${esc(RP_LABEL[sub.rp] || sub.rp || '')}</div>
+      </div>
+      ${sub.rpNote ? `<div class="res-note"><span class="res-field-label">RP 備註</span><br>${esc(sub.rpNote)}</div>` : ''}
+      ${sub.notes ? `<div class="res-note"><span class="res-field-label">其他備註</span><br>${esc(sub.notes)}</div>` : ''}` : ''}
       <div class="res-actions">
         <button class="btn btn-outline btn-sm" onclick="openEditModal('${id}')">編輯</button>
+        <button class="btn btn-outline btn-sm" onclick="copyFormLink('${id}')">複製表單連結</button>
         ${status === 'pending' ? `
           <button class="btn btn-green btn-sm" onclick="markStatus('${id}','completed')">標記完成</button>
           <button class="btn btn-purple btn-sm" onclick="markStatus('${id}','transferred')">標記轉讓</button>
@@ -340,18 +359,34 @@ async function saveWinner() {
     updatedBy: currentUser.displayName,
   };
   try {
+    let id = editingId;
     if (editingId) {
       await update(dbRef(db, 'winners/' + editingId), data);
     } else {
       data.createdAt = data.updatedAt;
       data.createdBy = currentUser.displayName;
-      await push(dbRef(db, 'winners'), data);
+      const newRef = push(dbRef(db, 'winners'));
+      id = newRef.key;
+      await set(newRef, data);
     }
+    await set(dbRef(db, 'winnerPublic/' + id), {
+      winnerName: data.winnerName,
+      apostleName: apostleName(data.apostleUid),
+      auctionDate: data.auctionDate,
+    });
     closeModal();
     showToast('已儲存');
   } catch(e) {
     alert('儲存失敗：' + e.message);
   }
+}
+
+function copyFormLink(id) {
+  const url = location.origin + location.pathname.replace(/staffonly\/winners\.html$/, '') + 'winner-form.html?id=' + id;
+  navigator.clipboard.writeText(url).then(
+    () => showToast('已複製表單連結'),
+    () => prompt('複製以下連結：', url)
+  );
 }
 
 async function markStatus(id, status) {
@@ -371,6 +406,8 @@ async function deleteWinner(id) {
   if (!confirm(`確定刪除「${r.winnerName}」的得標記錄？`)) return;
   try {
     await remove(dbRef(db, 'winners/' + id));
+    await remove(dbRef(db, 'winnerPublic/' + id));
+    await remove(dbRef(db, 'winnerSubmissions/' + id));
     showToast('已刪除');
   } catch(e) {
     alert('刪除失敗：' + e.message);
@@ -385,7 +422,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, setFilter, openAddModal, openEditModal, closeModal, saveWinner, markStatus, deleteWinner });
+Object.assign(window, { signInGoogle, doSignOut, setFilter, openAddModal, openEditModal, closeModal, saveWinner, markStatus, deleteWinner, copyFormLink });
 </script>
 </body>
 </html>
