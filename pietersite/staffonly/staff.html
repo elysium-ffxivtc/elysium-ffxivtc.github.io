@@ -129,7 +129,7 @@ const auth = initializeAuth(app, {
 });
 getRedirectResult(auth).catch(() => {});
 
-const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', apostle: '館藏' };
+const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
 // image/ 資料夾內現有的館藏照片檔名（新增照片檔案時要手動更新這份清單）
 /* ponytail: 等 Pietersite 有館藏照片檔案再把檔名加進這份清單 */
 const KNOWN_APOSTLE_IMAGES = [];
@@ -205,10 +205,10 @@ function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const all = staffList
-    .filter(s => s.role === 'apostle' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid])
+    .filter(s => s.role === 'staff' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid])
     .sort((a, b) => apostleOrderVal(a) - apostleOrderVal(b) || a.displayName.localeCompare(b.displayName));
 
-  const isApostle = s => s.role === 'apostle';
+  const isApostle = s => s.role === 'staff';
   const apostleMembers = all.filter(isApostle);
   const staffMembers   = all.filter(s => !isApostle(s));
 

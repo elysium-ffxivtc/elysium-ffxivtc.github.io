@@ -193,7 +193,7 @@ const auth = initializeAuth(app, {
 });
 getRedirectResult(auth).catch(() => {});
 
-const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', apostle: '館藏' };
+const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
 let currentUser = null;
 
 onAuthStateChanged(auth, async user => {
