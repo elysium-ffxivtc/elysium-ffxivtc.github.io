@@ -645,7 +645,7 @@
           <span id="biz-dot" style="font-size:9px">●</span><span id="biz-lbl">休業中</span>
         </button>
       </div>
-      <span id="apostle-status" style="font-size:13px;color:var(--dim)"></span>
+      <span id="item-status" style="font-size:13px;color:var(--dim)"></span>
       <div id="mode-indicator" style="display:flex;align-items:center;gap:.4rem"></div>
       <button class="btn btn-outline btn-sm admin-only" id="demo-btn" onclick="loadDemoData()" style="font-size:11px;padding:.3rem .65rem;opacity:.6">載入測試資料</button>
     </div>
@@ -785,34 +785,34 @@
     // ────────────────────────────────────────────────────────────
     //  API
     // ────────────────────────────────────────────────────────────
-    let APOSTLES = [];
+    let ITEMS = [];
     let PILGRIMS   = [];
     let posUser  = null; // { uid, displayName, role: 'admin'|'staff' }
 
     function photoStaff() {
       return [
-        ...APOSTLES,
+        ...ITEMS,
         ...PILGRIMS.map(g => ({ name: g.name, tag: '館員', specialDish: g.specialDish }))
       ];
     }
 
-    async function fetchApostles() {
+    async function fetchItems() {
       try {
-        const snap = await db.ref('apostles').get();
+        const snap = await db.ref('profiles').get();
         const data = Object.entries(snap.val() || {})
           .map(([uid, v]) => ({ uid, ...v }))
           .filter(a => a.active !== false)
           .sort((a, b) => (a.order || 0) - (b.order || 0));
         if (data.length) {
-          APOSTLES = data;
-          renderApostleStatus();
+          ITEMS = data;
+          renderItemStatus();
         }
       } catch(e) { console.warn('無法載入館藏資料', e); }
     }
 
-    function renderApostleStatus() {
-      const el = document.getElementById('apostle-status');
-      if (el) el.textContent = `已載入 ${APOSTLES.length} 位館藏` + (PILGRIMS.length ? `・${PILGRIMS.length} 位館員` : '');
+    function renderItemStatus() {
+      const el = document.getElementById('item-status');
+      if (el) el.textContent = `已載入 ${ITEMS.length} 位館藏` + (PILGRIMS.length ? `・${PILGRIMS.length} 位館員` : '');
     }
 
     // ────────────────────────────────────────────────────────────
@@ -874,7 +874,7 @@
       if (!_uiInited) {
         _uiInited = true;
         renderSidebar();
-        fetchApostles();
+        fetchItems();
         applyUserMode();
         document.getElementById('pos-content').innerHTML = `
           <div class="pos-empty">
@@ -962,7 +962,7 @@
       }, onFbErr('events'));
       db.ref('pilgrims').on('value', snap => {
         PILGRIMS = snap.val() ? Object.values(snap.val()) : [];
-        renderApostleStatus();
+        renderItemStatus();
         if (_uiInited && currentNav === 'staff') showStaffPage();
       });
       db.ref('schedules').on('value', snap => {
@@ -992,7 +992,7 @@
       if (_uiInited || !_ready.customers || !_ready.visits || !_ready.events) return;
       _uiInited = true;
       renderSidebar();
-      fetchApostles();
+      fetchItems();
       applyUserMode();
       checkAutoPilgrim();
     }
@@ -1053,7 +1053,7 @@
         return alert('現在時間加上 30 分鐘已超過 00:50，無法加時。');
       }
       _otVisitId = visitId;
-      document.getElementById('ot-info').textContent = `館藏：${v.apostleName || '—'}　現場指名`;
+      document.getElementById('ot-info').textContent = `館藏：${v.itemName || '—'}　現場指名`;
       _ot.h = parseInt(nowStr.split(':')[0]);
       _ot.m = parseInt(nowStr.split(':')[1]);
       _otHIdx  = Math.max(0, VT_HOURS.indexOf(_ot.h) >= 0 ? VT_HOURS.indexOf(_ot.h) : 0);
@@ -1077,8 +1077,8 @@
         date: v.date,
         time,
         type: 'walkin',
-        apostleType: 'specified',
-        apostleName: v.apostleName,
+        itemType: 'specified',
+        itemName: v.itemName,
         staffTag:  v.staffTag || '',
         services: ['nomen30'],
         orders: [],
@@ -1176,7 +1176,7 @@
       const _NS = ['nomen30','photo','photo_sig'];
       return v.mode === 'nomen'
         || (v.services||[]).some(s => _NS.includes(s))
-        || !!v.apostleName
+        || !!v.itemName
         || (v.type === 'booked' && !['dining','checkin','pilgrim'].includes(v.mode));
     }
     function isEditableVisit(v) {
@@ -1386,9 +1386,9 @@
                   return `<tr>
                   <td style="white-space:nowrap">${v.time||'—'}</td>
                   <td><span class="tag ${v.type==='walkin'?'tag-walkin':'tag-booked'}">${v.type==='walkin'?'現場':'預約'}</span></td>
-                  <td>${isNomenVisit ? `<span class="tag ${v.apostleType==='specified'?'tag-spec':'tag-unspec'}">${v.apostleType==='specified'?'指定':'不指定'}</span>` : '—'}</td>
+                  <td>${isNomenVisit ? `<span class="tag ${v.itemType==='specified'?'tag-spec':'tag-unspec'}">${v.itemType==='specified'?'指定':'不指定'}</span>` : '—'}</td>
                   <td>
-                    ${esc(v.apostleName||'—')}
+                    ${esc(v.itemName||'—')}
                     ${v.staffTag?`<div style="font-size:13px;color:${tagColor(v.staffTag)};margin-top:2px">${esc(v.staffTag)}</div>`:''}
                   </td>
                   <td><div style="font-size:12px;color:var(--dim);max-width:140px;white-space:normal;word-break:break-word">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</div></td>
@@ -1427,7 +1427,7 @@
         customerId: id,
         mode,
         type: 'walkin',
-        apostleType: 'specified',
+        itemType: 'specified',
         services: [],
         photoExtras: [],
         photoExtraSigs: [],
@@ -1484,14 +1484,14 @@
                 <button class="toggle-btn"    id="tb-unspec" onclick="setAType('unspecified')">不指定</button>
               </div>
             </div>
-            <div class="field-full" id="apostle-field">
-              <label class="pos-lbl" id="apostle-field-label">指定館藏</label>
-              ${(() => { const summonable = APOSTLES.filter(a => a.bookable !== false); return summonable.length
-                ? `<select class="pos-select" id="v-apostle" onchange="updateSpecialMenu()">
+            <div class="field-full" id="item-field">
+              <label class="pos-lbl" id="item-field-label">指定館藏</label>
+              ${(() => { const summonable = ITEMS.filter(a => a.bookable !== false); return summonable.length
+                ? `<select class="pos-select" id="v-item" onchange="updateSpecialMenu()">
                     <option value="">選擇館藏</option>
                     ${summonable.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
                   </select>`
-                : `<input class="pos-input" id="v-apostle" type="text" placeholder="填入館藏名稱" oninput="updateSpecialMenu()">`; })()}
+                : `<input class="pos-input" id="v-item" type="text" placeholder="填入館藏名稱" oninput="updateSpecialMenu()">`; })()}
             </div>
           </div>
         </div>
@@ -1564,11 +1564,11 @@
             ${(function(){
               const staff = photoStaff();
               return staff.length
-                ? `<select class="pos-select" id="v-apostle" style="width:100%">
+                ? `<select class="pos-select" id="v-item" style="width:100%">
                     <option value="">請選擇人員</option>
                     ${staff.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.tag?' （'+a.tag+'）':''}</option>`).join('')}
                    </select>`
-                : `<input class="pos-input" id="v-apostle" type="text" placeholder="館藏 / 館員名稱（選填）">`;
+                : `<input class="pos-input" id="v-item" type="text" placeholder="館藏 / 館員名稱（選填）">`;
             })()}
           </div>
           <div class="svc-list">
@@ -1670,10 +1670,10 @@
 
 
     function setAType(t) {
-      vs.apostleType = t;
+      vs.itemType = t;
       document.getElementById('tb-spec').className   = 'toggle-btn' + (t==='specified'?' on':'');
       document.getElementById('tb-unspec').className = 'toggle-btn' + (t==='unspecified'?' on':'');
-      const lbl = document.getElementById('apostle-field-label');
+      const lbl = document.getElementById('item-field-label');
       if (lbl) lbl.textContent = t==='specified' ? '指定館藏' : '接待館藏';
     }
 
@@ -1831,10 +1831,10 @@
       const c  = customers.find(x => x.id===id);
       if (!c) return;
       if (vs.mode === 'nomen') {
-        const name = document.getElementById('v-apostle')?.value.trim() || '';
+        const name = document.getElementById('v-item')?.value.trim() || '';
         if (!name) {
           alert('請填入服務館藏姓名。');
-          document.getElementById('v-apostle')?.focus();
+          document.getElementById('v-item')?.focus();
           return;
         }
       }
@@ -1851,9 +1851,9 @@
         date: document.getElementById('v-date')?.value || '',
         time: document.getElementById('v-time')?.value || '',
         type: vs.type,
-        apostleType: vs.apostleType,
-        apostleName: document.getElementById('v-apostle')?.value.trim()||'',
-        staffTag:  APOSTLES.find(a=>a.name===document.getElementById('v-apostle')?.value.trim())?.tag||'',
+        itemType: vs.itemType,
+        itemName: document.getElementById('v-item')?.value.trim()||'',
+        staffTag:  ITEMS.find(a=>a.name===document.getElementById('v-item')?.value.trim())?.tag||'',
         services: [...vs.services],
         orders: [
           ...vs.orders.filter(o=>o.qty>0).map(o=>({name:o.name, price:o.price, qty:o.qty})),
@@ -1911,7 +1911,7 @@
       if (dateTxt)    dateTxt.textContent = v.date || '';
 
       vs.type = v.type || 'walkin';
-      if (editMode === 'nomen') setAType(v.apostleType || 'specified');
+      if (editMode === 'nomen') setAType(v.itemType || 'specified');
 
       // 場次時間
       if (v.type === 'walkin' && v.time) {
@@ -1940,8 +1940,8 @@
       }
 
       // 館藏
-      const apostleEl = document.getElementById('v-apostle');
-      if (apostleEl) { apostleEl.value = v.apostleName || ''; apostleEl.dispatchEvent(new Event('change')); }
+      const itemEl = document.getElementById('v-item');
+      if (itemEl) { itemEl.value = v.itemName || ''; itemEl.dispatchEvent(new Event('change')); }
 
       // 服務項目（先清除自動預選的項目，再套用原始資料）
       ['wreath_booked', 'wreath_walkin', 'nomen30'].forEach(w => {
@@ -2789,8 +2789,8 @@
                 <td style="white-space:nowrap">${v.date||'—'}</td>
                 <td style="white-space:nowrap">${v.time||'—'}</td>
                 <td><span class="tag ${v.type==='walkin'?'tag-walkin':'tag-booked'}">${v.type==='walkin'?'現場':'預約'}</span></td>
-                <td><span class="tag ${v.apostleType==='specified'?'tag-spec':'tag-unspec'}">${v.apostleType==='specified'?'指定':'不指定'}</span></td>
-                <td>${esc(v.apostleName||'—')}${v.staffTag?`<div style="font-size:13px;color:${tagColor(v.staffTag)};margin-top:2px">${esc(v.staffTag)}</div>`:''}</td>
+                <td><span class="tag ${v.itemType==='specified'?'tag-spec':'tag-unspec'}">${v.itemType==='specified'?'指定':'不指定'}</span></td>
+                <td>${esc(v.itemName||'—')}${v.staffTag?`<div style="font-size:13px;color:${tagColor(v.staffTag)};margin-top:2px">${esc(v.staffTag)}</div>`:''}</td>
                 <td style="font-size:13px;color:var(--dim)">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</td>
                 <td style="font-size:13px;color:var(--dim)">${(v.orders||[]).map(o=>`${o.name}×${o.qty}`).join('、')||'—'}</td>
                 <td style="white-space:nowrap">${(v.total||0).toLocaleString()} Gil</td>
@@ -2808,8 +2808,8 @@
       const totalVisits   = visits.length;
       const bookedCount   = visits.filter(v => v.type==='booked').length;
       const walkinCount   = visits.filter(v => v.type==='walkin').length;
-      const specCount     = visits.filter(v => v.apostleType==='specified').length;
-      const unspecCount   = visits.filter(v => v.apostleType==='unspecified').length;
+      const specCount     = visits.filter(v => v.itemType==='specified').length;
+      const unspecCount   = visits.filter(v => v.itemType==='unspecified').length;
 
       // 餐點銷售統計
       const menuTally = {};
@@ -2823,14 +2823,14 @@
         .sort((a,b) => b.qty - a.qty);
 
       // 館藏接待排行
-      const apostleTally = {};
-      visits.filter(v => v.apostleName).forEach(v => {
-        if (!apostleTally[v.apostleName]) apostleTally[v.apostleName] = { count:0, tag: v.staffTag||'' };
-        apostleTally[v.apostleName].count++;
-        if (!apostleTally[v.apostleName].tag && v.staffTag) apostleTally[v.apostleName].tag = v.staffTag;
+      const itemTally = {};
+      visits.filter(v => v.itemName).forEach(v => {
+        if (!itemTally[v.itemName]) itemTally[v.itemName] = { count:0, tag: v.staffTag||'' };
+        itemTally[v.itemName].count++;
+        if (!itemTally[v.itemName].tag && v.staffTag) itemTally[v.itemName].tag = v.staffTag;
       });
-      const apostleRank = Object.entries(apostleTally)
-        .map(([name, d]) => ({ name, count: d.count, tag: d.tag || (APOSTLES.find(a=>a.name===name)?.tag||'') }))
+      const itemRank = Object.entries(itemTally)
+        .map(([name, d]) => ({ name, count: d.count, tag: d.tag || (ITEMS.find(a=>a.name===name)?.tag||'') }))
         .sort((a,b) => b.count - a.count);
 
       // 累計消費排行（所有客戶，含已兌換）
@@ -2844,7 +2844,7 @@
       })).sort((a,b) => b.spend - a.spend).slice(0, 10);
 
       const maxMenu    = menuRank[0]?.qty || 1;
-      const maxApostle = apostleRank[0]?.count || 1;
+      const maxItem = itemRank[0]?.count || 1;
       const maxSpend   = Math.max(spendRank[0]?.spend || 0, SPEND_THRESHOLD);
 
       // 召引類型 helper
@@ -2894,16 +2894,16 @@
           <!-- 館藏接待排行 -->
           <div class="pos-card" style="margin:0">
             <div class="pos-card-title">館藏接待排行</div>
-            ${!apostleRank.length
+            ${!itemRank.length
               ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無資料</div>`
-              : apostleRank.slice(0,6).map((a,i) => `
+              : itemRank.slice(0,6).map((a,i) => `
               <div class="rank-row">
                 <span class="rank-num">${i+1}</span>
                 <div style="flex:1;min-width:0;overflow:hidden">
                   <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.name)}</div>
                   ${a.tag?`<div style="font-size:12px;color:${tagColor(a.tag)}">${esc(a.tag)}</div>`:''}
                 </div>
-                <div class="rank-bar-wrap"><div class="rank-bar" style="width:${a.count/maxApostle*100}%"></div></div>
+                <div class="rank-bar-wrap"><div class="rank-bar" style="width:${a.count/maxItem*100}%"></div></div>
                 <span style="font-size:14px;color:var(--gold);min-width:30px;text-align:right">${a.count}</span>
               </div>`).join('')}
           </div>
@@ -2971,9 +2971,9 @@
       if (btn) { btn.disabled = true; btn.textContent = '計算中…'; }
       try {
         const board = {};
-        APOSTLES.filter(a => a.bookable !== false).forEach(a => {
+        ITEMS.filter(a => a.bookable !== false).forEach(a => {
           const spendByCustomer = {};
-          visits.filter(v => v.apostleName === a.name).forEach(v => {
+          visits.filter(v => v.itemName === a.name).forEach(v => {
             spendByCustomer[v.customerId] = (spendByCustomer[v.customerId] || 0) + (v.total || 0);
           });
           const top = Object.entries(spendByCustomer)
@@ -3055,7 +3055,7 @@
       const aMap = {};
       const ensureA = n => { if (!aMap[n]) aMap[n] = { wreath:0, nomen:0, photos:0, photoExtras:0, photoSig:0, houseOther:0 }; };
       tv.forEach(v => {
-        const name = v.apostleName || '（未指定）';
+        const name = v.itemName || '（未指定）';
         ensureA(name);
         (v.services || []).forEach(sid => {
           const svc = SERVICES.find(s => s.id === sid);
@@ -3076,7 +3076,7 @@
 
       const pilgrimNms   = new Set(PILGRIMS.map(g => g.name));
       const allNames   = Object.keys(aMap);
-      const names      = allNames.filter(n => !pilgrimNms.has(n));  // apostles only for svPerA calc
+      const names      = allNames.filter(n => !pilgrimNms.has(n));  // items only for svPerA calc
       const pilgrimPhotoNames = allNames.filter(n => pilgrimNms.has(n));
       const numA   = names.length || 1;
 
@@ -3129,13 +3129,13 @@
       const photoHouseCut = totPhotos * 80000 + totPhotoSig + totExtraSig;
 
       const numPilgrimsEff  = PILGRIMS.length ? (_selectedPilgrims.length || PILGRIMS.length) : _numPilgrims;
-      const numApostlesEff  = names.filter(n => n !== '（未指定）').length || 1;
+      const numItemsEff  = names.filter(n => n !== '（未指定）').length || 1;
       const houseTotal = Math.floor(totWreath * 0.7) + photoHouseCut + svHouse + totOrdersRegular + specialHouseCut + totHouseOther;
 
       // 館藏區塊
-      const apostleBlocks = names.filter(n => n !== '（未指定）').map(name => {
+      const itemBlocks = names.filter(n => n !== '（未指定）').map(name => {
         const a = aMap[name];
-        const wCut  = totWreath > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numApostlesEff) : 0;
+        const wCut  = totWreath > 0 ? Math.floor(Math.floor(totWreath * 0.1) / numItemsEff) : 0;
         const nCut  = a.nomen;
         const pCut  = a.photos * 20000;
         const exCut = a.photoExtras * 20000;
@@ -3143,7 +3143,7 @@
         const sub   = wCut + nCut + pCut + exCut + sCut;
 
         const rows = [
-          totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numApostlesEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numApostlesEff}</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
+          totWreath ? `<div class="settle-row"><span class="settle-row-lbl">入場費分潤（÷ ${numItemsEff}）</span><span class="settle-row-base">${Math.floor(totWreath*0.1).toLocaleString()}</span><span class="settle-row-rate">÷ ${numItemsEff}</span><span class="settle-row-cut">${wCut.toLocaleString()}</span></div>` : '',
           a.nomen       ? `<div class="settle-row"><span class="settle-row-lbl">指名費（顯名儀）</span><span class="settle-row-base">${a.nomen.toLocaleString()}</span><span class="settle-row-rate">× 100%</span><span class="settle-row-cut">${nCut.toLocaleString()}</span></div>` : '',
           a.photos      ? `<div class="settle-row"><span class="settle-row-lbl">交名留影</span><span class="settle-row-base">${a.photos} 張</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${pCut.toLocaleString()}</span></div>` : '',
           a.photoExtras ? `<div class="settle-row"><span class="settle-row-lbl">多人合照</span><span class="settle-row-base">${a.photoExtras} 人</span><span class="settle-row-rate">固定 20,000</span><span class="settle-row-cut">${exCut.toLocaleString()}</span></div>` : '',
@@ -3159,9 +3159,9 @@
         </div>`;
       }).join('');
 
-      const apostleTotal = names.reduce((s, n) => {
+      const itemTotal = names.reduce((s, n) => {
         const a = aMap[n];
-        const wc = n !== '（未指定）' && totWreath > 0 ? Math.floor(Math.floor(totWreath*0.1) / numApostlesEff) : 0;
+        const wc = n !== '（未指定）' && totWreath > 0 ? Math.floor(Math.floor(totWreath*0.1) / numItemsEff) : 0;
         return s + wc + a.nomen + a.photos*20000 + a.photoExtras*20000 + svPerA;
       }, 0);
       // Pilgrim photo cuts (separate from pilgrim pool)
@@ -3221,7 +3221,7 @@
 
       const recorded  = tv.reduce((s,v) => s + (v.total||0), 0);
       const revenue   = recorded + svTotal;
-      const wages     = apostleTotal + pilgrimPool + pilgrimPhotoCuts + totSpecialCommission;
+      const wages     = itemTotal + pilgrimPool + pilgrimPhotoCuts + totSpecialCommission;
       const profit    = houseTotal;
 
       document.getElementById('pos-content').innerHTML = `
@@ -3242,7 +3242,7 @@
         ${!names.length ? `<div class="pos-empty"><div class="pos-empty-icon">—</div><div class="pos-empty-text">今日尚無造訪紀錄</div></div>` : `
 
         <div class="settle-sub-lbl">店員薪酬</div>
-        ${apostleBlocks}
+        ${itemBlocks}
         ${pilgrimSettleBlocks}
         ${specialSettleBlock}
 
@@ -3275,7 +3275,7 @@
           <div class="settle-grand-val">${revenue.toLocaleString()} Gil</div>
         </div>
         <div class="settle-wages">
-          <span>薪酬支出（館藏 ${apostleTotal.toLocaleString()} ＋ 館員 ${(pilgrimPool + pilgrimPhotoCuts).toLocaleString()}${totSpecialCommission ? ` ＋ 私藏特調 ${totSpecialCommission.toLocaleString()}` : ''}）</span>
+          <span>薪酬支出（館藏 ${itemTotal.toLocaleString()} ＋ 館員 ${(pilgrimPool + pilgrimPhotoCuts).toLocaleString()}${totSpecialCommission ? ` ＋ 私藏特調 ${totSpecialCommission.toLocaleString()}` : ''}）</span>
           <span style="color:var(--red)">－ ${wages.toLocaleString()} Gil</span>
         </div>
         <div class="settle-profit ${profit >= 0 ? 'pos' : 'neg'}">
@@ -3333,8 +3333,8 @@
         date: today,
         time: timeStr,
         type: 'walkin',
-        apostleType: 'unspecified',
-        apostleName: '', staffTag: '',
+        itemType: 'unspecified',
+        itemName: '', staffTag: '',
         services: ['wreath_walkin'],
         orders: [],
         servicesTotal: wp,
@@ -3449,14 +3449,14 @@
         { id:'c_demo3', name:'霧白·淵聲', discord:'mistwhisper99', server:'泰坦', contact:'', notes:'已使用高級服務一次', pointsTotal:2, hasRedeemedUltimate:true, createdAt:now },
       ];
       visits = [
-        { id:'v_d1', customerId:'c_demo1', date:'2026-06-01', time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'血腥艾妲',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-01T13:00:00.000Z' },
-        { id:'v_d2', customerId:'c_demo1', date:'2026-06-08', time:'22:00', type:'walkin', apostleType:'unspecified', apostleName:'示例館藏二', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'臨時到訪', createdAt:'2026-06-08T14:00:00.000Z' },
-        { id:'v_d3', customerId:'c_demo1', date:'2026-06-14', time:'22:30', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['exchange'], orders:[{name:'私藏特調',price:20000,qty:1,special:true,forName:'示例館藏一',forTag:''},{name:'遠東拖鞋',price:20000,qty:2}], servicesTotal:300000, ordersTotal:60000, total:360000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-14T13:00:00.000Z' },
-        { id:'v_d4', customerId:'c_demo2', date:'2026-05-10', time:'23:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:2, pointMultiplier:2, notes:'活動加倍', createdAt:'2026-05-10T13:00:00.000Z' },
-        { id:'v_d5', customerId:'c_demo3', date:'2026-04-20', time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'蘋果熱托迪',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-04-20T14:00:00.000Z' },
-        { id:'v_d6', customerId:'c_demo1', date:today, time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'荊棘',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
-        { id:'v_d7', customerId:'c_demo2', date:today, time:'22:30', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
-        { id:'v_d8', customerId:'c_demo3', date:today, time:'22:00', type:'walkin', apostleType:'specified', apostleName:'示例館藏二', staffTag:'', services:['appreciation'], orders:[{name:'珍珠奶茶',price:10000,qty:1}], servicesTotal:100000, ordersTotal:10000, total:110000, pointsEarned:1, pointMultiplier:1, notes:'現場到訪', createdAt:now },
+        { id:'v_d1', customerId:'c_demo1', date:'2026-06-01', time:'22:00', type:'booked', itemType:'specified', itemName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'血腥艾妲',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-01T13:00:00.000Z' },
+        { id:'v_d2', customerId:'c_demo1', date:'2026-06-08', time:'22:00', type:'walkin', itemType:'unspecified', itemName:'示例館藏二', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'臨時到訪', createdAt:'2026-06-08T14:00:00.000Z' },
+        { id:'v_d3', customerId:'c_demo1', date:'2026-06-14', time:'22:30', type:'booked', itemType:'specified', itemName:'示例館藏一', staffTag:'', services:['exchange'], orders:[{name:'私藏特調',price:20000,qty:1,special:true,forName:'示例館藏一',forTag:''},{name:'遠東拖鞋',price:20000,qty:2}], servicesTotal:300000, ordersTotal:60000, total:360000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-14T13:00:00.000Z' },
+        { id:'v_d4', customerId:'c_demo2', date:'2026-05-10', time:'23:00', type:'booked', itemType:'specified', itemName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:2, pointMultiplier:2, notes:'活動加倍', createdAt:'2026-05-10T13:00:00.000Z' },
+        { id:'v_d5', customerId:'c_demo3', date:'2026-04-20', time:'22:00', type:'booked', itemType:'specified', itemName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'蘋果熱托迪',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-04-20T14:00:00.000Z' },
+        { id:'v_d6', customerId:'c_demo1', date:today, time:'22:00', type:'booked', itemType:'specified', itemName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'荊棘',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
+        { id:'v_d7', customerId:'c_demo2', date:today, time:'22:30', type:'booked', itemType:'specified', itemName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
+        { id:'v_d8', customerId:'c_demo3', date:today, time:'22:00', type:'walkin', itemType:'specified', itemName:'示例館藏二', staffTag:'', services:['appreciation'], orders:[{name:'珍珠奶茶',price:10000,qty:1}], servicesTotal:100000, ordersTotal:10000, total:110000, pointsEarned:1, pointMultiplier:1, notes:'現場到訪', createdAt:now },
       ];
       save('pos_customers', customers);
       save('pos_visits', visits);

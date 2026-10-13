@@ -128,11 +128,11 @@ getRedirectResult(auth).catch(() => {});
 
 const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
 /* ponytail: image/ 資料夾內現有的館藏照片檔名，等 Pietersite 有照片檔案再把檔名加進這份清單 */
-const KNOWN_APOSTLE_IMAGES = [];
+const KNOWN_PROFILE_IMAGES = [];
 
 let currentUser = null;
 let staffList   = [];
-let apostles    = {};
+let profiles    = {};
 let editingUid  = null;
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -185,8 +185,8 @@ function startListeners() {
     });
     renderList();
   });
-  onValue(dbRef(db, 'apostles'), snap => {
-    apostles = snap.val() || {};
+  onValue(dbRef(db, 'profiles'), snap => {
+    profiles = snap.val() || {};
     renderList();
     if (editingUid) renderEdit(editingUid);
   });
@@ -194,8 +194,8 @@ function startListeners() {
   if (!isAdmin()) { editingUid = currentUser.uid; renderEdit(editingUid); }
 }
 
-function apostleOrderVal(s) {
-  const a = apostles[s.uid];
+function profileOrderVal(s) {
+  const a = profiles[s.uid];
   return (a && typeof a.order === 'number') ? a.order : Infinity;
 }
 
@@ -203,29 +203,29 @@ function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const all = staffList
-    .filter(s => s.role === 'staff' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid])
-    .sort((a, b) => apostleOrderVal(a) - apostleOrderVal(b) || (a.createdAt||'').localeCompare(b.createdAt||''));
+    .filter(s => s.role === 'staff' || s.role === 'admin' || s.role === 'pilgrim' || !!profiles[s.uid])
+    .sort((a, b) => profileOrderVal(a) - profileOrderVal(b) || (a.createdAt||'').localeCompare(b.createdAt||''));
 
-  const isApostle = s => s.role === 'staff';
-  const apostleMembers = all.filter(isApostle);
-  const staffMembers   = all.filter(s => !isApostle(s));
+  const isProfile = s => s.role === 'staff';
+  const profileMembers = all.filter(isProfile);
+  const staffMembers   = all.filter(s => !isProfile(s));
 
   const row = (s, groupName, showRole) => {
     const sel = editingUid === s.uid ? ' on' : '';
     return `<div class="acct-row${sel}" data-uid="${s.uid}" data-group="${groupName}">
-      ${esc(s.displayName)}${showRole ? `<span style="margin-left:auto;font-size:11px;color:var(--dim)">${apostles[s.uid]?.tag?esc(apostles[s.uid].tag)+' · ':''}${ROLE_LABEL[s.role]||''}</span>` : ''}
+      ${esc(s.displayName)}${showRole ? `<span style="margin-left:auto;font-size:11px;color:var(--dim)">${profiles[s.uid]?.tag?esc(profiles[s.uid].tag)+' · ':''}${ROLE_LABEL[s.role]||''}</span>` : ''}
     </div>`;
   };
 
-  const apostleRows = !apostleMembers.length ? '<div class="empty-hint">尚無館藏角色</div>' :
-    apostleMembers.map(s => row(s, 'apostle')).join('');
+  const profileRows = !profileMembers.length ? '<div class="empty-hint">尚無館藏角色</div>' :
+    profileMembers.map(s => row(s, 'profile')).join('');
   const staffRows = !staffMembers.length ? '<div class="empty-hint">尚無工作人員帳號</div>' :
     staffMembers.map(s => row(s, 'staff', true)).join('');
 
   col.innerHTML = `
-    <div class="card"><div class="card-title">館藏</div>${apostleRows}</div>
+    <div class="card"><div class="card-title">館藏</div>${profileRows}</div>
     <div class="card"><div class="card-title">工作人員</div>${staffRows}</div>`;
-  col.querySelectorAll('.acct-row[data-group="apostle"]').forEach(attachRowDrag);
+  col.querySelectorAll('.acct-row[data-group="profile"]').forEach(attachRowDrag);
   col.querySelectorAll('.acct-row[data-group="staff"]').forEach(el => {
     el.style.cursor = 'pointer';
     el.addEventListener('mousedown', e => { if (e.button === 0) openEdit(el.dataset.uid); });
@@ -280,7 +280,7 @@ function attachRowDrag(rowEl) {
       floatEl.remove();
       const updates = {};
       parent.querySelectorAll(`.acct-row[data-group="${groupName}"]`).forEach((el, i) => {
-        updates[`apostles/${el.dataset.uid}/order`] = i;
+        updates[`profiles/${el.dataset.uid}/order`] = i;
       });
       await update(dbRef(db), updates);
     }
@@ -295,14 +295,14 @@ function renderEdit(uid) {
   const member = staffList.find(s => s.uid === uid) || (uid === currentUser.uid ? currentUser : null);
   const name = member ? esc(member.displayName) : uid;
 
-  const a = apostles[uid] || {};
+  const a = profiles[uid] || {};
   const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern'); // 新帳號預設實習，舊資料預設正式
   document.getElementById('edit-col').innerHTML = `
     <div class="card">
       <div class="card-title">編輯資料 · ${name}</div>
       <div class="form-label">照片</div>
       <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
-      <datalist id="photo-list">${KNOWN_APOSTLE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
+      <datalist id="photo-list">${KNOWN_PROFILE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
       <img class="photo-preview" id="f-photo-preview" src="${a.photo?'../'+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
 
       <div class="form-row2">
@@ -348,7 +348,7 @@ function renderEdit(uid) {
       <div class="form-label">私藏特調專屬餐點名稱</div>
       <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="私藏特調">
       <div class="save-bar">
-        <button class="btn btn-gold btn-sm" onclick="saveApostle('${uid}')">儲存</button>
+        <button class="btn btn-gold btn-sm" onclick="saveProfile('${uid}')">儲存</button>
       </div>
     </div>`;
 }
@@ -360,7 +360,7 @@ function updatePhotoPreview() {
   img.style.display = path ? 'block' : 'none';
 }
 
-async function saveApostle(uid) {
+async function saveProfile(uid) {
   const val = {
     name:     document.getElementById('f-name').value.trim(),
     catalogNo: document.getElementById('f-catalogno').value.trim(),
@@ -381,13 +381,13 @@ async function saveApostle(uid) {
     specialDish: {
       name: document.getElementById('f-special-name').value.trim(),
     },
-    order:    apostles[uid]?.order ?? 0,
+    order:    profiles[uid]?.order ?? 0,
     updatedBy: currentUser.displayName,
     updatedAt: new Date().toISOString(),
   };
-  await set(dbRef(db, 'apostles/' + uid), val);
-  /* ponytail: apostles 本體需要登入才能讀，公開頁面讀這份不含 tag/rank/order 等內部欄位的鏡射版本 */
-  await set(dbRef(db, 'publicApostleProfiles/' + uid), {
+  await set(dbRef(db, 'profiles/' + uid), val);
+  /* ponytail: profiles 本體需要登入才能讀，公開頁面讀這份不含 tag/rank/order 等內部欄位的鏡射版本 */
+  await set(dbRef(db, 'publicProfiles/' + uid), {
     name: val.name, photo: val.photo, catalogNo: val.catalogNo, workTitle: val.workTitle,
     exhibitFormat: val.exhibitFormat, recommendFor: val.recommendFor, viewDistance: val.viewDistance,
     introduction: val.introduction, backstory: val.backstory, notes: val.notes,
@@ -404,7 +404,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveApostle });
+Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveProfile });
 </script>
 </body>
 </html>

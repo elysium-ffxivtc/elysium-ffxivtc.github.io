@@ -118,7 +118,7 @@
     <div class="form-label">轉讓對象角色名（選填，僅轉讓時填寫）</div>
     <input class="form-input" id="f-transfer" placeholder="若資格有轉讓才填">
     <div class="form-label">得標館藏</div>
-    <select class="form-input" id="f-apostle">
+    <select class="form-input" id="f-profile">
       <option value="">選擇館藏</option>
     </select>
     <div class="form-label">成交金額 (Gil)</div>
@@ -189,7 +189,7 @@ const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none:
 
 let currentUser = null;
 let winners = {};
-let apostles = {};
+let profiles = {};
 let submissions = {};
 let filter = 'all';
 let editingId = null;
@@ -240,12 +240,12 @@ function startListeners() {
 
   onValue(dbRef(db, 'winners'), snap => { winners = snap.val() || {}; render(); });
   onValue(dbRef(db, 'winnerSubmissions'), snap => { submissions = snap.val() || {}; render(); });
-  onValue(dbRef(db, 'apostles'), snap => {
-    apostles = snap.val() || {};
-    const sel = document.getElementById('f-apostle');
+  onValue(dbRef(db, 'profiles'), snap => {
+    profiles = snap.val() || {};
+    const sel = document.getElementById('f-profile');
     const cur = sel.value;
     sel.innerHTML = '<option value="">選擇館藏</option>' +
-      Object.entries(apostles).map(([uid, a]) => `<option value="${uid}">${esc(a.name||uid)}</option>`).join('');
+      Object.entries(profiles).map(([uid, a]) => `<option value="${uid}">${esc(a.name||uid)}</option>`).join('');
     sel.value = cur;
     render();
   });
@@ -257,9 +257,9 @@ function setFilter(v) {
   render();
 }
 
-function apostleName(uid) {
+function profileName(uid) {
   if (!uid) return '——';
-  return apostles[uid]?.name || uid;
+  return profiles[uid]?.name || uid;
 }
 
 function render() {
@@ -284,7 +284,7 @@ function render() {
       <div class="res-grid">
         <div><div class="res-field-label">得標者</div>${esc(r.winnerName)}</div>
         ${r.transferredTo ? `<div><div class="res-field-label">轉讓對象</div>${esc(r.transferredTo)}</div>` : ''}
-        <div><div class="res-field-label">得標館藏</div>${esc(apostleName(r.apostleUid))}</div>
+        <div><div class="res-field-label">得標館藏</div>${esc(profileName(r.profileUid))}</div>
         <div><div class="res-field-label">成交金額</div>${(r.amount||0).toLocaleString()} Gil</div>
       </div>
       ${r.notes ? `<div class="res-note"><span class="res-field-label">備註</span><br>${esc(r.notes)}</div>` : ''}
@@ -314,7 +314,7 @@ function openAddModal() {
   document.getElementById('modal-title').textContent = '新增得標記錄';
   document.getElementById('f-winner').value = '';
   document.getElementById('f-transfer').value = '';
-  document.getElementById('f-apostle').value = '';
+  document.getElementById('f-profile').value = '';
   document.getElementById('f-amount').value = '';
   document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
   document.getElementById('f-status').value = 'pending';
@@ -329,7 +329,7 @@ function openEditModal(id) {
   document.getElementById('modal-title').textContent = '編輯得標記錄';
   document.getElementById('f-winner').value = r.winnerName || '';
   document.getElementById('f-transfer').value = r.transferredTo || '';
-  document.getElementById('f-apostle').value = r.apostleUid || '';
+  document.getElementById('f-profile').value = r.profileUid || '';
   document.getElementById('f-amount').value = r.amount || '';
   document.getElementById('f-date').value = r.auctionDate || '';
   document.getElementById('f-status').value = r.status || 'pending';
@@ -347,7 +347,7 @@ async function saveWinner() {
   const data = {
     winnerName,
     transferredTo: document.getElementById('f-transfer').value.trim(),
-    apostleUid: document.getElementById('f-apostle').value,
+    profileUid: document.getElementById('f-profile').value,
     amount: parseInt(document.getElementById('f-amount').value, 10) || 0,
     auctionDate: document.getElementById('f-date').value,
     status: document.getElementById('f-status').value,
@@ -368,7 +368,7 @@ async function saveWinner() {
     }
     await set(dbRef(db, 'winnerPublic/' + id), {
       winnerName: data.winnerName,
-      apostleName: apostleName(data.apostleUid),
+      profileName: profileName(data.profileUid),
       auctionDate: data.auctionDate,
     });
     closeModal();

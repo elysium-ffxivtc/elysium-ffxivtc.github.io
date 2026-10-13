@@ -488,7 +488,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let staff        = [];
   let schedData    = {}; // { 'YYYY-MM-DD_HHMM': { uid: {...} } }
   let bizStatus    = {};
-  let apostlesData = {}; // { uid: { name, tag, ... } }，供 syncPublicRoster 查角色名稱
+  let profilesData = {}; // { uid: { name, tag, ... } }，供 syncPublicRoster 查角色名稱
   let announcement = null; // { text, updatedBy, updatedAt }
   let publicNotice = null; // { text, updatedBy, updatedAt } — 公開顯示於官網 acquisition.html 的競藏日公告
   let myMemo       = '';
@@ -613,18 +613,18 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   // ── Firebase listeners ────────────────────────────────────────
-  let _schedLoaded = false, _apostlesLoaded = false;
+  let _schedLoaded = false, _profilesLoaded = false;
   function startListeners() {
     onValue(dbRef(db, 'schedules'), snap => {
       schedData = snap.val() || {};
       _schedLoaded = true;
       render();
       if (_dayDate && document.getElementById('modal-day').classList.contains('open')) refreshDayModal();
-      if (_apostlesLoaded) { syncBizStatus(); syncPublicRoster(); }
+      if (_profilesLoaded) { syncBizStatus(); syncPublicRoster(); }
     });
-    onValue(dbRef(db, 'apostles'), snap => {
-      apostlesData = snap.val() || {};
-      _apostlesLoaded = true;
+    onValue(dbRef(db, 'profiles'), snap => {
+      profilesData = snap.val() || {};
+      _profilesLoaded = true;
       if (_schedLoaded) { syncBizStatus(); syncPublicRoster(); }
     });
     onValue(dbRef(db, 'staff'), snap => {
@@ -1281,7 +1281,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   // ── 公開版「今日有排班的館藏」名單（給 collections.html / profile 頁的綠燈用）──
-  // 只寫出姓名清單，不含 apostles 的 bio/chat/taboo 等內部資料，避免外洩
+  // 只寫出姓名清單，不含 profiles 的 bio/chat/taboo 等內部資料，避免外洩
   async function syncPublicRoster() {
     const today = getBusinessDate();
     const names = {};
@@ -1289,7 +1289,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       const entry = schedData[`${today}_${sKey(t)}`] || {};
       Object.entries(entry).forEach(([uid, p]) => {
         if (p.isLeave) return;
-        const nm = apostlesData[uid]?.name;
+        const nm = profilesData[uid]?.name;
         if (nm) names[nm] = true;
       });
     });
