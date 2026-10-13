@@ -47,7 +47,6 @@
     .acct-row-placeholder { border: 1px dashed var(--gold); background: var(--gold-dim); box-sizing: border-box; }
 
     .form-label { font-size: 12px; color: var(--dim); margin-bottom: .28rem; margin-top: .65rem; }
-    .form-label:first-child { margin-top: 0; }
     .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: .45rem .65rem; font-size: 13px; font-family: inherit; }
     .form-input:focus { outline: none; border-color: var(--gold); }
     textarea.form-input { resize: vertical; min-height: 60px; }
@@ -128,8 +127,7 @@ const auth = initializeAuth(app, {
 getRedirectResult(auth).catch(() => {});
 
 const ROLE_LABEL = { admin: '管理員', pilgrim: '館員', staff: '館藏' };
-// image/ 資料夾內現有的館藏照片檔名（新增照片檔案時要手動更新這份清單）
-/* ponytail: 等 Pietersite 有館藏照片檔案再把檔名加進這份清單 */
+/* ponytail: image/ 資料夾內現有的館藏照片檔名，等 Pietersite 有照片檔案再把檔名加進這份清單 */
 const KNOWN_APOSTLE_IMAGES = [];
 
 let currentUser = null;

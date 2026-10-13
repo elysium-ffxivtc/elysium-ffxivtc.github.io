@@ -74,7 +74,6 @@
     .modal-box { background: var(--card); border: 1px solid var(--border); width: 100%; max-width: 420px; padding: 1.4rem; max-height: 90vh; overflow-y: auto; }
     .modal-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .1em; margin-bottom: 1rem; }
     .form-label { font-size: 12px; color: var(--dim); margin-bottom: .28rem; margin-top: .65rem; }
-    .form-label:first-child { margin-top: 0; }
     .form-input { width: 100%; padding: .55rem .7rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); font-size: 13px; font-family: inherit; outline: none; }
     .form-input:focus { border-color: var(--gold); }
     textarea.form-input { resize: vertical; min-height: 56px; }
@@ -111,7 +110,6 @@
   <div id="res-list"></div>
 </div>
 
-<!-- 新增/編輯 modal -->
 <div class="modal-overlay" id="modal-winner" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <div class="modal-title" id="modal-title">新增得標記錄</div>
@@ -160,7 +158,6 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast-wrap"></div>
 
 <script type="module">

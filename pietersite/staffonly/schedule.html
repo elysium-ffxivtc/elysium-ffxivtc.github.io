@@ -19,7 +19,6 @@
       --text:     #1a2230;
       --dim:      #64707d;
       --green:    #2d7a50;
-      --green-dim:rgba(45,122,80,.1);
       --red:      #a8433a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
@@ -139,13 +138,6 @@
 
     /* ── Legend ── */
     .legend { display: flex; align-items: center; gap: .75rem; margin-bottom: .55rem; flex-wrap: wrap; }
-    .legend-swatch { display: inline-flex; align-items: center; gap: .3rem; font-size: 11px; color: var(--dim); }
-    .swatch-box { width: 10px; height: 10px; border: 1px solid; flex-shrink: 0; }
-    .swatch-box.mine { background: var(--green-dim); border-color: var(--green); }
-    .swatch-box.avail { background: none; border-color: rgba(0,0,0,.12); }
-    .biz-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
-    .biz-dot.open { background: var(--green); }
-    .biz-dot.closed { background: var(--red); }
 
     /* ── Calendar ── */
     .cal-weekrow, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
@@ -496,7 +488,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let staff        = [];
   let schedData    = {}; // { 'YYYY-MM-DD_HHMM': { uid: {...} } }
   let bizStatus    = {};
-  let apostlesData = {}; // { uid: { name, tag, ... } }，營業日規則用來判斷排班人員職位
+  let apostlesData = {}; // { uid: { name, tag, ... } }，供 syncPublicRoster 查角色名稱
   let announcement = null; // { text, updatedBy, updatedAt }
   let publicNotice = null; // { text, updatedBy, updatedAt } — 公開顯示於官網 acquisition.html 的競藏日公告
   let myMemo       = '';
@@ -768,7 +760,6 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       .filter(([d, b]) => d.startsWith(monthPrefix) && b.isOpen)
       .map(([d]) => d).sort();
     if (!bizDates.length) return '';
-    const mo = viewMonth + 1;
     const count = bizDates.length;
     const dateCards = bizDates.map(d =>
       `<div class="biz-date-card">
