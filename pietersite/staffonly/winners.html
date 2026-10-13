@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PIETERSITE · 預約管理</title>
+  <title>PIETERSITE · 得標名單</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -12,6 +12,7 @@
       --bg: #eef1f5; --panel: #e2e8ef; --card: #fbfcfe;
       --border: rgba(58,95,138,.15); --text: #1a2230; --dim: #64707d;
       --green: #2d7a50; --green-dim: rgba(45,122,80,.1); --red: #a8433a;
+      --purple: #6b4a9e; --purple-dim: rgba(107,74,158,.1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
     * { scrollbar-width: thin; scrollbar-color: rgba(58,95,138,.3) transparent; }
@@ -26,37 +27,54 @@
     .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
     .main { flex: 1; padding: 1.25rem 1.5rem; max-width: 1100px; width: 100%; margin: 0 auto; display: none; }
 
-    .filter-row { display: flex; gap: .5rem; margin-bottom: .85rem; flex-wrap: wrap; align-items: center; }
-    .seg-row { display: flex; }
+    .filter-row { display: flex; gap: .5rem; margin-bottom: .85rem; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .seg-row { display: flex; flex-wrap: wrap; }
     .seg-btn { padding: .33rem .85rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); font-family: inherit; transition: all .15s; margin-right: -1px; }
     .seg-btn.on { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); z-index: 1; position: relative; }
 
     .res-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--dim); padding: .85rem 1rem; margin-bottom: .65rem; }
-    .res-card.new { border-left-color: var(--gold); }
-    .res-card.completed { border-left-color: var(--green); opacity: .75; }
-    .res-card.cancelled { border-left-color: var(--red); opacity: .55; }
+    .res-card.pending { border-left-color: var(--gold); }
+    .res-card.completed { border-left-color: var(--green); opacity: .8; }
+    .res-card.transferred { border-left-color: var(--purple); opacity: .85; }
+    .res-card.noshow { border-left-color: var(--red); opacity: .6; }
     .res-hdr { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .4rem; margin-bottom: .5rem; }
     .res-date { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); }
     .res-status { font-size: 11px; padding: .12rem .5rem; border: 1px solid var(--border); color: var(--dim); }
-    .res-status.new { color: var(--gold); border-color: var(--gold); }
+    .res-status.pending { color: var(--gold); border-color: var(--gold); }
     .res-status.completed { color: var(--green); border-color: var(--green); }
-    .res-status.cancelled { color: var(--red); border-color: var(--red); }
+    .res-status.transferred { color: var(--purple); border-color: var(--purple); }
+    .res-status.noshow { color: var(--red); border-color: var(--red); }
     .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .4rem .9rem; font-size: 12.5px; margin-bottom: .5rem; }
     .res-field-label { color: var(--dim); font-size: 10.5px; }
     .res-note { font-size: 12.5px; color: var(--text); background: var(--bg); padding: .4rem .55rem; margin-top: .3rem; white-space: pre-wrap; }
-    .res-actions { display: flex; gap: .5rem; margin-top: .6rem; }
+    .res-actions { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
 
     .btn { padding: .38rem .85rem; font-size: 12px; border: none; font-family: inherit; transition: all .15s; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-gold { background: var(--gold); color: #fff; }
+    .btn-gold:hover { background: #2c4a6e; }
     .btn-green { background: none; border: 1px solid var(--green); color: var(--green); }
     .btn-green:hover { background: var(--green-dim); }
+    .btn-purple { background: none; border: 1px solid var(--purple); color: var(--purple); }
+    .btn-purple:hover { background: var(--purple-dim); }
     .btn-danger { background: none; border: 1px solid var(--red); color: var(--red); }
-    .btn-danger:hover { background: rgba(208,96,96,.1); }
+    .btn-danger:hover { background: rgba(168,67,58,.08); }
     .btn-sm { padding: .3rem .7rem; font-size: 12px; }
 
     .empty-hint { font-size: 13px; color: var(--dim); padding: 1.5rem 0; text-align: center; }
     .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); color: var(--text); padding: .5rem 1.2rem; font-size: 13px; z-index: 9999; pointer-events: none; transition: opacity .35s; white-space: nowrap; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(6,9,15,.45); z-index: 500; align-items: center; justify-content: center; padding: 1.2rem; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--card); border: 1px solid var(--border); width: 100%; max-width: 420px; padding: 1.4rem; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .1em; margin-bottom: 1rem; }
+    .form-label { font-size: 12px; color: var(--dim); margin-bottom: .28rem; margin-top: .65rem; }
+    .form-label:first-child { margin-top: 0; }
+    .form-input { width: 100%; padding: .55rem .7rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); font-size: 13px; font-family: inherit; outline: none; }
+    .form-input:focus { border-color: var(--gold); }
+    textarea.form-input { resize: vertical; min-height: 56px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1.1rem; }
 
     .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
     .auth-box { text-align: center; width: 340px; padding: 2rem; }
@@ -69,7 +87,7 @@
 <body>
 
 <header class="hdr">
-  <div class="hdr-title">✦ PIETERSITE · 預約管理</div>
+  <div class="hdr-title">✦ PIETERSITE · 得標名單</div>
   <div style="display:flex;align-items:center;gap:.85rem">
     <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px"></div>
   </div>
@@ -79,12 +97,46 @@
   <div class="filter-row">
     <div class="seg-row" id="status-filter">
       <button class="seg-btn on" data-v="all" onclick="setFilter('all')">全部</button>
-      <button class="seg-btn" data-v="new" onclick="setFilter('new')">待處理</button>
+      <button class="seg-btn" data-v="pending" onclick="setFilter('pending')">待安排</button>
       <button class="seg-btn" data-v="completed" onclick="setFilter('completed')">已完成</button>
-      <button class="seg-btn" data-v="cancelled" onclick="setFilter('cancelled')">已取消</button>
+      <button class="seg-btn" data-v="transferred" onclick="setFilter('transferred')">已轉讓</button>
+      <button class="seg-btn" data-v="noshow" onclick="setFilter('noshow')">未到訪</button>
     </div>
+    <button class="btn btn-gold btn-sm" onclick="openAddModal()">＋ 新增得標記錄</button>
   </div>
   <div id="res-list"></div>
+</div>
+
+<!-- 新增/編輯 modal -->
+<div class="modal-overlay" id="modal-winner" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">新增得標記錄</div>
+    <div class="form-label">得標者角色名 *</div>
+    <input class="form-input" id="f-winner" placeholder="得標者遊戲角色名">
+    <div class="form-label">轉讓對象角色名（選填，僅轉讓時填寫）</div>
+    <input class="form-input" id="f-transfer" placeholder="若資格有轉讓才填">
+    <div class="form-label">得標館藏</div>
+    <select class="form-input" id="f-apostle">
+      <option value="">選擇館藏</option>
+    </select>
+    <div class="form-label">成交金額 (Gil)</div>
+    <input class="form-input" type="number" id="f-amount" placeholder="0" min="0" step="10000">
+    <div class="form-label">競藏日期</div>
+    <input class="form-input" type="date" id="f-date">
+    <div class="form-label">鑑賞狀態</div>
+    <select class="form-input" id="f-status">
+      <option value="pending">待安排</option>
+      <option value="completed">已完成</option>
+      <option value="transferred">已轉讓</option>
+      <option value="noshow">未到訪</option>
+    </select>
+    <div class="form-label">備註</div>
+    <textarea class="form-input" id="f-notes" placeholder="選填"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">取消</button>
+      <button class="btn btn-gold btn-sm" onclick="saveWinner()">儲存</button>
+    </div>
+  </div>
 </div>
 
 <div id="auth-overlay" class="auth-overlay">
@@ -93,20 +145,23 @@
   </div>
   <div id="auth-login" class="auth-box" style="display:none">
     <div class="auth-logo">PIETERSITE</div>
-    <div class="auth-tagline">預約管理</div>
+    <div class="auth-tagline">得標名單</div>
     <button class="btn btn-outline auth-google-btn" style="background:var(--gold);color:#fff;font-weight:600" onclick="signInGoogle()">Google 登入</button>
     <div class="auth-err" id="auth-err"></div>
   </div>
   <div id="auth-denied" class="auth-box" style="display:none">
     <div class="auth-logo" style="font-size:1.5rem;margin-bottom:1rem">無權限</div>
-    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限管理員與館藏帳號使用。</div>
+    <div style="color:var(--dim);font-size:13px;line-height:1.8;margin-bottom:1rem">此頁面僅限管理員與館員帳號使用。</div>
     <button class="btn btn-outline" style="width:100%" onclick="doSignOut()">登出</button>
   </div>
 </div>
 
+<!-- Toast -->
+<div id="toast-wrap"></div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getDatabase, ref as dbRef, onValue, get, update } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { getDatabase, ref as dbRef, onValue, get, set, update, push, remove } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 const app = initializeApp({
@@ -125,22 +180,16 @@ const auth = initializeAuth(app, {
 });
 getRedirectResult(auth).catch(() => {});
 
-function sKey(t) { return t.replace(':', ''); }
-function esc(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 const ROLE_LABEL   = { admin: '管理員', pilgrim: '館員', apostle: '館藏' };
-const STATUS_LABEL = { new: '待處理', completed: '已完成', cancelled: '已取消' };
-const SERVICE_NAME = { appreciation: '典藏鑑賞', exchange: '藏品交換' };
-const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none: '無 RP' };
-const VISIT_LABEL  = { ritual: '儀式預約', seat: '席位預約' };
-/* ponytail: Elysium 用食罪席/妖異席兩種包廂，Pietersite 還沒有對應的座位分類，先留空；
-   顯示時會 fallback 顯示原始 seatType 字串，等公開預約表單定案座位種類後再補上對照表 */
-const SEAT_LABEL   = {};
+const STATUS_LABEL = { pending: '待安排', completed: '已完成', transferred: '已轉讓', noshow: '未到訪' };
 
 let currentUser = null;
-let reservations = {};
+let winners = {};
 let apostles = {};
 let filter = 'all';
+let editingId = null;
 
 onAuthStateChanged(auth, async user => {
   if (!user || user.isAnonymous) { showAuth('login'); return; }
@@ -186,8 +235,16 @@ function startListeners() {
     <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'" title="返回首頁" style="font-size:11px;padding:.2rem .45rem;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5 1 5.5V11h3.5V7.5h3V11H11V5.5L6 1.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg></button>
     <button class="btn btn-outline btn-sm" onclick="doSignOut()">登出</button>`;
 
-  onValue(dbRef(db, 'reservations'), snap => { reservations = snap.val() || {}; render(); });
-  onValue(dbRef(db, 'apostles'), snap => { apostles = snap.val() || {}; render(); });
+  onValue(dbRef(db, 'winners'), snap => { winners = snap.val() || {}; render(); });
+  onValue(dbRef(db, 'apostles'), snap => {
+    apostles = snap.val() || {};
+    const sel = document.getElementById('f-apostle');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">選擇館藏</option>' +
+      Object.entries(apostles).map(([uid, a]) => `<option value="${uid}">${esc(a.name||uid)}</option>`).join('');
+    sel.value = cur;
+    render();
+  });
 }
 
 function setFilter(v) {
@@ -197,83 +254,138 @@ function setFilter(v) {
 }
 
 function apostleName(uid) {
-  if (!uid || uid === 'none') return '不指定';
+  if (!uid) return '——';
   return apostles[uid]?.name || uid;
 }
 
 function render() {
   const list = document.getElementById('res-list');
-  const entries = Object.entries(reservations)
-    .filter(([id, r]) => filter === 'all' || (r.status || 'new') === filter)
-    .sort((a, b) => (b[1].createdAt || '').localeCompare(a[1].createdAt || ''));
+  const entries = Object.entries(winners)
+    .filter(([id, r]) => filter === 'all' || (r.status || 'pending') === filter)
+    .sort((a, b) => (b[1].auctionDate || '').localeCompare(a[1].auctionDate || ''));
 
-  if (!entries.length) { list.innerHTML = '<div class="empty-hint">沒有符合條件的預約</div>'; return; }
+  if (!entries.length) { list.innerHTML = '<div class="empty-hint">沒有符合條件的得標記錄</div>'; return; }
 
   list.innerHTML = entries.map(([id, r]) => {
-    const status = r.status || 'new';
-    const visitType = r.visitType || 'ritual';
-    const svcNames = (r.services || []).map(s => SERVICE_NAME[s] || s).join('、');
-    const typeFields = visitType === 'seat'
-      ? `<div><div class="res-field-label">座席</div>${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div>
-         <div><div class="res-field-label">人數</div>${r.seatCount || 0} 人</div>`
-      : `<div><div class="res-field-label">指定館藏</div>${esc(apostleName(r.apostle))}</div>
-         <div><div class="res-field-label">儀式</div>${esc(svcNames)}</div>`;
+    const status = r.status || 'pending';
     return `<div class="res-card ${status}">
       <div class="res-hdr">
-        <span class="res-date">${esc(r.date)} ${esc(r.time)}</span>
+        <span class="res-date">${esc(r.auctionDate || '')}</span>
         <span class="res-status ${status}">${STATUS_LABEL[status] || status}</span>
       </div>
       <div class="res-grid">
-        <div><div class="res-field-label">來訪形式</div>${esc(VISIT_LABEL[visitType] || visitType)}</div>
-        <div><div class="res-field-label">遊戲角色</div>${esc(r.gameName)}</div>
-        <div><div class="res-field-label">所在World</div>${esc(r.server)}</div>
-        <div><div class="res-field-label">Discord ID</div>${esc(r.contact)}</div>
-        ${typeFields}
-        <div><div class="res-field-label">RP 程度</div>${esc(RP_LABEL[r.rp] || r.rp || '')}</div>
-        <div><div class="res-field-label">金額</div>${(r.total||0).toLocaleString()} Gil</div>
+        <div><div class="res-field-label">得標者</div>${esc(r.winnerName)}</div>
+        ${r.transferredTo ? `<div><div class="res-field-label">轉讓對象</div>${esc(r.transferredTo)}</div>` : ''}
+        <div><div class="res-field-label">得標館藏</div>${esc(apostleName(r.apostleUid))}</div>
+        <div><div class="res-field-label">成交金額</div>${(r.amount||0).toLocaleString()} Gil</div>
       </div>
-      ${r.rpNote ? `<div class="res-note"><span class="res-field-label">備註</span><br>${esc(r.rpNote)}</div>` : ''}
-      ${r.notes  ? `<div class="res-note"><span class="res-field-label">其他備註</span><br>${esc(r.notes)}</div>`  : ''}
-      ${status === 'new' ? `<div class="res-actions">
-        <button class="btn btn-green btn-sm" onclick="markCompleted('${id}')">標記完成</button>
-        <button class="btn btn-danger btn-sm" onclick="cancelReservation('${id}')">取消</button>
-      </div>` : ''}
+      ${r.notes ? `<div class="res-note"><span class="res-field-label">備註</span><br>${esc(r.notes)}</div>` : ''}
+      <div class="res-actions">
+        <button class="btn btn-outline btn-sm" onclick="openEditModal('${id}')">編輯</button>
+        ${status === 'pending' ? `
+          <button class="btn btn-green btn-sm" onclick="markStatus('${id}','completed')">標記完成</button>
+          <button class="btn btn-purple btn-sm" onclick="markStatus('${id}','transferred')">標記轉讓</button>
+          <button class="btn btn-danger btn-sm" onclick="markStatus('${id}','noshow')">標記未到訪</button>
+        ` : ''}
+        <button class="btn btn-danger btn-sm" onclick="deleteWinner('${id}')">刪除</button>
+      </div>
     </div>`;
   }).join('');
 }
 
-async function markCompleted(id) {
-  await update(dbRef(db, 'reservations/' + id), {
-    status: 'completed', updatedAt: new Date().toISOString(), updatedBy: currentUser.displayName,
-  });
-  showToast('已標記完成');
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = '新增得標記錄';
+  document.getElementById('f-winner').value = '';
+  document.getElementById('f-transfer').value = '';
+  document.getElementById('f-apostle').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('f-status').value = 'pending';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('modal-winner').classList.add('open');
 }
 
-async function cancelReservation(id) {
-  const r = reservations[id];
+function openEditModal(id) {
+  const r = winners[id];
   if (!r) return;
-  if (!confirm(`確定取消 ${r.date} ${r.time} 的預約？`)) return;
-  const updates = {
-    [`reservations/${id}/status`]:    'cancelled',
-    [`reservations/${id}/updatedAt`]: new Date().toISOString(),
-    [`reservations/${id}/updatedBy`]: currentUser.displayName,
+  editingId = id;
+  document.getElementById('modal-title').textContent = '編輯得標記錄';
+  document.getElementById('f-winner').value = r.winnerName || '';
+  document.getElementById('f-transfer').value = r.transferredTo || '';
+  document.getElementById('f-apostle').value = r.apostleUid || '';
+  document.getElementById('f-amount').value = r.amount || '';
+  document.getElementById('f-date').value = r.auctionDate || '';
+  document.getElementById('f-status').value = r.status || 'pending';
+  document.getElementById('f-notes').value = r.notes || '';
+  document.getElementById('modal-winner').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-winner').classList.remove('open');
+}
+
+async function saveWinner() {
+  const winnerName = document.getElementById('f-winner').value.trim();
+  if (!winnerName) { alert('請輸入得標者角色名'); return; }
+  const data = {
+    winnerName,
+    transferredTo: document.getElementById('f-transfer').value.trim(),
+    apostleUid: document.getElementById('f-apostle').value,
+    amount: parseInt(document.getElementById('f-amount').value, 10) || 0,
+    auctionDate: document.getElementById('f-date').value,
+    status: document.getElementById('f-status').value,
+    notes: document.getElementById('f-notes').value.trim(),
+    updatedAt: new Date().toISOString(),
+    updatedBy: currentUser.displayName,
   };
-  if (r.apostle && r.apostle !== 'none') {
-    updates[`bookedSlots/${r.date}/${sKey(r.time)}/${r.apostle}`] = null;
+  try {
+    if (editingId) {
+      await update(dbRef(db, 'winners/' + editingId), data);
+    } else {
+      data.createdAt = data.updatedAt;
+      data.createdBy = currentUser.displayName;
+      await push(dbRef(db, 'winners'), data);
+    }
+    closeModal();
+    showToast('已儲存');
+  } catch(e) {
+    alert('儲存失敗：' + e.message);
   }
-  await update(dbRef(db), updates);
-  showToast('已取消，時段已釋放');
+}
+
+async function markStatus(id, status) {
+  try {
+    await update(dbRef(db, 'winners/' + id), {
+      status, updatedAt: new Date().toISOString(), updatedBy: currentUser.displayName,
+    });
+    showToast('已更新狀態');
+  } catch(e) {
+    alert('更新失敗：' + e.message);
+  }
+}
+
+async function deleteWinner(id) {
+  const r = winners[id];
+  if (!r) return;
+  if (!confirm(`確定刪除「${r.winnerName}」的得標記錄？`)) return;
+  try {
+    await remove(dbRef(db, 'winners/' + id));
+    showToast('已刪除');
+  } catch(e) {
+    alert('刪除失敗：' + e.message);
+  }
 }
 
 function showToast(msg) {
   const el = document.createElement('div');
   el.className = 'toast';
   el.textContent = msg;
-  document.body.appendChild(el);
+  document.getElementById('toast-wrap').appendChild(el);
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation });
+Object.assign(window, { signInGoogle, doSignOut, setFilter, openAddModal, openEditModal, closeModal, saveWinner, markStatus, deleteWinner });
 </script>
 </body>
 </html>

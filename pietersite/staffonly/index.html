@@ -211,13 +211,13 @@
         <div class="card-name">館藏資料</div>
       </a>
 
-      <a href="reservations.html" class="card" id="card-reservations">
+      <a href="winners.html" class="card" id="card-winners">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
           <rect x="4" y="5" width="20" height="18" rx="1.5" stroke="#b8913a" stroke-width="1.3" fill="none"/>
           <path d="M9 3v4M19 3v4M4 11h20" stroke="#b8913a" stroke-width="1.3" stroke-linecap="round"/>
           <path d="M9 16l3 3 6-6" stroke="#b8913a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
-        <div class="card-name">預約管理</div>
+        <div class="card-name">得標名單</div>
       </a>
 
       <a href="workflow.html" class="card" id="card-workflow">
@@ -294,7 +294,7 @@
           if (role !== 'admin') {
             document.getElementById('card-apostles').style.display = 'none';
             if (role !== 'pilgrim') {
-              document.getElementById('card-reservations').style.display = 'none';
+              document.getElementById('card-winners').style.display = 'none';
             }
           }
           if (role === 'staff') {
