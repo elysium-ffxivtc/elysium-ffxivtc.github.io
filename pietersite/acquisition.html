@@ -885,7 +885,16 @@
 })();
 </script>
 
-<!-- 競藏日公告：唯讀，內容由 staffonly/schedule.html 的管理員維護 -->
+<!-- ── 下次競藏日（左下）+ 回到頂部（右下，小圖示）── -->
+<a href="acquisition.html" class="float-notice" id="float-notice">
+    <span class="float-notice-label">下次競藏日</span>
+    <span class="float-notice-date" id="float-notice-date"></span>
+</a>
+<button class="float-top" id="float-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂部">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9L7 4L12 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<!-- 競藏日公告：唯讀，內容由 staffonly/schedule.html 的管理員維護；同一份資料同時驅動上方 CTA 大字跟左下角浮動公告 -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
@@ -903,6 +912,7 @@ const db = getDatabase(app);
 
 onValue(dbRef(db, 'publicNotices/acquisitionDay'), snap => {
     const notice = snap.val();
+
     if (notice?.date) {
         const dt = new Date(notice.date + 'T00:00:00');
         let dateText = `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日（${'日一二三四五六'[dt.getDay()]}）`;
@@ -914,45 +924,16 @@ onValue(dbRef(db, 'publicNotices/acquisitionDay'), snap => {
 
         document.getElementById('cta-sub').textContent = notice.note || '確認目標館藏的鑑賞時段，屆時親臨本館參與現場競拍。';
     }
-});
-</script>
 
-<!-- ── 下次競藏日（左下）+ 回到頂部（右下，小圖示）── -->
-<a href="acquisition.html" class="float-notice" id="float-notice">
-    <span class="float-notice-label">下次競藏日</span>
-    <span class="float-notice-date" id="float-notice-date"></span>
-</a>
-<button class="float-top" id="float-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂部">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9L7 4L12 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
-
-
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-
-const floatApp = initializeApp({
-    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
-    authDomain:        "pietersitepos.firebaseapp.com",
-    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId:         "pietersitepos",
-    storageBucket:     "pietersitepos.firebasestorage.app",
-    messagingSenderId: "336617870672",
-    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
-}, 'pietersiteFloatWidget');
-const floatDb = getDatabase(floatApp);
-
-onValue(dbRef(floatDb, 'publicNotices/acquisitionDay'), snap => {
-    const notice = snap.val();
-    const el = document.getElementById('float-notice');
+    const floatEl = document.getElementById('float-notice');
     if (notice?.date) {
         const dt = new Date(notice.date + 'T00:00:00');
         let text = `${dt.getMonth()+1}/${dt.getDate()}（${'日一二三四五六'[dt.getDay()]}）`;
         if (notice.time) text += ` ${notice.time}`;
         document.getElementById('float-notice-date').textContent = text;
-        el.classList.add('show');
+        floatEl.classList.add('show');
     } else {
-        el.classList.remove('show');
+        floatEl.classList.remove('show');
     }
 });
 

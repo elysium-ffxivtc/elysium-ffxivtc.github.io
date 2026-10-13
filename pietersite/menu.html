@@ -224,13 +224,6 @@
             margin-top: .3rem;
         }
 
-        .menu-item-right {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
         .menu-tag {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .68rem;
@@ -250,30 +243,6 @@
             border-color: rgba(90,141,196,.3);
         }
 
-        /* ── SOFT DRINKS ── */
-        .soft-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0 6rem;
-            margin-top: 1px;
-            background: var(--line);
-        }
-
-        .soft-item {
-            background: var(--bg-0);
-            padding: 2.4rem 0;
-            border-bottom: 1px solid var(--line);
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: .8rem 2rem;
-            align-items: start;
-            opacity: 0;
-            transform: translateY(16px);
-            transition: opacity .8s ease, transform .8s cubic-bezier(.16,1,.3,1);
-        }
-
-        .soft-item.vis { opacity: 1; transform: none; }
-
         /* ── NOTE ── */
         .menu-note {
             margin-top: 4rem;
@@ -289,14 +258,6 @@
         }
 
         .menu-note.vis { opacity: 1; transform: none; }
-
-        .menu-price {
-            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: 1rem;
-            letter-spacing: .1em;
-            color: var(--gold);
-            margin-top: .8rem;
-        }
 
         .menu-note-icon {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
@@ -372,7 +333,6 @@
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
             .menu-grid  { grid-template-columns: 1fr; gap: 0; }
-            .soft-row   { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 768px) {
@@ -453,7 +413,6 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header id="site-header">
     <a class="logo" href="index.html">PIETERSITE</a>
     <nav>
@@ -466,7 +425,6 @@
     </nav>
 </header>
 
-<!-- PAGE INTRO -->
 <div id="page-intro">
     <p class="page-eyebrow">MENU</p>
     <h1 class="page-title">酒單</h1>
@@ -599,7 +557,6 @@
     </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
     <div>
         <div class="footer-logo">PIETERSITE</div>

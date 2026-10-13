@@ -459,10 +459,6 @@
             .exhibit-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        @media (max-width: 900px) {
-            .curator-card { grid-template-columns: 160px 1fr; }
-        }
-
         @media (max-width: 768px) {
             header { padding: 1.2rem 1.5rem; }
             .logo { font-size: .75rem; letter-spacing: .3em; }
@@ -471,7 +467,6 @@
             #page-intro { padding: 14rem 1.5rem 6rem; }
             .wrap { padding: 6rem 1.5rem; }
             .exhibit-grid { grid-template-columns: 1fr 1fr; }
-            .staff-row { flex-direction: column; }
             footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
             .footer-nav { align-items: flex-start; }
         }
@@ -793,7 +788,6 @@
             const el = e.target;
             if (el.dataset.eyebrow !== undefined) { el.classList.add('vis'); io.unobserve(el); }
             if (el.dataset.h2     !== undefined) { el.classList.add('vis'); io.unobserve(el); }
-            if (el.dataset.reveal !== undefined) { el.classList.add('vis'); io.unobserve(el); }
 
             if (el.dataset.cards !== undefined) {
                 el.querySelectorAll('.exhibit').forEach((c, i) => {
@@ -801,24 +795,11 @@
                 });
                 io.unobserve(el);
             }
-
-            if (el.dataset.staff !== undefined) {
-                el.querySelectorAll('.staff-card').forEach(c => c.classList.add('vis'));
-                io.unobserve(el);
-            }
         });
     }, { threshold: .08 });
 
-    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-cards],[data-staff]')
+    document.querySelectorAll('[data-eyebrow],[data-h2],[data-cards]')
         .forEach(el => io.observe(el));
-
-    /* curator cards */
-    const curatorIo = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-            if (e.isIntersecting) { e.target.classList.add('vis'); curatorIo.unobserve(e.target); }
-        });
-    }, { threshold: .1 });
-    document.querySelectorAll('[data-reveal]').forEach(el => curatorIo.observe(el));
 
     /* ── Lightbox ── */
     const lb       = document.getElementById('lightbox');

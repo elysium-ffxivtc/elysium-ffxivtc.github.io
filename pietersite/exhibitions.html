@@ -204,8 +204,6 @@
         .service-card:nth-child(2) { transition-delay: .12s; }
         .service-card:nth-child(3) { transition-delay: .24s; }
         .service-card:nth-child(4) { transition-delay: .08s; }
-        .service-card:nth-child(5) { transition-delay: .2s; }
-        .service-card:nth-child(6) { transition-delay: .32s; }
 
         .service-card::before {
             content: '';
@@ -478,7 +476,6 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header id="site-header">
     <a class="logo" href="index.html">PIETERSITE</a>
     <nav>
@@ -491,7 +488,6 @@
     </nav>
 </header>
 
-<!-- PAGE INTRO -->
 <div id="page-intro">
     <p class="page-eyebrow">EXHIBITIONS</p>
     <h1 class="page-title">展覽</h1>
@@ -617,7 +613,6 @@
     <a href="collections.html" class="btn-ghost dim">瀏覽館藏目錄</a>
 </div>
 
-<!-- FOOTER -->
 <footer>
     <div>
         <div class="footer-logo">PIETERSITE</div>
@@ -650,14 +645,6 @@
             if (el.dataset.h2     !== undefined) { el.classList.add('vis'); io.unobserve(el); }
             if (el.dataset.reveal !== undefined) { el.classList.add('vis'); io.unobserve(el); }
 
-            if (el.dataset.steps !== undefined) {
-                el.classList.add('vis');
-                el.querySelectorAll('.step').forEach((s, i) => {
-                    setTimeout(() => s.classList.add('vis'), i * 100);
-                });
-                io.unobserve(el);
-            }
-
             if (el.dataset.services !== undefined) {
                 el.querySelectorAll('.service-card').forEach((c, i) => {
                     setTimeout(() => c.classList.add('vis'), i * 80);
@@ -667,7 +654,7 @@
         });
     }, { threshold: .08 });
 
-    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-steps],[data-services]')
+    document.querySelectorAll('[data-eyebrow],[data-h2],[data-reveal],[data-services]')
         .forEach(el => io.observe(el));
 
     /* ── Header hide on scroll ── */
