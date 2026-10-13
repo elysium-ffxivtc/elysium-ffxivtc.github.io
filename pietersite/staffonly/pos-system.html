@@ -994,14 +994,14 @@
       renderSidebar();
       fetchItems();
       applyUserMode();
-      checkAutoPilgrim();
+      checkAutoDocent();
     }
 
-    function checkAutoPilgrim() {
+    function checkAutoDocent() {
       const now = new Date();
       if (now.getHours() !== 2) return;
       const today = getBusinessDate();
-      const ranKey = 'pilgrimAutoRan_' + today;
+      const ranKey = 'docentAutoRan_' + today;
       if (localStorage.getItem(ranKey)) return;
       localStorage.setItem(ranKey, '1');
       let changed = false;
@@ -1011,7 +1011,7 @@
           (x.mode === 'nomen' || x.mode === 'dining')
         );
         if (!hasService) {
-          v.mode = 'pilgrim';
+          v.mode = 'docent';
           changed = true;
         }
       });
@@ -1020,7 +1020,7 @@
 
     setInterval(() => {
       const h = new Date().getHours();
-      if (h === 2) checkAutoPilgrim();
+      if (h === 2) checkAutoDocent();
     }, 60000);
 
     function fbRefresh() {
@@ -1177,7 +1177,7 @@
       return v.mode === 'nomen'
         || (v.services||[]).some(s => _NS.includes(s))
         || !!v.itemName
-        || (v.type === 'booked' && !['dining','checkin','pilgrim'].includes(v.mode));
+        || (v.type === 'booked' && !['dining','checkin','docent'].includes(v.mode));
     }
     function isEditableVisit(v) {
       const _NS = ['nomen30','photo','photo_sig'];
@@ -1280,7 +1280,7 @@
                        .sort((a,b) => b.createdAt.localeCompare(a.createdAt));
       const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
       const diningCount  = cv.filter(v => v.mode === 'dining').length;
-      const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+      const docentCount = cv.filter(v => v.mode === 'docent').length;
       const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
       const canRedeem  = (c.pointsTotal||0) >= 666 && totalSpend >= 33333333 && !c.hasRedeemedUltimate;
 
@@ -1329,7 +1329,7 @@
             <span class="pos-stat-lbl">次純用餐</span>
           </div>
           <div class="pos-stat">
-            <span class="pos-stat-val">${pilgrimCount}</span>
+            <span class="pos-stat-val">${docentCount}</span>
             <span class="pos-stat-lbl">次朝聖</span>
           </div>
           <div class="pos-stat">
@@ -1441,7 +1441,7 @@
       const today      = getBusinessDate();
       const isNomen    = mode === 'nomen';
       const isDining   = mode === 'dining';
-      const isPilgrim  = mode === 'pilgrim';
+      const isDocent  = mode === 'docent';
       const isSingle   = mode === 'single';
 
       document.getElementById('pos-content').innerHTML = `
@@ -1616,7 +1616,7 @@
         </div>`;
 
       const _hasCheckinToday = !vs._editId && visits.some(v =>
-        v.customerId === id && v.date === today && (v.mode === 'checkin' || v.mode === 'pilgrim')
+        v.customerId === id && v.date === today && (v.mode === 'checkin' || v.mode === 'docent')
       );
       const _nowD = new Date();
       const _nowH = _nowD.getHours(), _nowM = _nowD.getMinutes();
@@ -1891,7 +1891,7 @@
       const c = customers.find(x => x.id === custId);
       if (!v || !c) return;
 
-      const editMode = (v.mode === 'checkin' || v.mode === 'pilgrim') ? 'pilgrim'
+      const editMode = (v.mode === 'checkin' || v.mode === 'docent') ? 'docent'
         : v.mode === 'single' ? 'single'
         : isNomenRecord(v) ? 'nomen' : 'dining';
       showNewVisit(custId, editMode);
@@ -2658,10 +2658,10 @@
         const cv = visits.filter(v => v.customerId === c.id);
         const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
         const diningCount  = cv.filter(v => v.mode === 'dining').length;
-        const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+        const docentCount = cv.filter(v => v.mode === 'docent').length;
         const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
         const lastVisit  = cv.length ? cv.sort((a,b) => b.createdAt.localeCompare(a.createdAt))[0].date : '';
-        return { ...c, nomenCount, diningCount, pilgrimCount, visitCount: nomenCount, totalSpend, lastVisit };
+        return { ...c, nomenCount, diningCount, docentCount, visitCount: nomenCount, totalSpend, lastVisit };
       });
 
       const filtered = !rosterSearch ? enriched : enriched.filter(c =>
@@ -2702,7 +2702,7 @@
                   ${th('server','伺服器')}
                   ${th('nomenCount','召引次數')}
                   ${th('diningCount','純用餐次數')}
-                  ${th('pilgrimCount','朝聖次數')}
+                  ${th('docentCount','朝聖次數')}
                   ${th('totalSpend','累計消費')}
                   ${th('pointsTotal','名痕')}
                   ${th('lastVisit','最後紀錄')}
@@ -2716,7 +2716,7 @@
                     <td style="color:var(--dim)">${esc(c.server||'—')}</td>
                     <td>${c.nomenCount}</td>
                     <td style="color:var(--dim)">${c.diningCount}</td>
-                    <td style="color:var(--dim)">${c.pilgrimCount}</td>
+                    <td style="color:var(--dim)">${c.docentCount}</td>
                     <td>${c.totalSpend.toLocaleString()} Gil</td>
                     <td style="color:var(--gold)">${c.pointsTotal||0} pt</td>
                     <td style="color:var(--dim)">${c.lastVisit||'—'}</td>
@@ -2745,7 +2745,7 @@
                        .sort((a,b) => b.createdAt.localeCompare(a.createdAt));
       const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
       const diningCount  = cv.filter(v => v.mode === 'dining').length;
-      const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+      const docentCount = cv.filter(v => v.mode === 'docent').length;
       const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
       const canRedeem  = (c.pointsTotal||0) >= 666 && totalSpend >= 33333333 && !c.hasRedeemedUltimate;
 
@@ -2765,7 +2765,7 @@
           <div class="pos-stat"><span class="pos-stat-val">${c.pointsTotal||0}</span><span class="pos-stat-lbl">名痕 pt</span></div>
           <div class="pos-stat"><span class="pos-stat-val">${nomenCount}</span><span class="pos-stat-lbl">次召引</span></div>
           <div class="pos-stat"><span class="pos-stat-val">${diningCount}</span><span class="pos-stat-lbl">次純用餐</span></div>
-          <div class="pos-stat"><span class="pos-stat-val">${pilgrimCount}</span><span class="pos-stat-lbl">次朝聖</span></div>
+          <div class="pos-stat"><span class="pos-stat-val">${docentCount}</span><span class="pos-stat-lbl">次朝聖</span></div>
           <div class="pos-stat"><span class="pos-stat-val">${totalSpend.toLocaleString()}</span><span class="pos-stat-lbl">Gil 累計消費</span></div>
           ${c.hasRedeemedUltimate ? `<div class="pos-stat" style="border-color:rgba(192,80,80,.3)"><span class="pos-stat-val" style="color:var(--red)">已兌換</span><span class="pos-stat-lbl">授名儀</span></div>` : ''}
         </div>
