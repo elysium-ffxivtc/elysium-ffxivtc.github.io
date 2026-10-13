@@ -534,14 +534,12 @@
 
     <!-- LEFT: PHOTO -->
     <div class="profile-photo-col">
-        <!-- 換圖時將下方 img 取消註解，填入路徑，並刪除 photo-placeholder-full -->
-        <!--<img src="images/collections/no01.jpg" alt="No.01 凜冬的餘溫">-->
-        <div class="photo-placeholder-full">
+        <img id="profile-photo-img" alt="" style="display:none">
+        <div class="photo-placeholder-full" id="profile-photo-placeholder">
             <svg viewBox="0 0 24 24" stroke-width=".8"><rect x="2" y="2" width="20" height="20" rx="1"/><circle cx="8.5" cy="8.5" r="2"/><polyline points="22,16 16,10 4,22"/></svg>
             <span>待上傳</span>
         </div>
-        <!-- ponytail: 這裡放角色遊戲內全名（最多7字），不是館藏編號 -->
-        <div class="photo-num">角色遊戲內名稱</div>
+        <div class="photo-num" id="photo-num-el">角色遊戲內名稱</div>
     </div>
 
     <!-- RIGHT: CONTENT -->
@@ -555,61 +553,45 @@
             <span class="status-label" id="status-label">今日暫停展覽</span>
         </div>
 
-        <h1 class="profile-title">《凜冬的餘溫》</h1>
+        <h1 class="profile-title" id="profile-title-el">《凜冬的餘溫》</h1>
 
         <div class="profile-facts">
-            <div class="fact-row">
+            <div class="fact-row" id="fact-format-row">
                 <span class="fact-lbl">展覽形式</span>
-                <span class="fact-val">靜默陪伴</span>
+                <span class="fact-val" id="fact-format"></span>
+            </div>
+            <div class="fact-row" id="fact-viewdistance-row">
+                <span class="fact-lbl">鑑賞距離</span>
+                <span class="fact-val" id="fact-viewdistance"></span>
             </div>
             <div class="fact-row">
                 <span class="fact-lbl">推薦對象</span>
-                <span class="fact-val">需要一段安靜的人</span>
+                <span class="fact-val" id="fact-recommend"></span>
             </div>
             <div class="fact-row">
                 <span class="fact-lbl">館藏編號</span>
-                <span class="fact-val">No. 001</span>
+                <span class="fact-val" id="fact-catalogno"></span>
             </div>
         </div>
 
         <div class="profile-section" data-reveal>
             <div class="section-label">展覽簡介</div>
-            <div class="section-body">
-                <p>
-                    冷靜的外表之下藏有令人意外的溫度，不善言辭，卻善於傾聽。
-                    與他共處，不需要說太多——他的存在本身，就已經是一種回應。
-                </p>
-                <p>
-                    若你習慣在喧囂之中尋找片刻的靜止，這裡或許是你今晚最好的選擇。
-                </p>
-            </div>
+            <div class="section-body" id="section-intro"></div>
         </div>
 
         <div class="profile-section" data-reveal>
             <div class="section-label">背景故事</div>
-            <div class="section-body">
-                <p>
-                    這裡是較長的背景故事內容。可以描述角色的過去、性格形成的原因、
-                    或是任何你希望讓客人了解的深層設定。
-                </p>
-                <p>
-                    段落可以自由增加，不限長度。這個區塊專門為了容納那些
-                    卡片上放不下的文字而存在。
-                </p>
-                <p>
-                    佔位文字，待補充正式內容。
-                </p>
-            </div>
+            <div class="section-body" id="section-backstory"></div>
         </div>
 
         <div class="profile-section" data-reveal>
             <div class="section-label">鑑賞筆記</div>
-            <div class="section-body">
-                <p>
-                    給初次到訪的收藏家的一點提示——與他相處時，
-                    不必刻意製造話題，沉默在這裡不是尷尬，而是一種語言。
-                </p>
-            </div>
+            <div class="section-body" id="section-notes"></div>
+        </div>
+
+        <div class="profile-section" data-reveal id="section-commission-row" style="display:none">
+            <div class="section-label">委託項目</div>
+            <div class="section-body" id="section-commission"></div>
         </div>
 
         <div class="profile-cta" data-cta>
@@ -768,6 +750,70 @@ onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
     const isOn = !!(name && scheduledToday[name]);
     document.getElementById('status-dot').classList.toggle('off', !isOn);
     document.getElementById('status-label').textContent = isOn ? '館內展覽中' : '今日暫停展覽';
+});
+</script>
+
+<!-- 館藏資料串接：讀取 staffonly/staff.html 寫出的公開鏡射版本，依 data-apostle-name 比對 -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const profileApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteProfileData');
+const profileDb = getDatabase(profileApp);
+
+function paragraphs(text) {
+    return (text || '').split(/\n\s*\n/).filter(p => p.trim()).map(p => `<p>${p.trim().replace(/</g,'&lt;')}</p>`).join('');
+}
+
+onValue(dbRef(profileDb, 'publicApostleProfiles'), snap => {
+    const all = snap.val() || {};
+    const targetName = document.getElementById('profile-status')?.dataset.apostleName;
+    const a = Object.values(all).find(p => p.name === targetName);
+    if (!a) return;
+
+    if (a.photo) {
+        document.getElementById('profile-photo-img').src = a.photo;
+        document.getElementById('profile-photo-img').style.display = 'block';
+        document.getElementById('profile-photo-placeholder').style.display = 'none';
+    }
+    document.getElementById('photo-num-el').textContent = a.name || '';
+    document.getElementById('profile-title-el').textContent = a.workTitle ? `《${a.workTitle}》` : '';
+
+    const formatRow = document.getElementById('fact-format-row');
+    if (a.exhibitFormat && a.exhibitFormat.length) {
+        document.getElementById('fact-format').textContent = a.exhibitFormat.join('、');
+        formatRow.style.display = '';
+    } else {
+        formatRow.style.display = 'none';
+    }
+
+    const vdRow = document.getElementById('fact-viewdistance-row');
+    if (a.viewDistance) {
+        document.getElementById('fact-viewdistance').textContent = a.viewDistance;
+        vdRow.style.display = '';
+    } else {
+        vdRow.style.display = 'none';
+    }
+
+    document.getElementById('fact-recommend').textContent = a.recommendFor || '';
+    document.getElementById('fact-catalogno').textContent = a.catalogNo || '';
+
+    document.getElementById('section-intro').innerHTML     = paragraphs(a.introduction);
+    document.getElementById('section-backstory').innerHTML = paragraphs(a.backstory);
+    document.getElementById('section-notes').innerHTML     = paragraphs(a.notes);
+
+    if (a.commissionItems) {
+        document.getElementById('section-commission').innerHTML = paragraphs(a.commissionItems);
+        document.getElementById('section-commission-row').style.display = '';
+    }
 });
 </script>
 </body>

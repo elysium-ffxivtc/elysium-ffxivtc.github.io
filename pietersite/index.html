@@ -966,5 +966,37 @@ onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
     });
 });
 </script>
+
+<!-- 館藏卡片資料串接：讀取 staffonly/staff.html 寫出的公開鏡射版本，依 data-apostle-name 比對 -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const profileApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteProfileData');
+const profileDb = getDatabase(profileApp);
+
+onValue(dbRef(profileDb, 'publicApostleProfiles'), snap => {
+    const all = snap.val() || {};
+    document.querySelectorAll('[data-apostle-name]').forEach(el => {
+        const a = Object.values(all).find(p => p.name === el.dataset.apostleName);
+        if (!a) return;
+        const numEl  = el.querySelector('.exhibit-num');
+        const nameEl = el.querySelector('.exhibit-name');
+        const metaVals = el.querySelectorAll('.meta-row .meta-val');
+        if (numEl)  numEl.textContent  = a.catalogNo || '';
+        if (nameEl) nameEl.textContent = a.workTitle || '';
+        if (metaVals[0]) metaVals[0].textContent = (a.exhibitFormat || []).join('、');
+        if (metaVals[1]) metaVals[1].textContent = a.recommendFor || '';
+    });
+});
+</script>
 </body>
 </html>
