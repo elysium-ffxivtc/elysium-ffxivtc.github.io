@@ -183,6 +183,10 @@ function startListeners() {
 
   onValue(dbRef(db, 'staff'), snap => {
     staffList = snap.val() ? Object.values(snap.val()) : [];
+    /* ponytail: 一次性修正舊資料殘留的 role:'apostle'，改名後的新帳號不會再出現這個值 */
+    staffList.forEach(s => {
+      if (s.role === 'apostle') { s.role = 'staff'; update(dbRef(db, 'staff/' + s.uid), { role: 'staff' }); }
+    });
     renderList();
   });
   onValue(dbRef(db, 'apostles'), snap => {
