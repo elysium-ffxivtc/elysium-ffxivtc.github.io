@@ -388,6 +388,13 @@ async function saveApostle(uid) {
     updatedAt: new Date().toISOString(),
   };
   await set(dbRef(db, 'apostles/' + uid), val);
+  /* ponytail: apostles 本體需要登入才能讀，公開頁面讀這份不含 tag/rank/order 等內部欄位的鏡射版本 */
+  await set(dbRef(db, 'publicApostleProfiles/' + uid), {
+    name: val.name, photo: val.photo, catalogNo: val.catalogNo, workTitle: val.workTitle,
+    exhibitFormat: val.exhibitFormat, recommendFor: val.recommendFor, viewDistance: val.viewDistance,
+    introduction: val.introduction, backstory: val.backstory, notes: val.notes,
+    commissionItems: val.commissionItems,
+  });
   showToast('已儲存');
 }
 
