@@ -74,7 +74,7 @@
     <div id="state-form" class="state">
       <div class="confirm-box">
         <div class="confirm-row"><span class="confirm-k">得標者</span><span class="confirm-v" id="c-winner"></span></div>
-        <div class="confirm-row"><span class="confirm-k">得標館藏</span><span class="confirm-v" id="c-apostle"></span></div>
+        <div class="confirm-row"><span class="confirm-k">得標館藏</span><span class="confirm-v" id="c-profile"></span></div>
         <div class="confirm-row"><span class="confirm-k">競藏日期</span><span class="confirm-v" id="c-date"></span></div>
       </div>
 
@@ -149,7 +149,7 @@ async function init() {
     if (!snap.exists()) { showState('error'); return; }
     const pub = snap.val();
     document.getElementById('c-winner').textContent = pub.winnerName || '—';
-    document.getElementById('c-apostle').textContent = pub.apostleName || '—';
+    document.getElementById('c-profile').textContent = pub.profileName || '—';
     document.getElementById('c-date').textContent = pub.auctionDate || '—';
 
     const subSnap = await get(dbRef(db, 'winnerSubmissions/' + id));

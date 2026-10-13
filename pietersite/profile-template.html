@@ -547,8 +547,7 @@
 
         <a class="back-link" href="collections.html">返回館藏目錄</a>
 
-        <!-- ponytail: 綠燈狀態由 JS 依「今日排班名單」自動判斷，不用手動改，data-apostle-name 要跟後台角色名一致 -->
-        <div class="profile-status" id="profile-status" data-apostle-name="凜冬的餘溫">
+        <div class="profile-status" id="profile-status" data-profile-name="凜冬的餘溫">
             <div class="status-dot off" id="status-dot"></div>
             <span class="status-label" id="status-label">今日暫停展覽</span>
         </div>
@@ -719,7 +718,6 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 </script>
 
-<!-- 館藏綠燈：讀取 staffonly/schedule.html 寫出的「今日有排班」名單（唯讀，不含內部資料）-->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
@@ -746,14 +744,13 @@ onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
     const roster = snap.val();
     const scheduledToday = (roster && roster.date === getBusinessDate()) ? roster.names || {} : {};
     const wrap = document.getElementById('profile-status');
-    const name = wrap?.dataset.apostleName;
+    const name = wrap?.dataset.profileName;
     const isOn = !!(name && scheduledToday[name]);
     document.getElementById('status-dot').classList.toggle('off', !isOn);
     document.getElementById('status-label').textContent = isOn ? '館內展覽中' : '今日暫停展覽';
 });
 </script>
 
-<!-- 館藏資料串接：讀取 staffonly/staff.html 寫出的公開鏡射版本，依 data-apostle-name 比對 -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
@@ -773,9 +770,9 @@ function paragraphs(text) {
     return (text || '').split(/\n\s*\n/).filter(p => p.trim()).map(p => `<p>${p.trim().replace(/</g,'&lt;')}</p>`).join('');
 }
 
-onValue(dbRef(profileDb, 'publicApostleProfiles'), snap => {
+onValue(dbRef(profileDb, 'publicProfiles'), snap => {
     const all = snap.val() || {};
-    const targetName = document.getElementById('profile-status')?.dataset.apostleName;
+    const targetName = document.getElementById('profile-status')?.dataset.profileName;
     const a = Object.values(all).find(p => p.name === targetName);
     if (!a) return;
 
