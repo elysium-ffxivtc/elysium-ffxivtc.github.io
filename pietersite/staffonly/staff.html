@@ -324,11 +324,20 @@ function renderEdit(uid) {
       <div class="form-label">作品名稱</div>
       <input class="form-input" id="f-subtitle" value="${esc(a.workTitle||'')}">
       <div class="form-label">展覽形式</div>
-      <label class="form-check"><input type="checkbox" id="f-format-appreciation" ${(a.exhibitFormat||[]).includes('典藏鑑賞')?'checked':''}> 典藏鑑賞</label>
-      <label class="form-check"><input type="checkbox" id="f-format-commission" ${(a.exhibitFormat||[]).includes('策展委託')?'checked':''}> 策展委託</label>
+      <div style="display:flex;gap:1.2rem">
+        <label class="form-check" style="margin-top:0"><input type="checkbox" id="f-format-appreciation" ${(a.exhibitFormat||[]).includes('典藏鑑賞')?'checked':''}> 典藏鑑賞</label>
+        <label class="form-check" style="margin-top:0"><input type="checkbox" id="f-format-commission" ${(a.exhibitFormat||[]).includes('策展委託')?'checked':''}> 策展委託</label>
+      </div>
       <div class="form-row2">
         <div><div class="form-label">推薦對象</div><input class="form-input" id="f-recommend" value="${esc(a.recommendFor||'')}"></div>
-        <div><div class="form-label">鑑賞距離</div><input class="form-input" id="f-viewdistance" value="${esc(a.viewDistance||'')}"></div>
+        <div><div class="form-label">鑑賞距離</div>
+          <select class="form-input" id="f-viewdistance">
+            <option value="">請選擇</option>
+            <option value="隔席觀覽" ${a.viewDistance==='隔席觀覽'?'selected':''}>隔席觀覽</option>
+            <option value="沉浸賞析" ${a.viewDistance==='沉浸賞析'?'selected':''}>沉浸賞析</option>
+            <option value="珍品鑑玩" ${a.viewDistance==='珍品鑑玩'?'selected':''}>珍品鑑玩</option>
+          </select>
+        </div>
       </div>
       <div class="form-label">展覽簡介</div>
       <textarea class="form-input" id="f-intro">${esc(a.introduction||'')}</textarea>
