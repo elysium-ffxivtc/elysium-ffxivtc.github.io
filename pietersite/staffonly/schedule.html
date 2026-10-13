@@ -797,9 +797,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   }
 
   // ── Biz day logic ─────────────────────────────────────────────
-  /* ponytail: Elysium 要求「特定員工在班 + 至少1館員 + 至少3館藏(食罪/妖異)」才算達標，
-     這套人力門檻是 Elysium 自己的規則，Pietersite 還沒定案，先簡化成「該時段有人排班就算達標」；
-     之後 Pietersite 定出自己的人力門檻規則，再回來改這個函式即可 */
+  /* ponytail: 人力門檻規則還沒定案，先簡化成「該時段有人排班就算達標」 */
   function isSlotStaffed(date, time) {
     const entry = schedData[`${date}_${sKey(time)}`] || {};
     const activeUids = Object.entries(entry).filter(([, p]) => !p.isLeave).map(([uid]) => uid);
