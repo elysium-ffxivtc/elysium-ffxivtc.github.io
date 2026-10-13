@@ -297,6 +297,36 @@ function renderEdit(uid) {
 
   const a = profiles[uid] || {};
   const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern'); // 新帳號預設實習，舊資料預設正式
+
+  if (member?.role !== 'collection') {
+    document.getElementById('edit-col').innerHTML = `
+      <div class="card">
+        <div class="card-title">編輯資料 · ${name}</div>
+        <div class="form-label">照片</div>
+        <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
+        <datalist id="photo-list">${KNOWN_PROFILE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
+        <img class="photo-preview" id="f-photo-preview" src="${a.photo?'../'+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
+
+        <div class="form-row2">
+          <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
+          <div><div class="form-label">職位</div>
+            <input class="form-input" id="f-tag" value="${esc(a.tag||'')}" placeholder="例如：館員">
+          </div>
+        </div>
+        <div class="form-label">員工等級</div>
+        <select class="form-input" id="f-rank">
+          <option value="formal" ${rankDefault!=='intern'?'selected':''}>正式員工</option>
+          <option value="intern" ${rankDefault==='intern'?'selected':''}>實習員工</option>
+        </select>
+        <div class="form-label">個人介紹</div>
+        <textarea class="form-input" id="f-bio">${esc(a.bio||'')}</textarea>
+        <div class="save-bar">
+          <button class="btn btn-gold btn-sm" onclick="saveStaffBio('${uid}')">儲存</button>
+        </div>
+      </div>`;
+    return;
+  }
+
   document.getElementById('edit-col').innerHTML = `
     <div class="card">
       <div class="card-title">編輯資料 · ${name}</div>
@@ -352,6 +382,21 @@ function renderEdit(uid) {
     </div>`;
 }
 
+async function saveStaffBio(uid) {
+  const val = {
+    name: document.getElementById('f-name').value.trim(),
+    tag:  document.getElementById('f-tag').value.trim(),
+    rank: document.getElementById('f-rank').value,
+    photo: document.getElementById('f-photo').value.trim(),
+    bio:  document.getElementById('f-bio').value.trim(),
+    order: profiles[uid]?.order ?? 0,
+    updatedBy: currentUser.displayName,
+    updatedAt: new Date().toISOString(),
+  };
+  await set(dbRef(db, 'profiles/' + uid), val);
+  showToast('已儲存');
+}
+
 function updatePhotoPreview() {
   const path = document.getElementById('f-photo').value.trim();
   const img = document.getElementById('f-photo-preview');
@@ -403,7 +448,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveProfile });
+Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveProfile, saveStaffBio });
 </script>
 </body>
 </html>
