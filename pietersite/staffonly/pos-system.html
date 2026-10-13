@@ -1082,7 +1082,7 @@
         type: 'walkin',
         apostleType: 'specified',
         apostleName: v.apostleName,
-        apostleTag:  v.apostleTag || '',
+        staffTag:  v.staffTag || '',
         services: ['nomen30'],
         orders: [],
         servicesTotal: nomenSvc.price,
@@ -1392,7 +1392,7 @@
                   <td>${isNomenVisit ? `<span class="tag ${v.apostleType==='specified'?'tag-spec':'tag-unspec'}">${v.apostleType==='specified'?'指定':'不指定'}</span>` : '—'}</td>
                   <td>
                     ${esc(v.apostleName||'—')}
-                    ${v.apostleTag?`<div style="font-size:13px;color:${tagColor(v.apostleTag)};margin-top:2px">${esc(v.apostleTag)}</div>`:''}
+                    ${v.staffTag?`<div style="font-size:13px;color:${tagColor(v.staffTag)};margin-top:2px">${esc(v.staffTag)}</div>`:''}
                   </td>
                   <td><div style="font-size:12px;color:var(--dim);max-width:140px;white-space:normal;word-break:break-word">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</div></td>
                   <td><div style="font-size:12px;color:var(--dim);max-width:120px;white-space:normal;word-break:break-word">${(v.orders||[]).map(o=>`${o.name}×${o.qty}`).join('、')||'—'}</div></td>
@@ -1871,7 +1871,7 @@
         type: vs.type,
         apostleType: vs.apostleType,
         apostleName: document.getElementById('v-apostle')?.value.trim()||'',
-        apostleTag:  APOSTLES.find(a=>a.name===document.getElementById('v-apostle')?.value.trim())?.tag||'',
+        staffTag:  APOSTLES.find(a=>a.name===document.getElementById('v-apostle')?.value.trim())?.tag||'',
         services: [...vs.services],
         orders: [
           ...vs.orders.filter(o=>o.qty>0).map(o=>({name:o.name, price:o.price, qty:o.qty})),
@@ -2818,7 +2818,7 @@
                 <td style="white-space:nowrap">${v.time||'—'}</td>
                 <td><span class="tag ${v.type==='walkin'?'tag-walkin':'tag-booked'}">${v.type==='walkin'?'現場':'預約'}</span></td>
                 <td><span class="tag ${v.apostleType==='specified'?'tag-spec':'tag-unspec'}">${v.apostleType==='specified'?'指定':'不指定'}</span></td>
-                <td>${esc(v.apostleName||'—')}${v.apostleTag?`<div style="font-size:13px;color:${tagColor(v.apostleTag)};margin-top:2px">${esc(v.apostleTag)}</div>`:''}</td>
+                <td>${esc(v.apostleName||'—')}${v.staffTag?`<div style="font-size:13px;color:${tagColor(v.staffTag)};margin-top:2px">${esc(v.staffTag)}</div>`:''}</td>
                 <td style="font-size:13px;color:var(--dim)">${(v.services||[]).map(sid=>SERVICES.find(s=>s.id===sid)?.name||sid).join('、')||'—'}</td>
                 <td style="font-size:13px;color:var(--dim)">${(v.orders||[]).map(o=>`${o.name}×${o.qty}`).join('、')||'—'}</td>
                 <td style="white-space:nowrap">${(v.total||0).toLocaleString()} Gil</td>
@@ -2853,9 +2853,9 @@
       // 館藏接待排行
       const apostleTally = {};
       visits.filter(v => v.apostleName).forEach(v => {
-        if (!apostleTally[v.apostleName]) apostleTally[v.apostleName] = { count:0, tag: v.apostleTag||'' };
+        if (!apostleTally[v.apostleName]) apostleTally[v.apostleName] = { count:0, tag: v.staffTag||'' };
         apostleTally[v.apostleName].count++;
-        if (!apostleTally[v.apostleName].tag && v.apostleTag) apostleTally[v.apostleName].tag = v.apostleTag;
+        if (!apostleTally[v.apostleName].tag && v.staffTag) apostleTally[v.apostleName].tag = v.staffTag;
       });
       const apostleRank = Object.entries(apostleTally)
         .map(([name, d]) => ({ name, count: d.count, tag: d.tag || (APOSTLES.find(a=>a.name===name)?.tag||'') }))
@@ -3362,7 +3362,7 @@
         time: timeStr,
         type: 'walkin',
         apostleType: 'unspecified',
-        apostleName: '', apostleTag: '',
+        apostleName: '', staffTag: '',
         services: ['wreath_walkin'],
         orders: [],
         servicesTotal: wp,
@@ -3477,14 +3477,14 @@
         { id:'c_demo3', name:'霧白·淵聲', discord:'mistwhisper99', server:'泰坦', contact:'', notes:'已使用高級服務一次', pointsTotal:2, hasRedeemedUltimate:true, createdAt:now },
       ];
       visits = [
-        { id:'v_d1', customerId:'c_demo1', date:'2026-06-01', time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', apostleTag:'', services:['appreciation'], orders:[{name:'血腥艾妲',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-01T13:00:00.000Z' },
-        { id:'v_d2', customerId:'c_demo1', date:'2026-06-08', time:'22:00', type:'walkin', apostleType:'unspecified', apostleName:'示例館藏二', apostleTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'臨時到訪', createdAt:'2026-06-08T14:00:00.000Z' },
-        { id:'v_d3', customerId:'c_demo1', date:'2026-06-14', time:'22:30', type:'booked', apostleType:'specified', apostleName:'示例館藏一', apostleTag:'', services:['exchange'], orders:[{name:'私藏特調',price:20000,qty:1,special:true,forName:'示例館藏一',forTag:''},{name:'遠東拖鞋',price:20000,qty:2}], servicesTotal:300000, ordersTotal:60000, total:360000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-14T13:00:00.000Z' },
-        { id:'v_d4', customerId:'c_demo2', date:'2026-05-10', time:'23:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', apostleTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:2, pointMultiplier:2, notes:'活動加倍', createdAt:'2026-05-10T13:00:00.000Z' },
-        { id:'v_d5', customerId:'c_demo3', date:'2026-04-20', time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', apostleTag:'', services:['appreciation'], orders:[{name:'蘋果熱托迪',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-04-20T14:00:00.000Z' },
-        { id:'v_d6', customerId:'c_demo1', date:today, time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', apostleTag:'', services:['appreciation'], orders:[{name:'荊棘',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
-        { id:'v_d7', customerId:'c_demo2', date:today, time:'22:30', type:'booked', apostleType:'specified', apostleName:'示例館藏一', apostleTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
-        { id:'v_d8', customerId:'c_demo3', date:today, time:'22:00', type:'walkin', apostleType:'specified', apostleName:'示例館藏二', apostleTag:'', services:['appreciation'], orders:[{name:'珍珠奶茶',price:10000,qty:1}], servicesTotal:100000, ordersTotal:10000, total:110000, pointsEarned:1, pointMultiplier:1, notes:'現場到訪', createdAt:now },
+        { id:'v_d1', customerId:'c_demo1', date:'2026-06-01', time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'血腥艾妲',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-01T13:00:00.000Z' },
+        { id:'v_d2', customerId:'c_demo1', date:'2026-06-08', time:'22:00', type:'walkin', apostleType:'unspecified', apostleName:'示例館藏二', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'臨時到訪', createdAt:'2026-06-08T14:00:00.000Z' },
+        { id:'v_d3', customerId:'c_demo1', date:'2026-06-14', time:'22:30', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['exchange'], orders:[{name:'私藏特調',price:20000,qty:1,special:true,forName:'示例館藏一',forTag:''},{name:'遠東拖鞋',price:20000,qty:2}], servicesTotal:300000, ordersTotal:60000, total:360000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-06-14T13:00:00.000Z' },
+        { id:'v_d4', customerId:'c_demo2', date:'2026-05-10', time:'23:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:2, pointMultiplier:2, notes:'活動加倍', createdAt:'2026-05-10T13:00:00.000Z' },
+        { id:'v_d5', customerId:'c_demo3', date:'2026-04-20', time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'蘋果熱托迪',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:'2026-04-20T14:00:00.000Z' },
+        { id:'v_d6', customerId:'c_demo1', date:today, time:'22:00', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[{name:'荊棘',price:20000,qty:1}], servicesTotal:100000, ordersTotal:20000, total:120000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
+        { id:'v_d7', customerId:'c_demo2', date:today, time:'22:30', type:'booked', apostleType:'specified', apostleName:'示例館藏一', staffTag:'', services:['appreciation'], orders:[], servicesTotal:100000, ordersTotal:0, total:100000, pointsEarned:1, pointMultiplier:1, notes:'', createdAt:now },
+        { id:'v_d8', customerId:'c_demo3', date:today, time:'22:00', type:'walkin', apostleType:'specified', apostleName:'示例館藏二', staffTag:'', services:['appreciation'], orders:[{name:'珍珠奶茶',price:10000,qty:1}], servicesTotal:100000, ordersTotal:10000, total:110000, pointsEarned:1, pointMultiplier:1, notes:'現場到訪', createdAt:now },
       ];
       save('pos_customers', customers);
       save('pos_visits', visits);

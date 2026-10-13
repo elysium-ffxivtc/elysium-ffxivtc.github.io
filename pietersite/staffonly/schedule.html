@@ -947,7 +947,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
 
     return `<div class="panel-card">
       <div class="panel-name">${esc(currentUser.displayName)}</div>
-      <div class="panel-role">${ROLE_LABEL[currentUser.role]||''}${currentUser.apostleTag ? ' · '+esc(currentUser.apostleTag) : ''}</div>
+      <div class="panel-role">${ROLE_LABEL[currentUser.role]||''}${currentUser.staffTag ? ' · '+esc(currentUser.staffTag) : ''}</div>
       <div class="panel-section-title">本月統計</div>
       <div class="panel-stats">
         <div class="panel-stat">
@@ -986,7 +986,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       ? people.map(p => `
           <div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px;${p.isLeave?'opacity:.55':''}">
             <span style="font-weight:500;${p.isLeave?'text-decoration:line-through;color:var(--red)':''}">${esc(p.displayName)}</span>
-            <span style="font-size:11px;color:var(--dim)">${ROLE_LABEL[p.role]||''}${p.apostleTag?' · '+esc(p.apostleTag):''}</span>
+            <span style="font-size:11px;color:var(--dim)">${ROLE_LABEL[p.role]||''}${p.staffTag?' · '+esc(p.staffTag):''}</span>
             ${p.isLeave ? '<span style="font-size:11px;color:var(--red);margin-left:auto">請假</span>' : ''}
           </div>`).join('')
       : `<div style="font-size:13px;color:var(--dim);padding:.3rem 0">尚無排班</div>`;
@@ -1115,7 +1115,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         }
         writes.push(set(dbRef(db, `schedules/${date}_${sKey(t)}/${currentUser.uid}`), {
           uid: currentUser.uid, displayName: currentUser.displayName,
-          role: currentUser.role, apostleTag: currentUser.apostleTag || '',
+          role: currentUser.role, staffTag: currentUser.staffTag || '',
           signedAt: new Date().toISOString()
         }));
         writes.push(mirrorAdd(date, t, currentUser.uid));
@@ -1199,7 +1199,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     } else {
       await set(r, {
         uid: currentUser.uid, displayName: currentUser.displayName,
-        role: currentUser.role, apostleTag: currentUser.apostleTag || '',
+        role: currentUser.role, staffTag: currentUser.staffTag || '',
         signedAt: new Date().toISOString()
       });
       await mirrorAdd(date, time, currentUser.uid);
@@ -1246,7 +1246,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         ? people.map(p => `
             <div class="person-row"${p.isLeave?' style="opacity:.65"':''}>
               <span style="${p.isLeave?'text-decoration:line-through;color:var(--red)':''}">
-                ${esc(p.displayName)}<span style="font-size:11px;color:var(--dim);margin-left:.4rem">${ROLE_LABEL[p.role]||''}${p.apostleTag?' · '+esc(p.apostleTag):''}</span>
+                ${esc(p.displayName)}<span style="font-size:11px;color:var(--dim);margin-left:.4rem">${ROLE_LABEL[p.role]||''}${p.staffTag?' · '+esc(p.staffTag):''}</span>
                 ${p.isLeave?'<span style="font-size:11px;color:var(--red);margin-left:.35rem">請假</span>':''}
               </span>
               <button class="btn btn-danger btn-sm" style="font-size:11px" onclick="removePerson('${date}','${t}','${p.uid}')">移除</button>
@@ -1350,7 +1350,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     if (!member) return;
     await set(dbRef(db, `schedules/${_addDate}_${sKey(_addTime)}/${uid}`), {
       uid: member.uid, displayName: member.displayName,
-      role: member.role, apostleTag: member.apostleTag || '',
+      role: member.role, staffTag: member.staffTag || '',
       signedAt: new Date().toISOString()
     });
     await mirrorAdd(_addDate, _addTime, uid);
@@ -1447,7 +1447,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
           <span style="min-width:85px;font-weight:500">${esc(s.displayName)}</span>
           <span style="flex:1;font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.email)}</span>
           <span style="font-size:11px;padding:.12rem .42rem;border:1px solid var(--border);color:var(--dim);white-space:nowrap">
-            ${ROLE_LABEL[s.role]||''}${s.apostleTag?' · '+esc(s.apostleTag):''}
+            ${ROLE_LABEL[s.role]||''}${s.staffTag?' · '+esc(s.staffTag):''}
           </span>
           ${s.uid !== currentUser.uid
             ? `<button class="btn btn-danger btn-sm" style="font-size:11px" onclick="removeStaff('${s.uid}')">移除</button>`
@@ -1479,7 +1479,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     const role = document.getElementById('pr-' + uid)?.value || 'staff';
     const tag  = document.getElementById('pt-' + uid)?.value.trim() || '';
     await set(dbRef(db, 'staff/' + uid), {
-      uid, email: p.email, displayName: name, role, apostleTag: tag,
+      uid, email: p.email, displayName: name, role, staffTag: tag,
       createdAt: new Date().toISOString()
     });
     await remove(dbRef(db, 'pendingStaff/' + uid));
