@@ -225,7 +225,7 @@ function renderList() {
     const canBook = !isUnbookable(s);
     const sel = editingUid === s.uid ? ' on' : '';
     return `<div class="acct-row${sel}" data-uid="${s.uid}" data-group="${groupName}">
-      <span class="acct-dot ${canBook?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}${showRole ? `<span style="margin-left:auto;font-size:11px;color:var(--dim)">${s.title?esc(s.title)+' · ':''}${ROLE_LABEL[s.role]||''}</span>` : ''}
+      <span class="acct-dot ${canBook?'has':'no'}" style="display:inline-block;margin-right:.4rem"></span>${esc(s.displayName)}${showRole ? `<span style="margin-left:auto;font-size:11px;color:var(--dim)">${apostles[s.uid]?.tag?esc(apostles[s.uid].tag)+' · ':''}${ROLE_LABEL[s.role]||''}</span>` : ''}
     </div>`;
   };
   _bookableList   = apostleMembers.filter(s => !isUnbookable(s));
@@ -313,21 +313,11 @@ function renderEdit(uid) {
   const member = staffList.find(s => s.uid === uid) || (uid === currentUser.uid ? currentUser : null);
   const name = member ? esc(member.displayName) : uid;
 
-  if (!member || member.role !== 'staff') {
-    document.getElementById('edit-col').innerHTML = `
-      <div class="card">
-        <div class="card-title">編輯職位 · ${name}</div>
-        <div class="form-label">職位</div>
-        <input class="form-input" id="f-stafftitle" value="${esc(member?.title||'')}" placeholder="例如：策展人">
-        <div class="save-bar">
-          <button class="btn btn-gold btn-sm" onclick="saveStaffTitle('${uid}')">儲存</button>
-        </div>
-      </div>`;
-    return;
-  }
-
   const a = apostles[uid] || {};
   const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern'); // 新帳號預設實習，舊資料預設正式
+  /* ponytail: 新資料時，非館藏角色預設不啟用/不開放預約，避免工作人員誤入公開預約清單 */
+  const activeDefault   = a.active   !== undefined ? a.active   : (member?.role === 'staff');
+  const bookableDefault = a.bookable !== undefined ? a.bookable : (member?.role === 'staff');
   document.getElementById('edit-col').innerHTML = `
     <div class="card">
       <div class="card-title">編輯資料 · ${name}</div>
@@ -367,10 +357,10 @@ function renderEdit(uid) {
       <div class="form-row2">
         <div><div class="form-label">顯示排序 order</div><input class="form-input" type="number" id="f-order" value="${a.order??0}"></div>
         <div><div class="form-label">&nbsp;</div>
-          <label class="form-check"><input type="checkbox" id="f-active" ${a.active!==false?'checked':''}> 啟用（顯示在預約頁）</label>
+          <label class="form-check"><input type="checkbox" id="f-active" ${activeDefault?'checked':''}> 啟用（顯示在預約頁）</label>
         </div>
       </div>
-      <label class="form-check"><input type="checkbox" id="f-bookable" ${a.bookable!==false?'checked':''}> 接受預約（關閉後，即使有排班也不開放召引）</label>
+      <label class="form-check"><input type="checkbox" id="f-bookable" ${bookableDefault?'checked':''}> 接受預約（關閉後，即使有排班也不開放召引）</label>
       <div class="save-bar">
         <button class="btn btn-gold btn-sm" onclick="saveApostle('${uid}')">儲存</button>
       </div>
@@ -382,12 +372,6 @@ function updatePhotoPreview() {
   const img = document.getElementById('f-photo-preview');
   img.src = path ? '../' + path : '';
   img.style.display = path ? 'block' : 'none';
-}
-
-async function saveStaffTitle(uid) {
-  const title = document.getElementById('f-stafftitle').value.trim();
-  await update(dbRef(db, 'staff/' + uid), { title });
-  showToast('已儲存');
 }
 
 async function saveApostle(uid) {
@@ -424,7 +408,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveApostle, saveStaffTitle });
+Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveApostle });
 </script>
 </body>
 </html>
