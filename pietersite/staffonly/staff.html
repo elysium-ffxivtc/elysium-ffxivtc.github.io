@@ -394,6 +394,12 @@ async function saveStaffBio(uid) {
     updatedAt: new Date().toISOString(),
   };
   await set(dbRef(db, 'profiles/' + uid), val);
+  /* ponytail: staff 本體需要登入才能讀，about.html 讀這份不含 updatedBy 等內部欄位的公開鏡射版本 */
+  const member = staffList.find(s => s.uid === uid);
+  await set(dbRef(db, 'publicTeam/' + uid), {
+    name: val.name, tag: val.tag, photo: val.photo, bio: val.bio,
+    role: member?.role || '', order: val.order, createdAt: member?.createdAt || '',
+  });
   showToast('已儲存');
 }
 
