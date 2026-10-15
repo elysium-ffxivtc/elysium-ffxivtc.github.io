@@ -20,8 +20,8 @@
     *::-webkit-scrollbar-track { background: transparent; }
     *::-webkit-scrollbar-thumb { background: rgba(58,95,138,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
     *::-webkit-scrollbar-thumb:hover { background: rgba(58,95,138,.55); background-clip: padding-box; }
-    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: default; }
-    a, button, [role="button"], select, [onclick] { cursor: pointer; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
+    a, button, [role="button"], select, [onclick] { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
 
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
     .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }

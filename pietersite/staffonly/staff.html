@@ -19,9 +19,9 @@
     *::-webkit-scrollbar-track { background: transparent; }
     *::-webkit-scrollbar-thumb { background: rgba(58,95,138,.3); border-radius: 5px; border: 2px solid var(--bg); background-clip: padding-box; }
     *::-webkit-scrollbar-thumb:hover { background: rgba(58,95,138,.55); background-clip: padding-box; }
-    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: default; }
-    a, button, [role="button"], select, [onclick] { cursor: pointer; }
-    input, textarea { cursor: text; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default; }
+    a, button, [role="button"], select, [onclick] { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    input, textarea { cursor: url('../image/arr-cursors/arr-small-text.cur'), text; }
 
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: .72rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
     .hdr-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); letter-spacing: .2em; }
@@ -39,7 +39,7 @@
 
     .card { background: var(--card); border: 1px solid var(--border); padding: .9rem 1rem; margin-bottom: .75rem; }
     .card-title { font-size: 11px; color: var(--dim); letter-spacing: .08em; margin-bottom: .65rem; }
-    .acct-row { display: flex; align-items: center; gap: .5rem; padding: .5rem .3rem; border-bottom: 1px solid rgba(0,0,0,.05); font-size: 13px; cursor: grab; user-select: none; }
+    .acct-row { display: flex; align-items: center; gap: .5rem; padding: .5rem .3rem; border-bottom: 1px solid rgba(0,0,0,.05); font-size: 13px; cursor: url('../image/arr-cursors/arr-small-hand-open.cur'), grab; user-select: none; }
     .acct-row:active { cursor: grabbing; }
     .acct-row:last-child { border-bottom: none; }
     .acct-row.on { background: var(--gold-dim); }

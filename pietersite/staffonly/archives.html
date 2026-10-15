@@ -39,18 +39,18 @@
       font-family: 'Noto Sans TC', sans-serif;
       background: var(--bg); color: var(--text);
       min-height: 100vh; font-size: 15px;
-      cursor: default;
+      cursor: url('../image/arr-cursors/arr-small-pointer.cur'), default;
     }
-    a, button, [onclick], select { cursor: pointer; }
-    input, textarea { cursor: text; }
-    select { cursor: pointer; }
+    a, button, [onclick], select { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    input, textarea { cursor: url('../image/arr-cursors/arr-small-text.cur'), text; }
+    select { cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
     input.flatpickr-input, input[type="date"], input[type="time"] {
-      cursor: pointer;
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
     }
     input[type="date"]::-webkit-calendar-picker-indicator,
     input[type="time"]::-webkit-calendar-picker-indicator {
       opacity: .5; filter: sepia(.8) saturate(1.2);
-      cursor: pointer;
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
     }
 
     /* ── Header ── */
@@ -138,7 +138,7 @@
     .polaroid-item {
       position: relative; aspect-ratio: 1 / 1; overflow: hidden;
       background: var(--panel2);
-      cursor: pointer;
+      cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer;
     }
     .polaroid-item img { width:100%; height:100%; object-fit:cover; display:block; transition: transform .3s; }
     .polaroid-item:hover img { transform: scale(1.04); }
@@ -390,15 +390,15 @@
       background:var(--panel); border:1px solid var(--border); border-radius:6px;
       padding:.4rem; box-shadow:0 4px 12px rgba(0,0,0,.15);
     }
-    .ql-cellfill-swatch { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); cursor:pointer; padding:0; }
+    .ql-cellfill-swatch { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; padding:0; }
     .ql-cellfill-swatch:hover { outline:2px solid var(--gold); }
-    .ql-cellfill-custom { width:24px; height:24px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none; }
-    .ql-cellfill-clear { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); background:var(--bg); cursor:pointer; font-size:.7rem; color:var(--dim); }
+    .ql-cellfill-custom { width:24px; height:24px; padding:0; border:1px solid var(--border); border-radius:4px; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; background:none; }
+    .ql-cellfill-clear { width:20px; height:20px; border-radius:4px; border:1px solid var(--border); background:var(--bg); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; font-size:.7rem; color:var(--dim); }
     .ql-custom-color-row {
       clear:both; display:flex; align-items:center; gap:.4rem; margin-top:.4rem; padding-top:.4rem;
       border-top:1px solid var(--border); font-size:.72rem; color:var(--dim); width:100%; box-sizing:border-box;
     }
-    .ql-custom-color-input { width:22px; height:22px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none; }
+    .ql-custom-color-input { width:22px; height:22px; padding:0; border:1px solid var(--border); border-radius:4px; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; background:none; }
     .ql-snow .ql-stroke { stroke:var(--dim); }
     .ql-snow .ql-fill { fill:var(--dim); }
     .ql-snow .ql-picker { color:var(--dim); }
@@ -472,7 +472,7 @@
     /* ── FAQ ── */
     .faq-card { background: var(--panel); border: 1px solid var(--border); margin-bottom: .5rem; }
     .faq-card.unanswered { border-left: 3px solid var(--red); }
-    .faq-q-row { display: flex; align-items: center; gap: .85rem; padding: .9rem 1.1rem; cursor: pointer; transition: background .12s; user-select: none; }
+    .faq-q-row { display: flex; align-items: center; gap: .85rem; padding: .9rem 1.1rem; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; transition: background .12s; user-select: none; }
     .faq-q-row:hover { background: var(--gold-bg); }
     .faq-q-icon { font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 700; color: var(--gold); flex-shrink: 0; width: 1.4rem; text-align: center; }
     .faq-q-text { flex: 1; font-size: .93rem; color: var(--text); line-height: 1.4; min-width: 0; }
