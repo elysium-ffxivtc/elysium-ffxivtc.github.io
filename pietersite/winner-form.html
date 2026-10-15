@@ -8,7 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+  body { cursor: url('image/arr-cursors/arr-small-pointer.cur'), default; }
+  a, button, [role="button"], select, [onclick] { cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; }
+  input, textarea { cursor: url('image/arr-cursors/arr-small-text.cur'), text; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; }
+  [disabled] { cursor: url('image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
   :root {
     --bg-0: #06090f; --bg-card: #111827;
     --gold: #b8913a; --gold-bright: #d4aa52; --gold-dim: rgba(184,145,58,0.25); --gold-border: rgba(184,145,58,0.4);
@@ -37,10 +42,10 @@
   }
   .f-input:focus, .f-select:focus, .f-textarea:focus { border-color: var(--gold); }
   .f-textarea { resize: vertical; min-height: 64px; line-height: 1.6; }
-  .f-select { cursor: pointer; }
+  .f-select { cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; }
   .f-hint { font-family: 'Noto Sans TC', sans-serif; font-size: .74rem; color: var(--ivory-dim); margin-top: .4rem; line-height: 1.6; }
 
-  .f-submit { width: 100%; margin-top: 2rem; padding: .85rem; background: var(--gold); color: #06090f; border: none; font-family: 'Noto Sans TC', sans-serif; font-size: .9rem; letter-spacing: .1em; cursor: pointer; transition: background .15s; }
+  .f-submit { width: 100%; margin-top: 2rem; padding: .85rem; background: var(--gold); color: #06090f; border: none; font-family: 'Noto Sans TC', sans-serif; font-size: .9rem; letter-spacing: .1em; cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; transition: background .15s; }
   .f-submit:hover { background: var(--gold-bright); }
   .f-err { font-family: 'Noto Sans TC', sans-serif; font-size: .8rem; color: var(--red); margin-top: .8rem; min-height: 1.2em; text-align: center; }
 
