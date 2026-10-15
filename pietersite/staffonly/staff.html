@@ -128,7 +128,8 @@ getRedirectResult(auth).catch(() => {});
 
 const ROLE_LABEL = { admin: '管理員', docent: '館員', collection: '館藏' };
 /* ponytail: image/ 資料夾內現有的館藏照片檔名，等 Pietersite 有照片檔案再把檔名加進這份清單 */
-const KNOWN_PROFILE_IMAGES = [];
+const KNOWN_PROFILE_IMAGES = ['image/頭像/靜火.png'];
+const IMG_CDN = 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/pietersite/';
 
 let currentUser = null;
 let staffList   = [];
@@ -305,7 +306,7 @@ function renderEdit(uid) {
         <div class="form-label">照片</div>
         <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
         <datalist id="photo-list">${KNOWN_PROFILE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
-        <img class="photo-preview" id="f-photo-preview" src="${a.photo?'../'+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
+        <img class="photo-preview" id="f-photo-preview" src="${a.photo?IMG_CDN+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
 
         <div class="form-row2">
           <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
@@ -333,7 +334,7 @@ function renderEdit(uid) {
       <div class="form-label">照片</div>
       <input class="form-input" id="f-photo" list="photo-list" value="${esc(a.photo||'')}" placeholder="image/檔名.png" oninput="updatePhotoPreview()">
       <datalist id="photo-list">${KNOWN_PROFILE_IMAGES.map(p=>`<option value="${p}">`).join('')}</datalist>
-      <img class="photo-preview" id="f-photo-preview" src="${a.photo?'../'+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
+      <img class="photo-preview" id="f-photo-preview" src="${a.photo?IMG_CDN+esc(a.photo):''}" style="display:${a.photo?'block':'none'}" onerror="this.style.display='none'" onload="this.style.display='block'">
 
       <div class="form-row2">
         <div><div class="form-label">名稱</div><input class="form-input" id="f-name" value="${esc(a.name||name)}"></div>
@@ -406,7 +407,7 @@ async function saveStaffBio(uid) {
 function updatePhotoPreview() {
   const path = document.getElementById('f-photo').value.trim();
   const img = document.getElementById('f-photo-preview');
-  img.src = path ? '../' + path : '';
+  img.src = path ? IMG_CDN + path : '';
   img.style.display = path ? 'block' : 'none';
 }
 

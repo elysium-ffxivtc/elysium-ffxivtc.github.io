@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PIETERSITE · Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -89,7 +92,7 @@
       padding-bottom: 14vh;
     }
     .portal.show { display: flex; }
-    .logo { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; letter-spacing: .3em; color: #b8913a; opacity: .85; margin-bottom: 1.6rem; }
+    .logo { font-family: 'Cormorant Garamond', 'Noto Serif TC', serif; font-size: 1.1rem; letter-spacing: .3em; color: #b8913a; opacity: .85; margin-bottom: 1.6rem; }
     .title { font-size: .75rem; letter-spacing: .28em; color: #9a8a74; text-transform: uppercase; margin-bottom: 2.4rem; }
 
     .grid {
@@ -135,7 +138,7 @@
   <div class="auth-overlay" id="auth-overlay">
 
     <div class="auth-box" id="auth-login">
-      <div class="auth-logo">PIETERSITE</div>
+      <div class="auth-logo" style="font-family:'Cormorant Garamond','Noto Serif TC',serif">PIETERSITE</div>
       <div class="auth-sub">Staff Portal · 僅限授權人員</div>
       <button class="auth-btn" onclick="signIn()">Google 登入</button>
       <div class="auth-err" id="auth-err"></div>
