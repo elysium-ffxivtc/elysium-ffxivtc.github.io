@@ -777,7 +777,7 @@ onValue(dbRef(profileDb, 'publicProfiles'), snap => {
     if (!a) return;
 
     if (a.photo) {
-        document.getElementById('profile-photo-img').src = a.photo;
+        document.getElementById('profile-photo-img').src = 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/pietersite/' + a.photo;
         document.getElementById('profile-photo-img').style.display = 'block';
         document.getElementById('profile-photo-placeholder').style.display = 'none';
     }
