@@ -421,6 +421,26 @@
         .suit-club, .suit-spade { color: var(--ivory); }
         .suit-diamond, .suit-heart { color: #a85a5a; }
 
+        .suit-symbol {
+            display: inline-block;
+            margin-right: .6em;
+            cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
+            position: relative;
+            transition: opacity .15s;
+        }
+        .suit-symbol:hover { opacity: .7; }
+        .suit-symbol.copied::after {
+            content: '已複製';
+            position: absolute;
+            left: 50%;
+            top: -1.5em;
+            transform: translateX(-50%);
+            font-size: .6rem;
+            letter-spacing: .15em;
+            color: var(--gold);
+            white-space: nowrap;
+        }
+
         @media (max-width: 768px) {
             .rule-section { grid-template-columns: 1fr; gap: .8rem 0; }
         }
@@ -773,10 +793,10 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                         <tr><th>花色</th><th>代號</th><th>加碼</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td class="suit-club">♣ 梅花</td><td>C</td><td>+ 50,000 Gil</td></tr>
-                        <tr><td class="suit-diamond">♦ 方塊</td><td>D</td><td>+ 100,000 Gil</td></tr>
-                        <tr><td class="suit-heart">♥ 紅心</td><td>H</td><td>+ 200,000 Gil</td></tr>
-                        <tr><td class="suit-spade">♠ 黑桃</td><td>S</td><td>+ 500,000 Gil</td></tr>
+                        <tr><td class="suit-club"><span class="suit-symbol" onclick="copySuit(this,'♣')" title="點擊複製">♣</span>梅花</td><td>C</td><td>+ 50,000 Gil</td></tr>
+                        <tr><td class="suit-diamond"><span class="suit-symbol" onclick="copySuit(this,'♦')" title="點擊複製">♦</span>方塊</td><td>D</td><td>+ 100,000 Gil</td></tr>
+                        <tr><td class="suit-heart"><span class="suit-symbol" onclick="copySuit(this,'♥')" title="點擊複製">♥</span>紅心</td><td>H</td><td>+ 200,000 Gil</td></tr>
+                        <tr><td class="suit-spade"><span class="suit-symbol" onclick="copySuit(this,'♠')" title="點擊複製">♠</span>黑桃</td><td>S</td><td>+ 500,000 Gil</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -893,6 +913,13 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
     }, { passive: true });
 
 })();
+
+function copySuit(el, symbol) {
+    navigator.clipboard?.writeText(symbol).catch(() => {});
+    el.classList.add('copied');
+    clearTimeout(el._copyTimer);
+    el._copyTimer = setTimeout(() => el.classList.remove('copied'), 1200);
+}
 </script>
 
 <!-- ── 下次競藏日（左下）+ 回到頂部（右下，小圖示）── -->
