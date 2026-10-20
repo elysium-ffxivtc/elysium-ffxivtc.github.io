@@ -493,8 +493,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let publicNotice = null; // { text, updatedBy, updatedAt } — 公開顯示於官網 acquisition.html 的競藏日公告
   let myMemo       = '';
   // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡。
-  /* ponytail: Pietersite 尚未部署自己的 Discord relay worker，先留空，通知會靜默失敗；之後有 worker 網址再填進來 */
-  const DISCORD_RELAY = '';
+  const DISCORD_RELAY = 'https://pietersite-discord-relay.hanai420.workers.dev';
   let adminTab       = 'schedule';
   let scheduleSubTab = 'personal'; // 'personal' | 'full'
 

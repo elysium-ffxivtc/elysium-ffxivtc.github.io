@@ -1332,8 +1332,7 @@
 
     // Discord 通知改走 Cloudflare Worker 代理，真正的 webhook token 只存在 Worker 的加密環境變數裡，
     // 不會出現在這裡的原始碼或 Firebase 中。
-    /* ponytail: Pietersite 尚未部署自己的 Discord relay worker，先留空，通知會靜默失敗；之後有 worker 網址再填進來 */
-    const DISCORD_RELAY = '';
+    const DISCORD_RELAY = 'https://pietersite-discord-relay.hanai420.workers.dev';
 
     let _user = null, _role = 'staff', _displayName = '', _entries = {}, _announcements = {}, _editingId = null, _quill = null, _fpDate = null;
     let _polaroids = [], _lbIdx = 0;
