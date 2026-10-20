@@ -458,6 +458,28 @@
             color: rgba(154,138,116,.35);
         }
 
+        .footer-social {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 1.2rem;
+        }
+
+        .footer-social-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            opacity: .55;
+            transition: opacity .25s;
+        }
+
+        .footer-social-link:hover { opacity: 1; }
+
+        .footer-icon {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 1100px) {
             .exhibit-grid { grid-template-columns: repeat(2, 1fr); }
@@ -592,6 +614,12 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
             <span class="footer-motto">展陳有盡，珍藏無期</span>
             <span class="footer-copyright">© 2026 PIETERSITE. All Rights Reserved</span>
         </p>
+        <div class="footer-social">
+            <span class="footer-social-link"><img src="image/icon/discord_.png" alt="Discord" class="footer-icon"></span>
+            <a href="https://www.threads.com/@pietersite.ffxivtc" target="_blank" rel="noopener" class="footer-social-link" aria-label="Threads">
+                <img src="image/icon/threads_.png" alt="Threads" class="footer-icon">
+            </a>
+        </div>
     </div>
     <nav class="footer-nav">
         <a href="collections.html">COLLECTIONS</a>
