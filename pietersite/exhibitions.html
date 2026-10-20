@@ -209,6 +209,8 @@
         .service-card:nth-child(2) { transition-delay: .12s; }
         .service-card:nth-child(3) { transition-delay: .24s; }
         .service-card:nth-child(4) { transition-delay: .08s; }
+        .service-card:nth-child(5) { transition-delay: .16s; }
+        .service-card:nth-child(6) { transition-delay: .2s; }
 
         .service-card::before {
             content: '';
@@ -227,8 +229,8 @@
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
             font-size: .72rem;
             letter-spacing: .35em;
-            color: var(--blue-bright);
-            border: 1px solid rgba(90,141,196,.3);
+            color: #A3B2C2;
+            border: 1px solid rgba(163,178,194,.45);
             display: inline-block;
             padding: .25rem .9rem;
             margin-bottom: 2rem;
@@ -237,6 +239,11 @@
         .service-tag.gold {
             color: var(--gold);
             border-color: var(--gold-dim);
+        }
+
+        .service-tag.souvenir {
+            color: #7FA9D6;
+            border-color: rgba(127,169,214,.45);
         }
 
         .service-name {
@@ -606,6 +613,47 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                     <div class="service-meta-row">
                         <span class="service-meta-lbl">費用</span>
                         <span class="service-meta-val">依規格調整</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag souvenir">SOUVENIR</span>
+                <div class="service-name">館內留影</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    為你與館藏留下一幀影像。
+                <br>館藏可應收藏家要求加上親筆簽名，作為這段相遇的紀念。
+                <br>最多與三位館藏合影。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">拍立得</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">100,000 Gil　／　加簽 ＋20,000 Gil　／　每多一位館藏 ＋20,000 Gil</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <span class="service-tag souvenir">SOUVENIR</span>
+                <div class="service-name">典藏紀念品</div>
+                <div class="service-rule"></div>
+                <p class="service-desc">
+                    由館方挑選、製作的限定紀念品，只在 Pietersite 販售。
+                <br>離館時向門口的僱員購買，讓今晚的記憶有個能放在手邊的樣子。
+                </p>
+                <div class="service-meta">
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">形式</span>
+                        <span class="service-meta-val">僱員販售</span>
+                    </div>
+                    <div class="service-meta-row">
+                        <span class="service-meta-lbl">費用</span>
+                        <span class="service-meta-val">50,000 Gil</span>
                     </div>
                 </div>
             </div>
