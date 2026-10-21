@@ -200,7 +200,7 @@ onAuthStateChanged(auth, async user => {
     const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
     if (staffSnap.exists()) {
       const data = staffSnap.val();
-      if (data.role !== 'admin' && data.role !== 'docent') { window.location.replace('index.html'); return; }
+      if (data.role !== 'admin' && data.role !== 'docent' && data.role !== 'manager') { window.location.replace('index.html'); return; }
       currentUser = { uid: user.uid, email: user.email, ...data };
     } else {
       const docentSnap = await get(dbRef(db, 'docents/' + user.uid));

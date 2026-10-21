@@ -126,7 +126,7 @@ const auth = initializeAuth(app, {
 });
 getRedirectResult(auth).catch(() => {});
 
-const ROLE_LABEL = { admin: '管理員', docent: '館員', collection: '館藏' };
+const ROLE_LABEL = { admin: '管理員', manager: '經理', docent: '館員', collection: '館藏' };
 /* ponytail: image/ 資料夾內現有的館藏照片檔名，等 Pietersite 有照片檔案再把檔名加進這份清單 */
 const KNOWN_PROFILE_IMAGES = ['image/頭像/靜火.png'];
 const IMG_CDN = 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/pietersite/';
@@ -204,7 +204,7 @@ function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const all = staffList
-    .filter(s => s.role === 'collection' || s.role === 'admin' || s.role === 'docent' || !!profiles[s.uid])
+    .filter(s => s.role === 'collection' || s.role === 'admin' || s.role === 'docent' || s.role === 'manager' || !!profiles[s.uid])
     .sort((a, b) => profileOrderVal(a) - profileOrderVal(b) || (a.createdAt||'').localeCompare(b.createdAt||''));
 
   const isProfile = s => s.role === 'collection';

@@ -294,7 +294,7 @@
           const role = staffSnap.val().role;
           if (role !== 'admin') {
             document.getElementById('card-profiles').style.display = 'none';
-            if (role !== 'docent') {
+            if (role !== 'docent' && role !== 'manager') {
               document.getElementById('card-winners').style.display = 'none';
             }
           }

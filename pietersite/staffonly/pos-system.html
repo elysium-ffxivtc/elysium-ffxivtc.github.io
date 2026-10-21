@@ -912,7 +912,7 @@
           const staffSnap = await db.ref('staff/' + user.uid).get();
           if (staffSnap.exists()) {
             const s = staffSnap.val();
-            if (s.role !== 'admin' && s.role !== 'docent') {
+            if (s.role !== 'admin' && s.role !== 'docent' && s.role !== 'manager') {
               window.location.replace('./');
               return;
             }
