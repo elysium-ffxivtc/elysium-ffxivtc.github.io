@@ -483,12 +483,13 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   let viewMonth = _now.getMonth();
 
   const TIME_SLOTS = ['22:00', '23:00', '00:00'];
-  const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
+  const ROLE_LABEL = { admin: '管理員', manager: '經理', pilgrim: '引路人', apostle: '使徒' };
   const WD_FULL    = ['日', '一', '二', '三', '四', '五', '六'];
 
   function sKey(t)   { return t.replace(':', ''); }
   function esc(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function isAdmin() { return currentUser && currentUser.role === 'admin'; }
+  function canManageSchedule() { return currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager'); }
   function todayStr(){ return new Date().toISOString().slice(0, 10); }
   function pad(n)    { return String(n).padStart(2, '0'); }
 
@@ -800,7 +801,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       if (!other && isBiz) cls += ' biz-day';
       if (isWeekend)  cls += ' weekend';
 
-      const numEl = (!other && isAdmin())
+      const numEl = (!other && canManageSchedule())
         ? `<div class="cal-day-num clickable" onclick="openDayModal('${date}')">${dayNum}</div>`
         : `<div class="cal-day-num">${dayNum}</div>`;
 
@@ -811,8 +812,8 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
         const myEntry = currentUser ? entry[currentUser.uid] : null;
         const mine    = !!myEntry;
         const onLeave = mine && !!myEntry?.isLeave;
-        const adminInSlot = Object.values(entry).some(p => p.role === 'admin' && !p.isLeave);
-        const locked  = !readOnly && !isAdmin() && t === '22:00' && !adminInSlot && !mine;
+        const adminInSlot = Object.values(entry).some(p => (p.role === 'admin' || p.role === 'manager') && !p.isLeave);
+        const locked  = !readOnly && !canManageSchedule() && t === '22:00' && !adminInSlot && !mine;
         let sc = 'slot-row';
         if (mine && !onLeave) sc += ' mine';
         else if (onLeave)     sc += ' mine on-leave';
@@ -1046,9 +1047,9 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     for (const date of dates) {
       if (date < today) continue;
       for (const t of selectedSlots) {
-        if (t === '22:00' && !isAdmin()) {
+        if (t === '22:00' && !canManageSchedule()) {
           const entry = schedData[`${date}_${sKey(t)}`] || {};
-          if (!Object.values(entry).some(p => p.role === 'admin')) continue;
+          if (!Object.values(entry).some(p => p.role === 'admin' || p.role === 'manager')) continue;
         }
         writes.push(set(dbRef(db, `schedules/${date}_${sKey(t)}/${currentUser.uid}`), {
           uid: currentUser.uid, displayName: currentUser.displayName,
@@ -1117,11 +1118,11 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
   async function tapSlot(date, time) {
     if (!currentUser) return;
     if (date < todayStr()) return;
-    if (time === '22:00' && !isAdmin()) {
+    if (time === '22:00' && !canManageSchedule()) {
       const entry = schedData[`${date}_${sKey(time)}`] || {};
       const alreadyIn = !!entry[currentUser.uid];
       if (!alreadyIn) {
-        const adminInSlot = Object.values(entry).some(p => p.role === 'admin' && !p.isLeave);
+        const adminInSlot = Object.values(entry).some(p => (p.role === 'admin' || p.role === 'manager') && !p.isLeave);
         if (!adminInSlot) { showToast('22:00 時段需要店長先排班才可加入'); return; }
       }
     }
@@ -1313,6 +1314,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
               <select id="pr-${p.uid}" class="form-input" style="width:82px">
                 <option value="apostle">使徒</option>
                 <option value="pilgrim">引路人</option>
+                <option value="manager">經理</option>
                 <option value="admin">管理員</option>
               </select>
               <input id="pt-${p.uid}" class="form-input" style="width:95px" placeholder="標記（食罪…）">
@@ -1325,10 +1327,15 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
       const staffHtml = staff.map(s => `
         <div class="acct-row">
           <span style="min-width:85px;font-weight:500">${esc(s.displayName)}</span>
-          <span style="flex:1;font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.email)}</span>
-          <span style="font-size:11px;padding:.12rem .42rem;border:1px solid var(--border);color:var(--dim);white-space:nowrap">
-            ${ROLE_LABEL[s.role]||''}${s.apostleTag?' · '+esc(s.apostleTag):''}
-          </span>
+          <span style="flex:1;font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.email)}${s.apostleTag?' · '+esc(s.apostleTag):''}</span>
+          ${s.uid !== currentUser.uid
+            ? `<select class="form-input" style="width:82px;font-size:11px" onchange="changeStaffRole('${s.uid}', this.value)">
+                <option value="apostle" ${s.role==='apostle'?'selected':''}>使徒</option>
+                <option value="pilgrim" ${s.role==='pilgrim'?'selected':''}>引路人</option>
+                <option value="manager" ${s.role==='manager'?'selected':''}>經理</option>
+                <option value="admin" ${s.role==='admin'?'selected':''}>管理員</option>
+              </select>`
+            : `<span style="font-size:11px;padding:.12rem .42rem;border:1px solid var(--border);color:var(--dim);white-space:nowrap">${ROLE_LABEL[s.role]||''}</span>`}
           ${s.uid !== currentUser.uid
             ? `<button class="btn btn-danger btn-sm" style="font-size:11px" onclick="removeStaff('${s.uid}')">移除</button>`
             : '<span style="font-size:11px;color:var(--dim)">(你)</span>'}
@@ -1364,6 +1371,11 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     });
     await remove(dbRef(db, 'pendingStaff/' + uid));
     renderAccounts();
+  }
+
+  async function changeStaffRole(uid, role) {
+    await update(dbRef(db, 'staff/' + uid), { role });
+    showToast('已更新身分組');
   }
 
   async function rejectStaff(uid) {
@@ -1504,7 +1516,7 @@ import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, bro
     clearMonthSchedule, clearAllMonthSchedules, saveMemo,
     openExportModal, closeExportModal, downloadScheduleImg,
     requestLeave, cancelLeave,
-    approveStaff, rejectStaff, removeStaff,
+    approveStaff, rejectStaff, removeStaff, changeStaffRole,
     testWebhook,
   });
   document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });

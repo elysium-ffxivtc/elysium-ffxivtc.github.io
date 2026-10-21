@@ -130,7 +130,7 @@ const auth = initializeAuth(app, {
 });
 getRedirectResult(auth).catch(() => {});
 
-const ROLE_LABEL = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
+const ROLE_LABEL = { admin: '管理員', manager: '經理', pilgrim: '引路人', apostle: '使徒' };
 // image/ 資料夾內現有的使徒照片檔名（新增照片檔案時要手動更新這份清單），依資料夾分組
 const KNOWN_APOSTLE_IMAGE_GROUPS = {
   'image/members/': [
@@ -228,7 +228,7 @@ function renderList() {
   const col = document.getElementById('staff-list-col');
   if (!isAdmin()) { col.innerHTML = ''; return; }
   const all = staffList
-    .filter(s => s.role === 'apostle' || s.role === 'admin' || s.role === 'pilgrim' || !!apostles[s.uid])
+    .filter(s => s.role === 'apostle' || s.role === 'admin' || s.role === 'pilgrim' || s.role === 'manager' || !!apostles[s.uid])
     .sort((a, b) => apostleOrderVal(a) - apostleOrderVal(b) || a.displayName.localeCompare(b.displayName));
 
   const isUnbookable = s => {

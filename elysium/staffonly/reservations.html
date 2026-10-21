@@ -145,7 +145,7 @@ getRedirectResult(auth).catch(() => {});
 function sKey(t) { return t.replace(':', ''); }
 function esc(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-const ROLE_LABEL   = { admin: '管理員', pilgrim: '引路人', apostle: '使徒' };
+const ROLE_LABEL   = { admin: '管理員', manager: '經理', pilgrim: '引路人', apostle: '使徒' };
 const STATUS_LABEL = { new: '待處理', completed: '已完成', cancelled: '已取消' };
 const SERVICE_NAME = { nomen30: '顯名儀', photo: '交名留影' };
 const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none: '無 RP' };
@@ -164,7 +164,7 @@ onAuthStateChanged(auth, async user => {
     const staffSnap = await get(dbRef(db, 'staff/' + user.uid));
     if (staffSnap.exists()) {
       const data = staffSnap.val();
-      if (data.role !== 'admin' && data.role !== 'pilgrim') { window.location.replace('index.html'); return; }
+      if (data.role !== 'admin' && data.role !== 'pilgrim' && data.role !== 'manager') { window.location.replace('index.html'); return; }
       currentUser = { uid: user.uid, email: user.email, ...data };
     } else {
       const pilgrimSnap = await get(dbRef(db, 'pilgrims/' + user.uid));

@@ -277,7 +277,7 @@
           const role = staffSnap.val().role;
           if (role !== 'admin') {
             document.getElementById('card-apostles').style.display = 'none';
-            if (role !== 'pilgrim') {
+            if (role !== 'pilgrim' && role !== 'manager') {
               document.getElementById('card-reservations').style.display = 'none';
             }
           }
