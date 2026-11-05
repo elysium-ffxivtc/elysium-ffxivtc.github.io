@@ -62,7 +62,7 @@ nav {
   mix-blend-mode: multiply;
 }
 
-.nav-links { display: flex; align-items: stretch; gap: 1.9rem; list-style: none; }
+.nav-links { display: flex; align-items: stretch; gap: 1.9rem; list-style: none; user-select: none; }
 .nav-links > li { display: flex; align-items: center; }
 
 .nav-links > li > a {
