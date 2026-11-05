@@ -232,7 +232,7 @@ nav {
   padding: 0 3.2rem 3.4rem 3.6rem;
   display: flex; align-items: flex-end; justify-content: space-between; gap: 3rem;
 }
-.ab-hero-left { max-width: 560px; }
+.ab-hero-left { max-width: 560px; user-select: none; }
 .ab-hero-eyebrow {
   display: flex; align-items: center; gap: .7rem;
   font-family: 'Cormorant Garamond', serif; font-style: italic;
@@ -265,6 +265,7 @@ nav {
 .ab-section-num {
   font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-style: italic; font-weight: 600;
   color: var(--gold); opacity: .7; line-height: 1; margin-bottom: .8rem; letter-spacing: .05em;
+  user-select: none;
 }
 .ab-section-title {
   font-family: 'Noto Serif TC', serif; font-size: 1.4rem; font-weight: 700;
@@ -287,6 +288,7 @@ nav {
   display: block; font-family: 'Noto Serif TC', serif;
   font-size: .6rem; letter-spacing: .45em; text-transform: uppercase;
   color: var(--dim); margin-bottom: 1.8rem;
+  user-select: none;
 }
 
 h2.section-title {
@@ -368,6 +370,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
 .ab-section-num-inline {
   font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600; color: var(--gold);
   opacity: .7; margin-right: .6rem; font-size: .85em;
+  user-select: none;
 }
 
 .about-link {
@@ -753,6 +756,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   color: #555; font-weight: 400;
   padding-bottom: 1rem; margin-bottom: 2rem;
   border-bottom: 1px solid var(--border);
+  user-select: none;
 }
 
 .nomen-service-item {
@@ -765,6 +769,7 @@ p { font-size: .95rem; color: #545454; line-height: 1.8; margin-bottom: 1.2rem; 
   border: 1px solid transparent;
   opacity: 0; transform: translateY(18px);
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  user-select: none;
 }
 
 .nomen-service-item.vis { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s ease; }
