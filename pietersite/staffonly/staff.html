@@ -376,8 +376,6 @@ function renderEdit(uid) {
       <textarea class="form-input" id="f-notes">${esc(a.notes||'')}</textarea>
       <div class="form-label">委託項目</div>
       <textarea class="form-input" id="f-commission">${esc(a.commissionItems||'')}</textarea>
-      <div class="form-label">私藏特調專屬餐點名稱</div>
-      <input class="form-input" id="f-special-name" value="${esc(a.specialDish?.name||'')}" placeholder="私藏特調">
       <div class="save-bar">
         <button class="btn btn-gold btn-sm" onclick="saveProfile('${uid}')">儲存</button>
       </div>
@@ -430,9 +428,7 @@ async function saveProfile(uid) {
     backstory:     document.getElementById('f-backstory').value.trim(),
     notes:         document.getElementById('f-notes').value.trim(),
     commissionItems: document.getElementById('f-commission').value.trim(),
-    specialDish: {
-      name: document.getElementById('f-special-name').value.trim(),
-    },
+    specialDish: profiles[uid]?.specialDish || {},
     order:    profiles[uid]?.order ?? 0,
     updatedBy: currentUser.displayName,
     updatedAt: new Date().toISOString(),
