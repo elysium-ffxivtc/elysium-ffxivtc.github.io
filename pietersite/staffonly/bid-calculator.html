@@ -130,7 +130,7 @@
     <div class="timer-val" id="timer-val">—</div>
   </div>
 
-  <div class="copy-box" id="copy-box" onclick="copySummary()">目前出價（200,000）Gil，落槌倒數剩餘（—）秒！</div>
+  <div class="copy-box" id="copy-box" onclick="copySummary()">目前出價 200,000 Gil，落槌倒數剩餘 — 秒！</div>
 
   <div class="suit-grid" id="suit-grid">
     <button class="suit-btn" onclick="addBid('club')">
@@ -353,7 +353,7 @@ function buildSummaryText() {
   const bid = document.getElementById('total-val').childNodes[0].textContent.trim();
   const secMatch = document.getElementById('timer-val').textContent.match(/\d+/);
   const sec = secMatch ? secMatch[0] : '0';
-  return `目前出價（${bid}）Gil，落槌倒數剩餘（${sec}）秒！`;
+  return `目前出價 ${bid} Gil，落槌倒數剩餘 ${sec} 秒！`;
 }
 
 function updateCopyBoxText() {
