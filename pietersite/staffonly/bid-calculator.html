@@ -130,7 +130,7 @@
     <div class="timer-val" id="timer-val">—</div>
   </div>
 
-  <div class="copy-box" id="copy-box" onclick="copySummary()">點擊複製出價資訊</div>
+  <div class="copy-box" id="copy-box" onclick="copySummary()">目前出價（200,000）Gil，落槌倒數剩餘（—）秒！</div>
 
   <div class="suit-grid" id="suit-grid">
     <button class="suit-btn" onclick="addBid('club')">
@@ -320,15 +320,17 @@ function updateTimerDisplay() {
     val.textContent = '成交！';
     document.getElementById('suit-grid').classList.add('locked');
     if (!state.sold && !soldWritten) { soldWritten = true; writeState({ sold: true }); }
+    updateCopyBoxText();
     return;
   }
 
   document.getElementById('suit-grid').classList.remove('locked');
-  if (!state.deadline) { val.textContent = '—'; return; }
+  if (!state.deadline) { val.textContent = '—'; updateCopyBoxText(); return; }
 
   const secondsLeft = Math.max(0, Math.ceil((state.deadline - Date.now()) / 1000));
   val.textContent = secondsLeft + ' s';
   if (secondsLeft <= 10) { box.classList.add('urgent'); val.classList.add('urgent'); }
+  updateCopyBoxText();
 }
 
 window.addBid = function(suit) {
@@ -347,19 +349,26 @@ window.resetBid = function() {
   writeState({ bids: [], deadline: null, sold: false });
 };
 
-function copySummary() {
+function buildSummaryText() {
   const bid = document.getElementById('total-val').childNodes[0].textContent.trim();
   const secMatch = document.getElementById('timer-val').textContent.match(/\d+/);
   const sec = secMatch ? secMatch[0] : '0';
-  const text = `目前出價（${bid}）Gil，落槌倒數剩餘（${sec}）秒！`;
+  return `目前出價（${bid}）Gil，落槌倒數剩餘（${sec}）秒！`;
+}
 
-  navigator.clipboard.writeText(text).then(() => {
+function updateCopyBoxText() {
+  const box = document.getElementById('copy-box');
+  if (box && !box.classList.contains('copied')) box.textContent = buildSummaryText();
+}
+
+function copySummary() {
+  navigator.clipboard.writeText(buildSummaryText()).then(() => {
     const box = document.getElementById('copy-box');
     box.classList.add('copied');
     box.textContent = '已複製！';
     setTimeout(() => {
       box.classList.remove('copied');
-      box.textContent = '點擊複製出價資訊';
+      updateCopyBoxText();
     }, 1200);
   });
 }
