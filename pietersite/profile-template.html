@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>No.01 凜冬的餘溫 — PIETERSITE</title>
+    <title>No.??? 凜冬的餘溫 — PIETERSITE</title>
     <link rel="icon" href="image/icon/LOGO_mini.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,7 +142,7 @@
             bottom: 3rem;
             left: 3rem;
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: .82rem;
+            font-size: 1.1rem;
             letter-spacing: .45em;
             color: var(--gold);
             z-index: 1;
@@ -284,7 +284,7 @@
             line-height: 2.5;
         }
 
-        .section-body p + p { margin-top: 1.5rem; }
+        .section-body p + p { margin-top: 0; }
 
         /* CTA */
         .profile-cta {
@@ -551,14 +551,14 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
 
 <!-- HEADER -->
 <header id="site-header">
-    <a class="logo" href="index.html">PIETERSITE</a>
+    <a class="logo">PIETERSITE</a>
     <nav>
-        <a href="collections.html" class="active">館藏</a>
-        <a href="acquisition.html">競藏</a>
-        <a href="exhibitions.html">展覽</a>
-        <a href="menu.html">酒單</a>
-        <a href="about.html">關於</a>
-        <a href="rules.html">規章</a>
+        <a class="active">館藏</a>
+        <a>競藏</a>
+        <a>展覽</a>
+        <a>酒單</a>
+        <a>關於</a>
+        <a>規章</a>
     </nav>
 </header>
 
@@ -572,13 +572,13 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
             <svg viewBox="0 0 24 24" stroke-width=".8"><rect x="2" y="2" width="20" height="20" rx="1"/><circle cx="8.5" cy="8.5" r="2"/><polyline points="22,16 16,10 4,22"/></svg>
             <span>待上傳</span>
         </div>
-        <div class="photo-num" id="photo-num-el">角色遊戲內名稱</div>
+        <div class="photo-num" id="photo-num-el">守燈</div>
     </div>
 
     <!-- RIGHT: CONTENT -->
     <div class="profile-content">
 
-        <a class="back-link" href="collections.html">返回館藏目錄</a>
+        <a class="back-link">返回館藏目錄</a>
 
         <div class="profile-status" id="profile-status" data-profile-name="凜冬的餘溫">
             <div class="status-dot off" id="status-dot"></div>
@@ -590,40 +590,44 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
         <div class="profile-facts">
             <div class="fact-row" id="fact-format-row">
                 <span class="fact-lbl">展覽形式</span>
-                <span class="fact-val" id="fact-format"></span>
+                <span class="fact-val" id="fact-format">典藏鑑賞</span>
             </div>
             <div class="fact-row" id="fact-viewdistance-row">
                 <span class="fact-lbl">鑑賞距離</span>
-                <span class="fact-val" id="fact-viewdistance"></span>
+                <span class="fact-val" id="fact-viewdistance">珍品鑑玩</span>
             </div>
             <div class="fact-row">
                 <span class="fact-lbl">推薦對象</span>
-                <span class="fact-val" id="fact-recommend"></span>
+                <span class="fact-val" id="fact-recommend">不擅長開口，但希望有人陪著坐一會兒的人</span>
             </div>
             <div class="fact-row">
                 <span class="fact-lbl">館藏編號</span>
-                <span class="fact-val" id="fact-catalogno"></span>
+                <span class="fact-val" id="fact-catalogno">No.???</span>
             </div>
         </div>
 
         <div class="profile-section" data-reveal>
             <div class="section-label">展覽簡介</div>
-            <div class="section-body" id="section-intro"></div>
+            <div class="section-body" id="section-intro">
+                <p>一盞巴掌大的黃銅提燈，燈罩上布滿細密的霜裂紋。策展人購入時，燈芯早已燒到見底，卻仍亮著一點微光。至今沒有人替它添過油。</p>
+            </div>
         </div>
 
         <div class="profile-section" data-reveal>
             <div class="section-label">背景故事</div>
-            <div class="section-body" id="section-backstory"></div>
+            <div class="section-body" id="section-backstory">
+                <p>龍詩戰爭那些年，伊修加德下層區的雪幾乎沒有停過。有一名點燈人，每晚提著這盞燈走過同一條巷子，替每戶門口的燈續火。他不是騎士，也沒有家名，巷裡的孩子都叫他「守燈的」。</p>
+                <p>某個暴雪夜，他沒有回來。隔天早上，巷口的燈全都亮著，只有這盞提燈被留在石階上，摸起來還是溫的。</p>
+                <p>後來那條巷子的人說，特別冷的夜裡，總能看見一個高個子的精靈站在巷口，不說話，等最後一戶人家熄了燈才離開。</p>
+            </div>
         </div>
 
         <div class="profile-section" data-reveal>
             <div class="section-label">鑑賞筆記</div>
-            <div class="section-body" id="section-notes"></div>
-        </div>
-
-        <div class="profile-section" data-reveal id="section-commission-row" style="display:none">
-            <div class="section-label">委託項目</div>
-            <div class="section-body" id="section-commission"></div>
+            <div class="section-body" id="section-notes">
+                <p>靠近時能感覺到一點暖意。若你帶著一身寒氣進來，他會不動聲色地往你那側站近些。</p>
+                <p>問起伊修加德的冬天，他能說上很久；問起他自己，通常只會回一句「燈還亮著就好」。</p>
+            </div>
         </div>
 
         <div class="profile-cta" data-cta>
@@ -631,7 +635,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 對這件典藏感興趣？<br>
                 前往競藏頁面，取得私人展廳資格。
             </p>
-            <a href="acquisition.html" class="btn-gold">前往競藏</a>
+            <a class="btn-gold">前往競藏</a>
         </div>
 
     </div>
@@ -639,16 +643,16 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
 
 <!-- PREV / NEXT -->
 <nav class="profile-nav">
-    <a href="#" class="pnav-item prev">
+    <div class="pnav-item prev" role="button">
         <span class="pnav-dir">← PREV</span>
-        <span class="pnav-name">《上一位館藏》</span>
-        <span class="pnav-num">No. —</span>
-    </a>
-    <a href="no03.html" class="pnav-item next">
+        <span class="pnav-name">《褪色的信箋》</span>
+        <span class="pnav-num">No. ???</span>
+    </div>
+    <div class="pnav-item next" role="button">
         <span class="pnav-dir">NEXT →</span>
-        <span class="pnav-name">《未寄出的信》</span>
-        <span class="pnav-num">No. 03</span>
-    </a>
+        <span class="pnav-name">《靜默的鐘聲》</span>
+        <span class="pnav-num">No. ???</span>
+    </div>
 </nav>
 
 <!-- FOOTER -->
@@ -662,18 +666,18 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
         </p>
         <div class="footer-social">
             <span class="footer-social-link"><img src="image/icon/discord_.png" alt="Discord" class="footer-icon"></span>
-            <a href="https://www.threads.com/@pietersite.ffxivtc" target="_blank" rel="noopener" class="footer-social-link" aria-label="Threads">
+            <a class="footer-social-link" aria-label="Threads">
                 <img src="image/icon/threads_.png" alt="Threads" class="footer-icon">
             </a>
         </div>
     </div>
     <nav class="footer-nav">
-        <a href="collections.html">COLLECTIONS</a>
-        <a href="acquisition.html">ACQUISITION</a>
-        <a href="exhibitions.html">EXHIBITIONS</a>
-        <a href="menu.html">MENU</a>
-        <a href="about.html">ABOUT</a>
-        <a href="rules.html">RULES</a>
+        <a>COLLECTIONS</a>
+        <a>ACQUISITION</a>
+        <a>EXHIBITIONS</a>
+        <a>MENU</a>
+        <a>ABOUT</a>
+        <a>RULES</a>
     </nav>
 </footer>
 
@@ -713,7 +717,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
 </script>
 
 <!-- ── 下次競藏日（左下）+ 回到頂部（右下，小圖示）── -->
-<a href="acquisition.html" class="float-notice" id="float-notice">
+<a class="float-notice" id="float-notice">
     <span class="float-notice-label">下次競藏日</span>
     <span class="float-notice-date" id="float-notice-date"></span>
 </a>
@@ -787,69 +791,6 @@ onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
     const isOn = !!(name && scheduledToday[name]);
     document.getElementById('status-dot').classList.toggle('off', !isOn);
     document.getElementById('status-label').textContent = isOn ? '館內展覽中' : '今日暫停展覽';
-});
-</script>
-
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-
-const profileApp = initializeApp({
-    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
-    authDomain:        "pietersitepos.firebaseapp.com",
-    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId:         "pietersitepos",
-    storageBucket:     "pietersitepos.firebasestorage.app",
-    messagingSenderId: "336617870672",
-    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
-}, 'pietersiteProfileData');
-const profileDb = getDatabase(profileApp);
-
-function paragraphs(text) {
-    return (text || '').split(/\n\s*\n/).filter(p => p.trim()).map(p => `<p>${p.trim().replace(/</g,'&lt;')}</p>`).join('');
-}
-
-onValue(dbRef(profileDb, 'publicProfiles'), snap => {
-    const all = snap.val() || {};
-    const targetName = document.getElementById('profile-status')?.dataset.profileName;
-    const a = Object.values(all).find(p => p.name === targetName);
-    if (!a) return;
-
-    if (a.photo) {
-        document.getElementById('profile-photo-img').src = 'https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/pietersite/' + a.photo;
-        document.getElementById('profile-photo-img').style.display = 'block';
-        document.getElementById('profile-photo-placeholder').style.display = 'none';
-    }
-    document.getElementById('photo-num-el').textContent = a.name || '';
-    document.getElementById('profile-title-el').textContent = a.workTitle ? `《${a.workTitle}》` : '';
-
-    const formatRow = document.getElementById('fact-format-row');
-    if (a.exhibitFormat && a.exhibitFormat.length) {
-        document.getElementById('fact-format').textContent = a.exhibitFormat.join('、');
-        formatRow.style.display = '';
-    } else {
-        formatRow.style.display = 'none';
-    }
-
-    const vdRow = document.getElementById('fact-viewdistance-row');
-    if (a.viewDistance) {
-        document.getElementById('fact-viewdistance').textContent = a.viewDistance;
-        vdRow.style.display = '';
-    } else {
-        vdRow.style.display = 'none';
-    }
-
-    document.getElementById('fact-recommend').textContent = a.recommendFor || '';
-    document.getElementById('fact-catalogno').textContent = a.catalogNo || '';
-
-    document.getElementById('section-intro').innerHTML     = paragraphs(a.introduction);
-    document.getElementById('section-backstory').innerHTML = paragraphs(a.backstory);
-    document.getElementById('section-notes').innerHTML     = paragraphs(a.notes);
-
-    if (a.commissionItems) {
-        document.getElementById('section-commission').innerHTML = paragraphs(a.commissionItems);
-        document.getElementById('section-commission-row').style.display = '';
-    }
 });
 </script>
 </body>
