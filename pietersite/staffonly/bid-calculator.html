@@ -362,7 +362,8 @@ function updateCopyBoxText() {
 }
 
 function copySummary() {
-  navigator.clipboard.writeText(buildSummaryText()).then(() => {
+  const text = buildSummaryText();
+  const showCopied = () => {
     const box = document.getElementById('copy-box');
     box.classList.add('copied');
     box.textContent = '已複製！';
@@ -370,7 +371,29 @@ function copySummary() {
       box.classList.remove('copied');
       updateCopyBoxText();
     }, 1200);
-  });
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text, showCopied));
+  } else {
+    fallbackCopy(text, showCopied);
+  }
+}
+
+function fallbackCopy(text, onDone) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    onDone();
+  } catch (e) {
+    alert('複製失敗，請手動選取文字複製');
+  }
+  document.body.removeChild(ta);
 }
 
 function render() {
