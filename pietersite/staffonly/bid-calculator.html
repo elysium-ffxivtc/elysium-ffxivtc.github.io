@@ -361,7 +361,7 @@ function updateCopyBoxText() {
   if (box && !box.classList.contains('copied')) box.textContent = buildSummaryText();
 }
 
-function copySummary() {
+window.copySummary = function() {
   const text = buildSummaryText();
   const showCopied = () => {
     const box = document.getElementById('copy-box');
@@ -378,7 +378,7 @@ function copySummary() {
   } else {
     fallbackCopy(text, showCopied);
   }
-}
+};
 
 function fallbackCopy(text, onDone) {
   const ta = document.createElement('textarea');
