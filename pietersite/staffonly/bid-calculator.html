@@ -351,7 +351,7 @@ function copySummary() {
   const bid = document.getElementById('total-val').childNodes[0].textContent.trim();
   const secMatch = document.getElementById('timer-val').textContent.match(/\d+/);
   const sec = secMatch ? secMatch[0] : '0';
-  const text = `目前出價（${bid}）Gil，落槌倒數（${sec}）秒！`;
+  const text = `目前出價（${bid}）Gil，落槌倒數剩餘（${sec}）秒！`;
 
   navigator.clipboard.writeText(text).then(() => {
     const box = document.getElementById('copy-box');
