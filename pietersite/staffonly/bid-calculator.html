@@ -56,6 +56,15 @@
     .timer-val.urgent { color: var(--red); }
     .timer-val.sold { color: var(--green); font-size: 1.1rem; }
 
+    /* ── 複製文字 ── */
+    .copy-box {
+      background: var(--card); border: 1px solid var(--border); padding: .6rem .9rem;
+      text-align: center; font-size: 13px; color: var(--text); cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .copy-box:hover { border-color: var(--gold); background: var(--gold-dim); }
+    .copy-box.copied { border-color: var(--green); color: var(--green); }
+
     /* ── 花色按鈕 ── */
     .suit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; transition: opacity .2s; }
     .suit-grid.locked { opacity: .4; pointer-events: none; }
@@ -120,6 +129,8 @@
     <div class="timer-label">落槌倒數</div>
     <div class="timer-val" id="timer-val">—</div>
   </div>
+
+  <div class="copy-box" id="copy-box" onclick="copySummary()">點擊複製出價資訊</div>
 
   <div class="suit-grid" id="suit-grid">
     <button class="suit-btn" onclick="addBid('club')">
@@ -335,6 +346,23 @@ window.resetBid = function() {
   if (state.bids.length && !confirm('確定清空目前的喊價紀錄？')) return;
   writeState({ bids: [], deadline: null, sold: false });
 };
+
+function copySummary() {
+  const bid = document.getElementById('total-val').childNodes[0].textContent.trim();
+  const secMatch = document.getElementById('timer-val').textContent.match(/\d+/);
+  const sec = secMatch ? secMatch[0] : '0';
+  const text = `目前出價（${bid}）Gil，落槌倒數（${sec}）秒！`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const box = document.getElementById('copy-box');
+    box.classList.add('copied');
+    box.textContent = '已複製！';
+    setTimeout(() => {
+      box.classList.remove('copied');
+      box.textContent = '點擊複製出價資訊';
+    }, 1200);
+  });
+}
 
 function render() {
   const total = state.basePrice + state.bids.reduce((s, b) => s + b.amount, 0);
