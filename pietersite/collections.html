@@ -590,17 +590,17 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
 <!-- PAGE INTRO -->
 <div id="page-intro">
     <p class="page-eyebrow">CATALOGUE</p>
-    <h1 class="page-title">典藏目錄</h1>
+    <h1 class="page-title">館藏目錄</h1>
     <p class="page-desc">
         每一位館藏皆是獨立的存在，各有其姓名、性情，以及與人相處的方式。<br>
-        翻開這份目錄，尋找令你駐足的典藏。
+        翻開這份目錄，尋找令你駐足的藏品。
     </p>
 </div>
 
 <!-- COLLECTIONS -->
 <section class="section-sep">
     <div class="wrap">
-        <p class="eyebrow" data-eyebrow>典藏</p>
+        <p class="eyebrow" data-eyebrow>館藏</p>
         <h2><span class="h2-inner" data-h2>館藏</span></h2>
 
         <div class="exhibit-grid" data-cards id="exhibit-grid"></div>
@@ -831,7 +831,7 @@ function renderCollections() {
     const list = Object.values(latestProfiles).sort((a, b) => (a.catalogNo||'').localeCompare(b.catalogNo||''));
     grid.innerHTML = list.length
         ? list.map(collectionCard).join('')
-        : '<div style="font-size:13px;color:var(--ivory-dim)">尚無館藏資料</div>';
+        : '<div style="font-size:13px;color:var(--ivory-dim)">策展人仍在各地尋訪合適的收藏⋯</div>';
 }
 
 onValue(dbRef(collectionsDb, 'publicTodayRoster'), snap => {
