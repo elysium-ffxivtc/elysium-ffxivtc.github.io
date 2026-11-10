@@ -230,12 +230,23 @@
             letter-spacing: .04em;
         }
 
-        .menu-desc {
+        .menu-ingred {
             font-size: .95rem;
             color: var(--ivory-dim);
             line-height: 2.1;
             margin-top: .3rem;
         }
+
+        .menu-tagline {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-style: italic;
+            font-size: .95rem;
+            color: var(--ivory-dim);
+            line-height: 2.1;
+        }
+
+        .menu-ingred + .menu-tagline { margin-top: 0; }
+        .menu-tagline:first-child { margin-top: .3rem; }
 
         .menu-tag {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
@@ -489,7 +500,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">血腥艾妲</div>
                     <div class="menu-en">Bloody Edda</div>
-                    <p class="menu-desc">番茄、高濃度蒸餾酒、辣醬、芹菜鹽。<br>辛辣鹹香，刺激而清醒。</p>
+                    <p class="menu-ingred">番茄、高濃度蒸餾酒、辣醬、芹菜鹽。</p>
+                    <p class="menu-tagline">辛辣鹹香，刺激而清醒。</p>
                 </div>
                 <span class="menu-tag cocktail">COCKTAIL</span>
             </div>
@@ -498,7 +510,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">蘋果熱托迪</div>
                     <div class="menu-en">Apple Hot Toddy</div>
-                    <p class="menu-desc">晶亮蘋果、穀物蒸餾酒、蜂蜜、檸檬。<br>溫熱甜潤，拂去寒意。</p>
+                    <p class="menu-ingred">晶亮蘋果、穀物蒸餾酒、蜂蜜、檸檬。</p>
+                    <p class="menu-tagline">溫熱甜潤，拂去寒意。</p>
                 </div>
                 <span class="menu-tag cocktail">COCKTAIL</span>
             </div>
@@ -507,7 +520,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">遠東拖鞋</div>
                     <div class="menu-en">Hingashi Slipper</div>
-                    <p class="menu-desc">蜜瓜蒸餾酒、白橙皮酒、檸檬汁。<br>果香甜美，後味清爽。</p>
+                    <p class="menu-ingred">蜜瓜蒸餾酒、白橙皮酒、檸檬汁。</p>
+                    <p class="menu-tagline">果香甜美，後味清爽。</p>
                 </div>
                 <span class="menu-tag cocktail">COCKTAIL</span>
             </div>
@@ -516,7 +530,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">荊棘</div>
                     <div class="menu-en">Bramble</div>
-                    <p class="menu-desc">香料穀物蒸餾酒、檸檬汁、糖漿、黑莓蒸餾酒。<br>採之不易，風味又叫人難忘。</p>
+                    <p class="menu-ingred">香料穀物蒸餾酒、檸檬汁、糖漿、黑莓蒸餾酒。</p>
+                    <p class="menu-tagline">採之不易，風味又叫人難忘。</p>
                 </div>
                 <span class="menu-tag cocktail">COCKTAIL</span>
             </div>
@@ -525,7 +540,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">擬鳥枝果的卡比羅斯卡</div>
                     <div class="menu-en">Branchbearer Fruit Caipiroska</div>
-                    <p class="menu-desc">高濃度蒸餾酒、擬鳥枝果實蘆薈凍、高級楓糖漿。<br>翠色凝露，口感馥郁。</p>
+                    <p class="menu-ingred">高濃度蒸餾酒、擬鳥枝果實蘆薈凍、高級楓糖漿。</p>
+                    <p class="menu-tagline">翠色凝露，口感馥郁。</p>
                 </div>
                 <span class="menu-tag cocktail">COCKTAIL</span>
             </div>
@@ -534,7 +550,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">三點一線</div>
                     <div class="menu-en">Three Dots and a Dash</div>
-                    <p class="menu-desc">甘蔗酒、香料利口酒、濃縮藥草酒、臍橙汁、檸檬汁、楓糖糖漿。<br>天外星航，循著航跡駛入未知邊境。</p>
+                    <p class="menu-ingred">甘蔗酒、香料利口酒、濃縮藥草酒、臍橙汁、檸檬汁、楓糖糖漿。</p>
+                    <p class="menu-tagline">天外星航，循著航跡駛入未知邊境。</p>
                 </div>
                 <span class="menu-tag cocktail">COCKTAIL</span>
             </div>
@@ -557,7 +574,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">檸檬水</div>
                     <div class="menu-en">Lemonade</div>
-                    <p class="menu-desc">清新檸檬，微甜帶酸，清爽宜人。</p>
+                    <p class="menu-tagline">清新檸檬，微甜帶酸，清爽宜人。</p>
                 </div>
                 <span class="menu-tag soft">SOFT</span>
             </div>
@@ -566,7 +583,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">奶油熱巧克力</div>
                     <div class="menu-en">Creamy Hot Chocolate</div>
-                    <p class="menu-desc">濃郁可可，滑順奶油，滋潤心田。</p>
+                    <p class="menu-tagline">濃郁可可，滑順奶油，滋潤心田。</p>
                 </div>
                 <span class="menu-tag soft">SOFT</span>
             </div>
@@ -575,7 +592,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">珍珠奶茶</div>
                     <div class="menu-en">Bubble Tea</div>
-                    <p class="menu-desc">香甜奶茶，珍珠點綴，別有風味。</p>
+                    <p class="menu-tagline">香甜奶茶，珍珠點綴，別有風味。</p>
                 </div>
                 <span class="menu-tag soft">SOFT</span>
             </div>
@@ -584,7 +601,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 <div class="menu-item-body">
                     <div class="menu-zh">甜瑪黛茶</div>
                     <div class="menu-en">Sweet Maple Mate</div>
-                    <p class="menu-desc">茶味甘甜，清香醇厚，舒緩疲勞。</p>
+                    <p class="menu-tagline">茶味甘甜，清香醇厚，舒緩疲勞。</p>
                 </div>
                 <span class="menu-tag soft">SOFT</span>
             </div>
