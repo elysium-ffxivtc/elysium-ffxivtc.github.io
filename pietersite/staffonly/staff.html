@@ -374,8 +374,12 @@ function renderEdit(uid) {
       <textarea class="form-input" id="f-backstory">${esc(a.backstory||'')}</textarea>
       <div class="form-label">鑑賞筆記</div>
       <textarea class="form-input" id="f-notes">${esc(a.notes||'')}</textarea>
-      <div class="form-label">委託項目</div>
-      <textarea class="form-input" id="f-commission">${esc(a.commissionItems||'')}</textarea>
+      <div class="form-label">委託項目 · 名稱</div>
+      <input class="form-input" id="f-commission-title" value="${esc(a.commissionItems?.title||'')}">
+      <div class="form-label">委託項目 · 說明</div>
+      <textarea class="form-input" id="f-commission-desc">${esc(a.commissionItems?.desc||'')}</textarea>
+      <div class="form-label">委託項目 · 費用</div>
+      <input class="form-input" id="f-commission-price" value="${esc(a.commissionItems?.price||'')}" placeholder="例如：300,000 Gil">
       <div class="save-bar">
         <button class="btn btn-gold btn-sm" onclick="saveProfile('${uid}')">儲存</button>
       </div>
@@ -427,7 +431,11 @@ async function saveProfile(uid) {
     introduction:  document.getElementById('f-intro').value.trim(),
     backstory:     document.getElementById('f-backstory').value.trim(),
     notes:         document.getElementById('f-notes').value.trim(),
-    commissionItems: document.getElementById('f-commission').value.trim(),
+    commissionItems: {
+      title: document.getElementById('f-commission-title').value.trim(),
+      desc:  document.getElementById('f-commission-desc').value.trim(),
+      price: document.getElementById('f-commission-price').value.trim(),
+    },
     specialDish: profiles[uid]?.specialDish || {},
     order:    profiles[uid]?.order ?? 0,
     updatedBy: currentUser.displayName,
