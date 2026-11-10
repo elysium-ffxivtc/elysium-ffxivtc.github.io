@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No.??? 留白的詠嘆 — PIETERSITE</title>
+    <link rel="icon" href="image/icon/LOGO_mini.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: inherit; }
+        body { cursor: url('image/arr-cursors/arr-small-pointer.cur'), default; }
+        a, button, [role="button"], select, [onclick] { cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; }
+        input, textarea { cursor: url('image/arr-cursors/arr-small-text.cur'), text; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { cursor: url('image/arr-cursors/arr-small-link.cur'), pointer; }
+        [disabled] { cursor: url('image/arr-cursors/arr-small-forbidden.cur'), not-allowed; }
+
+        :root {
+            --bg-0:        #06090f;
+            --bg-1:        #0a0f1c;
+            --bg-2:        #0f1628;
+            --gold:        #b8913a;
+            --gold-bright: #d4aa52;
+            --gold-dim:    rgba(184,145,58,0.25);
+            --gold-border: rgba(184,145,58,0.4);
+            --blue:        #3a5f8a;
+            --blue-bright: #5a8dc4;
+            --ivory:       #e4d8c4;
+            --ivory-dim:   #9a8a74;
+            --line:        rgba(184,145,58,0.12);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-0);
+            color: var(--ivory);
+            font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+        ::selection { background: var(--gold); color: #06090f; }
+
+        /* ── HEADER ── */
+        header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 100;
+            padding: 1.6rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(6,9,15,.97) 0%, transparent 100%);
+            transition: opacity .4s ease;
+            user-select: none;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .5em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        nav { display: flex; gap: 2.5rem; }
+
+        nav a {
+            font-size: .88rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        nav a:hover, nav a.active { color: var(--ivory); }
+
+        /* ── PROFILE LAYOUT ── */
+        .profile-wrap {
+            display: grid;
+            grid-template-columns: 34% 66%;
+            min-height: 100vh;
+        }
+
+        /* ── LEFT: STICKY PHOTO ── */
+        .profile-photo-col {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .profile-photo-col img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            display: block;
+        }
+
+        .photo-placeholder-full {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            color: var(--ivory-dim);
+            opacity: .3;
+        }
+
+        .photo-placeholder-full svg { width: 36px; height: 36px; stroke: currentColor; fill: none; }
+
+        .photo-placeholder-full span {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .8rem;
+            letter-spacing: .4em;
+        }
+
+        /* gradient fading bottom of photo into bg */
+        .profile-photo-col::after {
+            content: '';
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 35%;
+            background: linear-gradient(to top, var(--bg-0) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* number overlay on photo */
+        .photo-num {
+            position: absolute;
+            bottom: 3rem;
+            left: 3rem;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: 1.1rem;
+            letter-spacing: .45em;
+            color: var(--gold);
+            z-index: 1;
+        }
+
+        /* ── RIGHT: CONTENT ── */
+        .profile-content {
+            padding: 12rem 5rem 8rem 4.5rem;
+            border-left: 1px solid var(--line);
+        }
+
+        /* back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            font-size: .82rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            margin-bottom: 4rem;
+            transition: color .3s;
+            opacity: 0;
+            animation: rise .7s ease .1s forwards;
+        }
+
+        .back-link:hover { color: var(--gold); }
+
+        .back-link::before {
+            content: '←';
+            font-family: serif;
+        }
+
+        @keyframes rise { to { opacity: 1; transform: none; } }
+
+        /* status */
+        .profile-status {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: rise .7s ease .2s forwards;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #5fb878;
+            box-shadow: 0 0 8px #5fb878;
+            animation: dot-blink 2.4s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        .status-dot.off { background: var(--ivory-dim); box-shadow: none; animation: none; }
+
+        @keyframes dot-blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+        .status-label {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .8rem;
+            letter-spacing: .3em;
+            color: var(--ivory-dim);
+        }
+
+        /* title */
+        .profile-title {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-style: italic;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300;
+            line-height: 1.2;
+            color: var(--ivory);
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: rise .9s cubic-bezier(.16,1,.3,1) .15s forwards;
+        }
+
+        /* quick facts */
+        .profile-facts {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 2.5rem 0;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 3.5rem;
+            opacity: 0;
+            animation: rise .8s ease .3s forwards;
+        }
+
+        .fact-row {
+            display: flex;
+            gap: 2rem;
+            font-size: .95rem;
+        }
+
+        .fact-lbl {
+            color: var(--ivory-dim);
+            white-space: nowrap;
+            min-width: 6em;
+            flex-shrink: 0;
+        }
+
+        .fact-val { color: var(--ivory); }
+
+        .fact-help {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.2em;
+            height: 1.2em;
+            margin-left: .5em;
+            border-radius: 50%;
+            vertical-align: middle;
+            background: #3c4149;
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .7em;
+            font-style: normal;
+            color: var(--ivory-dim);
+            transition: background .25s, color .25s;
+            cursor: url('image/arr-cursors/arr-small-pointer-help-2.cur'), help;
+        }
+
+        .fact-help:hover {
+            background: #4c535e;
+            color: var(--ivory);
+        }
+
+        .fact-help::after {
+            content: attr(data-tip);
+            position: absolute;
+            left: 50%;
+            bottom: 150%;
+            transform: translateX(-50%);
+            width: 220px;
+            padding: .7em .9em;
+            background: var(--bg-1);
+            border: 1px solid var(--gold-border);
+            border-radius: 2px;
+            color: var(--ivory-dim);
+            font-family: 'Noto Serif TC', serif;
+            font-size: .72rem;
+            font-weight: normal;
+            letter-spacing: .05em;
+            line-height: 1.8;
+            text-align: left;
+            white-space: normal;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s;
+            z-index: 20;
+        }
+
+        .fact-help:hover::after {
+            opacity: 1;
+        }
+
+        /* content sections */
+        .profile-section {
+            margin-bottom: 3.5rem;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .profile-section.vis { opacity: 1; transform: none; }
+
+        .section-label {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .82rem;
+            letter-spacing: .4em;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .section-body {
+            font-size: 1rem;
+            color: var(--ivory-dim);
+            line-height: 2.5;
+        }
+
+        .section-body p + p { margin-top: 0; }
+
+        .section-body strong {
+            font-weight: 600;
+            color: var(--ivory);
+        }
+
+        /* CTA */
+        .profile-cta {
+            margin-top: 5rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .9s ease .1s, transform .9s ease .1s;
+        }
+
+        .profile-cta.vis { opacity: 1; transform: none; }
+
+        .cta-note {
+            font-size: .88rem;
+            color: var(--ivory-dim);
+            line-height: 1.8;
+        }
+
+        .btn-gold {
+            border: 1px solid var(--gold-dim);
+            color: var(--gold);
+            padding: .85rem 2.8rem;
+            font-family: 'Noto Serif TC', serif;
+            font-size: .88rem;
+            letter-spacing: .2em;
+            text-decoration: none;
+            transition: all .3s;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .btn-gold:hover {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+            color: var(--ivory);
+        }
+
+        /* ── PREV / NEXT ── */
+        .profile-nav {
+            border-top: 1px solid var(--line);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--line);
+        }
+
+        .profile-nav.single { grid-template-columns: 1fr; }
+
+        .pnav-item {
+            background: var(--bg-0);
+            padding: 2.5rem 3.5rem;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            transition: background .3s;
+        }
+
+        .pnav-item:hover { background: var(--bg-1); }
+        .pnav-item.next { align-items: flex-end; text-align: right; }
+
+        .pnav-dir {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .72rem;
+            letter-spacing: .4em;
+            color: var(--ivory-dim);
+        }
+
+        .pnav-name {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--ivory);
+        }
+
+        .pnav-num {
+            font-size: .75rem;
+            letter-spacing: .2em;
+            color: var(--gold);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 4rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .85rem;
+            letter-spacing: .55em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            user-select: none;
+        }
+
+        .footer-copy {
+            font-size: .85rem;
+            color: var(--ivory-dim);
+            line-height: 2.2;
+        }
+
+        .footer-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .8rem;
+        }
+
+        .footer-nav a {
+            font-size: .85rem;
+            letter-spacing: .2em;
+            color: var(--ivory-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-nav a:hover { color: var(--ivory); }
+
+        .footer-motto {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: .65rem;
+            letter-spacing: .35em;
+            color: rgba(154,138,116,.35);
+        }
+
+        .footer-copyright {
+            display: block;
+            margin-top: .6rem;
+            font-size: .6rem;
+            letter-spacing: .15em;
+            color: rgba(154,138,116,.35);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 1.2rem;
+        }
+
+        .footer-social-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            opacity: .55;
+            transition: opacity .25s;
+        }
+
+        .footer-social-link:hover { opacity: 1; }
+
+        .footer-icon {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .profile-wrap { grid-template-columns: 1fr; }
+
+            .profile-photo-col {
+                position: relative;
+                height: 70vw;
+                max-height: 520px;
+            }
+
+            .profile-content {
+                padding: 4rem 1.5rem 6rem;
+                border-left: none;
+                border-top: 1px solid var(--line);
+            }
+
+            .back-link { margin-bottom: 2.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.5rem; }
+            .logo { font-size: .75rem; letter-spacing: .3em; }
+            nav { gap: 1rem; }
+            nav a { font-size: .75rem; letter-spacing: .1em; }
+            .profile-nav { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 3rem; align-items: flex-start; }
+            .footer-nav { align-items: flex-start; order: -1; }
+        }
+
+        /* ── FLOATING WIDGET ── */
+        .float-notice {
+            display: none;
+            position: fixed;
+            left: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 300;
+            flex-direction: column;
+            align-items: flex-start;
+            background: #111827;
+            border: 1px solid var(--gold-border);
+            padding: .7rem 1.1rem;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(6,9,15,.5);
+            transition: border-color .25s, background .25s;
+        }
+
+        .float-notice.show { display: flex; }
+        .float-notice:hover { border-color: var(--gold); background: #151e30; }
+
+        .float-notice-label {
+            font-size: .62rem;
+            letter-spacing: .28em;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .float-notice-date {
+            font-size: .9rem;
+            color: var(--ivory);
+            letter-spacing: .08em;
+            margin-top: .3rem;
+        }
+
+        .float-top {
+            position: fixed;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 300;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(17,24,39,.7);
+            border-radius: 50%;
+            border: none;
+            color: var(--gold);
+            cursor: url('image/arr-cursors/arr-small-link.cur'), pointer;
+            font-size: 1.1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: color .25s, opacity .25s;
+        }
+
+        .float-top.show { opacity: 1; pointer-events: auto; }
+        .float-top:hover { color: var(--ivory); }
+
+        @media (max-width: 768px) {
+            .float-notice { left: 1rem; bottom: 1rem; padding: .55rem .85rem; }
+            .float-top { right: 1rem; bottom: 1rem; }
+        }
+
+    </style>
+</head>
+<body>
+<script>
+document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
+document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
+</script>
+
+<!-- HEADER -->
+<header id="site-header">
+    <a class="logo">PIETERSITE</a>
+    <nav>
+        <a class="active">館藏</a>
+        <a>競藏</a>
+        <a>展覽</a>
+        <a>酒單</a>
+        <a>關於</a>
+        <a>規章</a>
+    </nav>
+</header>
+
+<!-- PROFILE -->
+<div class="profile-wrap">
+
+    <!-- LEFT: PHOTO -->
+    <div class="profile-photo-col">
+        <img id="profile-photo-img" alt="" style="display:none">
+        <div class="photo-placeholder-full" id="profile-photo-placeholder">
+            <svg viewBox="0 0 24 24" stroke-width=".8"><rect x="2" y="2" width="20" height="20" rx="1"/><circle cx="8.5" cy="8.5" r="2"/><polyline points="22,16 16,10 4,22"/></svg>
+        </div>
+        <div class="photo-num" id="photo-num-el">謳者</div>
+    </div>
+
+    <!-- RIGHT: CONTENT -->
+    <div class="profile-content">
+
+        <a class="back-link">返回館藏目錄</a>
+
+        <div class="profile-status" id="profile-status" data-profile-name="留白的詠嘆">
+            <div class="status-dot off" id="status-dot"></div>
+            <span class="status-label" id="status-label">今日暫停展覽</span>
+        </div>
+
+        <h1 class="profile-title" id="profile-title-el">《留白的詠嘆》</h1>
+
+        <div class="profile-facts">
+            <div class="fact-row" id="fact-format-row">
+                <span class="fact-lbl">展覽形式</span>
+                <span class="fact-val" id="fact-format">典藏鑑賞、策展委託</span>
+            </div>
+            <div class="fact-row" id="fact-viewdistance-row">
+                <span class="fact-lbl">鑑賞距離</span>
+                <span class="fact-val" id="fact-viewdistance">隔席觀覽<span class="fact-help" data-tip="隔著一席的距離欣賞館藏，與他閒談往來，保有初識之人該有的分寸。">？</span></span>
+            </div>
+            <div class="fact-row">
+                <span class="fact-lbl">推薦對象</span>
+                <span class="fact-val" id="fact-recommend">也有一件事還沒做完，或一直說著「之後再說」的收藏家</span>
+            </div>
+            <div class="fact-row">
+                <span class="fact-lbl">館藏編號</span>
+                <span class="fact-val" id="fact-catalogno">No.???</span>
+            </div>
+        </div>
+
+        <div class="profile-section" data-reveal>
+            <div class="section-label">展覽簡介</div>
+            <div class="section-body" id="section-intro">
+                <p>一份只寫到第四十二小節的手寫樂譜，被發現時夾在一本天文學書籍裡。最後一個音符旁，有一行鉛筆小字：「之後再寫。」</p>
+            </div>
+        </div>
+
+        <div class="profile-section" data-reveal>
+            <div class="section-label">背景故事</div>
+            <div class="section-body" id="section-backstory">
+                <p>作曲者出身學者世家，家人希望他研究星象，他卻總在筆記本角落偷偷寫曲。某年他決定離開薩雷安四處走走，臨行前把寫到一半的譜夾進手邊的書裡。</p>
+                <p>多年後他回來，找到了那本書，翻開看了很久，最後又把它放回書架。他說後面的旋律，留給下一個翻到它的人去想。書庫後來轉手，樂譜也跟著書一起到了策展人手上。</p>
+            </div>
+        </div>
+
+        <div class="profile-section" data-reveal>
+            <div class="section-label">鑑賞筆記</div>
+            <div class="section-body" id="section-notes">
+                <p>他會問你喜歡什麼樣的曲子。照實說就好，沒有標準答案。</p>
+                <p>天文學其實也懂不少，只是不太願意承認。</p>
+            </div>
+        </div>
+
+        <div class="profile-section" data-reveal>
+            <div class="section-label">委託項目</div>
+            <div class="section-body" id="section-commission">
+                <p><strong>星圖小品</strong></p>
+                <p>依收藏家提供的日期，查閱當日星象，撰寫一份專屬星象小卡，內容包含當日星空的描述，以及館藏對收藏家的觀察與寄語。</p>
+                <p>費用：300,000 Gil</p>
+                <p style="margin-top:1.4em"><strong>選曲</strong></p>
+                <p>依據與收藏家的交談內容，挑選一首合適的曲目，並附上選曲說明。可加購遊戲內管弦樂琴樂譜作為贈禮。</p>
+                <p>費用：200,000 Gil（樂譜另計）</p>
+            </div>
+        </div>
+
+        <div class="profile-cta" data-cta>
+            <p class="cta-note">
+                對這件典藏感興趣？<br>
+                前往競藏頁面，取得私人展廳資格。
+            </p>
+            <a class="btn-gold">前往競藏</a>
+        </div>
+
+    </div>
+</div>
+
+<!-- PREV / NEXT（本件為館藏目錄最後一項，無下一頁） -->
+<nav class="profile-nav single">
+    <a class="pnav-item prev" href="profile-template.html">
+        <span class="pnav-dir">← PREV</span>
+        <span class="pnav-name">《凜冬的餘溫》</span>
+        <span class="pnav-num">No. ???</span>
+    </a>
+</nav>
+
+<!-- FOOTER -->
+<footer>
+    <div>
+        <div class="footer-logo">PIETERSITE</div>
+        <p class="footer-copy">
+            私人典藏館　｜　僅限收藏家入場<br>
+            伊弗利特 ‧ 穹頂浩天 ‧⟡ 區 ⟡ 號
+            <span class="footer-motto">展陳有盡，珍藏無期</span>
+            <span class="footer-copyright">© 2026 PIETERSITE. All Rights Reserved</span>
+        </p>
+        <div class="footer-social">
+            <span class="footer-social-link"><img src="image/icon/discord_.png" alt="Discord" class="footer-icon"></span>
+            <a class="footer-social-link" aria-label="Threads">
+                <img src="image/icon/threads_.png" alt="Threads" class="footer-icon">
+            </a>
+        </div>
+    </div>
+    <nav class="footer-nav">
+        <a>COLLECTIONS</a>
+        <a>ACQUISITION</a>
+        <a>EXHIBITIONS</a>
+        <a>MENU</a>
+        <a>ABOUT</a>
+        <a>RULES</a>
+    </nav>
+</footer>
+
+<script>
+(function () {
+
+    /* ── Scroll reveals ── */
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+            if (el.dataset.reveal !== undefined || el.dataset.cta !== undefined) {
+                el.classList.add('vis');
+                io.unobserve(el);
+            }
+        });
+    }, { threshold: .1 });
+
+    document.querySelectorAll('[data-reveal],[data-cta]').forEach(el => io.observe(el));
+
+    /* ── Header hide on scroll ── */
+    const hdr = document.getElementById('site-header');
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y > 100 && y > lastY) {
+            hdr.style.opacity = '0';
+            hdr.style.pointerEvents = 'none';
+        } else if (y <= 100) {
+            hdr.style.opacity = '1';
+            hdr.style.pointerEvents = '';
+        }
+        lastY = y;
+    }, { passive: true });
+
+})();
+</script>
+
+<!-- ── 下次競藏日（左下）+ 回到頂部（右下，小圖示）── -->
+<a class="float-notice" id="float-notice">
+    <span class="float-notice-label">下次競藏日</span>
+    <span class="float-notice-date" id="float-notice-date"></span>
+</a>
+<button class="float-top" id="float-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到頂部">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9L7 4L12 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const floatApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteFloatWidget');
+const floatDb = getDatabase(floatApp);
+
+onValue(dbRef(floatDb, 'publicNotices/acquisitionDay'), snap => {
+    const notice = snap.val();
+    const el = document.getElementById('float-notice');
+    if (notice?.date) {
+        const dt = new Date(notice.date + 'T00:00:00');
+        let text = `${dt.getMonth()+1}/${dt.getDate()}（${'日一二三四五六'[dt.getDay()]}）`;
+        if (notice.time) text += ` ${notice.time}`;
+        document.getElementById('float-notice-date').textContent = text;
+        el.classList.add('show');
+    } else {
+        el.classList.remove('show');
+    }
+});
+
+const floatTopBtn = document.getElementById('float-top');
+window.addEventListener('scroll', () => {
+    floatTopBtn.classList.toggle('show', window.scrollY > 400);
+}, { passive: true });
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getDatabase, ref as dbRef, onValue } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const rosterApp = initializeApp({
+    apiKey:            "AIzaSyB6tK8gl1Nu6928Ju5IFAhXbG7iuYjQoBc",
+    authDomain:        "pietersitepos.firebaseapp.com",
+    databaseURL:       "https://pietersitepos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "pietersitepos",
+    storageBucket:     "pietersitepos.firebasestorage.app",
+    messagingSenderId: "336617870672",
+    appId:             "1:336617870672:web:c1d9280e94e6f6f77bc855"
+}, 'pietersiteRoster');
+const rosterDb = getDatabase(rosterApp);
+
+function getBusinessDate() {
+    const d = new Date();
+    if (d.getHours() < 2) d.setDate(d.getDate() - 1);
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+
+onValue(dbRef(rosterDb, 'publicTodayRoster'), snap => {
+    const roster = snap.val();
+    const scheduledToday = (roster && roster.date === getBusinessDate()) ? roster.names || {} : {};
+    const wrap = document.getElementById('profile-status');
+    const name = wrap?.dataset.profileName;
+    const isOn = !!(name && scheduledToday[name]);
+    document.getElementById('status-dot').classList.toggle('off', !isOn);
+    document.getElementById('status-label').textContent = isOn ? '館內展覽中' : '今日暫停展覽';
+});
+</script>
+</body>
+</html>
