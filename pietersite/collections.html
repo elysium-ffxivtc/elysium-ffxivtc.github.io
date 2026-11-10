@@ -805,7 +805,6 @@ function collectionCard(a) {
         ? `<img src="${photoUrl}" alt="${escCol(a.workTitle)}">`
         : `<div class="photo-placeholder">
                 <svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-                <span>待上傳</span>
             </div>`;
     const isOn = a.name && latestScheduledToday[a.name];
     return `<div class="exhibit vis" data-profile-name="${escCol(a.name)}">

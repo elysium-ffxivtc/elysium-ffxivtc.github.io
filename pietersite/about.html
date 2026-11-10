@@ -766,7 +766,7 @@ function teamCard(kind, m) {
     const photoCls = kind === 'curator' ? 'curator-photo' : 'staff-photo';
     const photo = m.photo
         ? `<div class="${photoCls} has-photo"><img src="https://cdn.jsdelivr.net/gh/elysium-ffxivtc/elysium-ffxivtc.github.io@main/pietersite/${escTeam(m.photo)}" alt="${escTeam(m.name)}"></div>`
-        : `<div class="${photoCls}"><svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg><span>待上傳</span></div>`;
+        : `<div class="${photoCls}"><svg viewBox="0 0 24 24" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`;
     return `<div class="${kind}-card vis">
         ${photo}
         <div class="${kind}-info">
