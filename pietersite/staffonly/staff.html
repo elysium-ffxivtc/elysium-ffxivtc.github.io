@@ -136,6 +136,7 @@ let currentUser = null;
 let staffList   = [];
 let profiles    = {};
 let editingUid  = null;
+let commissionDraft = [];
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function isAdmin() { return currentUser && currentUser.role === 'admin'; }
@@ -300,6 +301,10 @@ function renderEdit(uid) {
   const a = profiles[uid] || {};
   const rankDefault = a.rank || (a.updatedAt ? 'formal' : 'intern'); // 新帳號預設實習，舊資料預設正式
 
+  /* ponytail: 舊資料可能是單一物件（非陣列），相容轉成陣列 */
+  commissionDraft = Array.isArray(a.commissionItems) ? a.commissionItems.slice()
+    : (a.commissionItems && a.commissionItems.title ? [a.commissionItems] : []);
+
   if (member?.role !== 'collection') {
     document.getElementById('edit-col').innerHTML = `
       <div class="card">
@@ -374,12 +379,9 @@ function renderEdit(uid) {
       <textarea class="form-input" id="f-backstory">${esc(a.backstory||'')}</textarea>
       <div class="form-label">鑑賞筆記</div>
       <textarea class="form-input" id="f-notes">${esc(a.notes||'')}</textarea>
-      <div class="form-label">委託項目 · 名稱</div>
-      <input class="form-input" id="f-commission-title" value="${esc(a.commissionItems?.title||'')}">
-      <div class="form-label">委託項目 · 說明</div>
-      <textarea class="form-input" id="f-commission-desc">${esc(a.commissionItems?.desc||'')}</textarea>
-      <div class="form-label">委託項目 · 費用</div>
-      <input class="form-input" id="f-commission-price" value="${esc(a.commissionItems?.price||'')}" placeholder="例如：300,000 Gil">
+      <div class="form-label">委託項目</div>
+      <div id="commission-items-box">${renderCommissionItems()}</div>
+      <button type="button" class="btn btn-outline btn-sm" style="margin-top:.4rem" onclick="addCommissionItem()">＋ 新增項目</button>
       <div class="save-bar">
         <button class="btn btn-gold btn-sm" onclick="saveProfile('${uid}')">儲存</button>
       </div>
@@ -407,6 +409,42 @@ async function saveStaffBio(uid) {
   showToast('已儲存');
 }
 
+function renderCommissionItems() {
+  return commissionDraft.map((item, i) => `
+    <div class="commission-item-block" style="border:1px solid var(--border);border-radius:4px;padding:.7rem;margin-bottom:.6rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem">
+        <span style="font-size:12px;color:var(--dim)">項目 ${i + 1}</span>
+        <button type="button" class="btn btn-outline btn-sm" onclick="removeCommissionItem(${i})">刪除</button>
+      </div>
+      <div class="form-label" style="margin-top:0">名稱</div>
+      <input class="form-input" id="f-commission-title-${i}" value="${esc(item.title || '')}">
+      <div class="form-label">說明</div>
+      <textarea class="form-input" id="f-commission-desc-${i}">${esc(item.desc || '')}</textarea>
+      <div class="form-label">費用</div>
+      <input class="form-input" id="f-commission-price-${i}" value="${esc(item.price || '')}" placeholder="例如：300,000 Gil">
+    </div>`).join('');
+}
+
+function syncCommissionDraft() {
+  commissionDraft.forEach((item, i) => {
+    item.title = document.getElementById(`f-commission-title-${i}`).value.trim();
+    item.desc  = document.getElementById(`f-commission-desc-${i}`).value.trim();
+    item.price = document.getElementById(`f-commission-price-${i}`).value.trim();
+  });
+}
+
+function addCommissionItem() {
+  syncCommissionDraft();
+  commissionDraft.push({ title: '', desc: '', price: '' });
+  document.getElementById('commission-items-box').innerHTML = renderCommissionItems();
+}
+
+function removeCommissionItem(i) {
+  syncCommissionDraft();
+  commissionDraft.splice(i, 1);
+  document.getElementById('commission-items-box').innerHTML = renderCommissionItems();
+}
+
 function updatePhotoPreview() {
   const path = document.getElementById('f-photo').value.trim();
   const img = document.getElementById('f-photo-preview');
@@ -415,6 +453,7 @@ function updatePhotoPreview() {
 }
 
 async function saveProfile(uid) {
+  syncCommissionDraft();
   const val = {
     name:     document.getElementById('f-name').value.trim(),
     catalogNo: document.getElementById('f-catalogno').value.trim(),
@@ -431,11 +470,7 @@ async function saveProfile(uid) {
     introduction:  document.getElementById('f-intro').value.trim(),
     backstory:     document.getElementById('f-backstory').value.trim(),
     notes:         document.getElementById('f-notes').value.trim(),
-    commissionItems: {
-      title: document.getElementById('f-commission-title').value.trim(),
-      desc:  document.getElementById('f-commission-desc').value.trim(),
-      price: document.getElementById('f-commission-price').value.trim(),
-    },
+    commissionItems: commissionDraft.filter(item => item.title || item.desc || item.price),
     specialDish: profiles[uid]?.specialDish || {},
     order:    profiles[uid]?.order ?? 0,
     updatedBy: currentUser.displayName,
@@ -460,7 +495,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveProfile, saveStaffBio });
+Object.assign(window, { signInGoogle, doSignOut, openEdit, updatePhotoPreview, saveProfile, saveStaffBio, addCommissionItem, removeCommissionItem });
 </script>
 </body>
 </html>
