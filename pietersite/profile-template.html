@@ -300,7 +300,8 @@
             z-index: 20;
         }
 
-        .fact-help:hover::after {
+        .fact-help:hover::after,
+        .fact-help.show::after {
             opacity: 1;
         }
 
@@ -751,6 +752,19 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
     }, { threshold: .1 });
 
     document.querySelectorAll('[data-reveal],[data-cta]').forEach(el => io.observe(el));
+
+    /* ── 鑑賞距離說明（手機點擊顯示，無 hover 時也能觸發）── */
+    document.querySelectorAll('.fact-help').forEach(el => {
+        el.addEventListener('click', e => {
+            e.stopPropagation();
+            const isShown = el.classList.contains('show');
+            document.querySelectorAll('.fact-help.show').forEach(o => o.classList.remove('show'));
+            if (!isShown) el.classList.add('show');
+        });
+    });
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.fact-help.show').forEach(o => o.classList.remove('show'));
+    });
 
     /* ── Header hide on scroll ── */
     const hdr = document.getElementById('site-header');
