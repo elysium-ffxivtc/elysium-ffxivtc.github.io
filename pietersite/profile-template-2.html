@@ -238,6 +238,7 @@
 
         .fact-row {
             display: flex;
+            align-items: center;
             gap: 2rem;
             font-size: .95rem;
         }
@@ -303,6 +304,46 @@
         .fact-help:hover::after,
         .fact-help.show::after {
             opacity: 1;
+        }
+
+        .rp-level-group {
+            display: inline-flex;
+            gap: .5rem;
+        }
+
+        .rp-level {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.1em;
+            padding: .12em 0;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            font-size: .78rem;
+            letter-spacing: .1em;
+            color: var(--ivory-dim);
+            opacity: .45;
+            transition: all .25s;
+        }
+
+        .rp-level.active { opacity: 1; }
+
+        .rp-level[data-level="輕"].active {
+            border-color: rgba(154,190,160,.45);
+            background: rgba(154,190,160,.12);
+            color: #b7d6bb;
+        }
+
+        .rp-level[data-level="中"].active {
+            border-color: var(--gold-border);
+            background: var(--gold-dim);
+            color: var(--gold-bright);
+        }
+
+        .rp-level[data-level="重"].active {
+            border-color: rgba(196,104,104,.45);
+            background: rgba(196,104,104,.12);
+            color: #d99c9c;
         }
 
         /* content sections */
@@ -651,6 +692,16 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
             <div class="fact-row" id="fact-viewdistance-row">
                 <span class="fact-lbl">鑑賞距離</span>
                 <span class="fact-val" id="fact-viewdistance">沉浸賞析<span class="fact-help" data-tip="走近一些，作品便會回應你的目光。讚賞、撒嬌、含蓄的心意皆可；觸碰以牽手、輕靠與擁抱為限。">？</span></span>
+            </div>
+            <div class="fact-row">
+                <span class="fact-lbl" style="letter-spacing:.2em">RP程度</span>
+                <span class="fact-val">
+                    <span class="rp-level-group">
+                        <span class="rp-level active" data-level="輕">輕</span>
+                        <span class="rp-level" data-level="中">中</span>
+                        <span class="rp-level" data-level="重">重</span>
+                    </span>
+                </span>
             </div>
             <div class="fact-row">
                 <span class="fact-lbl">推薦對象</span>
