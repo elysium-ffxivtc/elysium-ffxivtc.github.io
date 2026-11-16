@@ -398,10 +398,15 @@
 
         .suit-table {
             border-collapse: collapse;
+            table-layout: fixed;
             width: 100%;
             max-width: 420px;
             font-size: .88rem;
         }
+
+        .suit-table th:nth-child(1), .suit-table td:nth-child(1) { width: 46%; }
+        .suit-table th:nth-child(2), .suit-table td:nth-child(2) { width: 22%; }
+        .suit-table th:nth-child(3), .suit-table td:nth-child(3) { width: 32%; }
 
         .suit-table th {
             text-align: left;
@@ -410,8 +415,16 @@
             letter-spacing: .25em;
             color: var(--gold);
             font-weight: 400;
-            padding: 0 1rem .7rem 0;
+            padding: .5rem 1rem .5rem 0;
             border-bottom: 1px solid var(--gold-border);
+        }
+
+        .suit-start {
+            font-size: .95rem;
+            color: var(--ivory);
+            padding-bottom: .9rem;
+            border-bottom: 1px solid var(--gold-border);
+            max-width: 420px;
         }
 
         .suit-table td {
@@ -807,18 +820,20 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                     <li class="rule-item">每次競拍之標的為一節 30 分鐘的鑑賞時段；同一時段內，每位收藏家僅能取得一位館藏之鑑賞資格。</li>
                 </ul>
 
-                <p class="rule-item" style="margin-bottom:.8rem">起標價 200,000 Gil。</p>
-                <table class="suit-table">
-                    <thead>
-                        <tr><th>花色</th><th>代號</th><th>加碼</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td class="suit-club"><span class="suit-symbol" onclick="copySuit(this,'♣')" title="點擊複製">♣</span>梅花</td><td>C</td><td>+ 50,000 Gil</td></tr>
-                        <tr><td class="suit-diamond"><span class="suit-symbol" onclick="copySuit(this,'♦')" title="點擊複製">♦</span>方塊</td><td>D</td><td>+ 100,000 Gil</td></tr>
-                        <tr><td class="suit-heart"><span class="suit-symbol" onclick="copySuit(this,'♥')" title="點擊複製">♥</span>紅心</td><td>H</td><td>+ 200,000 Gil</td></tr>
-                        <tr><td class="suit-spade"><span class="suit-symbol" onclick="copySuit(this,'♠')" title="點擊複製">♠</span>黑桃</td><td>S</td><td>+ 500,000 Gil</td></tr>
-                    </tbody>
-                </table>
+                <div class="suit-block">
+                    <p class="suit-start">起標價 200,000 Gil</p>
+                    <table class="suit-table">
+                        <thead>
+                            <tr><th>花色</th><th>代號</th><th>加碼</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="suit-club"><span class="suit-symbol" onclick="copySuit(this,'♣')" title="點擊複製">♣</span>梅花</td><td>C</td><td>+ 50,000 Gil</td></tr>
+                            <tr><td class="suit-diamond"><span class="suit-symbol" onclick="copySuit(this,'♦')" title="點擊複製">♦</span>方塊</td><td>D</td><td>+ 100,000 Gil</td></tr>
+                            <tr><td class="suit-heart"><span class="suit-symbol" onclick="copySuit(this,'♥')" title="點擊複製">♥</span>紅心</td><td>H</td><td>+ 200,000 Gil</td></tr>
+                            <tr><td class="suit-spade"><span class="suit-symbol" onclick="copySuit(this,'♠')" title="點擊複製">♠</span>黑桃</td><td>S</td><td>+ 500,000 Gil</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
