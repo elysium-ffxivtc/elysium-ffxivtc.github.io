@@ -374,6 +374,22 @@
         .zone-pub .zone-badge { border-color: var(--blue);     color: var(--blue-bright); }
         .zone-pvt .zone-badge { border-color: var(--gold-dim); color: var(--gold); }
 
+        .zone-link {
+            display: inline-block;
+            margin-top: 1.8rem;
+            padding: .9rem 0;
+            font-size: .85rem;
+            letter-spacing: .12em;
+            text-decoration: underline;
+            text-decoration-color: transparent;
+            transition: text-decoration-color .25s;
+        }
+
+        .zone-link:hover { text-decoration-color: currentColor; }
+
+        .zone-pvt .zone-link { color: var(--gold); }
+        .zone-pub .zone-link { color: var(--blue-bright); }
+
         /* ── FOOTER ── */
         footer {
             border-top: 1px solid var(--line);
@@ -545,7 +561,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
     <nav>
         <a href="collections.html">館藏</a>
         <a href="acquisition.html">競藏</a>
-        <a href="exhibitions.html">展覽</a>
+        <a href="visit.html">參觀</a>
         <a href="menu.html">酒單</a>
         <a href="about.html">關於</a>
         <a href="rules.html">規章</a>
@@ -594,18 +610,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
         <h2><span class="h2-inner" data-h2>館內兩種空間，<br>截然不同的相遇。</span></h2>
 
         <div class="zones-grid zones-trigger" data-zones>
-            <div class="zone zone-pub">
-                <div class="zone-num">01</div>
-                <div class="zone-name">公開展區</div>
-                <p class="zone-desc">
-                    持有入館資格的收藏家均可自由進入。<br><br>
-                    此處的館藏不為特定收藏家而展出。他們交談、飲酒，或閑坐一隅，收藏家可靜觀其側，亦可上前結識。<br><br>
-                    無須預約，不設指名。
-                </p>
-                <span class="zone-badge">GENERAL ADMISSION</span>
-            </div>
             <div class="zone zone-pvt">
-                <div class="zone-num">02</div>
+                <div class="zone-num">01</div>
                 <div class="zone-name">私人展廳</div>
                 <p class="zone-desc">
                     僅向競藏得標的收藏家開放。<br><br>
@@ -613,6 +619,18 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                     這段獨有時光，將成為珍藏的記憶。
                 </p>
                 <span class="zone-badge">ACQUISITION ACCESS</span>
+                <a class="zone-link" href="acquisition.html">了解競藏制度</a>
+            </div>
+            <div class="zone zone-pub">
+                <div class="zone-num">02</div>
+                <div class="zone-name">公開展區</div>
+                <p class="zone-desc">
+                    持有入館資格的收藏家均可自由進入。<br><br>
+                    此處的館藏不為特定收藏家而展出。他們交談、飲酒，或閑坐一隅，收藏家可靜觀其側，亦可上前結識。<br><br>
+                    無須預約，不設指名。
+                </p>
+                <span class="zone-badge">GENERAL ADMISSION</span>
+                <a class="zone-link" href="visit.html">查看參觀資訊</a>
             </div>
         </div>
     </div>
@@ -638,7 +656,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
     <nav class="footer-nav">
         <a href="collections.html">COLLECTIONS</a>
         <a href="acquisition.html">ACQUISITION</a>
-        <a href="exhibitions.html">EXHIBITIONS</a>
+        <a href="visit.html">VISIT</a>
         <a href="menu.html">MENU</a>
         <a href="about.html">ABOUT</a>
         <a href="rules.html">RULES</a>
@@ -696,6 +714,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 el.classList.add('vis');
                 io.unobserve(el);
             }
+
         });
     }, { threshold: .12 });
 

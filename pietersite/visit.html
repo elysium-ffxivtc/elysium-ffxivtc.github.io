@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>展覽 — PIETERSITE</title>
+    <title>參觀 — PIETERSITE</title>
     <link rel="icon" href="image/icon/LOGO_mini.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -191,6 +191,16 @@
             background: var(--line);
         }
 
+        .service-group {
+            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+            font-size: .78rem;
+            letter-spacing: .3em;
+            color: var(--ivory-dim);
+            margin: 2.8rem 0 1.2rem;
+        }
+
+        .service-group:first-of-type { margin-top: 0; }
+
         .service-card {
             background: var(--bg-card);
             padding: 3.2rem 2.8rem;
@@ -227,27 +237,6 @@
 
         .service-card:hover { background: var(--bg-card-h); }
         .service-card:hover::before { transform: scaleX(1); }
-
-        .service-tag {
-            font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
-            font-size: .72rem;
-            letter-spacing: .35em;
-            color: #A3B2C2;
-            border: 1px solid rgba(163,178,194,.45);
-            display: inline-block;
-            padding: .25rem .9rem;
-            margin-bottom: 2rem;
-        }
-
-        .service-tag.gold {
-            color: var(--gold);
-            border-color: var(--gold-dim);
-        }
-
-        .service-tag.souvenir {
-            color: #7FA9D6;
-            border-color: rgba(127,169,214,.45);
-        }
 
         .service-name {
             font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
@@ -525,7 +514,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
     <nav>
         <a href="collections.html">館藏</a>
         <a href="acquisition.html">競藏</a>
-        <a href="exhibitions.html" class="active">展覽</a>
+        <a href="visit.html" class="active">參觀</a>
         <a href="menu.html">酒單</a>
         <a href="about.html">關於</a>
         <a href="rules.html">規章</a>
@@ -533,8 +522,8 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
 </header>
 
 <div id="page-intro">
-    <p class="page-eyebrow">EXHIBITIONS</p>
-    <h1 class="page-title">展覽</h1>
+    <p class="page-eyebrow">VISIT</p>
+    <h1 class="page-title">參觀</h1>
     <p class="page-desc">
         同一件館藏，在不同的展間裡，<br>
         會是不同的樣子。
@@ -547,10 +536,10 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
         <p class="eyebrow" data-eyebrow>服務項目</p>
         <h2><span class="h2-inner" data-h2>私人展廳提供的相遇形式。</span></h2>
 
+        <p class="service-group">STANDARD · 基礎服務</p>
         <div class="service-grid" data-services>
 
             <div class="service-card">
-                <span class="service-tag">STANDARD</span>
                 <div class="service-name">館內休憩</div>
                 <div class="service-rule"></div>
                 <p class="service-desc">
@@ -574,7 +563,6 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
             </div>
 
             <div class="service-card">
-                <span class="service-tag">STANDARD</span>
                 <div class="service-name">展場漫遊</div>
                 <div class="service-rule"></div>
                 <p class="service-desc">
@@ -597,8 +585,12 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 </div>
             </div>
 
+        </div>
+
+        <p class="service-group">EXCLUSIVE · 尊享鑑賞</p>
+        <div class="service-grid" data-services>
+
             <div class="service-card">
-                <span class="service-tag gold">EXCLUSIVE</span>
                 <div class="service-name">典藏鑑賞</div>
                 <div class="service-rule"></div>
                 <p class="service-desc">
@@ -622,7 +614,6 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
             </div>
 
             <div class="service-card">
-                <span class="service-tag gold">EXCLUSIVE</span>
                 <div class="service-name">策展委託</div>
                 <div class="service-rule"></div>
                 <p class="service-desc">
@@ -645,8 +636,12 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
                 </div>
             </div>
 
+        </div>
+
+        <p class="service-group">SOUVENIR · 紀念選物</p>
+        <div class="service-grid" data-services>
+
             <div class="service-card">
-                <span class="service-tag souvenir">SOUVENIR</span>
                 <div class="service-name">館內留影</div>
                 <div class="service-rule"></div>
                 <p class="service-desc">
@@ -667,7 +662,6 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
             </div>
 
             <div class="service-card">
-                <span class="service-tag souvenir">SOUVENIR</span>
                 <div class="service-name">典藏紀念品</div>
                 <div class="service-rule"></div>
                 <p class="service-desc">
@@ -717,7 +711,7 @@ document.addEventListener('dragstart',   e => { if (e.target.tagName === 'IMG') 
     <nav class="footer-nav">
         <a href="collections.html">COLLECTIONS</a>
         <a href="acquisition.html">ACQUISITION</a>
-        <a href="exhibitions.html">EXHIBITIONS</a>
+        <a href="visit.html">VISIT</a>
         <a href="menu.html">MENU</a>
         <a href="about.html">ABOUT</a>
         <a href="rules.html">RULES</a>
