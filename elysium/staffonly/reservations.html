@@ -32,17 +32,22 @@
     .seg-btn { padding: .33rem .85rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); font-family: inherit; transition: all .15s; margin-right: -1px; }
     .seg-btn.on { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); z-index: 1; position: relative; }
 
-    .res-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--dim); padding: .85rem 1rem; margin-bottom: .65rem; }
+    .res-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--dim); padding: .9rem 1rem; margin-bottom: .65rem; }
     .res-card.new { border-left-color: var(--gold); }
     .res-card.completed { border-left-color: var(--green); opacity: .75; }
     .res-card.cancelled { border-left-color: var(--red); opacity: .55; }
-    .res-hdr { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .4rem; margin-bottom: .5rem; }
-    .res-date { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: var(--gold); }
-    .res-status { font-size: 11px; padding: .12rem .5rem; border: 1px solid var(--border); color: var(--dim); }
+    .res-hdr { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; padding-bottom: .65rem; border-bottom: 1px solid var(--border); }
+    .res-hdr-main { display: flex; align-items: baseline; gap: .7rem; }
+    .res-date { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; color: var(--gold); }
+    .res-total { font-size: 13px; color: var(--text); font-weight: 500; }
+    .res-status { font-size: 11px; padding: .12rem .5rem; border: 1px solid var(--border); color: var(--dim); flex-shrink: 0; }
     .res-status.new { color: var(--gold); border-color: var(--gold); }
     .res-status.completed { color: var(--green); border-color: var(--green); }
     .res-status.cancelled { color: var(--red); border-color: var(--red); }
-    .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .4rem .9rem; font-size: 12.5px; margin-bottom: .5rem; }
+
+    .res-groups { display: flex; flex-wrap: wrap; gap: 1.5rem 2.2rem; margin-bottom: .5rem; }
+    .res-group-label { font-size: 10.5px; letter-spacing: .15em; color: var(--gold); margin-bottom: .45rem; }
+    .res-group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .4rem 1.1rem; font-size: 12.5px; }
     .res-field-label { color: var(--dim); font-size: 10.5px; }
     .res-note { font-size: 12.5px; color: var(--text); background: var(--bg); padding: .4rem .55rem; margin-top: .3rem; white-space: pre-wrap; }
     .res-actions { display: flex; gap: .5rem; margin-top: .6rem; }
@@ -237,24 +242,36 @@ function render() {
     const status = r.status || 'new';
     const visitType = r.visitType || 'ritual';
     const svcNames = (r.services || []).map(s => SERVICE_NAME[s] || s).join('、');
-    const typeFields = visitType === 'seat'
+    const bookingFields = visitType === 'seat'
       ? `<div><div class="res-field-label">座席</div>${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div>
          <div><div class="res-field-label">人數</div>${r.seatCount || 0} 人</div>`
       : `<div><div class="res-field-label">指定使徒</div>${esc(apostleName(r.apostle))}</div>
          <div><div class="res-field-label">儀式</div>${esc(svcNames)}</div>`;
     return `<div class="res-card ${status}">
       <div class="res-hdr">
-        <span class="res-date">${esc(r.date)} ${esc(r.time)}</span>
+        <div class="res-hdr-main">
+          <span class="res-date">${esc(r.date)} ${esc(r.time)}</span>
+          <span class="res-total">${(r.total||0).toLocaleString()} Gil</span>
+        </div>
         <span class="res-status ${status}">${STATUS_LABEL[status] || status}</span>
       </div>
-      <div class="res-grid">
-        <div><div class="res-field-label">來訪形式</div>${esc(VISIT_LABEL[visitType] || visitType)}</div>
-        <div><div class="res-field-label">遊戲角色</div>${esc(r.gameName)}</div>
-        <div><div class="res-field-label">所在World</div>${esc(r.server)}</div>
-        <div><div class="res-field-label">Discord ID</div>${esc(r.contact)}</div>
-        ${typeFields}
-        <div><div class="res-field-label">RP 程度</div>${esc(RP_LABEL[r.rp] || r.rp || '')}</div>
-        <div><div class="res-field-label">金額</div>${(r.total||0).toLocaleString()} Gil</div>
+      <div class="res-groups">
+        <div class="res-group">
+          <div class="res-group-label">訪客</div>
+          <div class="res-group-grid">
+            <div><div class="res-field-label">遊戲角色</div>${esc(r.gameName)}</div>
+            <div><div class="res-field-label">所在World</div>${esc(r.server)}</div>
+            <div><div class="res-field-label">Discord ID</div>${esc(r.contact)}</div>
+          </div>
+        </div>
+        <div class="res-group">
+          <div class="res-group-label">預約內容</div>
+          <div class="res-group-grid">
+            <div><div class="res-field-label">來訪形式</div>${esc(VISIT_LABEL[visitType] || visitType)}</div>
+            ${bookingFields}
+            <div><div class="res-field-label">RP 程度</div>${esc(RP_LABEL[r.rp] || r.rp || '')}</div>
+          </div>
+        </div>
       </div>
       ${r.rpNote ? `<div class="res-note"><span class="res-field-label">備註</span><br>${esc(r.rpNote)}</div>` : ''}
       ${r.notes  ? `<div class="res-note"><span class="res-field-label">其他備註</span><br>${esc(r.notes)}</div>`  : ''}
