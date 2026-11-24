@@ -32,6 +32,16 @@
     /* ── 卡片區（欄 1）── */
     .bk2-grid-content { grid-column: 1; grid-row: 2; padding: 1.5rem 2.5rem 5rem; min-width: 0; }
 
+    .bk2-closed {
+      grid-column: 1 / -1; grid-row: 2;
+      padding: 5rem 2rem; text-align: center;
+    }
+    .bk2-closed p {
+      font-family: 'Noto Serif TC', serif; font-size: 1.1rem;
+      color: var(--dim); letter-spacing: .1em; line-height: 2.2;
+    }
+    .bk2-closed span { font-size: .8rem; }
+
     .bk2-grid-label {
       font-size: 15px; letter-spacing: .25em; color: var(--text);
       margin-top: 2rem; margin-bottom: .8rem;
@@ -414,7 +424,10 @@
         <p style="font-family:'Noto Serif TC',serif;font-size:.85rem;letter-spacing:.1em;color:var(--dim);margin:0;text-align:center;">獻予徬徨靈魂的朝聖之途</p>
       </div>
     </div>
-    <div class="bk2-grid-content">
+    <div class="bk2-closed" id="bk2-closed" style="display:none;">
+      <p>目前暫停預約<br><span>請關注最新公告</span></p>
+    </div>
+    <div class="bk2-grid-content" id="bk2-grid-content">
       <div class="bk2-grid" id="bk2-grid"></div>
       <div id="bk2-grid-hint"></div>
     </div>
@@ -496,6 +509,7 @@
   //  狀態
   // ─────────────────────────────────────────────────────────────
   let bizStatus = {}, publicShifts = {}, bookedSlots = {}, previewBlock = false;
+  let registryOpen = true;
   let ALL_APOSTLES = {}; // uid -> 完整 apostles 記錄（含銀紗使／引路人），供每時段人力規則判斷用
   let st = {
     agreed: false, date: '', time: '',
@@ -533,14 +547,16 @@
     showLoading(true);
     try {
       const weekDates = currentWeekDates(); // 只抓本週會用到的日期，避免歷史資料越堆越大拖慢載入
-      const [apostlesSnap, ...dateSnaps] = await Promise.all([
+      const [apostlesSnap, openSnap, ...dateSnaps] = await Promise.all([
         get(dbRef(db, 'apostles')),
+        get(dbRef(db, 'settings/registryOpen')),
         ...weekDates.flatMap(d => [
           get(dbRef(db, `bizStatus/${d}`)),
           get(dbRef(db, `publicShifts/${d}`)),
           get(dbRef(db, `bookedSlots/${d}`)),
         ]),
       ]);
+      registryOpen = openSnap.val() !== false;
       const apostlesVal = apostlesSnap.val() || {};
       ALL_APOSTLES = apostlesVal;
       APOSTLES = Object.entries(apostlesVal)
@@ -1327,6 +1343,12 @@
     document.getElementById('bk2-form-inner').innerHTML =
       '<div style="padding:2rem 1.3rem;text-align:center;color:var(--dim);font-size:13px;letter-spacing:.08em;">載入中…</div>';
     await loadData();
+    if (!registryOpen) {
+      document.getElementById('bk2-grid-content').style.display = 'none';
+      document.getElementById('bk2-form-col').style.display = 'none';
+      document.getElementById('bk2-closed').style.display = 'block';
+      return;
+    }
     renderGrid();
     initForm();
     updateSubmitBtn();
