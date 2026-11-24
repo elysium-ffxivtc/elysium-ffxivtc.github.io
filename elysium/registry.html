@@ -34,7 +34,8 @@
 
     .bk2-closed {
       grid-column: 1 / -1; grid-row: 2;
-      padding: 5rem 2rem; text-align: center;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
     }
     .bk2-closed p {
       font-family: 'Noto Serif TC', serif; font-size: 1.1rem;
@@ -1347,7 +1348,7 @@
       document.getElementById('agree-modal').style.display = 'none';
       document.getElementById('bk2-grid-content').style.display = 'none';
       document.getElementById('bk2-form-col').style.display = 'none';
-      document.getElementById('bk2-closed').style.display = 'block';
+      document.getElementById('bk2-closed').style.display = 'flex';
       return;
     }
     renderGrid();
