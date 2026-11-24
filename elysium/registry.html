@@ -1344,6 +1344,7 @@
       '<div style="padding:2rem 1.3rem;text-align:center;color:var(--dim);font-size:13px;letter-spacing:.08em;">載入中…</div>';
     await loadData();
     if (!registryOpen) {
+      document.getElementById('agree-modal').style.display = 'none';
       document.getElementById('bk2-grid-content').style.display = 'none';
       document.getElementById('bk2-form-col').style.display = 'none';
       document.getElementById('bk2-closed').style.display = 'block';
