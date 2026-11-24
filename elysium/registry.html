@@ -447,7 +447,7 @@
   });
   const db = getDatabase(app);
   const TIME_SLOTS = ['22:00', '23:00', '00:00'];
-  const DAILY_CAPACITY = 40; // 線上預約單日總人數上限，保留現場席次
+  const DAILY_CAPACITY = 40;
   function sKey(t) { return t.replace(':', ''); }
   function sanitizeKey(s) { return String(s||'').trim().replace(/[.#$/\[\]]/g, '_'); }
   const CDN = '';
@@ -497,7 +497,7 @@
   // ─────────────────────────────────────────────────────────────
   let bizStatus = {}, publicShifts = {}, bookedSlots = {}, previewBlock = false;
   let registryOpen = true;
-  let ALL_APOSTLES = {}; // uid -> 完整 apostles 記錄（含銀紗使／引路人），供每時段人力規則判斷用
+  let ALL_APOSTLES = {};
   let st = {
     agreed: false, date: '', time: '',
     visitType: '',
@@ -561,8 +561,6 @@
   // ─────────────────────────────────────────────────────────────
   //  排班邏輯
   // ─────────────────────────────────────────────────────────────
-  // 每個時段各自要有靜火在班、至少一位引路人、至少三位使徒（食罪／妖異）才算這個時段有開放，
-  // 跟 bizStatus（當天整體是否營業）分開判斷，避免單一時段缺人拖累其他時段。
   function isSlotStaffed(dateStr, time) {
     const uids = Object.keys(publicShifts[dateStr]?.[sKey(time)] || {});
     const hasJinghuo   = uids.some(uid => ALL_APOSTLES[uid]?.name === '靜火');
@@ -773,7 +771,6 @@
         </div>
       </div>
 
-      <!-- ponytail: 座席保留目前只能二選一，之後如需即時空位／更多席別再串接 Firebase -->
       <div id="bk2-seat-sec" style="display:none;">
         <div class="bk2-fsec">
           <div class="bk2-fsec-title">座席保留</div>
@@ -1150,7 +1147,6 @@
 
     const newHeadcount = st.visitType === 'seat' ? st.seatCount : 1;
     try {
-      // 送出前重新抓最新狀態，縮小競態視窗
       const [shiftsSnap, bookedSnap] = await Promise.all([
         get(dbRef(db, `publicShifts/${st.date}`)), get(dbRef(db, `bookedSlots/${st.date}`)),
       ]);
@@ -1171,10 +1167,9 @@
         }
       }
 
-      // 用交易安全地檢查並累加當日人數上限，避免競態超收
       const hcResult = await runTransaction(dbRef(db, `dailyHeadcount/${st.date}`), cur => {
         const now = cur || 0;
-        if (now + newHeadcount > DAILY_CAPACITY) return; // 中止交易，資料不變
+        if (now + newHeadcount > DAILY_CAPACITY) return;
         return now + newHeadcount;
       });
       if (!hcResult.committed) {
@@ -1215,9 +1210,6 @@
       renderSuccess2(st.gameName);
     } catch(e) {
       console.error(e);
-      // dailyHeadcount 的規則只允許公開「累加」，不允許公開「扣減」（避免有人惡意重設人數繞過上限），
-      // 所以這裡沒辦法在最後一步失敗時自動退回已預扣的人數——寧可少賣一個名額，也不要有機會被超收繞過。
-      // 如果之後常常發生（人數上限計算跟實際 reservations 對不上），要手動去 Firebase 把 dailyHeadcount 校正回來。
       alert('送出失敗，請稍後再試一次。');
     }
   }
@@ -1289,6 +1281,8 @@
   //  初始化
   // ─────────────────────────────────────────────────────────────
   async function init() {
+    document.getElementById('bk2-grid-content').style.visibility = 'hidden';
+    document.getElementById('bk2-form-col').style.visibility = 'hidden';
     renderGrid();
     document.getElementById('bk2-form-inner').innerHTML =
       '<div style="padding:2rem 1.3rem;text-align:center;color:var(--dim);font-size:13px;letter-spacing:.08em;">載入中…</div>';
@@ -1299,6 +1293,8 @@
       document.getElementById('bk2-closed').style.display = 'flex';
       return;
     }
+    document.getElementById('bk2-grid-content').style.visibility = '';
+    document.getElementById('bk2-form-col').style.visibility = '';
     document.getElementById('agree-modal').style.display = 'flex';
     renderGrid();
     initForm();
