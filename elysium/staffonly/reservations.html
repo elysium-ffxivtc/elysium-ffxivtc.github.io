@@ -32,26 +32,41 @@
     .seg-btn { padding: .33rem .85rem; font-size: 12px; background: none; border: 1px solid var(--border); color: var(--dim); font-family: inherit; transition: all .15s; margin-right: -1px; }
     .seg-btn.on { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); z-index: 1; position: relative; }
 
-    .res-card { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--dim); padding: .9rem 1rem; margin-bottom: .65rem; }
-    .res-card.new { border-left-color: var(--gold); }
-    .res-card.completed { border-left-color: var(--green); opacity: .75; }
-    .res-card.cancelled { border-left-color: var(--red); opacity: .55; }
-    .res-hdr { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; padding-bottom: .65rem; border-bottom: 1px solid var(--border); }
-    .res-hdr-main { display: flex; align-items: baseline; gap: .7rem; }
-    .res-date { font-family: 'Noto Serif TC', serif; font-size: 1.15rem; color: var(--gold); }
-    .res-total { font-size: 14.5px; color: var(--text); font-weight: 500; }
-    .res-status { font-size: 12.5px; padding: .15rem .55rem; border: 1px solid var(--border); color: var(--dim); flex-shrink: 0; }
-    .res-status.new { color: var(--gold); border-color: var(--gold); }
-    .res-status.completed { color: var(--green); border-color: var(--green); }
-    .res-status.cancelled { color: var(--red); border-color: var(--red); }
+    .res-card { background: var(--card); border: 1px solid var(--border); padding: 1.3rem 1.5rem 1.5rem; margin-bottom: .9rem; }
 
-    .res-groups { display: flex; flex-wrap: wrap; gap: 1.8rem 3rem; margin-bottom: .7rem; }
-    .res-group { flex: 1 1 280px; }
-    .res-group-label { font-size: 11.5px; letter-spacing: .15em; color: var(--gold); margin-bottom: .6rem; }
-    .res-group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: .8rem 1.4rem; font-size: 14px; }
-    .res-field-label { color: var(--dim); font-size: 11.5px; margin-bottom: .2rem; }
-    .res-note { font-size: 13.5px; color: var(--text); background: var(--bg); padding: .5rem .6rem; margin-top: .3rem; white-space: pre-wrap; }
-    .res-actions { display: flex; gap: .5rem; margin-top: .6rem; }
+    .res-hdr { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.3rem; }
+    .res-hdr-main { display: flex; align-items: baseline; gap: 1rem; flex-shrink: 0; }
+    .res-date { font-family: 'Noto Serif TC', serif; font-size: 1.3rem; letter-spacing: .05em; color: var(--text); }
+    .res-hdr-divider { width: 1px; height: 1.1rem; background: var(--border); }
+    .res-total { font-family: 'Noto Serif TC', serif; font-size: 1rem; letter-spacing: .08em; color: var(--gold); }
+    .res-hdr-line { flex: 1; height: 1px; background: var(--border); min-width: 2rem; }
+    .res-status-pill { font-size: 12.5px; padding: .35rem 1rem; border: 1px solid var(--border); border-radius: 999px; color: var(--dim); white-space: nowrap; letter-spacing: .05em; }
+    .res-status-pill.new { color: var(--gold); border-color: var(--gold); }
+    .res-status-pill.completed { color: var(--green); border-color: var(--green); }
+    .res-status-pill.cancelled { color: var(--red); border-color: var(--red); }
+
+    .res-strip { display: flex; flex-wrap: wrap; row-gap: 1.2rem; }
+    .res-col { flex: 1 1 140px; padding: 0 1.2rem; text-align: center; min-width: 0; }
+    .res-col:first-child { padding-left: 0; }
+    .res-col:last-child { padding-right: 0; }
+    .res-col + .res-col { border-left: 1px solid var(--border); }
+    .res-col-cat { font-size: 13.5px; color: var(--text); margin-bottom: .15rem; }
+    .res-col-cat-en { display: block; font-size: 9px; letter-spacing: .15em; color: var(--dim); text-transform: uppercase; margin-top: .15rem; }
+    .res-col-field { margin-top: .9rem; }
+    .res-col-field + .res-col-field { margin-top: .7rem; }
+    .res-field-label { font-size: 11.5px; color: var(--dim); margin-bottom: .25rem; }
+    .res-field-value { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; color: var(--text); }
+
+    .res-divider-sparkle { display: flex; align-items: center; gap: .7rem; margin: 1.2rem 0 1rem; }
+    .res-divider-sparkle::before, .res-divider-sparkle::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .res-divider-sparkle-icon { color: var(--gold); font-size: 12px; }
+
+    .res-note { border-left: 2px solid var(--gold); background: var(--bg); padding: .8rem 1.1rem; }
+    .res-note + .res-note { margin-top: .5rem; }
+    .res-note-label { font-size: 12.5px; color: var(--dim); margin-bottom: .35rem; }
+    .res-note-body { font-size: 14px; color: var(--text); white-space: pre-wrap; }
+
+    .res-actions { display: flex; gap: .5rem; margin-top: .9rem; }
 
     .btn { padding: .38rem .85rem; font-size: 12px; border: none; font-family: inherit; transition: all .15s; }
     .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
@@ -243,39 +258,52 @@ function render() {
     const status = r.status || 'new';
     const visitType = r.visitType || 'ritual';
     const svcNames = (r.services || []).map(s => SERVICE_NAME[s] || s).join('、');
-    const bookingFields = visitType === 'seat'
-      ? `<div><div class="res-field-label">座席</div>${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div>
-         <div><div class="res-field-label">人數</div>${r.seatCount || 0} 人</div>`
-      : `<div><div class="res-field-label">指定使徒</div>${esc(apostleName(r.apostle))}</div>
-         <div><div class="res-field-label">儀式</div>${esc(svcNames)}</div>`;
-    return `<div class="res-card ${status}">
+    const col5 = visitType === 'seat'
+      ? `<div class="res-col-cat">座席<span class="res-col-cat-en">Seat</span></div>
+         <div class="res-col-field"><div class="res-field-value">${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div></div>`
+      : `<div class="res-col-cat">指定使徒<span class="res-col-cat-en">Apostle</span></div>
+         <div class="res-col-field"><div class="res-field-value">${esc(apostleName(r.apostle))}</div></div>`;
+    const col6 = visitType === 'seat'
+      ? `<div class="res-col-cat">人數<span class="res-col-cat-en">Count</span></div>
+         <div class="res-col-field"><div class="res-field-value">${r.seatCount || 0} 人</div></div>`
+      : `<div class="res-col-cat">儀式<span class="res-col-cat-en">Format</span></div>
+         <div class="res-col-field"><div class="res-field-value">${esc(svcNames)}</div></div>`;
+    return `<div class="res-card">
       <div class="res-hdr">
         <div class="res-hdr-main">
           <span class="res-date">${esc(r.date)} ${esc(r.time)}</span>
+          <span class="res-hdr-divider"></span>
           <span class="res-total">${(r.total||0).toLocaleString()} Gil</span>
         </div>
-        <span class="res-status ${status}">${STATUS_LABEL[status] || status}</span>
+        <span class="res-hdr-line"></span>
+        <span class="res-status-pill ${status}">${STATUS_LABEL[status] || status} ✦</span>
       </div>
-      <div class="res-groups">
-        <div class="res-group">
-          <div class="res-group-label">訪客</div>
-          <div class="res-group-grid">
-            <div><div class="res-field-label">遊戲角色</div>${esc(r.gameName)}</div>
-            <div><div class="res-field-label">所在World</div>${esc(r.server)}</div>
-            <div><div class="res-field-label">Discord ID</div>${esc(r.contact)}</div>
-          </div>
+      <div class="res-strip">
+        <div class="res-col">
+          <div class="res-col-cat">訪客<span class="res-col-cat-en">Visitor</span></div>
+          <div class="res-col-field"><div class="res-field-label">遊戲角色</div><div class="res-field-value">${esc(r.gameName)}</div></div>
         </div>
-        <div class="res-group">
-          <div class="res-group-label">預約內容</div>
-          <div class="res-group-grid">
-            <div><div class="res-field-label">來訪形式</div>${esc(VISIT_LABEL[visitType] || visitType)}</div>
-            ${bookingFields}
-            <div><div class="res-field-label">RP 程度</div>${esc(RP_LABEL[r.rp] || r.rp || '')}</div>
-          </div>
+        <div class="res-col">
+          <div class="res-col-cat">所在World<span class="res-col-cat-en">World</span></div>
+          <div class="res-col-field"><div class="res-field-value">${esc(r.server)}</div></div>
         </div>
+        <div class="res-col">
+          <div class="res-col-cat">Discord ID<span class="res-col-cat-en">Discord</span></div>
+          <div class="res-col-field"><div class="res-field-value">${esc(r.contact)}</div></div>
+        </div>
+        <div class="res-col">
+          <div class="res-col-cat">預約內容<span class="res-col-cat-en">Service</span></div>
+          <div class="res-col-field"><div class="res-field-label">來訪形式</div><div class="res-field-value">${esc(VISIT_LABEL[visitType] || visitType)}</div></div>
+          <div class="res-col-field"><div class="res-field-label">RP 程度</div><div class="res-field-value">${esc(RP_LABEL[r.rp] || r.rp || '')}</div></div>
+        </div>
+        <div class="res-col">${col5}</div>
+        <div class="res-col">${col6}</div>
       </div>
-      ${r.rpNote ? `<div class="res-note"><span class="res-field-label">備註</span><br>${esc(r.rpNote)}</div>` : ''}
-      ${r.notes  ? `<div class="res-note"><span class="res-field-label">其他備註</span><br>${esc(r.notes)}</div>`  : ''}
+      ${(r.rpNote || r.notes) ? `
+        <div class="res-divider-sparkle"><span class="res-divider-sparkle-icon">✦</span></div>
+        ${r.rpNote ? `<div class="res-note"><div class="res-note-label">備註</div><div class="res-note-body">${esc(r.rpNote)}</div></div>` : ''}
+        ${r.notes  ? `<div class="res-note"><div class="res-note-label">其他備註</div><div class="res-note-body">${esc(r.notes)}</div></div>`  : ''}
+      ` : ''}
       ${status === 'new' ? `<div class="res-actions">
         <button class="btn btn-green btn-sm" onclick="markCompleted('${id}')">標記完成</button>
         <button class="btn btn-danger btn-sm" onclick="cancelReservation('${id}')">取消</button>
