@@ -51,11 +51,11 @@
     .res-col:last-child { padding-right: 0; }
     .res-col + .res-col { border-left: 1px solid var(--border); }
     .res-col-cat { font-size: 13.5px; color: var(--text); margin-bottom: .15rem; }
-    .res-col-cat-en { display: block; font-size: 9px; letter-spacing: .15em; color: var(--dim); text-transform: uppercase; margin-top: .15rem; }
     .res-col-field { margin-top: .9rem; }
     .res-col-field + .res-col-field { margin-top: .7rem; }
     .res-field-label { font-size: 11.5px; color: var(--dim); margin-bottom: .25rem; }
     .res-field-value { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; color: var(--text); }
+    .res-field-value-sm { font-size: .85rem; }
 
     .res-divider-sparkle { display: flex; align-items: center; gap: .7rem; margin: 1.2rem 0 1rem; }
     .res-divider-sparkle::before, .res-divider-sparkle::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -259,14 +259,14 @@ function render() {
     const visitType = r.visitType || 'ritual';
     const svcNames = (r.services || []).map(s => SERVICE_NAME[s] || s).join('、');
     const col5 = visitType === 'seat'
-      ? `<div class="res-col-cat">座席<span class="res-col-cat-en">Seat</span></div>
+      ? `<div class="res-col-cat">座席</div>
          <div class="res-col-field"><div class="res-field-value">${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div></div>`
-      : `<div class="res-col-cat">指定使徒<span class="res-col-cat-en">Apostle</span></div>
+      : `<div class="res-col-cat">指定使徒</div>
          <div class="res-col-field"><div class="res-field-value">${esc(apostleName(r.apostle))}</div></div>`;
     const col6 = visitType === 'seat'
-      ? `<div class="res-col-cat">人數<span class="res-col-cat-en">Count</span></div>
+      ? `<div class="res-col-cat">人數</div>
          <div class="res-col-field"><div class="res-field-value">${r.seatCount || 0} 人</div></div>`
-      : `<div class="res-col-cat">儀式<span class="res-col-cat-en">Format</span></div>
+      : `<div class="res-col-cat">儀式</div>
          <div class="res-col-field"><div class="res-field-value">${esc(svcNames)}</div></div>`;
     return `<div class="res-card">
       <div class="res-hdr">
@@ -276,23 +276,20 @@ function render() {
           <span class="res-total">${(r.total||0).toLocaleString()} Gil</span>
         </div>
         <span class="res-hdr-line"></span>
-        <span class="res-status-pill ${status}">${STATUS_LABEL[status] || status} ✦</span>
+        <span class="res-status-pill ${status}">${STATUS_LABEL[status] || status}</span>
       </div>
       <div class="res-strip">
         <div class="res-col">
-          <div class="res-col-cat">訪客<span class="res-col-cat-en">Visitor</span></div>
-          <div class="res-col-field"><div class="res-field-label">遊戲角色</div><div class="res-field-value">${esc(r.gameName)}</div></div>
+          <div class="res-col-cat">遊戲角色名稱</div>
+          <div class="res-col-field"><div class="res-field-value">${esc(r.gameName)}</div></div>
+          <div class="res-col-field"><div class="res-field-label">所在World</div><div class="res-field-value res-field-value-sm">${esc(r.server)}</div></div>
         </div>
         <div class="res-col">
-          <div class="res-col-cat">所在World<span class="res-col-cat-en">World</span></div>
-          <div class="res-col-field"><div class="res-field-value">${esc(r.server)}</div></div>
-        </div>
-        <div class="res-col">
-          <div class="res-col-cat">Discord ID<span class="res-col-cat-en">Discord</span></div>
+          <div class="res-col-cat">Discord ID</div>
           <div class="res-col-field"><div class="res-field-value">${esc(r.contact)}</div></div>
         </div>
         <div class="res-col">
-          <div class="res-col-cat">預約內容<span class="res-col-cat-en">Service</span></div>
+          <div class="res-col-cat">預約內容</div>
           <div class="res-col-field"><div class="res-field-label">來訪形式</div><div class="res-field-value">${esc(VISIT_LABEL[visitType] || visitType)}</div></div>
           <div class="res-col-field"><div class="res-field-label">RP 程度</div><div class="res-field-value">${esc(RP_LABEL[r.rp] || r.rp || '')}</div></div>
         </div>
