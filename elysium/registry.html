@@ -319,12 +319,6 @@
     }
     .bk-cchk.on { background: var(--text); border-color: var(--text); }
 
-    /* Loading */
-    #bk-loading {
-      position: fixed; inset: 0; background: #efefef;
-      display: none; align-items: center; justify-content: center; z-index: 9999;
-    }
-
     /* Lightbox */
     #bk-lightbox { position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; cursor: url('image/arr-cursors/arr-zoom-out.cur'), zoom-out; }
     #bk-lightbox.open { display: flex; }
@@ -378,15 +372,6 @@
   </style>
 </head>
 <body>
-
-  <div id="bk-loading">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:.9rem;">
-      <div style="width:50px;height:50px;perspective:120px;">
-        <img id="bk-load-img" src="image/icon/eye_final.webp" alt=""
-          style="width:50px;height:50px;object-fit:contain;display:block;transition:transform .18s ease;">
-      </div>
-    </div>
-  </div>
 
   <div id="bk-lightbox" onclick="closeLightbox()">
     <span id="bk-lightbox-close">&times;</span>
@@ -526,8 +511,6 @@
   // ─────────────────────────────────────────────────────────────
   //  資料載入
   // ─────────────────────────────────────────────────────────────
-  const LOAD_ICONS = ['image/icon/Elysium_LOGO.webp','image/icon/eye_final.webp','image/icon/key_final.webp','image/icon/moon_final.webp','image/icon/scale_final.webp'];
-
   function isCurrentWeek(dateStr) {
     const today = new Date(); today.setHours(0,0,0,0);
     const monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay()+6)%7));
@@ -546,7 +529,6 @@
   }
 
   async function loadData() {
-    showLoading(true);
     try {
       const weekDates = currentWeekDates(); // 只抓本週會用到的日期，避免歷史資料越堆越大拖慢載入
       const [apostlesSnap, openSnap, ...dateSnaps] = await Promise.all([
@@ -574,36 +556,6 @@
         bookedSlots[d]  = bookedSnap.val() || {};
       });
     } catch(e) { console.error(e); }
-    showLoading(false);
-  }
-
-  function showLoading(on) {
-    const el = document.getElementById('bk-loading');
-    if (on) {
-      if (el._interval) clearInterval(el._interval);
-      const shuffled = LOAD_ICONS.slice().sort(() => Math.random() - .5);
-      let idx = 0;
-      const img = document.getElementById('bk-load-img');
-      if (img) img.src = shuffled[0];
-      el._interval = setInterval(function() {
-        if (!img) return;
-        img.style.transform = 'rotateY(90deg)';
-        setTimeout(function() {
-          idx = (idx + 1) % shuffled.length;
-          img.src = shuffled[idx];
-          img.style.transform = 'rotateY(-90deg)';
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() { img.style.transform = 'rotateY(0deg)'; });
-          });
-        }, 180);
-      }, 900);
-      el.style.display = 'flex';
-    } else {
-      if (el) {
-        if (el._interval) { clearInterval(el._interval); el._interval = null; }
-        el.style.display = 'none';
-      }
-    }
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -1196,7 +1148,6 @@
     const availTimes = getAvailTimes(st.date);
     if (!availTimes.includes(st.time)) { alert(`${st.time} 場次已不在開放範圍，請重新選擇。`); return; }
 
-    showLoading(true);
     const newHeadcount = st.visitType === 'seat' ? st.seatCount : 1;
     try {
       // 送出前重新抓最新狀態，縮小競態視窗
@@ -1210,13 +1161,13 @@
         if (!isApostleOnDuty(st.date, st.apostle, st.time)) {
           const name = APOSTLES.find(a => a.uid===st.apostle)?.name || '該使徒';
           alert(`${name} 在 ${st.time} 已無排班，請重新選擇使徒。`);
-          st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); showLoading(false); return;
+          st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); return;
         }
         const slot = getApostleSlotStatus(st.date, st.apostle).find(ts => ts.time===st.time);
         if (slot?.blocked) {
           const name = APOSTLES.find(a => a.uid===st.apostle)?.name || '該使徒';
           alert(`${name} 在 ${st.time} 已被預約，請重新選擇。`);
-          st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); showLoading(false); return;
+          st.apostle = null; st.designated = false; renderGrid(); updateSubmitBtn(); return;
         }
       }
 
@@ -1228,7 +1179,6 @@
       });
       if (!hcResult.committed) {
         alert(`${fmtDate(st.date)} 線上預約人數已達上限（${DAILY_CAPACITY} 人），請選擇其他日期。`);
-        showLoading(false);
         return;
       }
 
@@ -1262,14 +1212,12 @@
       }
 
       await update(dbRef(db), updates);
-      showLoading(false);
       renderSuccess2(st.gameName);
     } catch(e) {
       console.error(e);
       // dailyHeadcount 的規則只允許公開「累加」，不允許公開「扣減」（避免有人惡意重設人數繞過上限），
       // 所以這裡沒辦法在最後一步失敗時自動退回已預扣的人數——寧可少賣一個名額，也不要有機會被超收繞過。
       // 如果之後常常發生（人數上限計算跟實際 reservations 對不上），要手動去 Firebase 把 dailyHeadcount 校正回來。
-      showLoading(false);
       alert('送出失敗，請稍後再試一次。');
     }
   }
