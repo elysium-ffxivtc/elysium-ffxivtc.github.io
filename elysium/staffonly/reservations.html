@@ -45,14 +45,14 @@
     .res-status-pill.completed { color: var(--green); border-color: var(--green); }
     .res-status-pill.cancelled { color: var(--red); border-color: var(--red); }
 
-    .res-strip { display: flex; flex-wrap: wrap; row-gap: 1.2rem; }
-    .res-col { flex: 1 1 140px; padding: 0 1.2rem; text-align: center; min-width: 0; }
+    .res-strip { display: flex; flex-wrap: wrap; row-gap: 1.6rem; }
+    .res-col { flex: 1 1 140px; padding: 0 1.6rem; text-align: center; min-width: 0; }
     .res-col:first-child { padding-left: 0; }
     .res-col:last-child { padding-right: 0; }
     .res-col + .res-col { border-left: 1px solid var(--border); }
     .res-col-cat { font-size: 13.5px; color: var(--text); margin-bottom: .15rem; }
-    .res-col-field { margin-top: .9rem; }
-    .res-col-field + .res-col-field { margin-top: .7rem; }
+    .res-col-field { margin-top: .4rem; }
+    .res-col-field + .res-col-field { margin-top: 1.8rem; }
     .res-field-label { font-size: 11.5px; color: var(--dim); margin-bottom: .25rem; }
     .res-field-value { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; color: var(--text); }
     .res-field-value-sm { font-size: .85rem; }
@@ -258,16 +258,12 @@ function render() {
     const status = r.status || 'new';
     const visitType = r.visitType || 'ritual';
     const svcNames = (r.services || []).map(s => SERVICE_NAME[s] || s).join('、');
+    const col4 = visitType === 'seat'
+      ? `<div class="res-col-cat">座席</div><div class="res-col-field"><div class="res-field-value">${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div></div>`
+      : `<div class="res-col-cat">指定使徒</div><div class="res-col-field"><div class="res-field-value">${esc(apostleName(r.apostle))}</div></div>`;
     const col5 = visitType === 'seat'
-      ? `<div class="res-col-cat">座席</div>
-         <div class="res-col-field"><div class="res-field-value">${esc(SEAT_LABEL[r.seatType] || r.seatType || '')}</div></div>`
-      : `<div class="res-col-cat">指定使徒</div>
-         <div class="res-col-field"><div class="res-field-value">${esc(apostleName(r.apostle))}</div></div>`;
-    const col6 = visitType === 'seat'
-      ? `<div class="res-col-cat">人數</div>
-         <div class="res-col-field"><div class="res-field-value">${r.seatCount || 0} 人</div></div>`
-      : `<div class="res-col-cat">儀式</div>
-         <div class="res-col-field"><div class="res-field-value">${esc(svcNames)}</div></div>`;
+      ? `<div class="res-col-cat">人數</div><div class="res-col-field"><div class="res-field-value">${r.seatCount || 0} 人</div></div>`
+      : `<div class="res-col-cat">儀式</div><div class="res-col-field"><div class="res-field-value">${esc(svcNames)}</div></div>`;
     return `<div class="res-card">
       <div class="res-hdr">
         <div class="res-hdr-main">
@@ -281,20 +277,22 @@ function render() {
       <div class="res-strip">
         <div class="res-col">
           <div class="res-col-cat">遊戲角色名稱</div>
-          <div class="res-col-field"><div class="res-field-value">${esc(r.gameName)}</div></div>
-          <div class="res-col-field"><div class="res-field-label">所在World</div><div class="res-field-value res-field-value-sm">${esc(r.server)}</div></div>
+          <div class="res-col-field"><div class="res-field-value">${esc(r.gameName)} <span class="res-field-value-sm">@${esc(r.server)}</span></div></div>
         </div>
         <div class="res-col">
           <div class="res-col-cat">Discord ID</div>
           <div class="res-col-field"><div class="res-field-value">${esc(r.contact)}</div></div>
         </div>
         <div class="res-col">
-          <div class="res-col-cat">預約內容</div>
-          <div class="res-col-field"><div class="res-field-label">來訪形式</div><div class="res-field-value">${esc(VISIT_LABEL[visitType] || visitType)}</div></div>
-          <div class="res-col-field"><div class="res-field-label">RP 程度</div><div class="res-field-value">${esc(RP_LABEL[r.rp] || r.rp || '')}</div></div>
+          <div class="res-col-cat">RP 程度</div>
+          <div class="res-col-field"><div class="res-field-value">${esc(RP_LABEL[r.rp] || r.rp || '')}</div></div>
         </div>
+        <div class="res-col">
+          <div class="res-col-cat">來訪形式</div>
+          <div class="res-col-field"><div class="res-field-value">${esc(VISIT_LABEL[visitType] || visitType)}</div></div>
+        </div>
+        <div class="res-col">${col4}</div>
         <div class="res-col">${col5}</div>
-        <div class="res-col">${col6}</div>
       </div>
       ${(r.rpNote || r.notes) ? `
         <div class="res-divider-sparkle"><span class="res-divider-sparkle-icon">✦</span></div>
