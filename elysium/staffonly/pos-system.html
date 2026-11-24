@@ -2730,8 +2730,8 @@
               <table class="roster-table">
                 <thead><tr>
                   ${th('name','角色名稱')}
-                  ${th('discord','Discord')}
                   ${th('server','伺服器')}
+                  ${th('discord','Discord')}
                   ${th('nomenCount','召引次數')}
                   ${th('diningCount','純用餐次數')}
                   ${th('pilgrimCount','朝聖次數')}
@@ -2744,8 +2744,8 @@
                 <tbody>
                   ${sorted.map(c => `<tr onclick="goToCustomer('${c.id}')">
                     <td><span style="font-size:15px;font-weight:500;color:var(--text)">${esc(c.name)}</span></td>
-                    <td style="color:var(--dim)">${esc(c.discord||'—')}</td>
                     <td style="color:var(--dim)">${esc(c.server||'—')}</td>
+                    <td style="color:var(--dim)">${esc(c.discord||'—')}</td>
                     <td>${c.nomenCount}</td>
                     <td style="color:var(--dim)">${c.diningCount}</td>
                     <td style="color:var(--dim)">${c.pilgrimCount}</td>

@@ -103,6 +103,7 @@
       <span id="registry-toggle-label">預約頁</span>
       <button id="registry-toggle-btn" class="switch" onclick="toggleRegistryOpen()"><span class="switch-knob"></span></button>
     </div>
+    <button class="btn btn-outline btn-sm" id="backfill-btn" style="display:none" onclick="backfillVisits()">補齊舊預約的 POS 紀錄</button>
     <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px"></div>
   </div>
 </header>
@@ -138,7 +139,7 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getDatabase, ref as dbRef, onValue, get, update } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { getDatabase, ref as dbRef, onValue, get, update, runTransaction } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 const app = initializeApp({
@@ -159,6 +160,7 @@ getRedirectResult(auth).catch(() => {});
 
 function sKey(t) { return t.replace(':', ''); }
 function esc(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function sanitizeKey(s) { return String(s||'').trim().replace(/[.#$/\[\]]/g, '_'); }
 
 const ROLE_LABEL   = { admin: '管理員', manager: '經理', pilgrim: '引路人', apostle: '使徒' };
 const STATUS_LABEL = { new: '待處理', completed: '已完成', cancelled: '已取消' };
@@ -170,6 +172,7 @@ const SEAT_LABEL   = { sin: '食罪席', grudge: '妖異席' };
 let currentUser = null;
 let reservations = {};
 let apostles = {};
+let customers = {};
 let filter = 'all';
 let registryOpen = true;
 
@@ -210,6 +213,7 @@ function signInGoogle() {
 function doSignOut() { signOut(auth).then(() => location.reload()); }
 
 function startListeners() {
+  document.getElementById('backfill-btn').style.display = 'inline-block';
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('user-badge').innerHTML = `
     <span>${esc(currentUser.displayName)}</span>
@@ -219,6 +223,7 @@ function startListeners() {
 
   onValue(dbRef(db, 'reservations'), snap => { reservations = snap.val() || {}; render(); });
   onValue(dbRef(db, 'apostles'), snap => { apostles = snap.val() || {}; render(); });
+  onValue(dbRef(db, 'customers'), snap => { customers = snap.val() || {}; });
   onValue(dbRef(db, 'settings/registryOpen'), snap => { registryOpen = snap.val() !== false; renderRegistryToggle(); });
 }
 
@@ -311,7 +316,72 @@ async function markCompleted(id) {
   await update(dbRef(db, 'reservations/' + id), {
     status: 'completed', updatedAt: new Date().toISOString(), updatedBy: currentUser.displayName,
   });
+  await syncVisit(id);
   showToast('已標記完成');
+}
+
+async function syncVisit(id) {
+  const r = reservations[id];
+  if (!r) return;
+  const visitId = 'v_res_' + id;
+  const existingSnap = await get(dbRef(db, 'visits/' + visitId));
+  if (existingSnap.exists()) return;
+
+  const lookupKey = sanitizeKey(r.gameName) + '_' + sanitizeKey(r.server);
+  let custId = Object.keys(customers).find(cid =>
+    sanitizeKey(customers[cid].name) + '_' + sanitizeKey(customers[cid].server) === lookupKey
+  );
+  if (!custId) {
+    custId = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await update(dbRef(db), {
+      [`customers/${custId}`]: {
+        id: custId, name: r.gameName, discord: r.contact, server: r.server,
+        contact: '', notes: '', pointsTotal: 0, hasRedeemedUltimate: false,
+        createdAt: new Date().toISOString(),
+      },
+    });
+  }
+
+  const isSeat = r.visitType === 'seat';
+  const mode = isSeat ? 'pilgrim' : 'nomen';
+  const pointsEarned = !isSeat && (r.services||[]).includes('nomen30') ? 1 : 0;
+
+  const v = {
+    id: visitId,
+    customerId: custId,
+    mode,
+    date: r.date || '', time: r.time || '', type: 'booked',
+    apostleType: r.designated ? 'specified' : 'unspecified',
+    apostleName: isSeat ? '' : apostleName(r.apostle),
+    apostleTag: isSeat ? '' : (apostles[r.apostle]?.tag || ''),
+    services: isSeat ? [] : [...(r.services||[])],
+    orders: [],
+    servicesTotal: r.total || 0,
+    ordersTotal: 0,
+    total: r.total || 0,
+    pointsEarned,
+    pointMultiplier: 1,
+    notes: [r.rpNote, r.notes].filter(Boolean).join('\n'),
+    createdAt: r.createdAt || new Date().toISOString(),
+  };
+  await update(dbRef(db), { [`visits/${visitId}`]: v });
+
+  if (pointsEarned > 0) {
+    await runTransaction(dbRef(db, `customers/${custId}/pointsTotal`), cur => (cur || 0) + pointsEarned);
+  }
+}
+
+async function backfillVisits() {
+  const ids = Object.keys(reservations).filter(id => reservations[id].status === 'completed');
+  if (!ids.length) { showToast('沒有已完成的預約'); return; }
+  if (!confirm(`將檢查 ${ids.length} 筆已完成的預約，補上缺少的 POS 到訪紀錄，確定執行？`)) return;
+  let synced = 0;
+  for (const id of ids) {
+    const before = await get(dbRef(db, 'visits/v_res_' + id));
+    if (!before.exists()) synced++;
+    await syncVisit(id);
+  }
+  showToast(`補齊完成，新增了 ${synced} 筆紀錄`);
 }
 
 async function cancelReservation(id) {
@@ -338,7 +408,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation, toggleRegistryOpen });
+Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation, toggleRegistryOpen, backfillVisits });
 </script>
 </body>
 </html>
