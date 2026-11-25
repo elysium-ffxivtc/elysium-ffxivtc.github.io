@@ -103,7 +103,6 @@
       <span id="registry-toggle-label">預約頁</span>
       <button id="registry-toggle-btn" class="switch" onclick="toggleRegistryOpen()"><span class="switch-knob"></span></button>
     </div>
-    <button class="btn btn-outline btn-sm" id="backfill-btn" style="display:none" onclick="backfillVisits()">補齊舊預約的 POS 紀錄</button>
     <div id="user-badge" style="display:none;align-items:center;gap:.5rem;font-size:12px"></div>
   </div>
 </header>
@@ -213,7 +212,6 @@ function signInGoogle() {
 function doSignOut() { signOut(auth).then(() => location.reload()); }
 
 function startListeners() {
-  document.getElementById('backfill-btn').style.display = 'inline-block';
   document.getElementById('user-badge').style.display = 'flex';
   document.getElementById('user-badge').innerHTML = `
     <span>${esc(currentUser.displayName)}</span>
@@ -375,19 +373,6 @@ async function syncVisit(id) {
   }
 }
 
-async function backfillVisits() {
-  const ids = Object.keys(reservations).filter(id => reservations[id].status === 'completed');
-  if (!ids.length) { showToast('沒有已完成的預約'); return; }
-  if (!confirm(`將檢查 ${ids.length} 筆已完成的預約，補上缺少的 POS 到訪紀錄，確定執行？`)) return;
-  let synced = 0;
-  for (const id of ids) {
-    const before = await get(dbRef(db, 'visits/v_res_' + id));
-    if (!before.exists()) synced++;
-    await syncVisit(id);
-  }
-  showToast(`補齊完成，新增了 ${synced} 筆紀錄`);
-}
-
 async function toggleNoShow(id) {
   const r = reservations[id];
   if (!r) return;
@@ -439,7 +424,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation, toggleRegistryOpen, backfillVisits, toggleNoShow });
+Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation, toggleRegistryOpen, toggleNoShow });
 </script>
 </body>
 </html>
