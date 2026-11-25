@@ -650,7 +650,6 @@
           <span id="biz-dot" style="font-size:9px">●</span><span id="biz-lbl">休業中</span>
         </button>
       </div>
-      <span id="apostle-status" style="font-size:13px;color:var(--dim)"></span>
       <div id="mode-indicator" style="display:flex;align-items:center;gap:.4rem"></div>
     </div>
   </header>
@@ -808,14 +807,8 @@
           .sort((a, b) => (a.order || 0) - (b.order || 0));
         if (data.length) {
           APOSTLES = data;
-          renderApostleStatus();
         }
       } catch(e) { console.warn('無法載入使徒資料', e); }
-    }
-
-    function renderApostleStatus() {
-      const el = document.getElementById('apostle-status');
-      if (el) el.textContent = `已載入 ${APOSTLES.length} 位使徒` + (PILGRIMS.length ? `・${PILGRIMS.length} 位引路人` : '');
     }
 
     // ────────────────────────────────────────────────────────────
@@ -966,7 +959,6 @@
       }, onFbErr('events'));
       db.ref('pilgrims').on('value', snap => {
         PILGRIMS = snap.val() ? Object.values(snap.val()) : [];
-        renderApostleStatus();
         if (_uiInited && currentNav === 'staff') showStaffPage();
       });
       db.ref('schedules').on('value', snap => {
