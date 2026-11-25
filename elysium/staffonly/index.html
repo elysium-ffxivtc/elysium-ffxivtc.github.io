@@ -97,13 +97,12 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: .75rem;
-      width: 100%;
-      max-width: 580px;
+      width: 580px;
+      max-width: 100%;
     }
-    .grid.three { grid-template-columns: repeat(3, 1fr); max-width: 440px; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); width: 440px; }
     @media (max-width: 580px) {
-      .grid { grid-template-columns: repeat(2, 1fr); max-width: 320px; }
-      .grid.three { grid-template-columns: repeat(2, 1fr); max-width: 320px; }
+      .grid, .grid.three { grid-template-columns: repeat(2, 1fr); width: 320px; }
     }
 
     .card {
