@@ -277,7 +277,7 @@ function render() {
           <span class="res-total">${(r.total||0).toLocaleString()} Gil</span>
         </div>
         <span class="res-hdr-line"></span>
-        <span class="res-status-pill ${status}">${STATUS_LABEL[status] || status}</span>
+        <span class="res-status-pill ${status}">${STATUS_LABEL[status] || status}${r.noShow ? '・缺席' : ''}</span>
       </div>
       <div class="res-strip">
         <div class="res-col">
@@ -307,6 +307,9 @@ function render() {
       ${status === 'new' ? `<div class="res-actions">
         <button class="btn btn-green btn-sm" onclick="markCompleted('${id}')">標記完成</button>
         <button class="btn btn-danger btn-sm" onclick="cancelReservation('${id}')">取消</button>
+      </div>` : ''}
+      ${status === 'completed' ? `<div class="res-actions">
+        <button class="btn btn-outline btn-sm" onclick="toggleNoShow('${id}')">${r.noShow ? '取消缺席標記' : '標記缺席'}</button>
       </div>` : ''}
     </div>`;
   }).join('');
@@ -343,8 +346,9 @@ async function syncVisit(id) {
   }
 
   const isSeat = r.visitType === 'seat';
-  const mode = isSeat ? 'pilgrim' : 'nomen';
-  const pointsEarned = !isSeat && (r.services||[]).includes('nomen30') ? 1 : 0;
+  const hasNomen = !isSeat && (r.services||[]).includes('nomen30');
+  const mode = hasNomen ? 'nomen' : 'pilgrim';
+  const pointsEarned = hasNomen ? 1 : 0;
 
   const v = {
     id: visitId,
@@ -384,6 +388,33 @@ async function backfillVisits() {
   showToast(`補齊完成，新增了 ${synced} 筆紀錄`);
 }
 
+async function toggleNoShow(id) {
+  const r = reservations[id];
+  if (!r) return;
+  const next = !r.noShow;
+  if (next) {
+    if (!confirm('確定標記為缺席？這會移除已累計的到訪紀錄與點數。')) return;
+    await revertVisit(id);
+  } else {
+    await syncVisit(id);
+  }
+  await update(dbRef(db, 'reservations/' + id), {
+    noShow: next, updatedAt: new Date().toISOString(), updatedBy: currentUser.displayName,
+  });
+  showToast(next ? '已標記缺席' : '已取消缺席標記');
+}
+
+async function revertVisit(id) {
+  const visitId = 'v_res_' + id;
+  const snap = await get(dbRef(db, 'visits/' + visitId));
+  if (!snap.exists()) return;
+  const v = snap.val();
+  if (v.pointsEarned > 0) {
+    await runTransaction(dbRef(db, `customers/${v.customerId}/pointsTotal`), cur => (cur || 0) - v.pointsEarned);
+  }
+  await update(dbRef(db), { [`visits/${visitId}`]: null });
+}
+
 async function cancelReservation(id) {
   const r = reservations[id];
   if (!r) return;
@@ -408,7 +439,7 @@ function showToast(msg) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 2000);
 }
 
-Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation, toggleRegistryOpen, backfillVisits });
+Object.assign(window, { signInGoogle, doSignOut, setFilter, markCompleted, cancelReservation, toggleRegistryOpen, backfillVisits, toggleNoShow });
 </script>
 </body>
 </html>
