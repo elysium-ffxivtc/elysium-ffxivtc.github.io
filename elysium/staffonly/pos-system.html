@@ -1277,7 +1277,7 @@
                        .sort((a,b) => b.createdAt.localeCompare(a.createdAt));
       const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
       const diningCount  = cv.filter(v => v.mode === 'dining').length;
-      const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+      const pilgrimCount = cv.length;
       const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
       const canRedeem  = (c.pointsTotal||0) >= 666 && totalSpend >= 33333333 && !c.hasRedeemedUltimate;
 
@@ -2682,7 +2682,7 @@
         const cv = visits.filter(v => v.customerId === c.id);
         const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
         const diningCount  = cv.filter(v => v.mode === 'dining').length;
-        const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+        const pilgrimCount = cv.length;
         const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
         const lastVisit  = cv.length ? cv.sort((a,b) => b.createdAt.localeCompare(a.createdAt))[0].date : '';
         return { ...c, nomenCount, diningCount, pilgrimCount, visitCount: nomenCount, totalSpend, lastVisit };
@@ -2769,7 +2769,7 @@
                        .sort((a,b) => b.createdAt.localeCompare(a.createdAt));
       const nomenCount   = cv.filter(v => (v.mode||'nomen') === 'nomen').length;
       const diningCount  = cv.filter(v => v.mode === 'dining').length;
-      const pilgrimCount = cv.filter(v => v.mode === 'pilgrim').length;
+      const pilgrimCount = cv.length;
       const totalSpend = cv.reduce((s,v) => s + (v.total||0) + (v.tips||[]).reduce((t,tip)=>t+tip.amount,0), 0);
       const canRedeem  = (c.pointsTotal||0) >= 666 && totalSpend >= 33333333 && !c.hasRedeemedUltimate;
 
