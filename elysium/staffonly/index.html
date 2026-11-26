@@ -90,19 +90,19 @@
       padding-bottom: 14vh;
     }
     .portal.show { display: flex; }
-    .logo { width: 44px; opacity: .7; margin-bottom: 1.6rem; }
+    .logo { width: 44px; height: 44px; object-fit: contain; opacity: .7; margin-bottom: 1.6rem; }
     .title { font-size: .75rem; letter-spacing: .28em; color: #6b5a3e; text-transform: uppercase; margin-bottom: 2.4rem; }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: .75rem;
-      width: 580px;
+      width: 428px;
       max-width: 100%;
     }
-    .grid.three { grid-template-columns: repeat(3, 1fr); width: 440px; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); width: 318px; }
     @media (max-width: 580px) {
-      .grid, .grid.three { grid-template-columns: repeat(2, 1fr); width: 320px; }
+      .grid, .grid.three { grid-template-columns: repeat(2, 1fr); width: 208px; }
     }
 
     .card {
