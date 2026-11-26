@@ -1179,7 +1179,9 @@
     function isEditableVisit(v) {
       const _NS = ['nomen30','photo','photo_sig'];
       const m = v.mode || ((v.services||[]).some(s=>_NS.includes(s)) ? 'nomen' : 'dining');
-      return v.date === getBusinessDate() && (m === 'nomen' || m === 'dining' || m === 'single');
+      if (!(m === 'nomen' || m === 'dining' || m === 'single')) return false;
+      if (v.type === 'booked') return true;
+      return v.date === getBusinessDate();
     }
     (function() {
       const w = ['日','一','二','三','四','五','六'];
@@ -2866,16 +2868,20 @@
         .map(([name, d]) => ({ name, ...d }))
         .sort((a,b) => b.qty - a.qty);
 
-      // 使徒接待排行
-      const apostleTally = {};
-      visits.filter(v => v.apostleName).forEach(v => {
-        if (!apostleTally[v.apostleName]) apostleTally[v.apostleName] = { count:0, tag: v.apostleTag||'' };
-        apostleTally[v.apostleName].count++;
-        if (!apostleTally[v.apostleName].tag && v.apostleTag) apostleTally[v.apostleName].tag = v.apostleTag;
-      });
-      const apostleRank = Object.entries(apostleTally)
-        .map(([name, d]) => ({ name, count: d.count, tag: d.tag || (APOSTLES.find(a=>a.name===name)?.tag||'') }))
-        .sort((a,b) => b.count - a.count);
+      // 使徒接待排行（指定 / 不指定分開統計，不指定派案不算進使徒個人的指定排行）
+      function tallyApostles(list) {
+        const tally = {};
+        list.filter(v => v.apostleName).forEach(v => {
+          if (!tally[v.apostleName]) tally[v.apostleName] = { count:0, tag: v.apostleTag||'' };
+          tally[v.apostleName].count++;
+          if (!tally[v.apostleName].tag && v.apostleTag) tally[v.apostleName].tag = v.apostleTag;
+        });
+        return Object.entries(tally)
+          .map(([name, d]) => ({ name, count: d.count, tag: d.tag || (APOSTLES.find(a=>a.name===name)?.tag||'') }))
+          .sort((a,b) => b.count - a.count);
+      }
+      const apostleRank       = tallyApostles(visits.filter(v => v.apostleType === 'specified'));
+      const apostleRankUnspec = tallyApostles(visits.filter(v => v.apostleType === 'unspecified'));
 
       // 累計消費排行（所有客戶，含已兌換）
       const SPEND_THRESHOLD = 33333333;
@@ -2888,7 +2894,8 @@
       })).sort((a,b) => b.spend - a.spend).slice(0, 10);
 
       const maxMenu    = menuRank[0]?.qty || 1;
-      const maxApostle = apostleRank[0]?.count || 1;
+      const maxApostle       = apostleRank[0]?.count || 1;
+      const maxApostleUnspec = apostleRankUnspec[0]?.count || 1;
       const maxSpend   = Math.max(spendRank[0]?.spend || 0, SPEND_THRESHOLD);
 
       // 召引類型 helper
@@ -2946,7 +2953,7 @@
 
           <!-- 使徒接待排行 -->
           <div class="pos-card" style="margin:0">
-            <div class="pos-card-title">使徒接待排行</div>
+            <div class="pos-card-title">使徒接待排行（指定）</div>
             ${!apostleRank.length
               ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無資料</div>`
               : apostleRank.slice(0,6).map((a,i) => `
@@ -2958,6 +2965,20 @@
                 </div>
                 <div class="rank-bar-wrap"><div class="rank-bar" style="width:${a.count/maxApostle*100}%"></div></div>
                 <span style="font-size:14px;color:var(--gold);min-width:30px;text-align:right">${a.count}</span>
+              </div>`).join('')}
+            <div style="border-top:1px solid var(--border);margin:.6rem 0"></div>
+            <div class="pos-card-title" style="margin-bottom:.4rem">不指定派案排行</div>
+            ${!apostleRankUnspec.length
+              ? `<div style="font-size:14px;color:var(--dim);text-align:center;padding:.5rem 0">尚無資料</div>`
+              : apostleRankUnspec.slice(0,6).map((a,i) => `
+              <div class="rank-row">
+                <span class="rank-num">${i+1}</span>
+                <div style="flex:1;min-width:0;overflow:hidden">
+                  <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.name)}</div>
+                  ${a.tag?`<div style="font-size:12px;color:${tagColor(a.tag)}">${esc(a.tag)}</div>`:''}
+                </div>
+                <div class="rank-bar-wrap"><div class="rank-bar" style="width:${a.count/maxApostleUnspec*100}%"></div></div>
+                <span style="font-size:14px;color:var(--dim);min-width:30px;text-align:right">${a.count}</span>
               </div>`).join('')}
           </div>
         </div>
