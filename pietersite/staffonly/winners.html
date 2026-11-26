@@ -191,6 +191,7 @@ const RP_LABEL     = { heavy: '重 RP', medium: '中 RP', light: '輕 RP', none:
 let currentUser = null;
 let winners = {};
 let profiles = {};
+let staffRoster = {};
 let submissions = {};
 let filter = 'all';
 let editingId = null;
@@ -241,15 +242,22 @@ function startListeners() {
 
   onValue(dbRef(db, 'winners'), snap => { winners = snap.val() || {}; render(); });
   onValue(dbRef(db, 'winnerSubmissions'), snap => { submissions = snap.val() || {}; render(); });
+  onValue(dbRef(db, 'staff'), snap => { staffRoster = snap.val() || {}; renderProfileOptions(); });
   onValue(dbRef(db, 'profiles'), snap => {
     profiles = snap.val() || {};
-    const sel = document.getElementById('f-profile');
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">選擇館藏</option>' +
-      Object.entries(profiles).map(([uid, a]) => `<option value="${uid}">${esc(a.name||uid)}</option>`).join('');
-    sel.value = cur;
+    renderProfileOptions();
     render();
   });
+}
+
+function renderProfileOptions() {
+  const sel = document.getElementById('f-profile');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">選擇館藏</option>' +
+    Object.entries(profiles)
+      .filter(([uid]) => !['admin','manager'].includes(staffRoster[uid]?.role))
+      .map(([uid, a]) => `<option value="${uid}">${esc(a.name||uid)}</option>`).join('');
+  sel.value = cur;
 }
 
 function setFilter(v) {
