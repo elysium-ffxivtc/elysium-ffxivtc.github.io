@@ -617,6 +617,75 @@
     .pos-auth-logo { font-family: 'Noto Serif TC', serif; font-size: 1.2rem; color: var(--gold); letter-spacing: .15em; margin-bottom: .4rem; }
     .pos-auth-sub { font-size: 13px; color: var(--dim); margin-bottom: 2rem; }
     .pos-auth-err { font-size: 12px; color: var(--red); min-height: 1.2em; margin-top: 1rem; }
+
+    /* ══════════════ 營運台（新版面） ══════════════ */
+    .amber { color: #a8703a; }
+    .board-wrap { display: flex; flex-direction: column; gap: 1.1rem; }
+    .board-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; }
+    .board-stat-tile { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1.1rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .board-stat-tile.alert { border-color: #a8703a; background: rgba(168,112,58,.08); }
+    .board-stat-val { font-family: 'Noto Serif TC', serif; font-size: 1.6rem; color: var(--text); }
+    .board-stat-tile.alert .board-stat-val { color: #a8703a; }
+    .board-stat-lbl { font-size: 12.5px; color: var(--dim); letter-spacing: .04em; margin-top: .2rem; }
+
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
+    .bcol { display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
+    .bcol-hdr { display: flex; align-items: center; justify-content: space-between; padding: 0 .2rem; }
+    .bcol-title { display: flex; align-items: center; gap: .5rem; font-family: 'Noto Serif TC', serif; font-size: .95rem; letter-spacing: .06em; }
+    .bcol-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .bcol.queue .bcol-dot { background: var(--dim); }
+    .bcol.need .bcol-dot { background: #a8703a; }
+    .bcol.serve .bcol-dot { background: var(--blue); }
+    .bcol.done .bcol-dot { background: var(--green); }
+    .bcol-count { font-size: 12.5px; color: var(--dim); background: var(--bg); border-radius: 999px; padding: .1rem .55rem; }
+    .bcol-body { display: flex; flex-direction: column; gap: .6rem; min-height: 60px; }
+    .bcol-empty { font-size: 13px; color: var(--dim); text-align: center; padding: 1.4rem 0; border: 1px dashed var(--border); border-radius: 10px; }
+
+    .vcard { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .85rem .95rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .bcol.queue .vcard { border-left: 3px solid var(--border); }
+    .bcol.need .vcard { border-left: 3px solid #a8703a; }
+    .bcol.serve .vcard { border-left: 3px solid var(--blue); }
+    .bcol.done .vcard { border-left: 3px solid var(--green); opacity: .88; }
+    .vcard[data-group] { box-shadow: 0 1px 3px rgba(0,0,0,.06), inset 0 0 0 1.5px var(--group-color); }
+    .vcard[data-group].group-glow { box-shadow: 0 0 0 3px var(--group-color), 0 0 14px var(--group-color); transition: box-shadow .15s; }
+    .vcard-top { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; margin-bottom: .4rem; }
+    .vcard-name { font-size: .92rem; font-weight: 500; }
+    .vcard-server { font-size: 12px; color: var(--dim); margin-left: .3rem; }
+    .vcard-time { font-size: 12px; color: var(--dim); flex-shrink: 0; }
+    .vcard-cancel { background: none; border: none; color: var(--dim); font-size: 14px; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; line-height: 1; padding: 0 0 0 .6rem; flex-shrink: 0; }
+    .vcard-cancel:hover { color: var(--red); }
+    .vcard-pills { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .55rem; }
+    .vpill { font-size: 11.5px; padding: .18rem .55rem; border-radius: 999px; border: 1px solid var(--border); color: var(--dim); white-space: nowrap; }
+    .vpill.spec { color: var(--green); border-color: var(--green); background: rgba(90,170,122,.1); }
+    .vpill.unspec { color: var(--dim); }
+    .vpill.seat-sin { color: var(--text); border-color: var(--border); }
+    .vpill.seat-yi { color: var(--yi); border-color: rgba(121,80,97,.35); }
+    .vcard-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .vcard-amount { font-size: 12.5px; color: var(--dim); }
+    .vcard-need-txt { font-size: 12.5px; color: #a8703a; }
+    .vcard-apostle { display: flex; align-items: center; gap: .4rem; font-size: 13px; }
+    .vcard-apostle-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .group-badge { font-size: 11.5px; padding: .18rem .55rem; border-radius: 999px; border: 1px solid; margin: .5rem 0; display: inline-block; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+
+    .board-fab { position: fixed; right: 1.4rem; bottom: 1.6rem; z-index: 60; background: var(--gold); color: #fff; border: none; border-radius: 999px; padding: .85rem 1.3rem; font-family: 'Noto Serif TC', serif; font-size: .9rem; letter-spacing: .05em; box-shadow: 0 4px 14px rgba(156,122,53,.4); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; }
+    .board-fab:hover { background: #85682d; }
+
+    .bpanel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 150; display: none; align-items: stretch; justify-content: flex-end; }
+    .bpanel-overlay.show { display: flex; }
+    .bpanel { width: min(440px, 100%); background: var(--bg); border-left: 1px solid var(--border); padding: 1.2rem 1.3rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+    .bpanel-hdr { display: flex; align-items: center; justify-content: space-between; }
+    .bpanel-title { font-family: 'Noto Serif TC', serif; font-size: 1.05rem; color: var(--gold); letter-spacing: .08em; }
+    .bpanel-close { background: none; border: none; color: var(--dim); font-size: 1.1rem; cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; line-height: 1; padding: .2rem; }
+    .bstep-lbl { font-size: 12px; color: var(--dim); letter-spacing: .08em; margin-bottom: .5rem; }
+    .bchip { font-size: 13px; padding: .45rem .85rem; border-radius: 999px; border: 1.5px solid var(--border); background: var(--card); cursor: url('../image/arr-cursors/arr-small-link.cur'), pointer; display: inline-flex; align-items: center; gap: .4rem; margin: 0 .4rem .4rem 0; }
+    .bchip:hover { border-color: var(--gold); }
+    .bchip.on { border-color: var(--gold); background: rgba(156,122,53,.14); color: var(--gold); }
+    .bpanel-confirm { margin-top: auto; display: flex; flex-direction: column; gap: .6rem; }
+    .bconfirm-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--dim); }
+    .bconfirm-row b { color: var(--text); font-weight: 500; }
+    .brow { display: flex; align-items: center; justify-content: space-between; padding: .7rem .9rem; background: var(--card); border: 1px solid var(--border); margin-bottom: .4rem; }
+    .brow-name { font-size: 14px; font-weight: 500; }
+    .brow-sub { font-size: 12.5px; color: var(--dim); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -658,7 +727,7 @@
 
     <aside class="pos-sidebar">
       <div class="pos-nav">
-        <button class="pos-nav-btn on" id="nav-btn-customer"   onclick="setNav('customer')">客戶</button>
+        <button class="pos-nav-btn on" id="nav-btn-customer"   onclick="setNav('customer')">營運台</button>
         <button class="pos-nav-btn"    id="nav-btn-roster"     onclick="setNav('roster')">名冊</button>
         <button class="pos-nav-btn admin-only" id="nav-btn-stats"       onclick="setNav('stats')">統計</button>
         <button class="pos-nav-btn admin-only" id="nav-btn-activity"    onclick="setNav('activity')">活動</button>
@@ -991,6 +1060,7 @@
       fetchApostles();
       applyUserMode();
       checkAutoPilgrim();
+      if (currentNav === 'customer' && !activeId) showBoardPage();
     }
 
     function checkAutoPilgrim() {
@@ -1027,6 +1097,7 @@
       else if (currentNav === 'settlement') { showSettlementPage(); initSettlementPilgrims(); }
       else if (currentNav === 'staff')      showStaffPage();
       else if (currentNav === 'customer' && activeId) showProfile(activeId);
+      else if (currentNav === 'customer' && !activeId) showBoardPage();
     }
 
     // ── 加時 ──
@@ -1846,7 +1917,7 @@
       const id = vs.customerId;
       const c  = customers.find(x => x.id===id);
       if (!c) return;
-      if (vs.mode === 'nomen') {
+      if (vs.mode === 'nomen' && vs.apostleType !== 'unspecified') {
         const name = document.getElementById('v-apostle')?.value.trim() || '';
         if (!name) {
           alert('請填入服務使徒姓名。');
@@ -1887,6 +1958,9 @@
         photoExtraSigs: (vs.photoExtraSigs || []).map((sig, i) => sig && !!(vs.photoExtras||[])[i]),
         tips: existing?.tips || [],
         createdAt: existing?.createdAt || new Date().toISOString(),
+        // 接待中／已完成（營運台用，不影響既有財務計算）：存檔當下如果已經知道服務使徒，就算開始接待
+        startedAt: existing?.startedAt || (document.getElementById('v-apostle')?.value.trim() ? Date.now() : null),
+        completedAt: existing?.completedAt || null,
       };
       if (isEdit) {
         const idx = visits.findIndex(x => x.id === vs._editId);
@@ -2539,6 +2613,199 @@
     }
 
     // ────────────────────────────────────────────────────────────
+    //  營運台（候位中／待分配使徒／接待中／已完成）
+    // ────────────────────────────────────────────────────────────
+    function boardSvcName(sid) { return SERVICES.find(s => s.id === sid)?.name || sid; }
+    function boardPills(v) {
+      let html = `<span class="vpill">${v.type === 'walkin' ? '現場' : '預約'}</span>`;
+      (v.services || []).forEach(sid => {
+        if (sid.startsWith('wreath')) return;
+        html += `<span class="vpill">${esc(boardSvcName(sid))}</span>`;
+      });
+      if (v.mode === 'nomen') {
+        html += v.apostleType === 'specified' ? `<span class="vpill spec">指定</span>` : `<span class="vpill unspec">不指定</span>`;
+      }
+      return html;
+    }
+    function boardGroupBadge(v) {
+      if (!v.groupId) return '';
+      const members = visits.filter(x => x.groupId === v.groupId && x.date === getBusinessDate());
+      const ids = [...new Set(visits.filter(x => x.date === getBusinessDate() && x.groupId).map(x => x.groupId))];
+      const idx = ids.indexOf(v.groupId);
+      const colors = ['#2060a0', '#9c7a35', '#2d7a50', '#a8433a', '#6b4a9e', '#795061'];
+      const color = colors[idx % colors.length] || 'var(--blue)';
+      const label = idx >= 0 ? String.fromCharCode(65 + (idx % 26)) : '';
+      const total = members.reduce((s,x) => s + (x.total||0), 0);
+      return `<div class="group-badge" style="color:${color};border-color:${color}" onclick="event.stopPropagation();boardHighlightGroup('${v.groupId}')">🔗 同行 ${label}・${members.length} 人・合計 ${total.toLocaleString()} Gil</div>`;
+    }
+    function boardHighlightGroup(gid) {
+      document.querySelectorAll(`[data-group="${gid}"]`).forEach(el => {
+        el.classList.add('group-glow');
+        setTimeout(() => el.classList.remove('group-glow'), 1600);
+      });
+    }
+    function boardVcardAttrs(v) {
+      if (!v.groupId) return '';
+      const ids = [...new Set(visits.filter(x => x.date === getBusinessDate() && x.groupId).map(x => x.groupId))];
+      const idx = ids.indexOf(v.groupId);
+      const colors = ['#2060a0', '#9c7a35', '#2d7a50', '#a8433a', '#6b4a9e', '#795061'];
+      return ` data-group="${v.groupId}" style="--group-color:${colors[idx % colors.length] || 'var(--blue)'}"`;
+    }
+
+    function showBoardPage() {
+      activeId = null;
+      const today = getBusinessDate();
+      const tv = visits.filter(v => v.date === today);
+      const queue = tv.filter(v => v.mode === 'checkin');
+      const pending = tv.filter(v => v.mode === 'nomen' && v.apostleType === 'unspecified' && !v.apostleName);
+      const rest = tv.filter(v => v.mode !== 'checkin' && !pending.includes(v));
+      const serving = rest.filter(v => v.apostleName && v.startedAt && !v.completedAt);
+      const done = rest.filter(v => !serving.includes(v));
+
+      const custName = id => esc(customers.find(c => c.id === id)?.name || '—');
+
+      const renderQueue = list => !list.length ? `<div class="bcol-empty">目前沒有項目</div>` : list.map(v => `
+        <div class="vcard"${boardVcardAttrs(v)}>
+          <div class="vcard-top">
+            <div><span class="vcard-name">${custName(v.customerId)}</span></div>
+            <div style="display:flex;align-items:center"><span class="vcard-time">${esc(v.time)}</span>
+              <button class="vcard-cancel" title="取消" onclick="deleteVisit('${v.id}','${v.customerId}')">✕</button>
+            </div>
+          </div>
+          ${boardGroupBadge(v)}
+          <div class="vcard-foot">
+            <div class="vcard-need-txt" style="color:var(--dim)">尚未決定服務</div>
+            <div style="display:flex;gap:.3rem">
+              <button class="btn btn-outline btn-sm" onclick="showNewVisit('${v.customerId}','nomen')">召引</button>
+              <button class="btn btn-outline btn-sm" onclick="showNewVisit('${v.customerId}','dining')">餐點</button>
+              <button class="btn btn-outline btn-sm" onclick="showNewVisit('${v.customerId}','single')">單點</button>
+            </div>
+          </div>
+        </div>`).join('');
+
+      const renderPending = list => !list.length ? `<div class="bcol-empty">目前沒有項目</div>` : list.map(v => `
+        <div class="vcard"${boardVcardAttrs(v)}>
+          <div class="vcard-top">
+            <div><span class="vcard-name">${custName(v.customerId)}</span></div>
+            <div style="display:flex;align-items:center"><span class="vcard-time">${esc(v.time)}</span>
+              <button class="vcard-cancel" title="取消" onclick="deleteVisit('${v.id}','${v.customerId}')">✕</button>
+            </div>
+          </div>
+          <div class="vcard-pills">${boardPills(v)}</div>
+          ${boardGroupBadge(v)}
+          <div class="vcard-foot">
+            <div class="vcard-need-txt">尚未分配使徒</div>
+            <button class="btn btn-gold btn-sm" onclick="openAssignApostle('${v.id}')">指定使徒</button>
+          </div>
+        </div>`).join('');
+
+      const renderServing = list => !list.length ? `<div class="bcol-empty">目前沒有項目</div>` : list.map(v => `
+        <div class="vcard"${boardVcardAttrs(v)}>
+          <div class="vcard-top">
+            <div><span class="vcard-name">${custName(v.customerId)}</span></div>
+            <div style="display:flex;align-items:center"><span class="vcard-time">${esc(v.time)}</span>
+              <button class="vcard-cancel" title="取消" onclick="deleteVisit('${v.id}','${v.customerId}')">✕</button>
+            </div>
+          </div>
+          <div class="vcard-pills">${boardPills(v)}</div>
+          ${boardGroupBadge(v)}
+          <div class="vcard-foot">
+            <div class="vcard-amount">${(v.total||0).toLocaleString()} Gil</div>
+            <div style="display:flex;align-items:center;gap:.6rem">
+              <div class="vcard-apostle"><span class="vcard-apostle-dot"></span>${esc(v.apostleName)}</div>
+              <button class="btn btn-sm" style="color:var(--green);border:1px solid var(--green);background:none" onclick="markVisitDone('${v.id}')">完成</button>
+            </div>
+          </div>
+        </div>`).join('');
+
+      const renderDone = list => !list.length ? `<div class="bcol-empty">目前沒有項目</div>` : list.map(v => `
+        <div class="vcard"${boardVcardAttrs(v)}>
+          <div class="vcard-top">
+            <div><span class="vcard-name">${custName(v.customerId)}</span></div>
+            <span class="vcard-time">${esc(v.time)}</span>
+          </div>
+          <div class="vcard-pills">${boardPills(v)}</div>
+          ${boardGroupBadge(v)}
+          <div class="vcard-foot">
+            <div class="vcard-amount">${(v.total||0).toLocaleString()} Gil</div>
+            <div style="display:flex;align-items:center;gap:.6rem">
+              <div class="vcard-apostle" style="color:var(--dim)">${v.apostleName ? esc(v.apostleName) : '—'}</div>
+              ${v.completedAt ? `<button class="btn btn-outline btn-sm" onclick="undoVisitDone('${v.id}')">復原</button>` : ''}
+            </div>
+          </div>
+        </div>`).join('');
+
+      document.getElementById('pos-content').innerHTML = `
+        <div class="board-wrap">
+          <div class="board-stats">
+            <div class="board-stat-tile"><div class="board-stat-val">${tv.length}</div><div class="board-stat-lbl">今日到訪</div></div>
+            <div class="board-stat-tile alert"><div class="board-stat-val">${pending.length}</div><div class="board-stat-lbl">待分配使徒</div></div>
+          </div>
+          <div class="board">
+            <div class="bcol queue">
+              <div class="bcol-hdr"><div class="bcol-title"><span class="bcol-dot"></span>候位中</div><div class="bcol-count">${queue.length}</div></div>
+              <div class="bcol-body">${renderQueue(queue)}</div>
+            </div>
+            <div class="bcol need">
+              <div class="bcol-hdr"><div class="bcol-title"><span class="bcol-dot"></span>待分配使徒</div><div class="bcol-count">${pending.length}</div></div>
+              <div class="bcol-body">${renderPending(pending)}</div>
+            </div>
+            <div class="bcol serve">
+              <div class="bcol-hdr"><div class="bcol-title"><span class="bcol-dot"></span>接待中</div><div class="bcol-count">${serving.length}</div></div>
+              <div class="bcol-body">${renderServing(serving)}</div>
+            </div>
+            <div class="bcol done">
+              <div class="bcol-hdr"><div class="bcol-title"><span class="bcol-dot"></span>今日已完成</div><div class="bcol-count">${done.length}</div></div>
+              <div class="bcol-body">${renderDone(done)}</div>
+            </div>
+          </div>
+        </div>
+        <button class="board-fab" onclick="openNewCustomerModal()">＋ 新增現場客戶</button>
+      `;
+    }
+
+    let _assignVisitId = null;
+    function openAssignApostle(visitId) {
+      _assignVisitId = visitId;
+      const summonable = APOSTLES.filter(a => a.tag !== '銀紗使' && a.tag !== '引路人');
+      const chips = summonable.map(a =>
+        `<button class="bchip" onclick="assignVisitApostle('${esc(a.name)}')">${esc(a.name)}${a.tag ? ` <span style="color:var(--dim);font-size:11px">${esc(a.tag)}</span>` : ''}</button>`
+      ).join('');
+      document.body.insertAdjacentHTML('beforeend', `
+        <div class="bpanel-overlay show" id="assign-apostle-overlay" onclick="if(event.target===this) this.remove()">
+          <div class="bpanel">
+            <div class="bpanel-hdr"><div class="bpanel-title">指定使徒</div><button class="bpanel-close" onclick="document.getElementById('assign-apostle-overlay').remove()">✕</button></div>
+            <div class="bstep-lbl">不指定但現在就知道由誰服務，選一下就好</div>
+            <div>${chips || '<div style="font-size:13px;color:var(--dim)">尚無可指定的使徒</div>'}</div>
+          </div>
+        </div>`);
+    }
+    function assignVisitApostle(apostleName) {
+      const v = visits.find(x => x.id === _assignVisitId);
+      if (!v) return;
+      v.apostleName = apostleName;
+      v.apostleTag = APOSTLES.find(a => a.name === apostleName)?.tag || '';
+      v.startedAt = Date.now();
+      save('pos_visits', visits);
+      document.getElementById('assign-apostle-overlay')?.remove();
+      if (currentNav === 'customer' && !activeId) showBoardPage();
+    }
+    function markVisitDone(visitId) {
+      const v = visits.find(x => x.id === visitId);
+      if (!v) return;
+      v.completedAt = Date.now();
+      save('pos_visits', visits);
+      if (currentNav === 'customer' && !activeId) showBoardPage();
+    }
+    function undoVisitDone(visitId) {
+      const v = visits.find(x => x.id === visitId);
+      if (!v) return;
+      v.completedAt = null;
+      save('pos_visits', visits);
+      if (currentNav === 'customer' && !activeId) showBoardPage();
+    }
+
+    // ────────────────────────────────────────────────────────────
     //  導航
     // ────────────────────────────────────────────────────────────
     let currentNav = 'customer';
@@ -2565,11 +2832,7 @@
       if (tab === 'customer') {
         activeId = null;
         renderSidebar();
-        document.getElementById('pos-content').innerHTML = `
-          <div class="pos-empty">
-            <div class="pos-empty-icon">✦</div>
-            <div class="pos-empty-text">搜尋或選擇客戶以查看資料</div>
-          </div>`;
+        showBoardPage();
       } else if (tab === 'roster')     showRosterPage();
       else if (tab === 'stats')        showStatsPage();
       else if (tab === 'activity')     showActivityPage();
