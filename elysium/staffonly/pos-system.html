@@ -2659,6 +2659,27 @@
       const idx = boardTodayGroups().indexOf(v.groupId);
       return ` data-group="${v.groupId}" style="--group-color:${BOARD_GROUP_COLORS[idx % BOARD_GROUP_COLORS.length] || 'var(--blue)'}"`;
     }
+    // 顯名儀（nomen30）指名時間：30 分鐘，接待中卡片顯示倒數條，提醒即將結束／已超時
+    const NOMEN_DURATION_MS = 30 * 60 * 1000;
+    function boardCountdown(v) {
+      if (v.mode !== 'nomen' || !v.startedAt) return '';
+      const remain = (v.startedAt + NOMEN_DURATION_MS) - Date.now();
+      const over = remain < 0;
+      const pct = Math.max(0, Math.min(100, (remain / NOMEN_DURATION_MS) * 100));
+      const abs = Math.abs(remain);
+      const mins = Math.floor(abs / 60000);
+      const secs = Math.floor((abs % 60000) / 1000);
+      const txt = (over ? '已超時 ' : '剩餘 ') + mins + ':' + String(secs).padStart(2, '0');
+      const barColor = over ? 'var(--red)' : (pct < 30 ? '#a8703a' : 'var(--blue)');
+      return `<div style="margin:.4rem 0">
+        <div style="background:var(--bg);height:4px;border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${barColor}"></div>
+        </div>
+        <div style="font-size:11px;color:${over ? 'var(--red)' : 'var(--dim)'};margin-top:.2rem">${txt}</div>
+      </div>`;
+    }
+    setInterval(() => { if (currentNav === 'customer' && !activeId) showBoardPage(); }, 20000);
+
     function boardGroupBtn(v) {
       return `<button class="btn btn-outline btn-sm" onclick="openGroupPicker('${v.id}')" title="標記同行到訪">${v.groupId ? '改同行' : '＋同行'}</button>`;
     }
@@ -2760,6 +2781,7 @@
           </div>
           <div class="vcard-pills">${boardPills(v)}</div>
           ${boardGroupBadge(v)}
+          ${boardCountdown(v)}
           <div class="vcard-foot">
             <div class="vcard-amount">${(v.total||0).toLocaleString()} Gil</div>
             <div style="display:flex;align-items:center;gap:.6rem">
